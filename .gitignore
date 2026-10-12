@@ -1,0 +1,34 @@
+# Manual snapshots from before this repo existed. Git replaces them — they are
+# left on disk deliberately until the history here is trusted, then deletable.
+index.html.bak-*
+
+# session working files, not part of the site
+scratchpad/
+
+.DS_Store
+node_modules/
+test-results/
+playwright-report/
+
+# Adversarial critiques OF THIS SITE, written to improve it. They stay on disk
+# and in your editor -- they are just not part of what a public repo hands to a
+# recruiter browsing it. Delete these two lines to ship them again.
+PANEL-REPORTS.md
+AUDIT.md
+
+# Dead design exploration (P1-P15, museum, finale studies). Kept on disk, not
+# published: 20 files served at HTTP 200 on Pages, three of which still carried
+# a superseded resume block. robots.txt only asks crawlers not to index them --
+# it does not stop anyone fetching them, and it never stopped them being wrong.
+prototypes/
+
+# Local notes and editor config. On disk, not published.
+.claude/
+CLAUDE.md
+
+# Internal build log and local notes. On disk, not published.
+NOTES.md
+# Local link to a private profile, read by tests/check-claims.py.
+.private/
+__pycache__/
+*.pyc
