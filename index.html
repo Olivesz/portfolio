@@ -197,16 +197,20 @@
      the page ("the last system i automated was me"), and it was set as uppercase
      mono in --muted: the same register as the chips, the kickers and the step
      counter, i.e. it read as a status label and got skipped. The serif italic is
-     already the page's "someone is talking" voice (see #hero .live), so the
+     the page's "someone is talking" voice, so the
      narration now uses it, at reading size and at reading contrast. Lowercase is
      kept deliberately -- it is the same voice the chapter headings use. */
-  #phase { left: 28px; bottom: 48px; text-shadow: 0 1px 10px rgba(10,11,20,0.95), 0 0 3px rgba(10,11,20,0.9);
-    font-family: var(--serif); font-style: italic; font-weight: 340;
-    font-size: clamp(15px, 1.5vw, 18.5px); letter-spacing: 0; text-transform: none;
-    color: #cfcadf; max-width: min(54ch, 58vw); line-height: 1.5;
-    padding: 8px 20px 8px 0; background: linear-gradient(90deg, rgba(10,11,20,0.86), rgba(10,11,20,0)); border-radius: 8px; }
+  #phase { left: 50%; right: auto; transform: translateX(-50%); bottom: 18vh; text-align: center;
+      text-shadow: none; font-family: var(--serif); font-style: italic; font-weight: 360;
+      font-size: clamp(16px, 1.75vw, 21px); letter-spacing: 0; text-transform: none;
+      color: #ebe7f6; max-width: min(62ch, 76vw); line-height: 1.45;
+      padding: 9px 22px; background: rgba(10,11,20,0.82); border-radius: 10px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05); }
+    /* ^ was bottom-LEFT at 15-18px behind a scrim that faded to nothing on the right,
+       usually over a busy canvas: readers missed it. Centred above the timeline, larger,
+       on a solid backdrop so it reads over anything. */
   #phase b { color: var(--ant); font-weight: 500; font-style: italic; }
-  #scrollHint { left: 50%; bottom: 56px; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--muted); animation: pulse 2.2s ease-in-out infinite; }
+  #scrollHint { left: 50%; bottom: 20px; transform: translateX(-50%); font-family: var(--mono); font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--muted); animation: pulse 2.2s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 0.3; } 50% { opacity: 0.9; } }
   #scrollHint.off { display: none; }
 
@@ -406,13 +410,13 @@
   @media (max-width: 760px) { #more { padding: 0 16px 8px; margin-top: 40px; } }
   #askbar { position: fixed; z-index: 30; top: 14px; right: 20px; pointer-events: auto;
     font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.08em;
-    opacity: 0.38; transition: opacity 0.25s; }
+    opacity: 0.38; transition: opacity 0.25s; margin-top: 32px; }
   #askbar:hover, #askbar:focus-within { opacity: 1; }
   #askbar a { color: #b9b6cc; text-decoration: none; border-bottom: 1px solid #43405a; padding-bottom: 1px; }
   /* #skip owns top-right at 14px and stays visible on a phone, so the ask landed
      directly on it -- measured overlap, not a guess. Dropping below keeps the
      corner association and the same find-it-if-you-look weighting. */
-  @media (max-width: 760px) { #askbar { font-size: 10px; right: 12px; top: 46px; } }
+  @media (max-width: 760px) { #askbar { display: none; } }   /* the idbar's email covers it */
   #idbar b { color: var(--ink); font-weight: 500; margin-right: 4px; }
   #idbar .nb { white-space: nowrap; }
   #idbar a { color: #b9b6cc; text-decoration: none; border-bottom: 1px solid #43405a; padding-bottom: 1px; }
@@ -444,7 +448,7 @@
 
     /* keeps its scrim on a phone: at serif reading size over the garden, a
        companion ant painted straight through "i'm oliver" */
-    #phase { bottom: auto; top: calc(var(--strip) + 4px); left: 14px; max-width: 84vw;
+    #phase { bottom: auto; top: calc(var(--strip) + 4px); left: 14px; transform: none; text-align: left; max-width: 84vw;
       font-size: 14px; line-height: 1.4; padding: 3px 18px 3px 0;
       background: linear-gradient(90deg, rgba(10,11,20,0.9) 62%, rgba(10,11,20,0)); }
     #rail { right: 10px; }
@@ -548,7 +552,6 @@
 <div class="hud" id="hero">
   <h1>Oliver <em>Zhang</em></h1>
   <p><span>cs @ ut austin</span> <span><i>&middot;</i> turing scholars &rsquo;28</span></p>
-  <div class="live">eighteen ants on five napkin rules are painting this page right now.</div>
   <div class="plant">click anywhere &mdash; plant one of your own</div>
 </div>
 <button id="skip" type="button">skip to summary &rarr;</button>
@@ -1140,9 +1143,14 @@
         acc += dt;
         var per = Math.min(240, dt * 4.5);           // fast enough to watch it grow
         for (var k = 0; k < ants.length; k++) for (var s = 0; s < per; s++) step(ants[k]);
-        if (acc > 260) {                              // decay balances growth: perpetual, never saturated
+        // Decay balances growth: perpetual, never saturated. It used to land as ONE 13%
+          // darkening every 260ms, which read as a visible pulse ~4x a second. Same decay per
+          // unit time in steps a quarter the size (0.87/260ms == 0.9658/65ms), so it reads as a
+          // continuous fade. Smaller still would stall: an 8-bit canvas cannot darken a dim
+          // pixel by less than one level, so tiny alphas leave a grey floor.
+        if (acc > 65) {
           acc = 0;
-          g.globalAlpha = 0.13; g.fillStyle = "#000";
+          g.globalAlpha = 0.0342; g.fillStyle = "#000";
           g.fillRect(0, 0, W, H); g.globalAlpha = 1;
         }
       }
@@ -4831,7 +4839,13 @@
       for (var qi = 0; qi < ok.length; qi++) ok[qi].tabIndex = outroOn ? 0 : -1;
     }
     var active = 0;
-    for (var ri = railDefs.length - 1; ri >= 0; ri--) if (pT >= railDefs[ri][1] - 0.02) { active = ri; break; }
+    // Light a station slightly early, but never by more than half the gap to the one
+    // before it: intro and chaos sit 0.01 apart, so a flat 0.02 lead lit chaos at the
+    // very top of the page and intro could never be the active station.
+    for (var ri = railDefs.length - 1; ri >= 0; ri--) {
+      var lead = ri ? Math.min(0.02, (railDefs[ri][1] - railDefs[ri - 1][1]) / 2) : 0;
+      if (pT >= railDefs[ri][1] - lead) { active = ri; break; }
+    }
     for (var rb = 0; rb < railBtns.length; rb++) {
       var isHere = rb === active;
       railBtns[rb].classList.toggle("on", isHere);
