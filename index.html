@@ -200,12 +200,17 @@
      the page's "someone is talking" voice, so the
      narration now uses it, at reading size and at reading contrast. Lowercase is
      kept deliberately -- it is the same voice the chapter headings use. */
-  #phase { left: 50%; right: auto; transform: translateX(-50%); bottom: 18vh; text-align: center;
+  #phase { left: 61.5%; right: auto; transform: translateX(-50%); bottom: 18vh; text-align: center;
       text-shadow: none; font-family: var(--serif); font-style: italic; font-weight: 360;
       font-size: clamp(16px, 1.75vw, 21px); letter-spacing: 0; text-transform: none;
-      color: #ebe7f6; max-width: min(62ch, 76vw); line-height: 1.45;
+      color: #ebe7f6; max-width: min(62ch, calc(114vw - 832px)); line-height: 1.45;
       padding: 9px 22px; background: rgba(10,11,20,0.82); border-radius: 10px;
       box-shadow: 0 0 0 1px rgba(255,255,255,0.05); }
+    /* Centred under the content PANEL (stageCX = 61.5% of the width), and capped at twice the
+       gap between the card's right edge (4.5vw + 400px) and that centre, so it can never land on
+       the card. Below ~1100px there is no room, so it returns to the left, under the card. */
+    @media (min-width: 761px) and (max-width: 1100px) {
+      #phase { left: max(28px, 4.5vw); transform: none; text-align: left; bottom: 48px; max-width: min(54ch, 58vw); } }
     /* ^ was bottom-LEFT at 15-18px behind a scrim that faded to nothing on the right,
        usually over a busy canvas: readers missed it. Centred above the timeline, larger,
        on a solid backdrop so it reads over anything. */

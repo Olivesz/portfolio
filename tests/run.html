@@ -397,15 +397,23 @@ async function suite() {
       // the LAST ink in the card, not the padded box: padding may legitimately
       // overhang, glyphs may not
       const kids = [...card.children];
-      const inkBottom = Math.max(...kids.map(k => k.getBoundingClientRect().bottom));
-      const gap = phase.getBoundingClientRect().top - inkBottom;
-      if (-gap > worst) { worst = -gap; worstId = card.id; }
+      // 2D, not vertical-only. This used to assert phase.top > inkBottom, which was right while the
+      // narrator sat directly UNDER the card. It now sits beside it, under the panel it narrates, so
+      // vertical overlap is expected and harmless; what must never happen is the two rectangles
+      // meeting. Penetration depth of the ink box into the narrator box grown by an 8px margin.
+      const ink = kids.map(k => k.getBoundingClientRect()).reduce((u, r) => ({ l: Math.min(u.l, r.left),
+        t: Math.min(u.t, r.top), r: Math.max(u.r, r.right), b: Math.max(u.b, r.bottom) }), { l: 1e9, t: 1e9, r: -1e9, b: -1e9 });
+      const ph = phase.getBoundingClientRect(), M = 8;
+      const ox = Math.min(ink.r, ph.right + M) - Math.max(ink.l, ph.left - M);
+      const oy = Math.min(ink.b, ph.bottom + M) - Math.max(ink.t, ph.top - M);
+      const pen = (ox > 0 && oy > 0 && ph.width > 0) ? Math.min(ox, oy) : -1;
+      if (pen > worst) { worst = pen; worstId = card.id; }
       const boxBottom = card.getBoundingClientRect().bottom;
       if (boxBottom > lowestBox) { lowestBox = boxBottom; lowestId = card.id; }
       const btn = card.querySelector(".branch");
       if (btn) tallest = Math.max(tallest, btn.getBoundingClientRect().height);
     }
-    ok(`card ink clears the phase caption at ${vw}x${vh}`, worst < 0,
+    ok(`card ink never meets the phase caption at ${vw}x${vh}`, worst < 0,
        `worst overlap ${Math.round(worst)}px (${worstId})`);
     // The structural half, and the one that actually catches a regression to
     // viewport-centring. Clearing the caption today is partly luck of the copy
