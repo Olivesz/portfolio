@@ -1,75 +1,70 @@
-# one ant. two rules.
+# portfolio
 
-Oliver Zhang's portfolio — a life story told through working systems, scrolled through
-a real cellular automaton.
+One self-contained HTML file. Scrolling steps a reversible Langton's ant: down
+runs it forward, up runs it backward. Its road leads from station to station,
+and each station is one project: a figure in the art, with a card of text. The
+page then pulls back to a map of the whole walk, followed by the résumé and an
+index of other work.
 
-**Live systems on the page** (all deterministic, all real): a reversible Langton's ant
-(the scrollbar runs time in both directions), companion turmites, a Gosper glider gun,
-simulation-verified Wireworld logic (clock / XOR / half-adder), an abelian sandpile,
-and a 3-state 3D turmite. The market candles are the ant's own chaos walk re-read as
-prices.
+`index.html` carries everything: markup, styles, script, the two webfonts as
+inline woff2, and the facts block every figure is sourced from. No build step,
+no external requests at load.
 
-**Structure**: a vertical spine of eight chapters (emergence → houston → machinery →
-language → markets → impact → voice → life os), ending in a finale where the ant's
-own trail becomes the resume. Every chapter can be *branched into* — a side-highway
-with a title card and 3–4 deep panels per project. Deep links: `#emergence`
-`#computation` `#language` `#markets` `#impact` `#voice` `#life`.
-
-**The finale runs on a clock, not on scroll.** Every other scene is a state you can
-hold anywhere; a transformation frozen half-way just looks broken. Scroll decides
-which way it plays, never how far along it is, and the page is held for exactly as
-long as it runs. The resume you read is the same document the particles are made of —
-the raster is measured from the live DOM, so the two cannot drift apart.
-
-## Run
-
-Open `index.html`, or serve the folder:
+## Run locally
 
 ```bash
 python3 -m http.server 8137
+# open http://localhost:8137/
 ```
 
-One file, no build step. `three` is vendored in `vendor/` rather than pulled from a
-CDN — it *is* the finale, and a CDN failure would have removed it silently. Webfonts
-are vendored in `vendor/fonts/` as subsetted woff2 and degrade to system stacks — no
-third-party request at load.
+Opening `index.html` from disk works too.
+
+## Scroll contract
+
+Three drivers, no more:
+
+1. **Scroll position** drives progress as pure functions of a smoothed scroll
+   value: the ant's step, the camera's position and pitch, and each beat's
+   scrubbed variable. Scrolling back plays everything back exactly.
+2. **Thresholds** trigger clips: a station building or leaving, a beat added, a
+   label fading. A clip reads raw scroll with hysteresis, always finishes, and
+   only one runs at a time. A new trigger jumps the running clip to its end.
+3. **The wall clock** drives only ants a visitor plants and a control the
+   visitor is touching.
+
+The frame loop stops when nothing moves.
+
+Native scrolling is never taken over. The page has no wheel, touch or key
+listeners. Its one scroll listener is passive: it reads `scrollY` and wakes the
+frame loop. The page scrolls itself only inside a click handler. There are no inner scrollers and no
+horizontal overflow. Every 100px wheel notch advances the page, and the top to
+the last résumé line takes at most 105 notches on desktop and 115 on a phone.
+
+The page exposes a read-only `window.__walk` for the tests.
+[tests/HOOKS.md](tests/HOOKS.md) is that contract.
 
 ## Test
 
 ```bash
-python3 -m http.server 8137 && open http://localhost:8137/tests/run.html
+python3 -m venv .venv
+.venv/bin/pip install -q playwright
+.venv/bin/python -m playwright install chromium
+
+PYTHONDONTWRITEBYTECODE=1 .venv/bin/python tests/contract.py   # scroll and design contract, headless Chromium
+python3 tests/check-claims.py                                  # no retired claim or personal data in a tracked file
+python3 tests/check-panels.py                                  # every figure is in the source line it cites
+python3 tests/check-links.py                                   # links resolve; add --net to check them online
 ```
 
-Results are also on `window.__TESTS` / `window.__DONE`
-so a CI driver only needs to load the page and read two globals. Every assertion has
-been falsified against a deliberately reverted fix — see [tests/README.md](tests/README.md),
-which also documents the two assertions that once passed against broken code.
+`contract.py` serves the repo on a free port, prints one `PASS`/`FAIL` line per
+assertion and viewport, and exits 1 on any failure. `--list` names the
+assertions; `--only` and `--viewport` narrow a run. The three guards read files
+and their sources without running the page. [tests/README.md](tests/README.md)
+covers what each assertion measures and how each was made to fail on purpose.
 
 ## Deploy
 
-Any static host. For GitHub Pages: Settings → Pages → deploy from branch, root.
-`poster.jpg` is the og:image referenced from the page head; `robots.txt` allows
-ordinary search indexing while opting out of AI training crawlers.
-
-## Dev
-
-`window.__lab` drives the page headlessly:
-
-| | |
-|---|---|
-| `jump(p)` | settle at scroll position `p` (0–1) |
-| `tickTo(p, frames, dt)` | emulate the live loop for `frames` at `dt` ms |
-| `finBeat(t, p)` / `finFree()` | pin the finale's clock at `t` for inspection / release it |
-| `fin()` | finale clock state: `t`, `dir`, `lock`, band bounds |
-| `scrollMap()` | scroll length vs the document's real scrollable height |
-| `branchTo(id, q)` / `exitBranch()` | enter/leave a chapter branch |
-| `roam(on)` | the free-roam mode |
-
-`window.__GL3.inkRect()` returns where the formed resume lands on screen, which is how
-registration against the DOM sheet is asserted rather than eyeballed.
-
-The reasoning behind each version is kept out of this repository on purpose:
-the build log named private sources and internal paths, so it is not published.
-What ships instead is enforcement — `tests/run.html`,
-`tests/check-claims.py`, `tests/check-panels.py` and `tests/check-links.py`,
-each falsified against a deliberately broken build.
+GitHub Pages, from `main`, at the root. `poster.jpg` is the link-preview image
+named in the page head. `robots.txt` allows search indexing, opts out of
+training crawlers, and points at `sitemap.xml`. `resume.pdf` is the résumé the
+page links to.

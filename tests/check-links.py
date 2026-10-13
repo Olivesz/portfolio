@@ -1,27 +1,26 @@
 #!/usr/bin/env python3
-"""Every outbound link resolves, and every repo chip matches reality.
+"""Every outbound link resolves, and every linked repo is public.
 
-Repo visibility DRIFTS. casecraft was public in the morning and private by the
-afternoon of the same day. Two failure modes follow, and both are silent:
-
-  - a link to a repo that has gone private 404s for every visitor while looking
-    fine to the owner, who is logged in;
-  - a "private" chip on a repo that has since been made public hides real work
-    behind a dead end. That happened to `emergence` -- a Wireworld CPU, public,
-    advertised on this site as private, for days.
+Repo visibility can change after a link is written. A link to a repo that has
+gone private 404s for every visitor while looking fine to the owner, who is
+logged in, so visibility is read from GitHub on every run.
 
 Checks, in order of how much they cost when wrong:
   1. every https link in index.html returns < 400
   2. every Olivesz repo LINKED here is actually public
-  3. every repo named in a "private" chip is actually private
-  4. no repo named in the copy is public-but-unlinked (a soft warning: a named
+  3. no repo named in the copy is public-but-unlinked (a soft warning: a named
      project a reader cannot reach is a wasted mention)
+  4. resume.pdf names github.com/Olivesz, and its contacts are links (mailto,
+     linkedin, github): a PDF read on screen should open what it names, and the
+     printed sheet on the page carries the same three
 
   python3 tests/check-links.py            # skips network unless --net
   python3 tests/check-links.py --net      # also fetches every link
+  python3 tests/check-links.py --resume-pdf other.pdf   # check another PDF build
 """
 import json
 import pathlib
+from html import unescape
 import re
 import subprocess
 import sys
@@ -30,15 +29,9 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 INDEX = ROOT / "index.html"
 OWNER = "Olivesz"
 
-# Named in the copy on purpose but deliberately not linked, with the reason.
+# Public repos named in the copy on purpose but deliberately not linked, with the
+# reason. Only public repos are ever checked against this list.
 ALLOW_UNLINKED = {
-    "casecraft": "private repo; named in prose as a sibling project",
-    "vitals": "private repo",
-    "claudio": "private repo",
-    "copytrader": "private repo",
-    "lifeos-scheduler": "private; represented by the life os private chip",
-    "usit-diligence-pipeline": "private; represented by the impact private chip",
-    "charformer": "private; represented by its own named chip",
     "portfolio": "this repo",
 }
 
@@ -55,23 +48,44 @@ def gh_visibility(name):
         return None
 
 
+def resume_pdf_problems(pdf):
+    """The tracked PDF's header: github.com/Olivesz in its text, and a link
+    under each contact. Needs poppler (pdftotext, pdfinfo); a missing tool fails."""
+    import shutil
+    if not pdf.is_file():
+        return [f"{pdf} is missing"]
+    tools = {t: shutil.which(t) for t in ("pdftotext", "pdfinfo")}
+    if not all(tools.values()):
+        return ["pdftotext/pdfinfo not installed, so the résumé PDF cannot be read"]
+    text = subprocess.run([tools["pdftotext"], str(pdf), "-"], capture_output=True,
+                          text=True, timeout=60).stdout
+    rows = subprocess.run([tools["pdfinfo"], "-url", str(pdf)], capture_output=True,
+                          text=True, timeout=60).stdout.splitlines()
+    uris = [r.split()[-1] for r in rows[1:] if r.split()[1:2] == ["Annotation"]]
+    bad = []
+    if f"github.com/{OWNER}" not in text:
+        bad.append(f"{pdf.name} text has no github.com/{OWNER}")
+    want = {"mailto": lambda u: u.startswith("mailto:"),
+            "linkedin": lambda u: "linkedin.com/in/" in u,
+            "github": lambda u: u.rstrip("/") == f"https://github.com/{OWNER}"}
+    for name, ok in want.items():
+        if not any(ok(u) for u in uris):
+            bad.append(f"{pdf.name} has no {name} link")
+    if len(uris) < 3:
+        bad.append(f"{pdf.name} has {len(uris)} link(s), needs at least 3")
+    return bad
+
+
 def main():
     net = "--net" in sys.argv
     html = INDEX.read_text()
     fail = warn = 0
 
-    links = sorted(set(re.findall(r'href="(https://[^"]+)"', html)))
+    # an href is fetched as the browser resolves it: &amp; is &
+    links = sorted({unescape(u) for u in re.findall(r'href="(https://[^"]+)"', html)})
     repo_links = sorted({m for m in re.findall(
         rf'https://github\.com/{OWNER}/([a-z0-9._-]+)', html)})
-    # a chip reads like: <span class="privrepo" ...>NAME · private</span>
-    # data-repo, not the visible label. The label is for a reader ("usit
-    # pipeline"); the guard needs the repo name. Guessing one from the other is
-    # how a chip becomes unverifiable, which is the state emergence hid in.
-    chips = re.findall(r'class="privrepo"\s+data-repo="([^"]+)"', html)
-    unnamed = len(re.findall(r'class="privrepo"(?![^>]*data-repo=)', html))
-
-    print(f"link guard: {len(links)} outbound links, {len(repo_links)} repos linked, "
-          f"{len(chips)} private chips\n")
+    print(f"link guard: {len(links)} outbound links, {len(repo_links)} repos linked\n")
 
     if net:
         import urllib.request
@@ -112,21 +126,6 @@ def main():
         else:
             print(f"  ok    {name} linked, public")
 
-    if unnamed:
-        print(f"  FAIL  {unnamed} private chip(s) carry no data-repo — unverifiable")
-        fail += unnamed
-    for name in chips:
-        vis = gh_visibility(name)
-        if vis == "PUBLIC":
-            print(f"  FAIL  chip says {name!r} is private, but that repo is PUBLIC — "
-                  f"real work hidden behind a dead end")
-            fail += 1
-        elif vis is None:
-            print(f"  FAIL  chip claims {name!r} but no such repo exists")
-            fail += 1
-        else:
-            print(f"  ok    chip {name!r} genuinely {vis}")
-
     try:
         listing = subprocess.run(
             ["gh", "repo", "list", OWNER, "--limit", "80", "--json", "name,visibility"],
@@ -136,17 +135,28 @@ def main():
     except Exception:
         pub = []
     for name in pub:
-        if name in repo_links or name in ALLOW_UNLINKED:
+        # the profile repo is named after the account, which every github.com/Olivesz link spells out
+        if name in repo_links or name in ALLOW_UNLINKED or name.lower() == OWNER.lower():
             continue
         if re.search(rf'\b{re.escape(name)}\b', html, re.I):
             print(f"  warn  {name} is public and named in the copy but never linked")
             warn += 1
 
+    pdf = ROOT / "resume.pdf"
+    if "--resume-pdf" in sys.argv:
+        pdf = pathlib.Path(sys.argv[sys.argv.index("--resume-pdf") + 1])
+    probs = resume_pdf_problems(pdf)
+    for b in probs:
+        print(f"  FAIL  {b}")
+    if not probs:
+        print(f"  ok    {pdf.name} names github.com/{OWNER} and links its three contacts")
+    fail += len(probs)
+
     print()
     if fail:
         print(f"FAIL — {fail} problem(s), {warn} warning(s).")
         return 1
-    print(f"PASS — links and repo chips all match reality. {warn} warning(s).")
+    print(f"PASS — links resolve and every linked repo is public. {warn} warning(s).")
     return 0
 
 

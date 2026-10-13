@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
-"""Guard against claim rot.
+"""Phrasings this site must not state, and personal data it must not carry.
 
-Why this exists: every factual number on this site is COPIED from another repo,
-and nothing checked the copies. Over eleven days that produced, simultaneously:
-a capability claim the source project documents as not achieved; a headline
-Sharpe that the source labels `baseline (bug, cap 1.0)`; a gate count three
-revisions old; a citation figure the curation doc had already retired as wrong;
-and an authorship credit the source README explicitly contradicts.
-
-The resume source has its own truth check, but it guards the resume
-and does not know this site exists. This is the missing half.
+Every tracked file is scanned. RETIRED lists patterns, each with a note on what
+not to state and which source governs the figure or wording instead. Patterns
+that would themselves disclose something (an employer's internal names and
+figures, a private repository's name or internals) are read at run time from a
+gitignored file, never written here. Personal data is checked the same way.
 
 Run:  python3 tests/check-claims.py
-Exit: 0 clean, 1 if any retired claim has come back.
+Exit: 0 clean, 1 if a retired phrasing or personal data is found, or if either
+private source could not be read.
 
-Adding a rule is cheap. When a claim is corrected, add the OLD string here so it
-cannot silently return.
+To retire a phrasing, add its pattern with a note naming the governing source,
+here if the pattern is safe to publish, in the private file if it is not.
 """
 import json
 import pathlib
@@ -25,70 +22,65 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-# (pattern, human reason). Matched case-insensitively against every shipped file.
+# (pattern, note). Matched case-insensitively against every tracked file except this one.
+# Only patterns safe to publish live here; see PRIVATE_RETIRED for the rest.
 RETIRED = [
-    (r"safe abstention",
-     "IBM: the source project's FAQ documents abstention as NOT achieved -- "
-     "answer accuracy unmeasured, no confidence score emitted."),
-    (r"written by hand|hand-written transformer",
-     "charformer: its own README says the implementation was not written by him. "
-     "The spec was; the code was not."),
     (r"sharpe 0\.94|0\.94.{0,24}net sharpe|net sharpe.{0,24}0\.94",
-     "KRONOS: 0.94/-14% is the row FINDINGS.md labels `baseline (bug, cap 1.0)`. "
-     "The shipped figure is 1.07 at -17.9%."),
+     "KRONOS: the Sharpe is README.md's shipped run, 1.07 at -17.9%. FINDINGS.md labels "
+     "0.94 a baseline row."),
     (r"30 CI gates|30 gates in CI",
-     "KRONOS: GATES in tests/run_all.py has 39 entries. Count the AST, not the lines."),
+     "KRONOS: the gate count is README.md's (41: 39 synthetic, 2 real-market), counted "
+     "from GATES in tests/run_all.py."),
     (r"22 pre-registered",
-     "KRONOS: the README says 28 pre-registered experiments."),
-    # NB: the first version of this pattern was literally "40\+ citations" and
-    # sailed straight past "40+ IEEE citations" in a bento stat -- a screenshot
-    # caught it, not the guard. Allow words between the number and the noun.
-    # No citation COUNT at all, in any phrasing. OpenAlex reads 32 for the IEEE
-    # IPCCC paper; 58 is a Google Scholar figure nobody has reproduced, and he is
-    # 5th of 6 authors -- a number invites the reader to open the paper, where what
-    # they notice is the author list. "Published coauthor" survives being checked.
-    # The plural was load-bearing and should not have been. This pattern read
-    # `held-out[^.\n]{0,20}days` and therefore MISSED "held-out backtest day",
-    # which is live in the resume upstream right now. A control string caught it;
-    # without one, a clean scan of that file would have proved nothing. Match the
-    # singular too, and do not require a noun to follow at all.
+     "KRONOS: README.md governs the count of pre-registered experiments."),
+    # held-out: singular and plural, with or without a following noun
     (r"seashells[^.\n]{0,30}held-out|held-out[^.\n]{0,20}days?\b|held-out\s+backtest",
-     "IMC: the README says the figure is a fresh run of the BACKTEST script. "
-     "'held-out days' reads as live out-of-sample. Fixed in two panels first and "
-     "missed in the card prose -- pin all phrasings, not the ones you happened to see."),
+     "IMC: README.md describes the figure as a run of the backtest script. Do not "
+     "describe it as held-out or out of sample, in any phrasing."),
+    # any citation count, with words allowed between the number and the noun
     (r"\d+\s*(\+|×|x)?\s*(IEEE\s+)?citations|cited\s+\d+\s*(×|x)|citations at 17",
-     "IPCCC: CURATION.md retired the unqualified '40+' -- false against Semantic "
-     "Scholar's 38, understates Google Scholar's 58. A count needs its index named. "
-     "'at 17' also composes a 2023 paper with a 2026 count."),
-    # --- branch-panel claims, retired 2026-08-19 after a 28-panel audit ---
-    (r"architecturally impossible for the candidate to read|cannot read what you are supposed to hear",
-     "casecraft: server.py says the case is 'spoken in voice mode, PRINTED IN TEXT MODE', so "
-     "the candidate can read it. The real guarantee is that the case never crosses MCP to Claude."),
+     "Publications: state no citation count in any phrasing. A count depends on the "
+     "index that produced it; the paper is listed as coauthored."),
     (r"building in public|dated public commit",
-     "charformer's repo is PRIVATE (gh: visibility PRIVATE; README: 'The repo is private for "
-     "that reason'). The checkpoints are dated commits, not public ones."),
-    (r"of my own messages",
-     "The persona corpus is a CONVERSATION history: both sides are in the 262k. "
-     "'my own chat history' is accurate; 'my own messages' is not."),
+     "A private repository's commits are not public; do not describe them as such."),
     (r"the SAME maze|cells explored on the same maze",
-     "The five maze solvers each build their own maze -- different size, braid factor and "
-     "random endpoints (emergence/index.html:554,612,655). There is no shared control."),
+     "emergence: each maze solver builds its own maze (index.html:554,612,655); do not "
+     "claim a shared maze."),
     (r"~/Projects|/Users/",
-     "A local path, in a file a scraper can read: it says where private material lives.\n"
-     "The private repo's NAME is checked at runtime, never written here -- see main()."),
+     "A local path in a published file says where private material lives.\n"
+     "The private repository's name is checked at run time, never written here (see main())."),
     (r"work authorization",
-     "EEO-adjacent. Fine on a resume sent to one employer, not on a scrapeable file."),
+     "Not stated in public files. A résumé sent to one employer may carry it."),
+    (r"complexity was never in the rules",
+     "Copy does not explain the art's significance."),
+    (r"the walk took one path",
+     "The colophon is exactly 'Source: github.com/Olivesz/portfolio.'"),
+    (r"live simulation",
+     "The art carries no frame labels and no captions about itself."),
+    (r"what you[’']re seeing",
+     "Instruction lines say what to watch; they do not narrate the art."),
+    (r"(?<![\d.])1\.05(?!\d)",
+     "KRONOS: the page states one Sharpe, 1.07, from the run behind the results table. "
+     "A second Sharpe beside it reads as two answers to one question."),
+    (r"[−\-–]\s?16\.5\s?%",
+     "KRONOS: the page states one drawdown, -17.9%, from the same run as the table."),
+    (r"best\s+paper",
+     "IARIA GREEN 2023: list the paper as a coauthored publication with no award. The "
+     "conference's own page governs."),
 ]
 
-# PERSONAL DATA IS CHECKED AGAINST A PRIVATE SOURCE AT RUNTIME, NEVER WRITTEN HERE.
-# This file is served publicly by GitHub Pages. For seven weeks it held the phone
-# number's digit groups as a regex -- the guard meant to keep the number off the site
-# was publishing it, in every commit since this repo's first. A hash would not have
-# fixed that: a ten-digit number brute-forces in hours. So the number lives only in
-# a private profile, reached through the gitignored link .private/profile.json and
-# read when this runs. If that link is missing
-# the run FAILS rather than skipping -- an unchecked PII guard is not a passing one.
+# PERSONAL DATA IS CHECKED AGAINST A PRIVATE SOURCE AT RUN TIME, NEVER WRITTEN HERE.
+# This file is published, so it holds no personal data in any form, hashed included:
+# a ten-digit number is recovered from its hash by brute force in hours. The number
+# is read from a private profile through the gitignored link .private/profile.json.
+# If that link is unreadable the run FAILS rather than skipping: an unchecked
+# personal-data guard is not a passing one.
 PRIVATE_PROFILE = ROOT / ".private" / "profile.json"   # gitignored; points outside the repo
+# Patterns that cannot be published, as {"retired": [{"pattern", "note"}], "controls": [...]}.
+# Gitignored. Unreadable or malformed means the run FAILS, as with the profile.
+# Each control is a string no private pattern may match: a pattern that does is
+# too broad, and the run says so instead of over-reporting quietly.
+PRIVATE_RETIRED = ROOT / ".private" / "retired.json"
 WINDOW = 60   # the groups must sit near each other: a 300KB page has many short numbers
 
 
@@ -100,6 +92,19 @@ def private_numbers():
         return None
     d = re.sub(r"\D", "", str(prof.get("phone", "")))[-10:]
     return [d] if len(d) == 10 else []
+
+
+def private_retired():
+    """(pattern, note) pairs from the private file, or None if it is unusable."""
+    try:
+        data = json.loads(PRIVATE_RETIRED.read_text())
+        pairs = [(e["pattern"], e["note"]) for e in data["retired"]]
+        controls = list(data.get("controls", []))
+        for pat, _ in pairs:
+            re.compile(pat)
+    except (OSError, KeyError, TypeError, ValueError, re.error):
+        return None, None
+    return (pairs or None), controls
 
 
 def leaks(text, d):
@@ -116,9 +121,8 @@ def leaks(text, d):
     return False
 
 
-# "Shipped" means TRACKED, not "on disk". The first version of this script walked
-# the working tree and drowned in .bak-* snapshots and gitignored internal docs --
-# 132 hits, none of them published. Ask git what actually leaves the machine.
+# "Shipped" means TRACKED, not "on disk": local snapshots and gitignored notes are
+# never published, so git is asked which files leave the machine.
 SKIP_SUFFIX = {".pdf", ".jpg", ".png", ".woff2", ".ico"}
 SKIP_PARTS = {"vendor"}
 
@@ -142,6 +146,16 @@ def shipped_files(include_self=False):
 def main():
     failures = []
     checked = 0
+    hidden, controls = private_retired()
+    if hidden is None:
+        print(f"FAIL private retired patterns could not be read: {PRIVATE_RETIRED}\n"
+              f"     Refusing to report clean on a check that did not execute.")
+        return 1
+    for c in controls:
+        if any(re.search(p, c, re.I) for p, _ in hidden):
+            print(f"FAIL a private pattern matches its own control string (index "
+                  f"{controls.index(c)}); it is too broad.")
+            return 1
     for path in shipped_files():
         try:
             text = path.read_text(encoding="utf-8", errors="ignore")
@@ -158,11 +172,16 @@ def main():
         print(f"FAIL personal-data check could not run: {PRIVATE_PROFILE} unreadable.\n"
               f"     Refusing to report clean on a check that did not execute.")
         return 1
-    # NOT shipped_files(): that skips THIS file, and this file is exactly where the
-    # number leaked. Retired-claim patterns may quote themselves; personal data may not.
+    # This file is included here: retired-claim patterns may quote themselves in it,
+    # personal data may not appear in it any more than anywhere else.
     private_repo = PRIVATE_PROFILE.resolve().parents[1].name
     for path in shipped_files(include_self=True):
         t = path.read_text(encoding="utf-8", errors="ignore")
+        # private patterns are matched in this file too: quoting one here is the leak
+        for pattern, reason in hidden:
+            for m in re.finditer(pattern, t, re.I):
+                line = t.count("\n", 0, m.start()) + 1
+                failures.append((path.relative_to(ROOT), line, m.group(0), reason))
         # the private repo's name, derived from where the gitignored link points, so
         # this public file never has to spell it -- spelling it is the leak it prevents
         if re.search(re.escape(private_repo), t, re.I):
@@ -173,13 +192,13 @@ def main():
                              "Personal phone number, in some format. Value withheld."))
 
     print(f"claim guard: {checked} files checked, {len(RETIRED)} retired claims, "
-          f"{len(nums)} private number(s) checked\n")
+          f"{len(hidden)} private retired claims, {len(nums)} private number(s) checked\n")
     if not failures:
-        print("PASS - no retired claim has returned.")
+        print("PASS - no retired claim or personal data found.")
         return 0
     for rel, line, hit, reason in failures:
         print(f"FAIL {rel}:{line}\n  matched: {hit!r}\n  why:     {reason}\n")
-    print(f"{len(failures)} occurrence(s) of retired claims.")
+    print(f"{len(failures)} occurrence(s) of retired claims or personal data.")
     return 1
 
 
