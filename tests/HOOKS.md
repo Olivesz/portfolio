@@ -12,7 +12,7 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 | hook | type | contract |
 |---|---|---|
 | `sceneId(s)` | fn → string | `'landing'` if and only if `s < 0.03`. `'chaos'` for the chaos beat, `'lock'` for the lock beat. During chapter k's hold `[A_k, E_k)` it returns that chapter's id, the same id used in `stations` and `cards()`. `'pull-back'` on `[PULL, MAPS)`, `'map'` on `[MAPS, DOCS)`, `'document'` after that. Other values, such as transits, are free. |
-| `stepAt(s)` | fn → int | The ant's step at `s`. Non-decreasing in `s`; 0 on the landing. |
+| `stepAt(s)` | fn → int | The ant's step at `s`. Non-decreasing in `s`. On the landing it is the intro clock: 0 to 1,100 over 2.5 s after load (1,100 at once under reduced motion); the scroll walk goes on from 1,100. |
 | `S()` | fn → px | One screen: the height of the fixed `100lvh` probe the page itself uses. |
 | `stations` | array | `[[id, A, E], ...]` in page order. `A` is the hold start (the card reaches its sticky top) and `E` the hold end, in screens. An optional 4th element lists beat start positions: `[id, A, E, [b0, b1, ...]]`. |
 | `view()` | fn → object | `{pp, k, half, dpr, step, Ox, Oy}` for the last drawn frame. `pp` is device px per drawn cell (an integer), `k` is world cells per drawn cell (1, or 2 when decimated), `step` is the step actually drawn, and `Ox`/`Oy` are the world origin in device px. |
@@ -42,7 +42,23 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 | `figure()` | fn → object or null | Null when no station is current. Otherwise `{id, cells, art}`; `cells` is null while the current figure has drawn nothing yet (the suite then requires cells at another sample of the same hold). `cells` is the union box of every figure cell drawn in this frame, across all beats on screen, with labels excluded. `art` is the region where a cell draws at full density: inside the canvas clip, below the strip, above the caption row, and on desktop right of the dithered edge. |
 | `selfChecks()` | fn → array | `[{id, ok, got, want}]`, computed at boot and stable after it. These ids are required, and their `got` is compared with answers the suite knows independently: `'nand'` → `[1,1,1,0]` (outputs for 00, 01, 10, 11, each read from the output cell); `'em'` → `[14,7,2,0]` (mismatched blocks after EM passes 1 to 4); `'kronos-dd'` → `-17.9` (max drawdown recomputed from the 54-quarter series, in percent, which must round to −17.90); `'lock'` → the LOCK computed in the page, which the suite recomputes from the rule itself (9976 for stepF as it stands). Other ids are allowed and must be `ok`. Any control owned by a check carries `data-check="<id>"`; when that check fails, no element with that attribute may remain. |
 | `handoff()` | fn → object or null | `{el, s}`. `el` is the 8px DOM square that leads the bookend line. `s` is the scroll position, in screens, at which the canvas stops drawing the ant and the square carries it. `s` is null for the static fallback on narrow screens. |
-| `resumeLast()` | fn → Element | The element holding the last line of the résumé. It sets the end of the notch count. |
+| `resumeLast()` | fn → Element | The résumé page box (`#resume .rv-page`), whose bottom is the last line of the résumé. It sets the end of the notch count. The text copy beside it is 1px sr-only and is never the answer. |
+
+## Station playback
+
+Station beats play on a clock from the station's arrival; scrolling never scrubs them. The `stations` hook's 4th
+element now lists the arrival for every beat, since beats no longer have scroll positions.
+
+| hook | type | contract |
+|---|---|---|
+| `playback(id)` | fn → object or null | `{state, p, bi, t, ms, lead, seen, replay}`. `state` is `'idle'` (not yet reached), `'playing'`, `'done'` or `'held'` (an input took over). `p` is 0..1 across the station's beats; `bi` the beat shown; `t` ms on the clock (negative during the lead, null unless playing); `ms` the clock's length and `lead` the build clip it waits for, so a playback finishes within `lead + ms` of the arrival. `seen` turns true once it has finished or been taken over; `replay` is whether the replay button shows. |
+| `replay(id)` | fn → bool | The one hook that acts: what the station's replay button does. False under reduced motion. |
+| `play()` | fn → object | The per-station table, `{id: {keys, ms, lead, hold, live}}`. `keys` are `[ms, p]` pairs, piecewise linear; `hold` is the hold's length in screens; `live` the `p` window per layout (`desk`, `phone`) in which the station's input is live. |
+
+Rules the page keeps: the first arrival from either side plays; leaving mid-play (above the arrival or past the hold)
+snaps to the end state; any later arrival shows the end state. Touching or focusing an input stops the clock at the end
+of its `live` window (`held`). Reduced motion shows the end state at once and hides replay. The loop stops once no
+clock runs.
 
 ## Cells
 
@@ -77,10 +93,10 @@ reads them directly:
 
 - **Reading zone:** desktop y 96 to h−40; phone from 52svh to h. A card or the hero must overlap it by at least 24px (one line) at every scroll position from 0 to `PULL`. The pull-back and the map hold are exempt.
 - **The card being read during a hold** is the one stuck at its sticky top (its computed `top`: 96 on desktop, the phone band's top + 16 on a phone), not the one with the most overlap. A card that scrolls natively, because it is too tall for the phone text band, is never stuck; for it the overlap rule decides.
-- **Pink:** in the chaos, world cells through `cellTok`/`cellAt`, counted where the drawn cell is on screen showing its own token; at least 95% of lit cells are trail-family. At a hold, pink is a visual share: bright `--trail` pixels in a screenshot of the whole viewport (canvas, DOM and native layers together, the ant's head trail included) are at most 1.5% of its area. Nothing is exempt: a figure's own `--trail` counts as much as the road's.
+- **Pink:** in the chaos, world cells through `cellTok`/`cellAt`, counted where the drawn cell is on screen showing its own token; at least 95% of lit cells are trail-family, or vivid cells the ant itself lit (`cellAt().lit`) before the lock resolves. At a hold the ant's own cells carry no vivid token, and pink is a visual share: bright `--trail` pixels in a screenshot of the whole viewport (canvas, DOM and native layers together, the ant's head trail included) are at most 1.5% of its area. Nothing is exempt: a figure's own `--trail` counts as much as the road's.
 - **Phone art band** for the text-pixel test: y 40 to 52svh−44. The caption row below it may hold the instruction line and the step counter. The test makes DOM and SVG text transparent and diffs screenshots, so text rendered under the opaque band does not count. A native layer's own labels are allowed inside that layer's box.
 - **The canvas ant is the only `#ffffff` pixel** on the art canvas. The handoff test finds it by colour.
-- **Tokens and sizes:** the colour table, `{72, 40, 15, 13, 11, 44, 30}` for DOM text and 11 or 13 for art-canvas text. `:root` must define all 13 tokens by their spec names (`--void` … `--rule`). Pink (`--trail` and the other two trail steps) may not appear in DOM colours, with two exceptions: the handoff square's halo `box-shadow`, which may use `--trail` at alpha, and `--trail` inside a native figure layer.
+- **Tokens and sizes:** the colour table, `{72, 40, 15, 13, 11, 44, 30}` for DOM text and 11 or 13 for art-canvas text. `:root` must define all 19 tokens by their names (`--void` … `--rule`, then `--v-red` … `--v-violet`). Pink (`--trail` and the other two trail steps) may not appear in DOM colours, with two exceptions: the handoff square's halo `box-shadow`, which may use `--trail` at alpha, and `--trail` inside a native figure layer.
 - **Canvas:** every `drawImage` onto an on-screen canvas lands at an integer device offset and an integer scale ≥ 1, with smoothing off when it scales. Every `fillRect` uses whole device pixels, whatever the transform. Every `fillStyle`/`strokeStyle` is an opaque token. Every `putImageData` value is a packed opaque token or `0`. Gradient stops may only be `--trail` (the halo). Any `shadowBlur > 0` or canvas `filter` fails.
 - **Input:** no `wheel`, `touch*` or `key*` listener on any target, including `on*` properties and inline attributes. Keyboard control of the KRONOS handle therefore has to come from a native element (`<input type="range">`), never a `keydown` listener. Planting uses a passive `pointerdown` or a `click`.
 - **Scrolling:** the page may call `scrollTo`, `scrollBy`, `scrollIntoView` or set `scrollTop` only inside a click handler.
@@ -107,7 +123,7 @@ Chromium to read the native figure layers' labels.
 3. **Regions:** check-panels aborts if any of these is empty. Every figure found in them must be covered, either by an enclosing `data-src` element (DOM) or by a FACTS `v` whose `ctx` word is in the same string (script strings).
    - hero line: `<p class="rec">`, the record line under the name
    - cards: `<article … class="… card …">` elements
-   - work rows: `<li class="row">` inside `<section id="work">` (all the work: one row per project)
+   - work highlights and more-rows: `<li class="k-card">` and `<li class="k-mrow">` inside `<section id="work">` (all the work: a project's line repeats in each theme it belongs to and in its own pane, each copy with the same `data-src`)
    - instruction lines: string literals that are the value of an `instruction:` key in the script
    - map, trail and figure labels: string literals that are the value of a `label:`, `labels:`, `short:`, `phoneLabel(s):` or `caption(s):` key (a string or an array of strings)
    - native figure labels: the text inside every native layer, read at eight points of each station's hold on a desktop and a phone viewport. `--static` skips the render and says so.
@@ -116,13 +132,26 @@ Chromium to read the native figure layers' labels.
 
 ## All the work (markup the suite reads)
 
-`contract.py work` drives the section through its own buttons and reads only this markup, so it is a contract too:
+`contract.py work` drives the section through its own buttons and reads only this markup, so it is a contract too. The known answers (taxonomy B, the tiers, each chapter's primary theme, the cap of 3 highlights) are restated in the suite, never read from the page:
 
 | element | contract |
 |---|---|
-| `section#work[data-map]` | `data-map` is `wide` or `narrow`, the layout drawn now. |
-| `#work .w-all`, `#work .w-t[data-k]`, `#work .w-p[data-p]` | native `<button aria-pressed>`: all, one per theme (`llm verify systems data play`), one per project marker. Each is in the tab order. |
-| `#work .w-list .row#w-<id>[data-k]` | one row per project; `data-k` lists its themes; its `.c.on` cells are exactly those themes. A filtered-out row has no client rects. |
-| `#work .w-msg` | the status line; a picked theme reads `N of 16 in …`. |
-| `#work .w-cv` | the map canvas, drawn in whole cells of `:root` tokens at full alpha. |
-| `script#w-data` | `{order, layouts: {wide, narrow: {cols, rows, masks, at}}}`: run-length theme masks and each marker's cell, as the page draws them. |
+| `#work .k-chip.k-all`, `#work .k-chip[data-k]` | native `<button aria-pressed aria-controls="k-panel">`: all, then one per theme (`llm verify systems data play`), in the tab order. |
+| `#work .k-map .k-hub[data-k]` | the theme boxes on the map: pointer-only duplicates of the chips (`tabindex="-1"`, `aria-hidden`). A lit box has `.on`. |
+| `#work .k-map .k-node[data-p]` | one native `<button>` per tier 1-2 project on the map, in the tab order. A lit node has `.on`. |
+| `#work .k-svg line[data-p][data-k]` | one membership line per (project on the map, theme); a lit line has `.on`. |
+| `#work .k-pane[data-pane]` | `rest`, one per theme key, and `p:<id>` per project on the map; the shown pane has `.cur`. A theme pane holds `.k-hi .k-card[data-p]` (the highlights) and `details.k-more .k-mrow[data-p]` (the rest, closed). |
+| `#work .k-msg`, `#work .k-ask` | the status line, and the prompt (`.k-a1` pointer, `.k-a2` touch, `.k-a3` while the demo runs). |
+| `window.__workDemo.state()` | `{picked, shown, demoing, done}`: read-only; the arrival demo's state. |
+
+## Résumé viewer (markup the suite reads)
+
+The résumé is `resume.pdf` shown as one page (`resume-page.svg`) in `#resume .rv-page`, with the PDF's text as an
+sr-only copy in `#resume .rv-text`, derived from `pdftotext` and holding the `.cv-ent` entries check-panels counts.
+
+| element | contract |
+|---|---|
+| `window.__resumeViewer` | read-only. `state()` → `'idle'`, `'play'` or `'done'`; `plays()` → how many times the intro has started (at most 1 per load); `ready()` → the page image has decoded; `reduced` → reduced motion is on (the page shows at once); `timeline()`; `box()` → the page box rect; `grid()`; `hues()` → the theme hue of each block; `zoom()` → `[zoomed, originX, originY]`; `size()` → the page box size in CSS px. |
+| `#resume .rv-ctl` | `download pdf` and `open pdf ↗` links to `resume.pdf`, a native `<button class="rv-zbtn" aria-pressed>` for zoom, and `replay` (hidden under reduced motion). |
+| `#resume .rv-hot` | the PDF's own links (email, LinkedIn, GitHub) as focusable hotspots over the page image. |
+

@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en" class="a-verify">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>emergence · Oliver Zhang</title>
+<meta name="description" content="Eight cellular-automaton acts end in a SAP-1 CPU, simulated at gate level.">
+<meta property="og:title" content="emergence · Oliver Zhang">
+<meta property="og:description" content="Eight cellular-automaton acts end in a SAP-1 CPU, simulated at gate level.">
+<meta property="og:image" content="https://olivesz.github.io/portfolio/poster.jpg">
+<meta property="og:url" content="https://olivesz.github.io/portfolio/work/emergence.html">
+<meta name="theme-color" content="#0a0b14">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0b14'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23ff3d81'/%3E%3Crect x='10' y='2' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3Crect x='2' y='10' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://olivesz.github.io/portfolio/work/emergence.html">
+<meta name="robots" content="index, follow, max-image-preview:large, noai, noimageai">
+<meta name="tdm-reservation" content="1">
+<link rel="preload" href="assets/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/case.css">
+<style>
+/* the hero's own labels and inputs: mono 11 labels, mono 13 readouts, transparent buttons over the a and b cells */
+.em{position:relative;margin:24px 0}
+.em[hidden]{display:none}
+.em-nand,.em-sap{position:absolute}
+.em canvas{display:block}
+.em-l,.em-r,.em-tt{position:absolute;white-space:nowrap}
+.em-l{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.em-ld{position:absolute;width:1px;background:var(--muted)}
+.em-r{font:400 13px/24px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.em-r .o,.em-tt .o{color:var(--accent)}
+.em-tt{display:grid;grid-auto-rows:var(--dy,24px);align-items:center;font:400 13px/16px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;white-space:pre}
+.em-tt .em-th{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.em-in{position:absolute;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.em-in:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">skip to the story</a>
+<header class="strip">
+  <a class="nm" href="../index.html">Oliver Zhang</a>
+  <span class="here" aria-hidden="true">work · emergence</span>
+  <a class="sp" href="../index.html#work"><span class="back" aria-hidden="true">→</span>&nbsp;all the work</a>
+  <a class="to" href="../resume.pdf">résumé pdf</a>
+</header>
+
+<main id="main" tabindex="-1">
+  <header class="blk head">
+    <p class="kick">chapter ii <span class="sep">·</span> case study</p>
+    <h1>emergence</h1>
+    <div class="head-grid">
+      <div>
+        <p class="lede" data-src="Olivesz/emergence@ad96d38:README.md#L3">Eight cellular-automaton acts end in a SAP-1 CPU, simulated at gate level.</p>
+        <p class="lede lede-2" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L5-L6">Its two cells, the NAND and the D flip-flop, are verified in raw Wireworld.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>year</dt><dd data-from="first commit 2026-08-02">2026</dd></div>
+        <div><dt>stack</dt><dd><span data-src="Olivesz/emergence@ad96d38:README.md#L54-L55">JavaScript <span class="dot">·</span> canvas</span> <span class="dot">·</span> <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L57-L60">Python</span></dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/emergence">github.com/Olivesz/emergence</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>themes</dt><dd>
+          <ul class="chips">
+            <li class="chip t-verify">verification</li>
+            <li class="chip t-systems">systems &amp; performance</li>
+            <li class="chip t-play">interactive &amp; generative</li>
+          </ul>
+        </dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <figure class="blk wide hero-fig" aria-labelledby="hero-cap">
+    <div class="stage" id="hero" data-play data-native="emergence" style="--stage-h:296px;--stage-h-phone:360px">
+      <div class="em" id="em">
+        <div class="em-nand" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L10-L18"><canvas aria-hidden="true"></canvas></div>
+        <div class="em-sap" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L61-L75"><canvas aria-hidden="true"></canvas></div>
+      </div>
+      <p class="sr-only">The drawing runs the NAND cell from ww_cells.py in the raw Wireworld rule. Inputs a and b step through all four combinations and the output reads <span data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L224-L234">1, 1, 1, 0</span>. Then SAP-1 replays the Fibonacci program one instruction at a time, and its OUT register prints <span data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L103">1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144</span>. The a and b buttons take over the cell.</p>
+    </div>
+    <figcaption class="cap-row">
+      <p class="instr" id="hero-cap"><span class="n">fig 0</span>NAND cell in raw Wireworld, then SAP-1 printing Fibonacci. <span class="verb">click</span> a or b.</p>
+      <button class="replay" type="button" hidden>replay</button>
+    </figcaption>
+  </figure>
+
+  <section class="blk sec" aria-labelledby="s-problem">
+    <h2 id="s-problem"><span class="n">01</span>the problem</h2>
+    <div class="body">
+      <p class="np">Wireworld’s rule fits in one line: a conductor fires when <span data-src="Olivesz/emergence@ad96d38:README.md#L28">1 or 2</span> of its neighbours are heads.</p>
+      <p>Climbing from that rule to a processor that runs programs takes signals, gates, arithmetic and memory, with <span data-src="Olivesz/emergence@ad96d38:README.md#L13-L15">every rung verified</span>. The climb is the last of <span data-src="Olivesz/emergence@ad96d38:README.md#L3">eight</span> acts in one canvas engine, from Langton’s ant to Wireworld.</p>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-how">
+    <h2 id="s-how"><span class="n">02</span>how it works</h2>
+    <div class="body">
+      <p><span data-src="Olivesz/emergence@ad96d38:README.md#L81-L82">The engine keeps shared typed-array grids, and each act supplies only its own step and seed functions.</span> Wireworld has <span data-src="Olivesz/emergence@ad96d38:README.md#L28">4 states</span>: empty, head, tail and conductor. A head moves <span data-src="Olivesz/emergence@ad96d38:README.md#L28">one cell per tick</span> along a conductor, and the tail behind it keeps the wire one-way.</p>
+      <p><span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L5-L6">Two</span> cells are built in that raw rule. The NAND cell is a <span data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L10-L18">5-cell</span> junction fed by a clock loop. When a and b both arrive with the clock pulse, <span data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L10-L18">3 heads</span> meet and the junction stays dark. The flip-flop cell holds a bit as an electron circling a loop, written through a diode, read by a tap and cleared by a timed pulse.</p>
+      <figure class="ig" aria-labelledby="fig1-cap">
+        <svg class="ig-w" id="fig1-w" width="704" height="496" viewBox="0 0 704 496" role="img" aria-labelledby="fig1-w-t fig1-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig1-w-t">The ladder from Wireworld’s rule to running programs</title><desc id="fig1-w-d">Six rungs, each built from the one below and each checked by a file in the repo. The rule: Wireworld has 4 states and a conductor fires on 1 or 2 neighbouring heads; ww_cells.py checks its fast engine against the reference step. The cells: a NAND junction and a loop flip-flop, verified in the raw rule (ww_cells.py). Gates: AND, OR, XOR and MUX derived from NAND, truth tables checked by wwlogic.py. Datapath: register, full adder, PC, decoder and RAM, checked by modules.py. The CPU: SAP-1 in sap1.py, one flat netlist of 1,446 NAND gates and 175 flip-flops, checked by run_cpu.py running programs on it. Programs: five, each against its expected output (run_cpu.py). A separate build in Conway’s Life makes gates from glider collisions; the CPU does not run on it.</desc><text class="lb" x="0" y="16">rung</text><text class="lb" x="128" y="16">built from the one below</text><text class="lb" x="552" y="16">checked by</text><line class="ax" x1="0" y1="24.5" x2="704" y2="24.5"/><text class="lb-i" x="0" y="380">rule</text><rect class="bx" x="128.5" y="352.5" width="391" height="47"/><text class="lb" x="136" y="368">Wireworld</text><text class="rd" x="136" y="392" data-src="Olivesz/emergence@ad96d38:README.md#L28">4 states; a conductor fires on 1 or 2 heads</text><rect class="cell" x="552" y="372" width="8" height="8"/><text class="lb-i" x="568" y="380" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L205-L212">ww_cells.py</text><text class="lb-i" x="0" y="316">cells</text><rect class="bx" x="128.5" y="288.5" width="391" height="47"/><text class="lb" x="136" y="304">NAND junction · loop flip-flop</text><text class="rd" x="136" y="328" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L28">verified in the raw CA rule</text><rect class="cell" x="552" y="308" width="8" height="8"/><text class="lb-i" x="568" y="316" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L10-L33">ww_cells.py</text><path class="ln" d="M320.5 352 L320.5 344"/><polygon class="hd" points="320.5,336 316.5,344 324.5,344" shape-rendering="geometricPrecision"/><text class="lb-i" x="0" y="252">gates</text><rect class="bx" x="128.5" y="224.5" width="391" height="47"/><text class="lb" x="136" y="240">derived from NAND</text><text class="rd" x="136" y="264" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L23">AND · OR · XOR · MUX</text><rect class="cell" x="552" y="244" width="8" height="8"/><text class="lb-i" x="568" y="252" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L181-L193">wwlogic.py</text><path class="ln" d="M320.5 288 L320.5 280"/><polygon class="hd" points="320.5,272 316.5,280 324.5,280" shape-rendering="geometricPrecision"/><text class="lb-i" x="0" y="188">datapath</text><rect class="bx" x="128.5" y="160.5" width="391" height="47"/><text class="lb" x="136" y="176">modules</text><text class="rd" x="136" y="200" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L24">register, full adder, PC, decoder, RAM</text><rect class="cell" x="552" y="180" width="8" height="8"/><text class="lb-i" x="568" y="188" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L57-L60">modules.py</text><path class="ln" d="M320.5 224 L320.5 216"/><polygon class="hd" points="320.5,208 316.5,216 324.5,216" shape-rendering="geometricPrecision"/><text class="lb-i" x="0" y="124">CPU</text><rect class="bx-a" x="128.5" y="96.5" width="391" height="47"/><text class="rd-a" x="136" y="136" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L31">1,446 NAND gates + 175 flip-flops</text><text class="lb" x="136" y="112" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L25">SAP-1, one flat netlist · sap1.py</text><rect class="cell" x="552" y="116" width="8" height="8"/><text class="lb-i" x="568" y="124" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L78-L103">run_cpu.py</text><path class="ln" d="M320.5 160 L320.5 152"/><polygon class="hd" points="320.5,144 316.5,152 324.5,152" shape-rendering="geometricPrecision"/><text class="lb-i" x="0" y="60">programs</text><rect class="bx" x="128.5" y="32.5" width="391" height="47"/><text class="lb" x="136" y="48">self-checking</text><text class="rd" x="136" y="72" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">five programs against expected output</text><rect class="cell" x="552" y="52" width="8" height="8"/><text class="lb-i" x="568" y="60" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">run_cpu.py</text><path class="ln" d="M320.5 96 L320.5 88"/><polygon class="hd" points="320.5,80 316.5,88 324.5,88" shape-rendering="geometricPrecision"/><text class="lb" x="0" y="452">aside</text><rect class="bx" x="128.5" y="424.5" width="391" height="71" stroke-dasharray="4 4"/><text class="lb" x="136" y="440">separate build · Conway’s Life</text><text class="rd" x="136" y="464" data-src="Olivesz/emergence@ad96d38:the-stack.html#L156-L158">gates from glider collisions;</text><text class="rd" x="136" y="488" data-src="Olivesz/emergence@ad96d38:the-stack.html#L156-L158">the CPU does not run on them</text></svg><svg class="ig-n" id="fig1-n" width="328" height="456" viewBox="0 0 328 456" role="img" aria-labelledby="fig1-n-t fig1-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig1-n-t">The ladder from Wireworld’s rule to running programs</title><desc id="fig1-n-d">Six rungs, each built from the one below and each checked by a file in the repo. The rule: Wireworld has 4 states and a conductor fires on 1 or 2 neighbouring heads; ww_cells.py checks its fast engine against the reference step. The cells: a NAND junction and a loop flip-flop, verified in the raw rule (ww_cells.py). Gates: AND, OR, XOR and MUX derived from NAND, truth tables checked by wwlogic.py. Datapath: register, full adder, PC, decoder and RAM, checked by modules.py. The CPU: SAP-1 in sap1.py, one flat netlist of 1,446 NAND gates and 175 flip-flops, checked by run_cpu.py running programs on it. Programs: five, each against its expected output (run_cpu.py). A separate build in Conway’s Life makes gates from glider collisions; the CPU does not run on it.</desc><rect class="bx" x="0.5" y="320.5" width="327" height="47"/><text class="lb-i" x="8" y="336" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L205-L212">rule · checked by ww_cells.py</text><rect class="cell" x="312" y="328" width="8" height="8"/><text class="rd" x="8" y="360" data-src="Olivesz/emergence@ad96d38:README.md#L28">a conductor fires on 1 or 2 heads</text><rect class="bx" x="0.5" y="256.5" width="327" height="47"/><text class="lb-i" x="8" y="272" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L10-L33">cells · checked by ww_cells.py</text><rect class="cell" x="312" y="264" width="8" height="8"/><text class="rd" x="8" y="296" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L28">verified in the raw CA rule</text><path class="ln" d="M160.5 320 L160.5 312"/><polygon class="hd" points="160.5,304 156.5,312 164.5,312" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="192.5" width="327" height="47"/><text class="lb-i" x="8" y="208" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L181-L193">gates · checked by wwlogic.py</text><rect class="cell" x="312" y="200" width="8" height="8"/><text class="rd" x="8" y="232" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L23">AND · OR · XOR · MUX</text><path class="ln" d="M160.5 256 L160.5 248"/><polygon class="hd" points="160.5,240 156.5,248 164.5,248" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="128.5" width="327" height="47"/><text class="lb-i" x="8" y="144" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L57-L60">datapath · checked by modules.py</text><rect class="cell" x="312" y="136" width="8" height="8"/><text class="rd" x="8" y="168" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L24">register, adder, PC, decoder, RAM</text><path class="ln" d="M160.5 192 L160.5 184"/><polygon class="hd" points="160.5,176 156.5,184 164.5,184" shape-rendering="geometricPrecision"/><rect class="bx-a" x="0.5" y="64.5" width="327" height="47"/><text class="lb-i" x="8" y="80" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L78-L103">CPU · checked by run_cpu.py</text><rect class="cell" x="312" y="72" width="8" height="8"/><text class="rd-a" x="8" y="104" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L31">1,446 NAND + 175 flip-flops</text><path class="ln" d="M160.5 128 L160.5 120"/><polygon class="hd" points="160.5,112 156.5,120 164.5,120" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="0.5" width="327" height="47"/><text class="lb-i" x="8" y="16" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">programs · checked by run_cpu.py</text><rect class="cell" x="312" y="8" width="8" height="8"/><text class="rd" x="8" y="40" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">five against expected output</text><path class="ln" d="M160.5 64 L160.5 56"/><polygon class="hd" points="160.5,48 156.5,56 164.5,56" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="384.5" width="327" height="71" stroke-dasharray="4 4"/><text class="lb" x="8" y="400">aside · separate build · Conway’s Life</text><text class="rd" x="8" y="424" data-src="Olivesz/emergence@ad96d38:the-stack.html#L156-L158">gates from glider collisions;</text><text class="rd" x="8" y="448" data-src="Olivesz/emergence@ad96d38:the-stack.html#L156-L158">the CPU does not run on them</text></svg>
+        <figcaption id="fig1-cap"><span class="n">fig 1</span>each rung is built from the one below and checked by the named file. the glider build is a separate aside.</figcaption>
+      </figure>
+      <p>The CPU is a SAP-1 extended with stores and branches: <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L36">8-bit data, 4-bit addresses and 16 words</span> of memory. It is one flat netlist of the two cells. Each clock, every NAND settles in topological order, then every flip-flop samples its input and all of them commit at once.</p>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-hard">
+    <h2 id="s-hard"><span class="n">03</span>the asynchronous wall</h2>
+    <div class="body">
+      <p class="np">Hand-wired Wireworld gates failed when composed.</p>
+      <p>A long lead on one input corrupted the other, and the wires between gates carried signals backward until they oscillated. The fix is the one silicon uses: latch every signal in a flip-flop once per clock and let the NAND logic settle in between. NAND is functionally complete and the flip-flop holds state, so <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L5-L6">two</span> verified cells cover the whole machine.</p>
+      <figure class="ig" aria-labelledby="fig2-cap">
+        <svg class="ig-w" id="fig2-w" width="704" height="400" viewBox="0 0 704 400" role="img" aria-labelledby="fig2-w-t fig2-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig2-w-t">Why the machine is synchronous</title><desc id="fig2-w-d">Left: two hand-wired Wireworld gates. A long lead on one input corrupts the other, and the wire between the gates carries signals backward until they oscillate. Right: the fix. Flip-flops feed a NAND network that settles in topological order; on the clock every flip-flop samples D and all of them commit together. Below: the register cell’s clear pulse. On time, it meets the circulating electron, reads stop and 0 electrons remain. 2 ticks late, the bit is still read afterwards.</desc><text class="lb" x="0" y="16">hand-wired, asynchronous</text><text class="lb" x="368" y="16">clocked, synchronous</text><line class="ax" x1="0" y1="24.5" x2="336" y2="24.5"/><line class="ax" x1="368" y1="24.5" x2="704" y2="24.5"/><rect class="bx" x="0.5" y="48.5" width="95" height="47"/><text class="lb" x="8" y="64">gate</text><text class="rd" x="8" y="88">NAND</text><rect class="bx" x="232.5" y="48.5" width="95" height="47"/><text class="lb" x="240" y="64">gate</text><text class="rd" x="240" y="88">NAND</text><path class="ln" d="M96 64.5 L224 64.5"/><polygon class="hd" points="232,64.5 224,60.5 224,68.5" shape-rendering="geometricPrecision"/><rect class="c-signal" x="208" y="76" width="8" height="8"/><rect class="c-signal" x="192" y="76" width="8" height="8"/><rect class="c-signal" x="176" y="76" width="8" height="8"/><polygon class="c-signal" points="160,80 168,76 168,84" shape-rendering="geometricPrecision"/><text class="lb" x="160" y="104">backflow</text><path class="ln" d="M48.5 160 L48.5 128.5 L280.5 128.5 L280.5 104"/><polygon class="hd" points="280.5,96 276.5,104 284.5,104" shape-rendering="geometricPrecision"/><path class="ln" d="M48.5 160 L48.5 168"/><text class="lb" x="56" y="152">long lead</text><text class="lb-i" x="0" y="192" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L13-L15">a long lead corrupts the other input;</text><text class="lb-i" x="0" y="208" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L13-L15">signals flow backward and oscillate</text><rect class="bx" x="368.5" y="48.5" width="87" height="47"/><text class="lb" x="376" y="64">flip-flops</text><text class="rd" x="376" y="88">Q</text><rect class="bx-a" x="488.5" y="48.5" width="87" height="47"/><text class="lb" x="496" y="64">NAND</text><text class="rd-a" x="496" y="88">settle</text><rect class="bx" x="616.5" y="48.5" width="87" height="47"/><text class="lb" x="624" y="64">flip-flops</text><text class="rd" x="624" y="88">D</text><path class="ln-a" d="M456 72.5 L480 72.5"/><polygon class="hd-a" points="488,72.5 480,68.5 480,76.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M576 72.5 L608 72.5"/><polygon class="hd-a" points="616,72.5 608,68.5 608,76.5" shape-rendering="geometricPrecision"/><line class="ln-a" x1="368" y1="136.5" x2="704" y2="136.5"/><text class="lb" x="368" y="128">clock</text><path class="ln-a" d="M416.5 136 L416.5 104"/><polygon class="hd-a" points="416.5,96 412.5,104 420.5,104" shape-rendering="geometricPrecision"/><path class="ln-a" d="M664.5 136 L664.5 104"/><polygon class="hd-a" points="664.5,96 660.5,104 668.5,104" shape-rendering="geometricPrecision"/><text class="lb-i" x="368" y="168" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L100-L104">settle: every NAND, in topological order</text><text class="lb-i" x="368" y="192" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L17-L24">commit: every flip-flop samples D,</text><text class="lb-i" x="368" y="208" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L17-L24">then all Q change together</text><text class="lb" x="0" y="264">the register cell’s clear pulse, in raw Wireworld</text><line class="ax" x1="0" y1="272.5" x2="704" y2="272.5"/><text class="lb" x="128" y="288">ticks →</text><text class="lb-i" x="0" y="316">on time</text><rect class="cell-o" x="128" y="304" width="8" height="8"/><rect class="cell-o" x="144" y="304" width="8" height="8"/><rect class="cell-o" x="160" y="304" width="8" height="8"/><rect class="cell-o" x="176" y="304" width="8" height="8"/><rect class="cell-o" x="192" y="304" width="8" height="8"/><rect class="cell-o" x="208" y="304" width="8" height="8"/><rect class="cell-o" x="224" y="304" width="8" height="8"/><rect class="cell-o" x="240" y="304" width="8" height="8"/><rect class="cell-o" x="256" y="304" width="8" height="8"/><rect class="cell-o" x="272" y="304" width="8" height="8"/><rect class="cell-o" x="288" y="304" width="8" height="8"/><rect class="cell-o" x="304" y="304" width="8" height="8"/><rect class="cell-o" x="320" y="304" width="8" height="8"/><rect class="cell-o" x="336" y="304" width="8" height="8"/><rect class="cell-o" x="352" y="304" width="8" height="8"/><rect class="cell-o" x="368" y="304" width="8" height="8"/><rect class="c-signal" x="208" y="304" width="8" height="8"/><rect class="ln-a" x="204.5" y="300.5" width="15" height="15"/><text class="rd" x="416" y="316" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L339-L340">reads stop · 0 electrons remain</text><text class="lb-i" x="0" y="356" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L346-L347">2 ticks late</text><rect class="cell-o" x="128" y="344" width="8" height="8"/><rect class="cell-o" x="144" y="344" width="8" height="8"/><rect class="cell-o" x="160" y="344" width="8" height="8"/><rect class="cell-o" x="176" y="344" width="8" height="8"/><rect class="cell-o" x="192" y="344" width="8" height="8"/><rect class="cell-o" x="208" y="344" width="8" height="8"/><rect class="cell-o" x="224" y="344" width="8" height="8"/><rect class="cell-o" x="240" y="344" width="8" height="8"/><rect class="cell-o" x="256" y="344" width="8" height="8"/><rect class="cell-o" x="272" y="344" width="8" height="8"/><rect class="cell-o" x="288" y="344" width="8" height="8"/><rect class="cell-o" x="304" y="344" width="8" height="8"/><rect class="cell-o" x="320" y="344" width="8" height="8"/><rect class="cell-o" x="336" y="344" width="8" height="8"/><rect class="cell-o" x="352" y="344" width="8" height="8"/><rect class="cell-o" x="368" y="344" width="8" height="8"/><rect class="c-signal" x="208" y="344" width="8" height="8"/><rect class="ln-a" x="236.5" y="340.5" width="15" height="15"/><text class="rd" x="416" y="356" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L346-L347">bit still read afterwards</text><rect class="c-signal" x="128" y="384" width="8" height="8"/><text class="lb" x="144" y="392">stored electron at the junction</text><rect class="ln-a" x="384.5" y="380.5" width="15" height="15"/><text class="lb" x="408" y="392">clear pulse</text></svg><svg class="ig-n" id="fig2-n" width="328" height="704" viewBox="0 0 328 704" role="img" aria-labelledby="fig2-n-t fig2-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig2-n-t">Why the machine is synchronous</title><desc id="fig2-n-d">Left: two hand-wired Wireworld gates. A long lead on one input corrupts the other, and the wire between the gates carries signals backward until they oscillate. Right: the fix. Flip-flops feed a NAND network that settles in topological order; on the clock every flip-flop samples D and all of them commit together. Below: the register cell’s clear pulse. On time, it meets the circulating electron, reads stop and 0 electrons remain. 2 ticks late, the bit is still read afterwards.</desc><text class="lb" x="0" y="16">hand-wired, asynchronous</text><line class="ax" x1="0" y1="24.5" x2="328" y2="24.5"/><rect class="bx" x="0.5" y="48.5" width="95" height="47"/><text class="lb" x="8" y="64">gate</text><text class="rd" x="8" y="88">NAND</text><rect class="bx" x="224.5" y="48.5" width="95" height="47"/><text class="lb" x="232" y="64">gate</text><text class="rd" x="232" y="88">NAND</text><path class="ln" d="M96 64.5 L216 64.5"/><polygon class="hd" points="224,64.5 216,60.5 216,68.5" shape-rendering="geometricPrecision"/><rect class="c-signal" x="200" y="76" width="8" height="8"/><rect class="c-signal" x="184" y="76" width="8" height="8"/><rect class="c-signal" x="168" y="76" width="8" height="8"/><polygon class="c-signal" points="152,80 160,76 160,84" shape-rendering="geometricPrecision"/><text class="lb" x="152" y="104">backflow</text><path class="ln" d="M48.5 160 L48.5 128.5 L272.5 128.5 L272.5 104"/><polygon class="hd" points="272.5,96 268.5,104 276.5,104" shape-rendering="geometricPrecision"/><path class="ln" d="M48.5 160 L48.5 168"/><text class="lb" x="56" y="152">long lead</text><text class="lb-i" x="0" y="192" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L13-L15">a long lead corrupts the other input;</text><text class="lb-i" x="0" y="208" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L13-L15">signals flow backward and oscillate</text><text class="lb" x="0" y="248">clocked, synchronous</text><line class="ax" x1="0" y1="256.5" x2="328" y2="256.5"/><rect class="bx" x="0.5" y="280.5" width="87" height="47"/><text class="lb" x="8" y="296">flip-flops</text><text class="rd" x="8" y="320">Q</text><rect class="bx-a" x="120.5" y="280.5" width="87" height="47"/><text class="lb" x="128" y="296">NAND</text><text class="rd-a" x="128" y="320">settle</text><rect class="bx" x="240.5" y="280.5" width="87" height="47"/><text class="lb" x="248" y="296">flip-flops</text><text class="rd" x="248" y="320">D</text><path class="ln-a" d="M88 304.5 L112 304.5"/><polygon class="hd-a" points="120,304.5 112,300.5 112,308.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M208 304.5 L232 304.5"/><polygon class="hd-a" points="240,304.5 232,300.5 232,308.5" shape-rendering="geometricPrecision"/><line class="ln-a" x1="0" y1="368.5" x2="328" y2="368.5"/><text class="lb" x="0" y="360">clock</text><path class="ln-a" d="M48.5 368 L48.5 336"/><polygon class="hd-a" points="48.5,328 44.5,336 52.5,336" shape-rendering="geometricPrecision"/><path class="ln-a" d="M288.5 368 L288.5 336"/><polygon class="hd-a" points="288.5,328 284.5,336 292.5,336" shape-rendering="geometricPrecision"/><text class="lb-i" x="0" y="400" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L100-L104">settle: every NAND, in topological order</text><text class="lb-i" x="0" y="424" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L17-L24">commit: every flip-flop samples D,</text><text class="lb-i" x="0" y="440" data-src="Olivesz/emergence@ad96d38:cpu/wwlogic.py#L17-L24">then all Q change together</text><text class="lb" x="0" y="480">the register cell’s clear pulse</text><line class="ax" x1="0" y1="488.5" x2="328" y2="488.5"/><text class="lb" x="104" y="504">ticks →</text><text class="lb-i" x="0" y="532">on time</text><rect class="cell-o" x="104" y="520" width="8" height="8"/><rect class="cell-o" x="120" y="520" width="8" height="8"/><rect class="cell-o" x="136" y="520" width="8" height="8"/><rect class="cell-o" x="152" y="520" width="8" height="8"/><rect class="cell-o" x="168" y="520" width="8" height="8"/><rect class="cell-o" x="184" y="520" width="8" height="8"/><rect class="cell-o" x="200" y="520" width="8" height="8"/><rect class="cell-o" x="216" y="520" width="8" height="8"/><rect class="cell-o" x="232" y="520" width="8" height="8"/><rect class="cell-o" x="248" y="520" width="8" height="8"/><rect class="cell-o" x="264" y="520" width="8" height="8"/><rect class="cell-o" x="280" y="520" width="8" height="8"/><rect class="cell-o" x="296" y="520" width="8" height="8"/><rect class="cell-o" x="312" y="520" width="8" height="8"/><rect class="c-signal" x="184" y="520" width="8" height="8"/><rect class="ln-a" x="180.5" y="516.5" width="15" height="15"/><text class="rd" x="0" y="564" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L339-L340">reads stop · 0 electrons remain</text><text class="lb-i" x="0" y="604" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L346-L347">2 ticks late</text><rect class="cell-o" x="104" y="592" width="8" height="8"/><rect class="cell-o" x="120" y="592" width="8" height="8"/><rect class="cell-o" x="136" y="592" width="8" height="8"/><rect class="cell-o" x="152" y="592" width="8" height="8"/><rect class="cell-o" x="168" y="592" width="8" height="8"/><rect class="cell-o" x="184" y="592" width="8" height="8"/><rect class="cell-o" x="200" y="592" width="8" height="8"/><rect class="cell-o" x="216" y="592" width="8" height="8"/><rect class="cell-o" x="232" y="592" width="8" height="8"/><rect class="cell-o" x="248" y="592" width="8" height="8"/><rect class="cell-o" x="264" y="592" width="8" height="8"/><rect class="cell-o" x="280" y="592" width="8" height="8"/><rect class="cell-o" x="296" y="592" width="8" height="8"/><rect class="cell-o" x="312" y="592" width="8" height="8"/><rect class="c-signal" x="184" y="592" width="8" height="8"/><rect class="ln-a" x="212.5" y="588.5" width="15" height="15"/><text class="rd" x="0" y="636" data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L346-L347">bit still read afterwards</text><rect class="c-signal" x="0" y="672" width="8" height="8"/><text class="lb" x="16" y="680">stored electron</text><rect class="ln-a" x="164.5" y="668.5" width="15" height="15"/><text class="lb" x="188" y="680">clear pulse</text></svg>
+        <figcaption id="fig2-cap"><span class="n">fig 2</span>hand-wired: the hazard. clocked: the discipline that replaced it. then the clear pulse, on time and <span data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L346-L347">2 ticks</span> late.</figcaption>
+      </figure>
+      <p>The Wireworld flip-flop cell needs the same timing. A clear pulse that meets the circulating electron leaves <span data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L339-L340">0 electrons</span> in the grid. The same pulse <span data-src="Olivesz/emergence@ad96d38:cpu/ww_cells.py#L346-L347">2 ticks late</span> leaves the bit readable.</p>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-results">
+    <h2 id="s-results"><span class="n">04</span>results</h2>
+    <div class="body">
+      <p><span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">Five</span> test programs run against expected output: <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L51">5 + 3 and 9 − 4</span>, a countdown, a running sum, and Fibonacci until <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L54-L55">8-bit</span> overflow trips the carry flag.</p>
+      <ul class="stats">
+        <li><span class="v" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L31">1,446</span><span class="k">NAND gates in SAP-1</span><span class="b">netlist primitives; the NAND cell itself is verified in raw Wireworld</span></li>
+        <li><span class="v" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L31">175</span><span class="k">flip-flops</span><span class="b">RAM, <span data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">16×8</span>, holds most of them</span></li>
+        <li><span class="v" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L81-L83">4,575</span><span class="k">gates in SAP-2</span><span class="b">plus a <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L81-L83">256-byte</span> memory array, not built from gates</span></li>
+      </ul>
+      <figure class="ig" aria-labelledby="fig3-cap">
+        <svg class="ig-w" id="fig3-w" width="704" height="208" viewBox="0 0 704 208" role="img" aria-labelledby="fig3-w-t fig3-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig3-w-t">Where the flip-flops sit, and what each test program must print</title><desc id="fig3-w-d">The 175 flip-flops of SAP-1, one square each. RAM, 16 words of 8 bits, holds most of them; the rest are PC (4), MAR (4), IR (8), A (8), B (8), OUT (8), the carry flag and the 6-state ring counter. Then the five test programs and the OUT list run_cpu.py expects from each: 5 + 3 prints 8; 9 − 4 prints 5; the countdown prints 3, 2, 1, 0; the sum 4+3+2+1 prints 10; Fibonacci prints 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89 and 144 before 8-bit overflow stops it. check() compares each run with its list, and all five pass.</desc><text class="lb-i" x="0" y="16" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L31">175 flip-flops, one square each</text><line class="ax" x1="0" y1="24.5" x2="256" y2="24.5"/><rect class="cell" x="1" y="41" width="6" height="6"/><rect class="cell" x="9" y="41" width="6" height="6"/><rect class="cell" x="17" y="41" width="6" height="6"/><rect class="cell" x="25" y="41" width="6" height="6"/><rect class="cell" x="33" y="41" width="6" height="6"/><rect class="cell" x="41" y="41" width="6" height="6"/><rect class="cell" x="49" y="41" width="6" height="6"/><rect class="cell" x="57" y="41" width="6" height="6"/><rect class="cell" x="1" y="49" width="6" height="6"/><rect class="cell" x="9" y="49" width="6" height="6"/><rect class="cell" x="17" y="49" width="6" height="6"/><rect class="cell" x="25" y="49" width="6" height="6"/><rect class="cell" x="33" y="49" width="6" height="6"/><rect class="cell" x="41" y="49" width="6" height="6"/><rect class="cell" x="49" y="49" width="6" height="6"/><rect class="cell" x="57" y="49" width="6" height="6"/><rect class="cell" x="1" y="57" width="6" height="6"/><rect class="cell" x="9" y="57" width="6" height="6"/><rect class="cell" x="17" y="57" width="6" height="6"/><rect class="cell" x="25" y="57" width="6" height="6"/><rect class="cell" x="33" y="57" width="6" height="6"/><rect class="cell" x="41" y="57" width="6" height="6"/><rect class="cell" x="49" y="57" width="6" height="6"/><rect class="cell" x="57" y="57" width="6" height="6"/><rect class="cell" x="1" y="65" width="6" height="6"/><rect class="cell" x="9" y="65" width="6" height="6"/><rect class="cell" x="17" y="65" width="6" height="6"/><rect class="cell" x="25" y="65" width="6" height="6"/><rect class="cell" x="33" y="65" width="6" height="6"/><rect class="cell" x="41" y="65" width="6" height="6"/><rect class="cell" x="49" y="65" width="6" height="6"/><rect class="cell" x="57" y="65" width="6" height="6"/><rect class="cell" x="1" y="73" width="6" height="6"/><rect class="cell" x="9" y="73" width="6" height="6"/><rect class="cell" x="17" y="73" width="6" height="6"/><rect class="cell" x="25" y="73" width="6" height="6"/><rect class="cell" x="33" y="73" width="6" height="6"/><rect class="cell" x="41" y="73" width="6" height="6"/><rect class="cell" x="49" y="73" width="6" height="6"/><rect class="cell" x="57" y="73" width="6" height="6"/><rect class="cell" x="1" y="81" width="6" height="6"/><rect class="cell" x="9" y="81" width="6" height="6"/><rect class="cell" x="17" y="81" width="6" height="6"/><rect class="cell" x="25" y="81" width="6" height="6"/><rect class="cell" x="33" y="81" width="6" height="6"/><rect class="cell" x="41" y="81" width="6" height="6"/><rect class="cell" x="49" y="81" width="6" height="6"/><rect class="cell" x="57" y="81" width="6" height="6"/><rect class="cell" x="1" y="89" width="6" height="6"/><rect class="cell" x="9" y="89" width="6" height="6"/><rect class="cell" x="17" y="89" width="6" height="6"/><rect class="cell" x="25" y="89" width="6" height="6"/><rect class="cell" x="33" y="89" width="6" height="6"/><rect class="cell" x="41" y="89" width="6" height="6"/><rect class="cell" x="49" y="89" width="6" height="6"/><rect class="cell" x="57" y="89" width="6" height="6"/><rect class="cell" x="1" y="97" width="6" height="6"/><rect class="cell" x="9" y="97" width="6" height="6"/><rect class="cell" x="17" y="97" width="6" height="6"/><rect class="cell" x="25" y="97" width="6" height="6"/><rect class="cell" x="33" y="97" width="6" height="6"/><rect class="cell" x="41" y="97" width="6" height="6"/><rect class="cell" x="49" y="97" width="6" height="6"/><rect class="cell" x="57" y="97" width="6" height="6"/><rect class="cell" x="1" y="105" width="6" height="6"/><rect class="cell" x="9" y="105" width="6" height="6"/><rect class="cell" x="17" y="105" width="6" height="6"/><rect class="cell" x="25" y="105" width="6" height="6"/><rect class="cell" x="33" y="105" width="6" height="6"/><rect class="cell" x="41" y="105" width="6" height="6"/><rect class="cell" x="49" y="105" width="6" height="6"/><rect class="cell" x="57" y="105" width="6" height="6"/><rect class="cell" x="1" y="113" width="6" height="6"/><rect class="cell" x="9" y="113" width="6" height="6"/><rect class="cell" x="17" y="113" width="6" height="6"/><rect class="cell" x="25" y="113" width="6" height="6"/><rect class="cell" x="33" y="113" width="6" height="6"/><rect class="cell" x="41" y="113" width="6" height="6"/><rect class="cell" x="49" y="113" width="6" height="6"/><rect class="cell" x="57" y="113" width="6" height="6"/><rect class="cell" x="1" y="121" width="6" height="6"/><rect class="cell" x="9" y="121" width="6" height="6"/><rect class="cell" x="17" y="121" width="6" height="6"/><rect class="cell" x="25" y="121" width="6" height="6"/><rect class="cell" x="33" y="121" width="6" height="6"/><rect class="cell" x="41" y="121" width="6" height="6"/><rect class="cell" x="49" y="121" width="6" height="6"/><rect class="cell" x="57" y="121" width="6" height="6"/><rect class="cell" x="1" y="129" width="6" height="6"/><rect class="cell" x="9" y="129" width="6" height="6"/><rect class="cell" x="17" y="129" width="6" height="6"/><rect class="cell" x="25" y="129" width="6" height="6"/><rect class="cell" x="33" y="129" width="6" height="6"/><rect class="cell" x="41" y="129" width="6" height="6"/><rect class="cell" x="49" y="129" width="6" height="6"/><rect class="cell" x="57" y="129" width="6" height="6"/><rect class="cell" x="1" y="137" width="6" height="6"/><rect class="cell" x="9" y="137" width="6" height="6"/><rect class="cell" x="17" y="137" width="6" height="6"/><rect class="cell" x="25" y="137" width="6" height="6"/><rect class="cell" x="33" y="137" width="6" height="6"/><rect class="cell" x="41" y="137" width="6" height="6"/><rect class="cell" x="49" y="137" width="6" height="6"/><rect class="cell" x="57" y="137" width="6" height="6"/><rect class="cell" x="1" y="145" width="6" height="6"/><rect class="cell" x="9" y="145" width="6" height="6"/><rect class="cell" x="17" y="145" width="6" height="6"/><rect class="cell" x="25" y="145" width="6" height="6"/><rect class="cell" x="33" y="145" width="6" height="6"/><rect class="cell" x="41" y="145" width="6" height="6"/><rect class="cell" x="49" y="145" width="6" height="6"/><rect class="cell" x="57" y="145" width="6" height="6"/><rect class="cell" x="1" y="153" width="6" height="6"/><rect class="cell" x="9" y="153" width="6" height="6"/><rect class="cell" x="17" y="153" width="6" height="6"/><rect class="cell" x="25" y="153" width="6" height="6"/><rect class="cell" x="33" y="153" width="6" height="6"/><rect class="cell" x="41" y="153" width="6" height="6"/><rect class="cell" x="49" y="153" width="6" height="6"/><rect class="cell" x="57" y="153" width="6" height="6"/><rect class="cell" x="1" y="161" width="6" height="6"/><rect class="cell" x="9" y="161" width="6" height="6"/><rect class="cell" x="17" y="161" width="6" height="6"/><rect class="cell" x="25" y="161" width="6" height="6"/><rect class="cell" x="33" y="161" width="6" height="6"/><rect class="cell" x="41" y="161" width="6" height="6"/><rect class="cell" x="49" y="161" width="6" height="6"/><rect class="cell" x="57" y="161" width="6" height="6"/><text class="lb-i" x="0" y="192" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">RAM 16×8</text><rect class="c-ref" x="97" y="41" width="6" height="6"/><rect class="c-ref" x="105" y="41" width="6" height="6"/><rect class="c-ref" x="113" y="41" width="6" height="6"/><rect class="c-ref" x="121" y="41" width="6" height="6"/><text class="lb" x="168" y="48" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">PC (4)</text><rect class="c-ref" x="97" y="57" width="6" height="6"/><rect class="c-ref" x="105" y="57" width="6" height="6"/><rect class="c-ref" x="113" y="57" width="6" height="6"/><rect class="c-ref" x="121" y="57" width="6" height="6"/><text class="lb" x="168" y="64" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">MAR (4)</text><rect class="c-ref" x="97" y="73" width="6" height="6"/><rect class="c-ref" x="105" y="73" width="6" height="6"/><rect class="c-ref" x="113" y="73" width="6" height="6"/><rect class="c-ref" x="121" y="73" width="6" height="6"/><rect class="c-ref" x="129" y="73" width="6" height="6"/><rect class="c-ref" x="137" y="73" width="6" height="6"/><rect class="c-ref" x="145" y="73" width="6" height="6"/><rect class="c-ref" x="153" y="73" width="6" height="6"/><text class="lb" x="168" y="80" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">IR (8)</text><rect class="c-ref" x="97" y="89" width="6" height="6"/><rect class="c-ref" x="105" y="89" width="6" height="6"/><rect class="c-ref" x="113" y="89" width="6" height="6"/><rect class="c-ref" x="121" y="89" width="6" height="6"/><rect class="c-ref" x="129" y="89" width="6" height="6"/><rect class="c-ref" x="137" y="89" width="6" height="6"/><rect class="c-ref" x="145" y="89" width="6" height="6"/><rect class="c-ref" x="153" y="89" width="6" height="6"/><text class="lb" x="168" y="96" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">A (8)</text><rect class="c-ref" x="97" y="105" width="6" height="6"/><rect class="c-ref" x="105" y="105" width="6" height="6"/><rect class="c-ref" x="113" y="105" width="6" height="6"/><rect class="c-ref" x="121" y="105" width="6" height="6"/><rect class="c-ref" x="129" y="105" width="6" height="6"/><rect class="c-ref" x="137" y="105" width="6" height="6"/><rect class="c-ref" x="145" y="105" width="6" height="6"/><rect class="c-ref" x="153" y="105" width="6" height="6"/><text class="lb" x="168" y="112" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">B (8)</text><rect class="c-ref" x="97" y="121" width="6" height="6"/><rect class="c-ref" x="105" y="121" width="6" height="6"/><rect class="c-ref" x="113" y="121" width="6" height="6"/><rect class="c-ref" x="121" y="121" width="6" height="6"/><rect class="c-ref" x="129" y="121" width="6" height="6"/><rect class="c-ref" x="137" y="121" width="6" height="6"/><rect class="c-ref" x="145" y="121" width="6" height="6"/><rect class="c-ref" x="153" y="121" width="6" height="6"/><text class="lb" x="168" y="128" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">OUT (8)</text><rect class="c-ref" x="97" y="137" width="6" height="6"/><text class="lb" x="168" y="144" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">carry</text><rect class="c-ref" x="97" y="153" width="6" height="6"/><rect class="c-ref" x="105" y="153" width="6" height="6"/><rect class="c-ref" x="113" y="153" width="6" height="6"/><rect class="c-ref" x="121" y="153" width="6" height="6"/><rect class="c-ref" x="129" y="153" width="6" height="6"/><rect class="c-ref" x="137" y="153" width="6" height="6"/><text class="lb" x="168" y="160" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">ring (6)</text><text class="lb-i" x="320" y="16" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">five test programs, expected output</text><line class="ax" x1="320" y1="24.5" x2="704" y2="24.5"/><text class="lb" x="320" y="48">program</text><text class="lb" x="432" y="48">expected OUT</text><text class="lb" x="704" y="48" text-anchor="end">pass</text><text class="lb-i" x="320" y="72" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L51">5 + 3</text><rect class="cell" x="696" y="64" width="8" height="8"/><text class="rd" x="432" y="72" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L91">8</text><text class="lb-i" x="320" y="96" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L51">9 − 4</text><rect class="cell" x="696" y="88" width="8" height="8"/><text class="rd" x="432" y="96" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L94">5</text><text class="lb-i" x="320" y="120">countdown</text><rect class="cell" x="696" y="112" width="8" height="8"/><text class="rd" x="432" y="120" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L97">3 2 1 0</text><text class="lb-i" x="320" y="144" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L53">sum 4+3+2+1</text><rect class="cell" x="696" y="136" width="8" height="8"/><text class="rd" x="432" y="144" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L100">10</text><text class="lb-i" x="320" y="168">Fibonacci</text><rect class="cell" x="696" y="160" width="8" height="8"/><text class="rd" x="432" y="168" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L103">1 1 2 3 5 8 13 21 34 55 89 144</text><text class="lb" x="320" y="200" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L78-L83">check() compares each run with its list</text></svg><svg class="ig-n" id="fig3-n" width="328" height="456" viewBox="0 0 328 456" role="img" aria-labelledby="fig3-n-t fig3-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig3-n-t">Where the flip-flops sit, and what each test program must print</title><desc id="fig3-n-d">The 175 flip-flops of SAP-1, one square each. RAM, 16 words of 8 bits, holds most of them; the rest are PC (4), MAR (4), IR (8), A (8), B (8), OUT (8), the carry flag and the 6-state ring counter. Then the five test programs and the OUT list run_cpu.py expects from each: 5 + 3 prints 8; 9 − 4 prints 5; the countdown prints 3, 2, 1, 0; the sum 4+3+2+1 prints 10; Fibonacci prints 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89 and 144 before 8-bit overflow stops it. check() compares each run with its list, and all five pass.</desc><text class="lb-i" x="0" y="16" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L31">175 flip-flops, one square each</text><line class="ax" x1="0" y1="24.5" x2="256" y2="24.5"/><rect class="cell" x="1" y="41" width="6" height="6"/><rect class="cell" x="9" y="41" width="6" height="6"/><rect class="cell" x="17" y="41" width="6" height="6"/><rect class="cell" x="25" y="41" width="6" height="6"/><rect class="cell" x="33" y="41" width="6" height="6"/><rect class="cell" x="41" y="41" width="6" height="6"/><rect class="cell" x="49" y="41" width="6" height="6"/><rect class="cell" x="57" y="41" width="6" height="6"/><rect class="cell" x="1" y="49" width="6" height="6"/><rect class="cell" x="9" y="49" width="6" height="6"/><rect class="cell" x="17" y="49" width="6" height="6"/><rect class="cell" x="25" y="49" width="6" height="6"/><rect class="cell" x="33" y="49" width="6" height="6"/><rect class="cell" x="41" y="49" width="6" height="6"/><rect class="cell" x="49" y="49" width="6" height="6"/><rect class="cell" x="57" y="49" width="6" height="6"/><rect class="cell" x="1" y="57" width="6" height="6"/><rect class="cell" x="9" y="57" width="6" height="6"/><rect class="cell" x="17" y="57" width="6" height="6"/><rect class="cell" x="25" y="57" width="6" height="6"/><rect class="cell" x="33" y="57" width="6" height="6"/><rect class="cell" x="41" y="57" width="6" height="6"/><rect class="cell" x="49" y="57" width="6" height="6"/><rect class="cell" x="57" y="57" width="6" height="6"/><rect class="cell" x="1" y="65" width="6" height="6"/><rect class="cell" x="9" y="65" width="6" height="6"/><rect class="cell" x="17" y="65" width="6" height="6"/><rect class="cell" x="25" y="65" width="6" height="6"/><rect class="cell" x="33" y="65" width="6" height="6"/><rect class="cell" x="41" y="65" width="6" height="6"/><rect class="cell" x="49" y="65" width="6" height="6"/><rect class="cell" x="57" y="65" width="6" height="6"/><rect class="cell" x="1" y="73" width="6" height="6"/><rect class="cell" x="9" y="73" width="6" height="6"/><rect class="cell" x="17" y="73" width="6" height="6"/><rect class="cell" x="25" y="73" width="6" height="6"/><rect class="cell" x="33" y="73" width="6" height="6"/><rect class="cell" x="41" y="73" width="6" height="6"/><rect class="cell" x="49" y="73" width="6" height="6"/><rect class="cell" x="57" y="73" width="6" height="6"/><rect class="cell" x="1" y="81" width="6" height="6"/><rect class="cell" x="9" y="81" width="6" height="6"/><rect class="cell" x="17" y="81" width="6" height="6"/><rect class="cell" x="25" y="81" width="6" height="6"/><rect class="cell" x="33" y="81" width="6" height="6"/><rect class="cell" x="41" y="81" width="6" height="6"/><rect class="cell" x="49" y="81" width="6" height="6"/><rect class="cell" x="57" y="81" width="6" height="6"/><rect class="cell" x="1" y="89" width="6" height="6"/><rect class="cell" x="9" y="89" width="6" height="6"/><rect class="cell" x="17" y="89" width="6" height="6"/><rect class="cell" x="25" y="89" width="6" height="6"/><rect class="cell" x="33" y="89" width="6" height="6"/><rect class="cell" x="41" y="89" width="6" height="6"/><rect class="cell" x="49" y="89" width="6" height="6"/><rect class="cell" x="57" y="89" width="6" height="6"/><rect class="cell" x="1" y="97" width="6" height="6"/><rect class="cell" x="9" y="97" width="6" height="6"/><rect class="cell" x="17" y="97" width="6" height="6"/><rect class="cell" x="25" y="97" width="6" height="6"/><rect class="cell" x="33" y="97" width="6" height="6"/><rect class="cell" x="41" y="97" width="6" height="6"/><rect class="cell" x="49" y="97" width="6" height="6"/><rect class="cell" x="57" y="97" width="6" height="6"/><rect class="cell" x="1" y="105" width="6" height="6"/><rect class="cell" x="9" y="105" width="6" height="6"/><rect class="cell" x="17" y="105" width="6" height="6"/><rect class="cell" x="25" y="105" width="6" height="6"/><rect class="cell" x="33" y="105" width="6" height="6"/><rect class="cell" x="41" y="105" width="6" height="6"/><rect class="cell" x="49" y="105" width="6" height="6"/><rect class="cell" x="57" y="105" width="6" height="6"/><rect class="cell" x="1" y="113" width="6" height="6"/><rect class="cell" x="9" y="113" width="6" height="6"/><rect class="cell" x="17" y="113" width="6" height="6"/><rect class="cell" x="25" y="113" width="6" height="6"/><rect class="cell" x="33" y="113" width="6" height="6"/><rect class="cell" x="41" y="113" width="6" height="6"/><rect class="cell" x="49" y="113" width="6" height="6"/><rect class="cell" x="57" y="113" width="6" height="6"/><rect class="cell" x="1" y="121" width="6" height="6"/><rect class="cell" x="9" y="121" width="6" height="6"/><rect class="cell" x="17" y="121" width="6" height="6"/><rect class="cell" x="25" y="121" width="6" height="6"/><rect class="cell" x="33" y="121" width="6" height="6"/><rect class="cell" x="41" y="121" width="6" height="6"/><rect class="cell" x="49" y="121" width="6" height="6"/><rect class="cell" x="57" y="121" width="6" height="6"/><rect class="cell" x="1" y="129" width="6" height="6"/><rect class="cell" x="9" y="129" width="6" height="6"/><rect class="cell" x="17" y="129" width="6" height="6"/><rect class="cell" x="25" y="129" width="6" height="6"/><rect class="cell" x="33" y="129" width="6" height="6"/><rect class="cell" x="41" y="129" width="6" height="6"/><rect class="cell" x="49" y="129" width="6" height="6"/><rect class="cell" x="57" y="129" width="6" height="6"/><rect class="cell" x="1" y="137" width="6" height="6"/><rect class="cell" x="9" y="137" width="6" height="6"/><rect class="cell" x="17" y="137" width="6" height="6"/><rect class="cell" x="25" y="137" width="6" height="6"/><rect class="cell" x="33" y="137" width="6" height="6"/><rect class="cell" x="41" y="137" width="6" height="6"/><rect class="cell" x="49" y="137" width="6" height="6"/><rect class="cell" x="57" y="137" width="6" height="6"/><rect class="cell" x="1" y="145" width="6" height="6"/><rect class="cell" x="9" y="145" width="6" height="6"/><rect class="cell" x="17" y="145" width="6" height="6"/><rect class="cell" x="25" y="145" width="6" height="6"/><rect class="cell" x="33" y="145" width="6" height="6"/><rect class="cell" x="41" y="145" width="6" height="6"/><rect class="cell" x="49" y="145" width="6" height="6"/><rect class="cell" x="57" y="145" width="6" height="6"/><rect class="cell" x="1" y="153" width="6" height="6"/><rect class="cell" x="9" y="153" width="6" height="6"/><rect class="cell" x="17" y="153" width="6" height="6"/><rect class="cell" x="25" y="153" width="6" height="6"/><rect class="cell" x="33" y="153" width="6" height="6"/><rect class="cell" x="41" y="153" width="6" height="6"/><rect class="cell" x="49" y="153" width="6" height="6"/><rect class="cell" x="57" y="153" width="6" height="6"/><rect class="cell" x="1" y="161" width="6" height="6"/><rect class="cell" x="9" y="161" width="6" height="6"/><rect class="cell" x="17" y="161" width="6" height="6"/><rect class="cell" x="25" y="161" width="6" height="6"/><rect class="cell" x="33" y="161" width="6" height="6"/><rect class="cell" x="41" y="161" width="6" height="6"/><rect class="cell" x="49" y="161" width="6" height="6"/><rect class="cell" x="57" y="161" width="6" height="6"/><text class="lb-i" x="0" y="192" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">RAM 16×8</text><rect class="c-ref" x="97" y="41" width="6" height="6"/><rect class="c-ref" x="105" y="41" width="6" height="6"/><rect class="c-ref" x="113" y="41" width="6" height="6"/><rect class="c-ref" x="121" y="41" width="6" height="6"/><text class="lb" x="168" y="48" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">PC (4)</text><rect class="c-ref" x="97" y="57" width="6" height="6"/><rect class="c-ref" x="105" y="57" width="6" height="6"/><rect class="c-ref" x="113" y="57" width="6" height="6"/><rect class="c-ref" x="121" y="57" width="6" height="6"/><text class="lb" x="168" y="64" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">MAR (4)</text><rect class="c-ref" x="97" y="73" width="6" height="6"/><rect class="c-ref" x="105" y="73" width="6" height="6"/><rect class="c-ref" x="113" y="73" width="6" height="6"/><rect class="c-ref" x="121" y="73" width="6" height="6"/><rect class="c-ref" x="129" y="73" width="6" height="6"/><rect class="c-ref" x="137" y="73" width="6" height="6"/><rect class="c-ref" x="145" y="73" width="6" height="6"/><rect class="c-ref" x="153" y="73" width="6" height="6"/><text class="lb" x="168" y="80" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">IR (8)</text><rect class="c-ref" x="97" y="89" width="6" height="6"/><rect class="c-ref" x="105" y="89" width="6" height="6"/><rect class="c-ref" x="113" y="89" width="6" height="6"/><rect class="c-ref" x="121" y="89" width="6" height="6"/><rect class="c-ref" x="129" y="89" width="6" height="6"/><rect class="c-ref" x="137" y="89" width="6" height="6"/><rect class="c-ref" x="145" y="89" width="6" height="6"/><rect class="c-ref" x="153" y="89" width="6" height="6"/><text class="lb" x="168" y="96" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">A (8)</text><rect class="c-ref" x="97" y="105" width="6" height="6"/><rect class="c-ref" x="105" y="105" width="6" height="6"/><rect class="c-ref" x="113" y="105" width="6" height="6"/><rect class="c-ref" x="121" y="105" width="6" height="6"/><rect class="c-ref" x="129" y="105" width="6" height="6"/><rect class="c-ref" x="137" y="105" width="6" height="6"/><rect class="c-ref" x="145" y="105" width="6" height="6"/><rect class="c-ref" x="153" y="105" width="6" height="6"/><text class="lb" x="168" y="112" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">B (8)</text><rect class="c-ref" x="97" y="121" width="6" height="6"/><rect class="c-ref" x="105" y="121" width="6" height="6"/><rect class="c-ref" x="113" y="121" width="6" height="6"/><rect class="c-ref" x="121" y="121" width="6" height="6"/><rect class="c-ref" x="129" y="121" width="6" height="6"/><rect class="c-ref" x="137" y="121" width="6" height="6"/><rect class="c-ref" x="145" y="121" width="6" height="6"/><rect class="c-ref" x="153" y="121" width="6" height="6"/><text class="lb" x="168" y="128" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">OUT (8)</text><rect class="c-ref" x="97" y="137" width="6" height="6"/><text class="lb" x="168" y="144" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">carry</text><rect class="c-ref" x="97" y="153" width="6" height="6"/><rect class="c-ref" x="105" y="153" width="6" height="6"/><rect class="c-ref" x="113" y="153" width="6" height="6"/><rect class="c-ref" x="121" y="153" width="6" height="6"/><rect class="c-ref" x="129" y="153" width="6" height="6"/><rect class="c-ref" x="137" y="153" width="6" height="6"/><text class="lb" x="168" y="160" data-src="Olivesz/emergence@ad96d38:cpu/sap1.py#L9-L17">ring (6)</text><text class="lb-i" x="0" y="240" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">five test programs, expected output</text><line class="ax" x1="0" y1="248.5" x2="328" y2="248.5"/><text class="lb" x="0" y="272">program</text><text class="lb" x="112" y="272">expected OUT</text><text class="lb" x="328" y="272" text-anchor="end">pass</text><text class="lb-i" x="0" y="296" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L51">5 + 3</text><rect class="cell" x="320" y="288" width="8" height="8"/><text class="rd" x="112" y="296" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L91">8</text><text class="lb-i" x="0" y="320" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L51">9 − 4</text><rect class="cell" x="320" y="312" width="8" height="8"/><text class="rd" x="112" y="320" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L94">5</text><text class="lb-i" x="0" y="344">countdown</text><rect class="cell" x="320" y="336" width="8" height="8"/><text class="rd" x="112" y="344" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L97">3 2 1 0</text><text class="lb-i" x="0" y="368" data-src="Olivesz/emergence@ad96d38:cpu/README.md#L53">sum 4+3+2+1</text><rect class="cell" x="320" y="360" width="8" height="8"/><text class="rd" x="112" y="368" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L100">10</text><text class="lb-i" x="0" y="392">Fibonacci</text><rect class="cell" x="320" y="384" width="8" height="8"/><text class="rd" x="0" y="416" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L103">1 1 2 3 5 8 13 21 34 55 89 144</text><text class="lb" x="0" y="448" data-src="Olivesz/emergence@ad96d38:cpu/run_cpu.py#L78-L83">check() compares each run with its list</text></svg>
+        <figcaption id="fig3-cap"><span class="n">fig 3</span>the census: one square per flip-flop, RAM in green. the programs: what each one must print, and its check.</figcaption>
+      </figure>
+      <p>SAP-2 adds a stack and runs multiply, divide, GCD, primes and bubble sort. Its logic is the same two cells, <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L81-L83">4,575</span> gates; its <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L81-L83">256-byte</span> memory is a plain array outside that count. A separate build in Conway’s Life, a level below Wireworld, makes gates from glider collisions; its routed ripple adder computes <span data-src="Olivesz/emergence@ad96d38:glider-logic/README.md#L68">511+1=512</span>. The CPU does not run on it.</p>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-src">
+    <h2 id="s-src"><span class="n">05</span>sources</h2>
+    <div class="body">
+      <ol class="srcs">
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/README.md#L3">emergence@ad96d38 · README.md#L3</a> eight acts in one engine</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/README.md#L13-L15">emergence@ad96d38 · README.md#L13-L15</a> the ladder from a one-line rule to a working CPU, every rung verified</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/README.md#L28">emergence@ad96d38 · README.md#L28</a> Wireworld: 4 states, a conductor fires on 1 or 2 heads</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/README.md#L54-L55">emergence@ad96d38 · README.md#L54-L55</a> single HTML file, pure canvas</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/README.md#L81-L82">emergence@ad96d38 · README.md#L81-L82</a> one engine, shared grid buffers; only the step and seed functions differ per act</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L5-L6">emergence@ad96d38 · cpu/README.md#L5-L6</a> a NAND gate and a D flip-flop, each a verified Wireworld gadget</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L13-L15">emergence@ad96d38 · cpu/README.md#L13-L15</a> the asynchronous wall</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L23">emergence@ad96d38 · cpu/README.md#L23</a> AND, OR, XOR and MUX derived from NAND</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L24">emergence@ad96d38 · cpu/README.md#L24</a> the datapath modules</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L25">emergence@ad96d38 · cpu/README.md#L25</a> the CPU’s parts</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L27">emergence@ad96d38 · cpu/README.md#L27</a> five test programs, self-checking</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L28">emergence@ad96d38 · cpu/README.md#L28</a> both cells verified in the raw CA rule</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L31">emergence@ad96d38 · cpu/README.md#L31</a> 1446 NAND gates and 175 flip-flops</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L36">emergence@ad96d38 · cpu/README.md#L36</a> 8-bit data, 4-bit addresses, 16 words</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L51">emergence@ad96d38 · cpu/README.md#L51</a> 5 + 3 and 9 − 4</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L53">emergence@ad96d38 · cpu/README.md#L53</a> sum 4+3+2+1</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L54-L55">emergence@ad96d38 · cpu/README.md#L54-L55</a> Fibonacci until 8-bit overflow trips the carry flag</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L57-L60">emergence@ad96d38 · cpu/README.md#L57-L60</a> the Python self-tests: wwlogic.py, modules.py, run_cpu.py</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/README.md#L81-L83">emergence@ad96d38 · cpu/README.md#L81-L83</a> SAP-2: 4,575 NAND+DFF gates; the 256-byte main store is a memory array, not gates</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L61-L75">emergence@ad96d38 · cpu/run_cpu.py#L61-L75</a> the Fibonacci program the hero replays</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L78-L103">emergence@ad96d38 · cpu/run_cpu.py#L78-L103</a> check() and the five programs it runs</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L78-L83">emergence@ad96d38 · cpu/run_cpu.py#L78-L83</a> check(): a run’s outputs against the expected list</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L91">emergence@ad96d38 · cpu/run_cpu.py#L91</a> 5 + 3 expects 8</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L94">emergence@ad96d38 · cpu/run_cpu.py#L94</a> 9 − 4 expects 5</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L97">emergence@ad96d38 · cpu/run_cpu.py#L97</a> the countdown expects 3, 2, 1, 0</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L100">emergence@ad96d38 · cpu/run_cpu.py#L100</a> the sum expects 10</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/run_cpu.py#L103">emergence@ad96d38 · cpu/run_cpu.py#L103</a> the expected Fibonacci OUT tape</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/sap1.py#L9-L17">emergence@ad96d38 · cpu/sap1.py#L9-L17</a> register widths: RAM 16×8, PC, MAR, IR, A, B, OUT, carry, the 6-state ring counter</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/ww_cells.py#L10-L33">emergence@ad96d38 · cpu/ww_cells.py#L10-L33</a> the NAND and register cells, every claim verified by simulation</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/ww_cells.py#L10-L18">emergence@ad96d38 · cpu/ww_cells.py#L10-L18</a> the NAND cell: a clock-fed suppression junction</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/ww_cells.py#L205-L212">emergence@ad96d38 · cpu/ww_cells.py#L205-L212</a> the engine cross-check on the NAND cell: fast == reference</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/ww_cells.py#L224-L234">emergence@ad96d38 · cpu/ww_cells.py#L224-L234</a> the NAND truth table the check expects</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/ww_cells.py#L339-L340">emergence@ad96d38 · cpu/ww_cells.py#L339-L340</a> an on-time clear leaves 0 electrons</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/ww_cells.py#L346-L347">emergence@ad96d38 · cpu/ww_cells.py#L346-L347</a> a clear 2 ticks late does not clear</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/wwlogic.py#L17-L24">emergence@ad96d38 · cpu/wwlogic.py#L17-L24</a> settle, then every flip-flop commits together</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/wwlogic.py#L100-L104">emergence@ad96d38 · cpu/wwlogic.py#L100-L104</a> NANDs settled in topological order</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/cpu/wwlogic.py#L181-L193">emergence@ad96d38 · cpu/wwlogic.py#L181-L193</a> AND, OR, XOR and NOT truth tables, built from NAND and checked</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/glider-logic/README.md#L68">emergence@ad96d38 · glider-logic/README.md#L68</a> the routed ripple adder in Conway’s Life</li>
+        <li><a href="https://github.com/Olivesz/emergence/blob/ad96d386b39922c9431df59fbee84c7d9676256b/the-stack.html#L156-L158">emergence@ad96d38 · the-stack.html#L156-L158</a> the glider build is separate from the CPU</li>
+      </ol>
+    </div>
+  </section>
+
+  <nav class="blk case-nav" aria-label="case studies">
+    <a class="prev" href="inf-mem.html" rel="prev"><span class="k"><span class="back" aria-hidden="true">→</span> previous</span><span class="t">inf-mem</span></a>
+    <a class="all" href="../index.html#work"><span class="k">back to</span><span class="t">all the work</span></a>
+    <a class="next" href="freeflow.html" rel="next"><span class="k">next <span aria-hidden="true">→</span></span><span class="t">freeflow</span></a>
+  </nav>
+  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio">github.com/Olivesz/portfolio</a>.</p></footer>
+</main>
+
+<script>
+/* emergence hero: the NAND cell from emergence/cpu/ww_cells.py run in the raw Wireworld rule, then the SAP-1 Fibonacci
+   program replayed by an ISA-faithful interpreter. Every value drawn is read from these two simulations. */
+(function () {
+"use strict";
+if (window.matchMedia && matchMedia("(pointer: coarse)").matches) { var v = document.querySelector("#hero-cap .verb"); if (v) v.textContent = "tap"; }
+/* ---------- the cell: build_nand() and pack() from ww_cells.py, same coordinates ---------- */
+var CW = 10, CHT = 6, TAPX = 5, JX = 24, JY = 12, LW = 10;
+var W, H, base, SEEDH, SEEDT, FNW, AIN, BIN, OUT, OEND, JUNC;
+(function () {
+  var c = {};
+  function put(x, y) { c[x + "," + y] = [x, y]; }
+  function hl(x0, x1, y) { for (var x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) put(x, y); }
+  function vl(y0, y1, x) { for (var y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) put(x, y); }
+  hl(0, CW, 0); hl(0, CW, CHT); vl(0, CHT, 0); vl(0, CHT, CW);           // clock loop
+  vl(CHT + 1, JY - 1, TAPX); hl(TAPX, JX - 1, JY - 1);                     // tap into the NW port
+  [[JX, JY], [JX - 1, JY - 1], [JX + 1, JY - 1], [JX - 1, JY + 1], [JX + 1, JY + 1]].forEach(function (p) { put(p[0], p[1]); });
+  hl(JX + 2, JX + 1 + LW, JY - 1);                                         // A wire, into the NE port
+  hl(JX - 1 - LW, JX - 2, JY + 1);                                         // B wire, into the SW port
+  hl(JX + 2, JX + 8, JY + 1);                                              // out wire, from the SE port
+  var ports = [[2, 0], [1, 0], [JX - 1, JY - 1], [JX + 1 + LW, JY - 1], [JX - 1 - LW, JY + 1], [JX + 6, JY + 1], [JX + 8, JY + 1], [JX, JY]];
+  var list = Object.keys(c).map(function (k) { return c[k]; });
+  var xs = list.map(function (p) { return p[0]; }).concat(ports.map(function (p) { return p[0]; }));
+  var ys = list.map(function (p) { return p[1]; }).concat(ports.map(function (p) { return p[1]; }));
+  var mnx = Math.min.apply(null, xs) - 1, mny = Math.min.apply(null, ys) - 1;
+  W = Math.max.apply(null, xs) - mnx + 2; H = Math.max.apply(null, ys) - mny + 2;
+  base = new Uint8Array(W * H);
+  list.forEach(function (p) { base[(p[1] - mny) * W + (p[0] - mnx)] = 3; });
+  var ix = ports.map(function (p) { return (p[1] - mny) * W + (p[0] - mnx); });
+  SEEDH = ix[0]; SEEDT = ix[1]; FNW = ix[2]; AIN = ix[3]; BIN = ix[4]; OUT = ix[5]; OEND = ix[6]; JUNC = ix[7];
+})();
+
+/* ---------- the raw Wireworld rule: step() from ww_cells.py ---------- */
+function step(g) {
+  var n = new Uint8Array(W * H);
+  for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+    var i = y * W + x, s = g[i];
+    if (s === 1) n[i] = 2;
+    else if (s === 2) n[i] = 3;
+    else if (s === 3) {
+      var h = 0;
+      for (var dy = -1; dy <= 1; dy++) {
+        var yy = y + dy; if (yy < 0 || yy >= H) continue;
+        for (var dx = -1; dx <= 1; dx++) {
+          if (!dx && !dy) continue;
+          var xx = x + dx; if (xx >= 0 && xx < W && g[yy * W + xx] === 1) h++;
+        }
+      }
+      n[i] = (h === 1 || h === 2) ? 1 : 3;
+    }
+  }
+  return n;
+}
+function inject(g, i) { if (g[i] === 3) g[i] = 1; }               // a lone head on a dead-end conductor
+function seeded() { var g = base.slice(); g[SEEDH] = 1; g[SEEDT] = 2; return g; }
+
+/* ---------- calibration and verification, as verify_nand() does it ---------- */
+function run(aAt, bAt, S) {                                      // nand_run(): returns arrival ticks at the NW and out probes
+  var g = seeded(), fnw = [], out = [];
+  for (var t = 0; t < S; t++) {
+    if (aAt === t) inject(g, AIN);
+    if (bAt === t) inject(g, BIN);
+    g = step(g);
+    if (g[FNW] === 1) fnw.push(t + 1);
+    if (g[OUT] === 1) out.push(t + 1);
+  }
+  return { fnw: fnw, out: out };
+}
+var cal = run(-1, -1, 400);
+var P = cal.fnw[2] - cal.fnw[1];                                 // clock period at the NW port
+var CSTAR = cal.fnw.filter(function (c) { return c > 2 * LW + 10; })[0];
+var TINJ = CSTAR - LW;                                           // a lone head takes LW ticks to reach its port
+var LAT = cal.out.filter(function (t) { return t >= CSTAR; })[0] - CSTAR;   // clock edge to out probe, measured
+var CASES = [[0, 0], [0, 1], [1, 0], [1, 1]];
+
+/* ---------- a clocked train: inputs are levels, injected in phase with every clock edge ---------- */
+function Train(g, t) { return { g: g, t: t, a: 0, b: 0, lastInj: -1, win: {}, hit: {}, hitT: {}, full: {}, reads: [], rows: [-1, -1, -1, -1], lamp: -1 }; }
+function injNow(tr) {                                            // the stored state at t already carries t's injection
+  if (tr.t < TINJ || (tr.t - TINJ) % P || tr.lastInj === tr.t) return;
+  tr.lastInj = tr.t;
+  if (tr.a) inject(tr.g, AIN);
+  if (tr.b) inject(tr.g, BIN);
+  tr.win[(tr.t - TINJ) / P] = tr.a * 2 + tr.b;
+}
+function advance(tr, lev) {
+  tr.g = step(tr.g); tr.t++;
+  var t = tr.t;
+  if (t > CSTAR && (t - CSTAR) % P === 0) { var wf = (t - CSTAR) / P - 1; tr.full[wf] = tr.hit[wf] ? 1 : 0; }
+  if (t >= CSTAR && tr.g[OUT] === 1) { var wh = Math.floor((t - CSTAR) / P); tr.hit[wh] = 1; if (!(wh in tr.hitT)) tr.hitT[wh] = t; }
+  if (t >= CSTAR + LAT + 1 && (t - CSTAR - LAT - 1) % P === 0) {
+    var w = (t - CSTAR - LAT - 1) / P;                            // the window's head has had time to reach the probe
+    if (tr.win[w] !== undefined) {
+      var o = tr.hit[w] ? 1 : 0;
+      tr.reads.push({ w: w, c: tr.win[w], out: o, t: t });
+      tr.rows[tr.win[w]] = o; tr.lamp = o;
+    }
+  }
+  if (lev) { tr.a = lev[0]; tr.b = lev[1]; }
+  injNow(tr);
+}
+function settleOf(w) { return CSTAR + w * P + LAT + 1; }
+function nextWindow(tr) { var n = tr.t < TINJ ? 0 : Math.ceil((tr.t - TINJ) / P); if (TINJ + n * P === tr.t && tr.lastInj === tr.t) n++; return n; }
+
+/* ---------- self-check: the repo's four cases, recovery after 1,1, then every case-to-case transition ---------- */
+var CHECK = (function () {
+  var table = "", recovers = false;
+  CASES.forEach(function (c, k) {
+    var r = run(c[0] ? TINJ : -1, c[1] ? TINJ : -1, CSTAR + 2 * P);
+    var win = r.out.filter(function (t) { return t >= CSTAR && t < CSTAR + P; });
+    if (k === 3) recovers = r.out.some(function (t) { return t >= CSTAR + P && t < CSTAR + 2 * P; });
+    table += win.length ? "1" : "0";
+  });
+  // de Bruijn order over the four cases: every ordered pair of consecutive inputs occurs once
+  var SEQ = [0, 0, 1, 0, 2, 0, 3, 1, 1, 2, 1, 3, 2, 2, 3, 3, 0], tr = Train(seeded(), 0), trainOk = true;
+  function lev(t) { var n = t <= TINJ ? 0 : Math.ceil((t - TINJ) / P); return CASES[SEQ[Math.min(n, SEQ.length - 1)]]; }
+  tr.a = lev(0)[0]; tr.b = lev(0)[1]; injNow(tr);
+  var end = CSTAR + SEQ.length * P + 1;
+  while (tr.t < end) advance(tr, lev(tr.t + 1));
+  if (tr.reads.length !== SEQ.length) trainOk = false;
+  tr.reads.forEach(function (r) {
+    var want = r.c === 3 ? 0 : 1;
+    if (r.c !== SEQ[r.w] || r.out !== want || tr.full[r.w] !== r.out) trainOk = false;   // the early read equals the full window
+  });
+  var ok = table === "1110" && recovers && trainOk;
+  return { ok: ok, table: table, recovers: recovers, train: trainOk, P: P, cstar: CSTAR, tinj: TINJ, lat: LAT, transitions: tr.reads.length - 1 };
+})();
+function selfCheck() { return { ok: CHECK.ok, table: CHECK.table, recovers: CHECK.recovers, train: CHECK.train, P: CHECK.P, cstar: CHECK.cstar, tinj: CHECK.tinj, lat: CHECK.lat }; }
+
+/* ---------- the autoplay: 00, 01, 10, 11 on consecutive clock edges, recorded once ---------- */
+var T0 = TINJ - 6, TEND = settleOf(3) + 8;                       // ends before the fifth edge is injected
+function scriptCase(t) { var n = t <= TINJ ? 0 : Math.ceil((t - TINJ) / P); return Math.min(3, n); }
+var REC = (function () {
+  var tr = Train(seeded(), 0), frames = [];
+  function snap() { return { g: tr.g.slice(), t: tr.t, a: tr.a, b: tr.b, rows: tr.rows.slice(), lamp: tr.lamp, lastInj: tr.lastInj, reads: tr.reads.length }; }
+  var c0 = CASES[scriptCase(0)]; tr.a = c0[0]; tr.b = c0[1]; injNow(tr);
+  frames.push(snap());
+  while (tr.t < TEND) { advance(tr, CASES[scriptCase(tr.t + 1)]); frames.push(snap()); }
+  return { frames: frames, win: tr.win, hitT: tr.hitT };
+})();
+
+var SAP = (function () {
+    // the exact program from emergence/cpu/run_cpu.py (a=11, b=12, t=13)
+    var LISTING = [
+      ["top:", "LDA a"], ["", "OUT"], ["", "ADD b"], ["", "JC done"], ["", "STA t"],
+      ["", "LDA b"], ["", "STA a"], ["", "LDA t"], ["", "STA b"], ["", "JMP top"],
+      ["done:", "HLT"], ["a:", "DB 1"], ["b:", "DB 1"], ["t:", "DB 0"]
+    ];
+    function fresh() { return { M: [0x1B, 0xE0, 0x2C, 0x8A, 0x4D, 0x1C, 0x4B, 0x1D, 0x4C, 0x60, 0xF0, 1, 1, 0], PC: 0, A: 0, C: 0, OUT: [], halt: false }; }
+    function stepInstr(s) {
+      if (s.halt) return;
+      var w2 = s.M[s.PC], op = w2 >> 4, ad = w2 & 15;
+      s.PC = (s.PC + 1) & 15;
+      if (op === 0x1) s.A = s.M[ad];
+      else if (op === 0x2) { var r = s.A + s.M[ad]; s.C = r > 255 ? 1 : 0; s.A = r & 255; }
+      else if (op === 0x4) s.M[ad] = s.A;
+      else if (op === 0x6) s.PC = ad;
+      else if (op === 0x8) { if (s.C) s.PC = ad; }
+      else if (op === 0xE) s.OUT.push(s.A);
+      else if (op === 0xF) s.halt = true;
+    }
+    return {
+      LISTING: LISTING,
+      at: function (nInstr) {
+        var s = fresh();
+          for (var i = 0; i < nInstr && !s.halt; i++) stepInstr(s);
+        s.line = s.halt ? 10 : s.PC;
+        return s;
+      }
+    };
+  })();
+// one snapshot per executed instruction, each read back from the interpreter
+var SAPT = (function () {
+  var snaps = [], s = SAP.at(0), prev, n = 0;
+  function snap(x, op, ad, pc0) { return { M: x.M.slice(), PC: x.PC, A: x.A, C: x.C, out: x.OUT.slice(), halt: x.halt, op: op, ad: ad, pc0: pc0 }; }
+  snaps.push(snap(s, -1, 0, 0));
+  while (!s.halt && n < 1000) { prev = s; s = SAP.at(++n); var w = prev.M[prev.PC]; snaps.push(snap(s, w >> 4, w & 15, prev.PC)); }
+  return { snaps: snaps };
+})();
+
+
+/* ---------- the stage: the NAND cell, then SAP-1 on the Fibonacci program; 8 px lattice, 6 px under 768 ---------- */
+var stage = document.getElementById("hero"), em = document.getElementById("em");
+var cvN = em.querySelector(".em-nand canvas"), cvS = em.querySelector(".em-sap canvas");
+var reduce = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+var coarse = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+var css = getComputedStyle(document.documentElement);
+function tok(n) { return css.getPropertyValue("--" + n).trim(); }
+var K = { void: tok("void"), ink: tok("ink"), signal: tok("signal"), sig2: tok("signal-2"), copper: tok("copper"), residue: tok("residue"), accent: tok("accent") };
+var OX = 1, OY = 1;
+function px(i) { return [i % W - OX, ((i / W) | 0) - OY]; }
+var ABIT = [px(AIN)[0] + 2, px(AIN)[1]], BBIT = [px(BIN)[0] - 2, px(BIN)[1]], LAMP = [px(OEND)[0] + 2, px(OEND)[1]];
+var GW = Math.max(ABIT[0], LAMP[0]) + 1, GH = Math.max(px(OEND)[1], BBIT[1]) + 1;
+var SAP_N = SAPT.snaps.length - 1, FIB = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
+var SAP_OK = SAP_N === 115 && SAPT.snaps[SAP_N].halt && SAPT.snaps[SAP_N].out.join() === FIB.join();
+var NF = REC.frames.length - 1, DUR_N = 2400, DUR_S = 2400, HOLD = 200;   // about 5 s in all
+
+/* ---------- layout: side by side when the stage is wide enough, stacked otherwise ---------- */
+var L = null, dpr = 1;
+function lay() {
+  var phone = innerWidth < 768, c = phone ? 6 : 8, sc = phone ? 1 : 2, u = c * sc;
+  var nw = GW * u, nh = GH * u + (phone ? 40 : 24), sw = 52 * c, sh = phone ? 176 : 224;
+  var side = !phone && stage.clientWidth >= nw + 64 + sw;
+  var tt = phone ? { x: nw + 16, y: 0, dy: 20 } : { x: 34 * c, y: 40, dy: 24 };
+  var sx = side ? nw + 64 : 0, sy = side ? 0 : nh + 24;
+  L = { c: c, sc: sc, u: u, nw: nw, nh: nh, sw: sw, sh: sh, sx: sx, sy: sy, tt: tt,
+        w: Math.max(side ? sx + sw : Math.max(nw + (phone ? 80 : 0), sw)), h: side ? Math.max(nh, sh) : sy + sh };
+  dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
+  em.style.width = L.w + "px"; em.style.height = L.h + "px";
+  var bN = cvN.parentNode, bS = cvS.parentNode;
+  bN.style.left = "0px"; bN.style.top = "0px"; bN.style.width = (nw + (phone ? 80 : 0)) + "px"; bN.style.height = nh + "px";
+  bS.style.left = sx + "px"; bS.style.top = sy + "px"; bS.style.width = sw + "px"; bS.style.height = sh + "px";
+  size(cvN, GW * u, GH * u); size(cvS, sw, 20 * c);
+  labels();
+}
+function size(cv, w, h) { cv.width = w * dpr; cv.height = h * dpr; cv.style.width = w + "px"; cv.style.height = h + "px"; }
+
+/* ---------- DOM text: labels mono 11, readouts mono 13; every figure in them is read from the sims ---------- */
+var D = {};
+function el(parent, cls, key, text) {
+  if (!D[key]) { D[key] = document.createElement("span"); D[key].className = cls; parent.appendChild(D[key]); }
+  if (text !== undefined) D[key].textContent = text;
+  return D[key];
+}
+function lw(n) { return Math.round(n * 7.04); }                // mono 11 advance plus 0.04 em tracking
+function at(e, x, y) { e.style.left = Math.round(x) + "px"; e.style.top = Math.round(y) + "px"; }
+function labels() {
+  var bN = cvN.parentNode, bS = cvS.parentNode, u = L.u, c = L.c;
+  at(el(bN, "em-l", "clock", "clock"), u + 8, 2 * u + (L.sc === 2 ? 8 : 0));
+  at(el(bN, "em-l", "a", "a in"), ABIT[0] * u + u - lw(4), ABIT[1] * u - 20);    // right-aligned on the a cell
+  at(el(bN, "em-l", "b", "b in"), BBIT[0] * u, GH * u + 4);
+  at(el(bN, "em-l", "out", "out"), LAMP[0] * u + u / 2 - 11, GH * u + 4);
+  // the junction itself: a label under it, on a second line on phones, and a 1 px leader up through the gap to its centre
+  var jx = px(JUNC)[0] * u + u / 2, jy = (px(JUNC)[1] + 1) * u, ly = GH * u + (L.sc === 2 ? 4 : 22);
+  at(el(bN, "em-l", "junc", "NAND junction"), jx - lw(13) / 2, ly);
+  var ld = el(bN, "em-ld", "lead"); at(ld, jx - 1, jy); ld.style.height = (ly + 2 - jy) + "px";
+  var tt = el(bN, "em-tt", "tt"); at(tt, L.tt.x, L.tt.y); tt.style.setProperty("--dy", L.tt.dy + "px");
+  tt.setAttribute("data-src", "Olivesz/emergence@ad96d38:cpu/ww_cells.py#L224-L234");
+  at(el(bS, "em-l", "ram", "RAM"), 2 * c, 3 * c - 16);
+  at(el(bS, "em-l", "bus", "bus"), 12 * c, 3 * c - 16);
+  at(el(bS, "em-l", "pc", "PC"), 29 * c, 3 * c - 16);
+  at(el(bS, "em-l", "acc", "A"), 29 * c, 8 * c - 16);
+  at(el(bS, "em-l", "oreg", "OUT"), 29 * c, 13 * c - 16);
+  at(el(bS, "em-l", "carry", "carry"), 29 * c, 18 * c - 16);
+  at(el(bS, "em-r", "line"), 0, 20 * c + 4);
+  var tp = el(bS, "em-r em-tape", "tape"); at(tp, 0, 20 * c + 28);
+  tp.setAttribute("data-src", "Olivesz/emergence@ad96d38:cpu/run_cpu.py#L103");
+  D.line.setAttribute("data-src", "Olivesz/emergence@ad96d38:cpu/run_cpu.py#L61-L75");
+  placeInputs();
+}
+
+/* ---------- drawing ---------- */
+function painter(cv, pitch) {
+  var g = cv.getContext("2d"), P = Math.round(pitch * dpr);
+  g.fillStyle = K.void; g.fillRect(0, 0, cv.width, cv.height);
+  return function (x, y, col) { g.fillStyle = col; g.fillRect(x * P, y * P, P, P); };
+}
+function drawNand(s) {
+  var F = painter(cvN, L.u), g = s.g;
+  for (var i = 0; i < g.length; i++) {
+    if (!base[i]) continue;
+    var p = px(i);
+    F(p[0], p[1], g[i] === 1 ? K.signal : g[i] === 2 ? K.sig2 : K.copper);
+  }
+  F(ABIT[0], ABIT[1], s.a ? K.ink : K.copper);
+  F(BBIT[0], BBIT[1], s.b ? K.ink : K.copper);
+  F(LAMP[0], LAMP[1], s.lamp < 0 ? K.residue : s.lamp ? K.accent : K.copper);
+  var h = '<span class="em-th">a b  out</span>';
+  for (var k = 0; k < 4; k++) if (s.rows[k] >= 0) h += '<span class="em-row">' + CASES[k][0] + " " + CASES[k][1] + '  <span class="o">' + s.rows[k] + "</span></span>";
+  if (D.tt.innerHTML !== h) D.tt.innerHTML = h;
+}
+function drawSap(n, fr) {
+  var F = painter(cvS, L.c), S = SAPT.snaps[n], nx = n < SAP_N ? SAPT.snaps[n + 1] : null, r, bt, q, y;
+  var pcRow = nx ? nx.pc0 : 10;
+  for (r = 0; r < 16; r++) for (bt = 0; bt < 8; bt++) F(2 + bt, 3 + r, (S.M[r] >> (7 - bt)) & 1 ? K.ink : K.copper);
+  F(0, 3 + pcRow, S.halt ? K.ink : K.signal);
+  for (bt = 0; bt < 8; bt++) for (y = 3; y <= 19; y++) F(12 + 2 * bt, y, K.copper);
+  function reg(v, nb, y0) {
+    for (var b = 0; b < nb; b++) { var on = (v >> (nb - 1 - b)) & 1; for (q = 0; q < 4; q++) F(29 + b * 3 + (q & 1), y0 + (q >> 1), on ? K.ink : K.copper); }
+  }
+  reg(pcRow, 4, 3); reg(S.A, 8, 8); reg(S.out.length ? S.out[S.out.length - 1] : 0, 8, 13); reg(S.C, 1, 18);
+  // a transfer rides the bus: each lane whose bit is 1 carries a head and its tail from the source row to the destination
+  if (nx && fr > 0) {
+    var from = -1, to = -1, val = 0;
+    if (nx.op === 1 || nx.op === 2) { from = 3 + nx.ad; to = 8; val = S.M[nx.ad]; }
+    else if (nx.op === 4) { from = 8; to = 3 + nx.ad; val = S.A; }
+    else if (nx.op === 0xE) { from = 8; to = 13; val = S.A; }
+    if (from >= 0) {
+      var ram = nx.op === 4 ? to : from;
+      if (nx.op !== 0xE) { F(10, ram, K.copper); F(11, ram, K.copper); }
+      F(27, from === ram ? to : from, K.copper); F(28, from === ram ? to : from, K.copper);
+      if (nx.op === 0xE) { F(27, to, K.copper); F(28, to, K.copper); }
+      var dir = to > from ? 1 : -1, hy = Math.round(from + (to - from) * fr), ty = hy - dir;
+      for (bt = 0; bt < 8; bt++) if ((val >> (7 - bt)) & 1) {
+        F(12 + 2 * bt, hy, K.signal);
+        if ((ty - from) * dir >= 0) F(12 + 2 * bt, ty, K.sig2);
+      }
+    }
+  }
+  D.line.textContent = "PC " + pcRow + " · " + (S.halt ? "HLT" : SAP.LISTING[pcRow][1]);
+  var out = S.out, h = "";
+  for (var i = 0; i < out.length; i++) h += (i ? " " : "") + (i === out.length - 1 ? '<span class="o">' + out[i] + "</span>" : out[i]);
+  if (D.tape.innerHTML !== h) D.tape.innerHTML = h;
+}
+
+/* ---------- playback: case:play runs both beats on one clock, case:rest shows the final state ---------- */
+var raf = 0, t0 = 0, mode = "idle", nfNow = 0, snNow = 0, live = null;
+function nandState() {
+  if (live) { var tr = live.tr; return { g: tr.g, a: tr.a, b: tr.b, rows: tr.rows, lamp: tr.lamp }; }
+  return REC.frames[nfNow];
+}
+function paint(fr) { drawNand(nandState()); drawSap(snNow, fr || 0); syncInputs(); }
+function frame(now) {
+  var e = now - t0;
+  if (!live) nfNow = Math.min(NF, Math.round(Math.max(0, e) / DUR_N * NF));
+  var f = Math.max(0, Math.min(1, (e - DUR_N) / DUR_S)) * SAP_N, fr = 0;
+  snNow = Math.min(SAP_N, Math.floor(f)); fr = f - snNow;
+  paint(fr);
+  if (e < DUR_N + DUR_S + HOLD) raf = requestAnimationFrame(frame);
+  else finish();
+}
+function finish() { cancelAnimationFrame(raf); raf = 0; if (mode === "play") { mode = "done"; snNow = SAP_N; paint(0); stage.dispatchEvent(new CustomEvent("case:done")); } }
+function play() {
+  cancelAnimationFrame(raf); live = null; nfNow = 0; snNow = 0; mode = "play";
+  raf = requestAnimationFrame(function (now) { t0 = now; frame(now); });
+}
+function rest() { cancelAnimationFrame(raf); live = null; mode = "rest"; nfNow = NF; snNow = SAP_N; paint(0); }
+
+/* ---------- inputs: real buttons over the a and b cells; touching one stops the autoplay and runs the cell live ---------- */
+var TPS = 50, btn = {}, status = null;
+function fromFrame(f) {
+  var tr = Train(f.g.slice(), f.t);
+  tr.a = f.a; tr.b = f.b; tr.lastInj = f.lastInj; tr.rows = f.rows.slice(); tr.lamp = f.lamp;
+  for (var k in REC.win) if (TINJ + k * P <= f.t) tr.win[k] = REC.win[k];
+  for (k in REC.hitT) if (REC.hitT[k] <= f.t) { tr.hit[k] = 1; tr.hitT[k] = REC.hitT[k]; }
+  return tr;
+}
+function toggle(which) {
+  if (mode === "play") finish();
+  if (!live) live = { tr: fromFrame(REC.frames[nfNow]), running: false, wall0: 0, done: 0, settleAt: 0 };
+  var tr = live.tr;
+  if (which === "A") tr.a ^= 1; else tr.b ^= 1;
+  live.settleAt = Math.max(live.running ? live.settleAt : 0, settleOf(nextWindow(tr)));
+  if (reduce) { while (tr.t < live.settleAt) advance(tr, null); paint(0); report(); return; }
+  if (!live.running) { live.running = true; live.done = 0; live.wall0 = performance.now(); requestAnimationFrame(liveTick); }
+  paint(0);
+}
+function liveTick(now) {
+  if (!live || !live.running) return;
+  var due = Math.floor((now - live.wall0) * TPS / 1000) - live.done;
+  while (due-- > 0 && live.tr.t < live.settleAt) { advance(live.tr, null); live.done++; }
+  if (live.tr.t >= live.settleAt) { live.running = false; report(); }
+  paint(0);
+  if (live.running) requestAnimationFrame(liveTick);
+}
+function report() { var s = nandState(); if (status && s.lamp >= 0) status.textContent = "a " + s.a + ", b " + s.b + ", out " + s.lamp; }
+function syncInputs() {
+  if (!btn.A) return;
+  var s = nandState();
+  btn.A.setAttribute("aria-label", "input a, " + (s.a ? "on" : "off")); btn.A.setAttribute("aria-pressed", s.a ? "true" : "false");
+  btn.B.setAttribute("aria-label", "input b, " + (s.b ? "on" : "off")); btn.B.setAttribute("aria-pressed", s.b ? "true" : "false");
+}
+function placeInputs() {
+  ["A", "B"].forEach(function (k) {
+    var b = btn[k], e = px(k === "A" ? AIN : BIN), bit = k === "A" ? ABIT : BBIT, u = L.u, min = coarse ? 32 : 24;
+    var x = Math.min(e[0], bit[0]) * u, y = e[1] * u, w = 3 * u, h = u, W2 = Math.max(min, w), H2 = Math.max(min, h);
+    b.style.left = (x + w / 2 - W2 / 2) + "px"; b.style.top = (y + h / 2 - H2 / 2) + "px"; b.style.width = W2 + "px"; b.style.height = H2 + "px";
+  });
+}
+if (CHECK.ok && SAP_OK) {
+  ["A", "B"].forEach(function (k) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "em-in";
+    b.addEventListener("click", function () { toggle(k); });
+    cvN.parentNode.appendChild(b); btn[k] = b;
+  });
+  status = document.createElement("span"); status.className = "sr-only"; status.setAttribute("role", "status");
+  cvN.parentNode.appendChild(status);
+  lay(); paint(0);
+  stage.addEventListener("case:play", play);
+  stage.addEventListener("case:rest", rest);
+  var rz = 0;
+  window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { lay(); paint(0); }, 120); });
+} else {
+  // a failed self-check shows nothing rather than a faked run; the stage stops playing
+  em.hidden = true; stage.removeAttribute("data-play");
+}
+window.__emergence = { check: CHECK, sapOk: SAP_OK, instructions: SAP_N, frames: NF + 1, state: function () { return { mode: mode, nf: nfNow, sap: snNow, out: SAPT.snaps[snNow].out.slice(), rows: nandState().rows.slice() }; } };
+
+})();
+</script>
+<script src="assets/case.js" defer></script>
+</body>
+</html>

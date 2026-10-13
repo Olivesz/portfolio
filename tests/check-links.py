@@ -5,8 +5,16 @@ Repo visibility can change after a link is written. A link to a repo that has
 gone private 404s for every visitor while looking fine to the owner, who is
 logged in, so visibility is read from GitHub on every run.
 
+Scope: index.html and every case study under work/. Script text is not links.
+
 Checks, in order of how much they cost when wrong:
-  1. every https link in index.html returns < 400
+  0. every relative href/src resolves to a file in the checkout, every #fragment
+     to an id in its target, and every self-site URL (canonical, og:url,
+     og:image) to a file -- those are never fetched: before a deploy a new
+     page's canonical 404s. Coverage: every work/*.html is linked from
+     index.html, every work/ link there has a page, and the sitemap's work/
+     entries are exactly the pages
+  1. every other https link returns < 400 (a 5xx is retried once, serially)
   2. every Olivesz repo LINKED here is actually public
   3. no repo named in the copy is public-but-unlinked (a soft warning: a named
      project a reader cannot reach is a wasted mention)
@@ -28,12 +36,78 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 INDEX = ROOT / "index.html"
 OWNER = "Olivesz"
+SITE = "https://olivesz.github.io/portfolio/"
+# (?<![\w-]) so data-src= is not read as src=
+ATTR = re.compile(r'(?<![\w-])(href|src|content)="([^"]*)"')
 
 # Public repos named in the copy on purpose but deliberately not linked, with the
 # reason. Only public repos are ever checked against this list.
 ALLOW_UNLINKED = {
     "portfolio": "this repo",
 }
+
+
+def pages():
+    return [INDEX] + sorted((ROOT / "work").glob("*.html"))
+
+
+def ids_of(path, cache={}):
+    if path not in cache:
+        cache[path] = set(re.findall(r'\bid="([^"]+)"', path.read_text(encoding="utf-8")))
+    return cache[path]
+
+
+def site_problems():
+    """Relative links, fragments and self-site URLs on every page; case-study
+    coverage from index.html and sitemap.xml. Returns (problems, https links, counts)."""
+    bad, ext, n_rel, n_self = [], set(), 0, 0
+    for p in pages():
+        text = re.sub(r"<script\b[^>]*>.*?</script>", "", p.read_text(encoding="utf-8"), flags=re.S)
+        for attr, u in ATTR.findall(text):
+            u = unescape(u)
+            if attr == "content" and not u.startswith(SITE):
+                continue
+            if not u or u.startswith(("mailto:", "data:", "javascript:")):
+                continue
+            where = p.relative_to(ROOT)
+            if u.startswith(SITE):
+                n_self += 1
+                rel = u[len(SITE):].split("#")[0] or "index.html"
+                if not (ROOT / rel).is_file():
+                    bad.append(f"{where}: {u} has no file {rel} in the checkout")
+                continue
+            if u.startswith(("http://", "https://")):
+                if attr == "href":
+                    ext.add(u)
+                continue
+            n_rel += 1
+            path, _, frag = u.partition("#")
+            t = (p.parent / path).resolve() if path else p
+            if not t.is_file():
+                bad.append(f"{where}: {u} resolves to no file")
+            elif frag and t.suffix == ".html" and frag not in ids_of(t):
+                bad.append(f"{where}: {u} has no id={frag!r} in {t.name}")
+    work = {f"work/{q.name}" for q in (ROOT / "work").glob("*.html")}
+    linked = set(re.findall(r'href="(work/[\w.-]+\.html)"', INDEX.read_text(encoding="utf-8")))
+    for w in sorted(work - linked):
+        bad.append(f"coverage: {w} is not linked from index.html")
+    for w in sorted(linked - work):
+        bad.append(f"coverage: index.html links {w}, which does not exist")
+    sm = ROOT / "sitemap.xml"
+    locs = re.findall(r"<loc>([^<]+)</loc>", sm.read_text(encoding="utf-8")) if sm.is_file() else []
+    inmap = {u[len(SITE):] for u in locs if u.startswith(SITE + "work/")}
+    if inmap != work:
+        bad.append(f"coverage: sitemap work/ entries differ from the pages: missing {sorted(work - inmap)}, extra {sorted(inmap - work)}")
+    return bad, ext, (len(pages()), n_rel, n_self)
+
+
+def head(u):
+    import urllib.request
+    try:
+        req = urllib.request.Request(u, method="HEAD", headers={"User-Agent": "link-guard"})
+        return urllib.request.urlopen(req, timeout=20).status
+    except Exception as e:
+        return getattr(e, "code", 0)
 
 
 def gh_visibility(name):
@@ -82,20 +156,26 @@ def main():
     fail = warn = 0
 
     # an href is fetched as the browser resolves it: &amp; is &
-    links = sorted({unescape(u) for u in re.findall(r'href="(https://[^"]+)"', html)})
-    repo_links = sorted({m for m in re.findall(
-        rf'https://github\.com/{OWNER}/([a-z0-9._-]+)', html)})
-    print(f"link guard: {len(links)} outbound links, {len(repo_links)} repos linked\n")
+    site_bad, ext, (n_pages, n_rel, n_self) = site_problems()
+    links = sorted(u for u in ext if u.startswith("https://"))
+    repo_links = sorted({m for u in links for m in re.findall(
+        rf'^https://github\.com/{OWNER}/([a-z0-9._-]+)', u)})
+    print(f"link guard: {n_pages} pages, {n_rel} relative links, {n_self} self-site URLs, "
+          f"{len(links)} outbound links, {len(repo_links)} repos linked\n")
+    for b in site_bad:
+        print(f"  FAIL  {b}")
+    fail += len(site_bad)
+    if not site_bad:
+        print("  ok    relative links, fragments, self-site URLs and case-study coverage resolve\n")
 
     if net:
-        import urllib.request
+        import concurrent.futures as cf
+        with cf.ThreadPoolExecutor(6) as ex:
+            codes = dict(zip(links, ex.map(head, links)))
         for u in links:
-            try:
-                req = urllib.request.Request(u, method="HEAD",
-                                             headers={"User-Agent": "link-guard"})
-                code = urllib.request.urlopen(req, timeout=20).status
-            except Exception as e:
-                code = getattr(e, "code", 0)
+            code = codes[u]
+            if code >= 500:          # GitHub answers some blob lines 503 under load; one serial retry
+                code = head(u)
             # 405 means the server ANSWERED and refused the METHOD, not that the
             # URL is dead -- LinkedIn rejects HEAD from non-browsers. Treating it
             # as a failure trains people to ignore a red link guard, which is

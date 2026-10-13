@@ -8,7 +8,7 @@ read.
 What it reads from index.html, as text:
   FACTS     <script type="application/json" id="facts"> {"key": {"v", "src", "at"?, "ctx"?}}
   data-src  every element carrying data-src (and data-at)
-  regions   cards (<article class="card">), work rows (<li class="row"> in <section id="work">),
+  regions   cards (<article class="card">), work highlights and more-rows (<li class="k-card">, <li class="k-mrow">) in <section id="work">,
             the résumé block (<section id="resume">, counted by its <div class="cv-ent"> entries),
             instruction lines (script strings under `instruction:`), and labels
             (script strings under `label:` / `labels:` / `short:` / `phoneLabel(s):` /
@@ -227,7 +227,7 @@ class Page(html.parser.HTMLParser):
             self.hero += 1
         if tag == "div" and "cv-ent" in cls and any(e["region"] == "resume" for e in self.stack):
             self.cv += 1
-        if tag == "li" and "row" in cls and any(e["region"] == "work" for e in self.stack):
+        if tag == "li" and ({"row", "k-card", "k-mrow"} & set(cls)) and any(e["region"] == "work" for e in self.stack):
             self.rows += 1
         e = {"tag": tag, "attrs": a, "text": [], "line": self.getpos()[0], "region": region}
         if tag not in self.VOID:

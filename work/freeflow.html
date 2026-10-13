@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="en" class="a-systems">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>freeflow · Oliver Zhang</title>
+<meta name="description" content="On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.">
+<meta property="og:title" content="freeflow · Oliver Zhang">
+<meta property="og:description" content="On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.">
+<meta property="og:image" content="https://olivesz.github.io/portfolio/poster.jpg">
+<meta property="og:url" content="https://olivesz.github.io/portfolio/work/freeflow.html">
+<meta name="theme-color" content="#0a0b14">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0b14'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23ff3d81'/%3E%3Crect x='10' y='2' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3Crect x='2' y='10' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://olivesz.github.io/portfolio/work/freeflow.html">
+<meta name="robots" content="index, follow, max-image-preview:large, noai, noimageai">
+<meta name="tdm-reservation" content="1">
+<link rel="preload" href="assets/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/case.css">
+</head>
+<body>
+<a class="skip" href="#main">skip to the story</a>
+<header class="strip">
+  <a class="nm" href="../index.html">Oliver Zhang</a>
+  <span class="here" aria-hidden="true">work · freeflow</span>
+  <a class="sp" href="../index.html#work"><span class="back" aria-hidden="true">→</span>&nbsp;all the work</a>
+  <a class="to" href="../resume.pdf">résumé pdf</a>
+</header>
+
+<main id="main" tabindex="-1">
+  <header class="blk head">
+    <p class="kick">chapter iii <span class="sep">·</span> case study</p>
+    <h1>freeflow</h1>
+    <div class="head-grid">
+      <div>
+        <p class="lede" data-src="Olivesz/freeflow@6d541e6:README.md#L6-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>year</dt><dd data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</dd></div>
+        <div><dt>stack</dt><dd><span data-src="Olivesz/freeflow@6d541e6:mac/Package.swift#L1">Swift</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@6d541e6:README.md#L12">Python</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@6d541e6:README.md#L7">whisper.cpp</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@6d541e6:mac/Package.swift#L6">macOS</span></dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/freeflow">github.com/Olivesz/freeflow</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>themes</dt><dd>
+          <ul class="chips">
+            <li class="chip t-systems">systems &amp; performance</li>
+            <li class="chip t-verify">verification</li>
+          </ul>
+        </dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <figure class="blk wide hero-fig" aria-labelledby="hero-cap">
+    <div class="stage" id="hero" data-play data-native="freeflow" style="--stage-h:408px;--stage-h-phone:304px"></div>
+    <figcaption class="cap-row">
+      <p class="instr" id="hero-cap"><span class="n">fig 0</span>scripted · no microphone. typed once <span data-src="Olivesz/freeflow@6d541e6:README.md#L94-L96">two</span> passes agree.</p>
+      <button class="replay" type="button" hidden>replay</button>
+    </figcaption>
+  </figure>
+
+  <section class="blk sec" aria-labelledby="s-problem">
+    <h2 id="s-problem"><span class="n">01</span>the problem</h2>
+    <div class="body">
+      <p class="np">A local, free stand-in for <span data-src="Olivesz/freeflow@6d541e6:README.md#L5-L6">Wispr Flow</span>.</p>
+      <p>Whisper runs on the machine through whisper.cpp, with no account, no cloud and <span data-src="Olivesz/freeflow@6d541e6:README.md#L7-L8">$0</span> a month. Streaming is the hard case. Whisper revises earlier words as it hears more, and a word already typed into another app cannot be quietly taken back. Re-reading the whole utterance on every pass also slows down the longer the speech runs.</p>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-how">
+    <h2 id="s-how"><span class="n">02</span>how it works</h2>
+    <div class="body">
+      <p>The Python prototype came first. The Swift menubar app <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L4-L5">ports its streamer</span>, with a smaller window and beam search. The walk-through below follows the mac app. A global hotkey, option-space by default, starts capture, converted to <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/AudioCapture.swift#L3">16 kHz</span> mono. Every <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L34">350 ms</span> the window of recent audio goes to whisper.cpp’s base.en model, which returns <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L48">one</span> word per segment, each with a timestamp. A word is typed once <span data-src="Olivesz/freeflow@6d541e6:README.md#L94-L96">two</span> consecutive passes agree on it, so the backspace count is always <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L28-L29">0</span>. Committed words reach the focused app as Unicode key events.</p>
+      <figure class="ig" aria-labelledby="fig1-cap">
+        <svg class="ig-w" id="fig1-w" width="704" height="312" viewBox="0 0 704 312" role="img" aria-labelledby="fig1-w-t fig1-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig1-w-t">One dictation in the freeflow mac app, from key to keystroke</title><desc id="fig1-w-d">The option-space hotkey starts capture, converted to 16 kHz mono. Every 350 ms the audio window passes three gates: at least 0.5 s of audio, above an RMS floor of 0.006, and trailing quiet cut to 0.2 s. whisper.cpp base.en with beam search transcribes it; the streamer commits words two passes agree on; the words are injected as Unicode key events into the focused app, with 0 backspaces. A dashed loop from the streamer back to the window trims it once more than 3.0 s of committed audio piles up, keeping 1.5 s. In toggle mode 1,500 ms of silence after a 400 ms grace ends the dictation.</desc><rect class="bx" x="0.5" y="32.5" width="151" height="63"/><text class="lb" x="8" y="48">hotkey</text><text class="rd" x="8" y="72" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Settings.swift#L19">option+space</text><rect class="bx" x="184.5" y="32.5" width="151" height="63"/><text class="lb" x="192" y="48">mic</text><text class="rd" x="192" y="72" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/AudioCapture.swift#L3">16 kHz mono</text><rect class="bx" x="368.5" y="32.5" width="151" height="63"/><text class="lb" x="376" y="48">window</text><text class="rd" x="376" y="72" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L34">every 350 ms</text><rect class="bx" x="552.5" y="32.5" width="151" height="111"/><text class="lb" x="560" y="48">gates</text><text class="rd" x="560" y="72" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L95">0.5 s minimum</text><text class="rd" x="560" y="96" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L37">rms floor 0.006</text><text class="rd" x="560" y="120" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L157">tail cut +0.2 s</text><rect class="bx" x="552.5" y="176.5" width="151" height="63"/><text class="lb" x="560" y="192">whisper.cpp</text><text class="rd" x="560" y="216" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L44-L45">base.en · beam</text><rect class="bx-a" x="368.5" y="176.5" width="151" height="63"/><text class="lb" x="376" y="192">streamer</text><text class="rd-a" x="376" y="216" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L6">2 passes agree</text><rect class="bx" x="184.5" y="176.5" width="151" height="63"/><text class="lb" x="192" y="192">inject</text><text class="rd" x="192" y="216" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/TextInjector.swift#L33-L35">unicode keys</text><rect class="bx" x="0.5" y="176.5" width="151" height="63"/><text class="lb" x="8" y="192">focused app</text><text class="rd" x="8" y="216" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L28-L29">backspaces 0</text><path class="ln" d="M152 64.5 L176 64.5"/><polygon class="hd" points="184,64.5 176,60.5 176,68.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M336 64.5 L360 64.5"/><polygon class="hd-a" points="368,64.5 360,60.5 360,68.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M520 64.5 L544 64.5"/><polygon class="hd-a" points="552,64.5 544,60.5 544,68.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M624.5 144 L624.5 168"/><polygon class="hd-a" points="624.5,176 620.5,168 628.5,168" shape-rendering="geometricPrecision"/><path class="ln-a" d="M552 208.5 L528 208.5"/><polygon class="hd-a" points="520,208.5 528,204.5 528,212.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M368 208.5 L344 208.5"/><polygon class="hd-a" points="336,208.5 344,204.5 344,212.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M184 208.5 L160 208.5"/><polygon class="hd-a" points="152,208.5 160,204.5 160,212.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M440.5 176 L440.5 104" stroke-dasharray="4 4"/><polygon class="hd-a" points="440.5,96 436.5,104 444.5,104" shape-rendering="geometricPrecision"/><text class="lb" x="432" y="128" text-anchor="end">trim past <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0 s</tspan> committed</text><text class="lb" x="432" y="144" text-anchor="end">keep <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5 s</tspan></text><text class="lb" x="0" y="280">dropped on the way: silent windows, non-speech tokens, words already typed</text><text class="lb" x="0" y="304">toggle mode: <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Settings.swift#L28">1,500 ms</tspan> of silence after a <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L36">400 ms</tspan> grace ends it; a final pass reads the tail</text></svg>
+        <svg class="ig-n" id="fig1-n" width="328" height="640" viewBox="0 0 328 640" role="img" aria-labelledby="fig1-n-t fig1-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig1-n-t">One dictation in the freeflow mac app, from key to keystroke</title><desc id="fig1-n-d">The option-space hotkey starts capture, converted to 16 kHz mono. Every 350 ms the audio window passes three gates: at least 0.5 s of audio, above an RMS floor of 0.006, and trailing quiet cut to 0.2 s. whisper.cpp base.en with beam search transcribes it; the streamer commits words two passes agree on; the words are injected as Unicode key events into the focused app, with 0 backspaces. A dashed loop from the streamer back to the window trims it once more than 3.0 s of committed audio piles up, keeping 1.5 s. In toggle mode 1,500 ms of silence after a 400 ms grace ends the dictation.</desc><rect class="bx" x="0.5" y="0.5" width="135" height="55"/><text class="lb" x="8" y="16">hotkey</text><text class="rd" x="8" y="40" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Settings.swift#L19">option+space</text><rect class="bx" x="160.5" y="0.5" width="135" height="55"/><text class="lb" x="168" y="16">mic</text><text class="rd" x="168" y="40" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/AudioCapture.swift#L3">16 kHz mono</text><path class="ln" d="M136 24.5 L152 24.5"/><polygon class="hd" points="160,24.5 152,20.5 152,28.5" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="80.5" width="295" height="55"/><text class="lb" x="8" y="96">window</text><text class="rd" x="8" y="120" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L34">every 350 ms</text><path class="ln-a" d="M224.5 56 L224.5 72"/><polygon class="hd-a" points="224.5,80 220.5,72 228.5,72" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="160.5" width="295" height="103"/><text class="lb" x="8" y="176">gates</text><text class="rd" x="8" y="200" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L95">0.5 s minimum</text><text class="rd" x="8" y="224" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L37">rms floor 0.006</text><text class="rd" x="8" y="248" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L157">tail cut +0.2 s</text><path class="ln-a" d="M144.5 136 L144.5 152"/><polygon class="hd-a" points="144.5,160 140.5,152 148.5,152" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="288.5" width="295" height="55"/><text class="lb" x="8" y="304">whisper.cpp</text><text class="rd" x="8" y="328" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L44-L45">base.en · beam</text><path class="ln-a" d="M144.5 264 L144.5 280"/><polygon class="hd-a" points="144.5,288 140.5,280 148.5,280" shape-rendering="geometricPrecision"/><rect class="bx-a" x="0.5" y="368.5" width="295" height="55"/><text class="lb" x="8" y="384">streamer</text><text class="rd-a" x="8" y="408" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L6">2 passes agree</text><path class="ln-a" d="M144.5 344 L144.5 360"/><polygon class="hd-a" points="144.5,368 140.5,360 148.5,360" shape-rendering="geometricPrecision"/><rect class="bx" x="0.5" y="448.5" width="135" height="55"/><text class="lb" x="8" y="464">inject</text><text class="rd" x="8" y="488" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/TextInjector.swift#L33-L35">unicode keys</text><rect class="bx" x="160.5" y="448.5" width="135" height="55"/><text class="lb" x="168" y="464">focused app</text><text class="rd" x="168" y="488" data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L28-L29">backspaces 0</text><path class="ln-a" d="M64.5 424 L64.5 440"/><polygon class="hd-a" points="64.5,448 60.5,440 68.5,440" shape-rendering="geometricPrecision"/><path class="ln-a" d="M136 480.5 L152 480.5"/><polygon class="hd-a" points="160,480.5 152,476.5 152,484.5" shape-rendering="geometricPrecision"/><path class="ln-a" d="M296 392.5 L312.5 392.5 L312.5 112.5 L304 112.5" stroke-dasharray="4 4"/><polygon class="hd-a" points="296,112.5 304,108.5 304,116.5" shape-rendering="geometricPrecision"/><text class="lb" x="0" y="536">dashed: trim past <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0 s</tspan> committed, keep <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5 s</tspan></text><text class="lb" x="0" y="560">dropped: silent windows, non-speech tokens,</text><text class="lb" x="0" y="576">words already typed</text><text class="lb" x="0" y="600">toggle mode: <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Settings.swift#L28">1,500 ms</tspan> of silence after a</text><text class="lb" x="0" y="616"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L36">400 ms</tspan> grace ends it, then a final pass</text><text class="lb" x="0" y="632">reads the tail</text></svg>
+        <figcaption id="fig1-cap"><span class="n">fig 1</span>one dictation in the mac app, key to keystroke. accent: the words’ path; dashed: the trim loop.</figcaption>
+      </figure>
+      <p>Little silence reaches the model. A window under <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L95">0.5 s</span> gets no pass, a near-silent one is skipped, and trailing quiet is cut to <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L157">0.2 s</span>, since Whisper fills silence with phrases like <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L119-L120">“thank you”</span>. Once more than <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0 s</span> of committed audio sits in the window, the front is dropped and <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5 s</span> kept for context, so each pass costs about the same however long the speech runs. In toggle mode, <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Settings.swift#L28">1,500 ms</span> of silence ends the dictation.</p>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-hard">
+    <h2 id="s-hard"><span class="n">03</span>swallowed words</h2>
+    <div class="body">
+      <p class="np">Words went missing mid-sentence.</p>
+      <p>A <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Diag.swift#L3-L5">diagnostic log</span> separates capture shortfall from model skip. It compares wall time with captured audio to catch capture drops, and flags any gap over <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Diag.swift#L37">0.7 s</span> between committed words whose audio still carries speech energy, RMS above <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Diag.swift#L39">0.02</span>, as a model skip. The window was the cause. At <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">8.0 s</span> of committed audio with <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">2.0 s</span> kept, whisper.cpp fell behind real time and its greedy decoder <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L24-L27">skipped phrases</span>, about <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">2 s</span> at a time; the next trim made each loss permanent. The mac app now trims at <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0 s</span>, keeps <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5 s</span> and decodes with <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/Dictation.swift#L45">beam search</span>.</p>
+      <figure class="ig" aria-labelledby="fig2-cap">
+        <svg class="ig-w" id="fig2-w" width="704" height="408" viewBox="0 0 704 408" role="img" aria-labelledby="fig2-w-t fig2-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig2-w-t">How much committed audio each pass re-reads, before and after the window fix; and the boundary repeat after a trim</title><desc id="fig2-w-d">Top: for steady speech, the trim rule lets committed audio in the window climb to the trim point and drop back to the context kept. The mac app trims at 3.0 s and keeps 1.5 s, a short sawtooth. The earlier values, 8.0 s and 2.0 s, let it climb to 8.0 s, with skips of about 2 s. Bottom: from the test suite, hello and world are committed; after a trim the next pass hears world again at 0.95 s, past the time filter. The text check over the last 6 words drops it, and again is typed.</desc><text class="lb" x="0" y="16">committed audio in the window at each pass, s · steady speech</text><line class="ln-2" x1="56" y1="37" x2="80" y2="37"/><text class="lb" x="88" y="40">now: trim at <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0 s</tspan>, keep <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5 s</tspan></text><line class="ln-ref" x1="328" y1="36.5" x2="352" y2="36.5"/><text class="lb" x="360" y="40">was: <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">8.0 / 2.0 s · ~2 s</tspan> skips</text><line class="ax" x1="56.5" y1="56" x2="56.5" y2="224"/><line class="ax" x1="56" y1="224.5" x2="664" y2="224.5"/><text class="lb" x="48" y="168" text-anchor="end"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0</tspan></text><text class="lb" x="48" y="198" text-anchor="end"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5</tspan></text><text class="lb" x="672" y="68"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">8.0</tspan></text><text class="lb" x="672" y="188"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">2.0</tspan></text><text class="lb" x="664" y="248" text-anchor="end">committed speech, s →</text><polyline class="ln-ref" points="56.5,224.5 360.5,64.5 360.5,184.5 588.5,64.5 588.5,184.5 664.5,144.5"/><polyline class="ln-2" points="56,224 170,164 170,194 227,164 227,194 284,164 284,194 341,164 341,194 398,164 398,194 455,164 455,194 512,164 512,194 569,164 569,194 626,164 626,194 664,174"/><text class="lb" x="0" y="288">after a trim: the boundary repeat, from tests/test_stt.py</text><text class="lb" x="0" y="321">committed</text><rect class="bx-f" x="112" y="304" width="80" height="24"/><text class="rd" x="120" y="321">hello</text><rect class="bx-f" x="192" y="304" width="80" height="24"/><text class="rd" x="200" y="321">world</text><text class="lb" x="0" y="361">next pass</text><rect class="bx" x="264.5" y="344.5" width="71" height="23"/><text class="lb" x="272" y="361">world</text><line class="ln" x1="270" y1="356.5" x2="309" y2="356.5"/><rect class="bx-a" x="336.5" y="344.5" width="63" height="23"/><text class="rd-a" x="344" y="361">again</text><text class="lb" x="416" y="361">‘world’ dropped, ‘again’ typed</text><text class="lb" x="0" y="400">‘world’ returns at <tspan data-src="Olivesz/freeflow@6d541e6:tests/test_stt.py#L78-L79">0.95 s</tspan>, past the time filter; the text check over the last <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L88-L89">6</tspan> words drops it</text></svg>
+        <svg class="ig-n" id="fig2-n" width="328" height="440" viewBox="0 0 328 440" role="img" aria-labelledby="fig2-n-t fig2-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig2-n-t">How much committed audio each pass re-reads, before and after the window fix; and the boundary repeat after a trim</title><desc id="fig2-n-d">Top: for steady speech, the trim rule lets committed audio in the window climb to the trim point and drop back to the context kept. The mac app trims at 3.0 s and keeps 1.5 s, a short sawtooth. The earlier values, 8.0 s and 2.0 s, let it climb to 8.0 s, with skips of about 2 s. Bottom: from the test suite, hello and world are committed; after a trim the next pass hears world again at 0.95 s, past the time filter. The text check over the last 6 words drops it, and again is typed.</desc><text class="lb" x="0" y="16">committed audio in the window, s</text><line class="ax" x1="40.5" y1="32" x2="40.5" y2="136"/><line class="ax" x1="40" y1="136.5" x2="296" y2="136.5"/><text class="lb" x="32" y="104" text-anchor="end"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0</tspan></text><text class="lb" x="32" y="122" text-anchor="end"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5</tspan></text><text class="lb" x="304" y="44"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">8.0</tspan></text><text class="lb" x="304" y="116"><tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">2.0</tspan></text><text class="lb" x="296" y="156" text-anchor="end">committed speech, s →</text><polyline class="ln-ref" points="40.5,136.5 168.5,40.5 168.5,112.5 264.5,40.5 264.5,112.5 296.5,88.5"/><polyline class="ln-2" points="40,136 88,100 88,118 112,100 112,118 136,100 136,118 160,100 160,118 184,100 184,118 208,100 208,118 232,100 232,118 256,100 256,118 280,100 280,118 296,106"/><line class="ln-2" x1="0" y1="177" x2="24" y2="177"/><text class="lb" x="32" y="180">now: trim at <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L28">3.0 s</tspan>, keep <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L29">1.5 s</tspan></text><line class="ln-ref" x1="0" y1="196.5" x2="24" y2="196.5"/><text class="lb" x="32" y="200">was: <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L27">8.0 / 2.0 s · ~2 s</tspan> skips</text><text class="lb" x="0" y="240">after a trim: the boundary repeat</text><text class="lb" x="0" y="264">committed</text><rect class="bx-f" x="0" y="272" width="80" height="24"/><text class="rd" x="8" y="289">hello</text><rect class="bx-f" x="80" y="272" width="80" height="24"/><text class="rd" x="88" y="289">world</text><text class="lb" x="0" y="320">next pass</text><rect class="bx" x="152.5" y="328.5" width="71" height="23"/><text class="lb" x="160" y="345">world</text><line class="ln" x1="158" y1="340.5" x2="197" y2="340.5"/><rect class="bx-a" x="224.5" y="328.5" width="63" height="23"/><text class="rd-a" x="232" y="345">again</text><text class="lb" x="0" y="376">‘world’ dropped, ‘again’ typed</text><text class="lb" x="0" y="400">‘world’ returns at <tspan data-src="Olivesz/freeflow@6d541e6:tests/test_stt.py#L78-L79">0.95 s</tspan>, past the time</text><text class="lb" x="0" y="416">filter; the text check over the last <tspan data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L88-L89">6</tspan></text><text class="lb" x="0" y="432">words drops it</text></svg>
+        <figcaption id="fig2-cap"><span class="n">fig 2</span>top: committed audio in the window, now and before. bottom: the boundary-repeat test.</figcaption>
+      </figure>
+      <p>Trimming has a seam of its own. whisper.cpp’s <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L83-L84">timestamps are coarse</span>, so after a trim the last committed word can come back at the head of the next window, just past the time filter. A text check over the last <span data-src="Olivesz/freeflow@6d541e6:mac/Sources/Freeflow/WhisperStreamer.swift#L88-L89">6</span> words drops the repeat. A test pins it: “world” heard again at <span data-src="Olivesz/freeflow@6d541e6:tests/test_stt.py#L78-L79">0.95 s</span> is dropped and “again” goes through.</p>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-results">
+    <h2 id="s-results"><span class="n">04</span>results</h2>
+    <div class="body">
+      <p>The Python core has no model or microphone in it, so its <span data-from="Olivesz/freeflow CI run 38284608894 at 6d541e6 (GET /repos/Olivesz/freeflow/actions/runs/38284608894/jobs, job log: 29 passed)">29</span> tests <span data-src="Olivesz/freeflow@6d541e6:README.md#L106-L107">run without either</span>. All of them passed on CI, covering the commit rule, the boundary repeat, append-only output and the trimmed window. The Swift mac app has <span data-src="Olivesz/freeflow@6d541e6:mac/Package.swift#L11-L17">no test target</span>, so its smaller window and beam search are not under test. The repo holds no latency, word-error or battery measurement.</p>
+      <ul class="stats">
+        <li><span class="v" data-from="Olivesz/freeflow CI run 38284608894 at 6d541e6 (GET /repos/Olivesz/freeflow/actions/runs/38284608894/jobs, job log: 29 passed)">29</span><span class="k">tests of the Python core, all passed</span><span class="b">on CI; none of them covers the Swift mac app</span></li>
+        <li><span class="v" data-src="Olivesz/freeflow@6d541e6:tests/test_stt.py#L121-L123">4 s</span><span class="k">of <span data-src="Olivesz/freeflow@6d541e6:tests/test_stt.py#L121-L123">12 s</span> reaches the engine</span><span class="b">on pass <span data-src="Olivesz/freeflow@6d541e6:tests/test_stt.py#L121-L123">3</span> of the trim test, once the words through <span data-src="Olivesz/freeflow@6d541e6:tests/test_stt.py#L121-L123">10 s</span> commit</span></li>
+        <li><span class="v" data-src="Olivesz/freeflow@6d541e6:config.toml#L28">350</span><span class="k">ms per tick, down from <span data-src="Olivesz/freeflow@6d541e6:config.toml#L28">600</span></span><span class="b">in the Python prototype, so words stream sooner</span></li>
+      </ul>
+      <figure class="ig" aria-labelledby="fig3-cap">
+        <svg class="ig-w" id="fig3-w" width="704" height="160" viewBox="0 0 704 160" role="img" aria-labelledby="fig3-w-t fig3-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig3-w-t">Every test in the Python core&#x27;s suite, one cell each</title><desc id="fig3-w-d">CI at 6d541e6 ran the Python core&#x27;s 29 tests and all 29 passed: 20 in test_stt.py, 5 in test_vad.py, 4 in test_config.py, with no mic, model download or macOS permission. The Swift mac app has no test target.</desc><text class="lb" x="0" y="16"><tspan data-from="Olivesz/freeflow CI run 38284608894 at 6d541e6 (GET /repos/Olivesz/freeflow/actions/runs/38284608894/jobs, job log: 29 passed)">Python core on CI: 29 passed</tspan></text><text class="lb" x="0" y="48">test_stt.py</text><rect class="cell" x="136" y="40" width="8" height="8"/><rect class="cell" x="152" y="40" width="8" height="8"/><rect class="cell" x="168" y="40" width="8" height="8"/><rect class="cell" x="184" y="40" width="8" height="8"/><rect class="cell" x="200" y="40" width="8" height="8"/><rect class="cell" x="216" y="40" width="8" height="8"/><rect class="cell" x="232" y="40" width="8" height="8"/><rect class="cell" x="248" y="40" width="8" height="8"/><rect class="cell" x="264" y="40" width="8" height="8"/><rect class="cell" x="280" y="40" width="8" height="8"/><rect class="cell" x="296" y="40" width="8" height="8"/><rect class="cell" x="312" y="40" width="8" height="8"/><rect class="cell" x="328" y="40" width="8" height="8"/><rect class="cell" x="344" y="40" width="8" height="8"/><rect class="cell" x="360" y="40" width="8" height="8"/><rect class="cell" x="376" y="40" width="8" height="8"/><rect class="cell" x="392" y="40" width="8" height="8"/><rect class="cell" x="408" y="40" width="8" height="8"/><rect class="cell" x="424" y="40" width="8" height="8"/><rect class="cell" x="440" y="40" width="8" height="8"/><text class="lb" x="0" y="80">test_vad.py</text><rect class="cell" x="136" y="72" width="8" height="8"/><rect class="cell" x="152" y="72" width="8" height="8"/><rect class="cell" x="168" y="72" width="8" height="8"/><rect class="cell" x="184" y="72" width="8" height="8"/><rect class="cell" x="200" y="72" width="8" height="8"/><text class="lb" x="0" y="112">test_config.py</text><rect class="cell" x="136" y="104" width="8" height="8"/><rect class="cell" x="152" y="104" width="8" height="8"/><rect class="cell" x="168" y="104" width="8" height="8"/><rect class="cell" x="184" y="104" width="8" height="8"/><text class="lb" x="0" y="152"><tspan data-src="Olivesz/freeflow@6d541e6:README.md#L106-L107">no mic, model download or macOS permission</tspan></text></svg>
+        <svg class="ig-n" id="fig3-n" width="328" height="200" viewBox="0 0 328 200" role="img" aria-labelledby="fig3-n-t fig3-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig3-n-t">Every test in the Python core&#x27;s suite, one cell each</title><desc id="fig3-n-d">CI at 6d541e6 ran the Python core&#x27;s 29 tests and all 29 passed: 20 in test_stt.py, 5 in test_vad.py, 4 in test_config.py, with no mic, model download or macOS permission. The Swift mac app has no test target.</desc><text class="lb" x="0" y="16"><tspan data-from="Olivesz/freeflow CI run 38284608894 at 6d541e6 (GET /repos/Olivesz/freeflow/actions/runs/38284608894/jobs, job log: 29 passed)">Python core on CI: 29 passed</tspan></text><text class="lb" x="0" y="44">test_stt.py</text><rect class="cell" x="0" y="52" width="8" height="8"/><rect class="cell" x="16" y="52" width="8" height="8"/><rect class="cell" x="32" y="52" width="8" height="8"/><rect class="cell" x="48" y="52" width="8" height="8"/><rect class="cell" x="64" y="52" width="8" height="8"/><rect class="cell" x="80" y="52" width="8" height="8"/><rect class="cell" x="96" y="52" width="8" height="8"/><rect class="cell" x="112" y="52" width="8" height="8"/><rect class="cell" x="128" y="52" width="8" height="8"/><rect class="cell" x="144" y="52" width="8" height="8"/><rect class="cell" x="160" y="52" width="8" height="8"/><rect class="cell" x="176" y="52" width="8" height="8"/><rect class="cell" x="192" y="52" width="8" height="8"/><rect class="cell" x="208" y="52" width="8" height="8"/><rect class="cell" x="224" y="52" width="8" height="8"/><rect class="cell" x="240" y="52" width="8" height="8"/><rect class="cell" x="256" y="52" width="8" height="8"/><rect class="cell" x="272" y="52" width="8" height="8"/><rect class="cell" x="288" y="52" width="8" height="8"/><rect class="cell" x="304" y="52" width="8" height="8"/><text class="lb" x="0" y="84">test_vad.py</text><rect class="cell" x="0" y="92" width="8" height="8"/><rect class="cell" x="16" y="92" width="8" height="8"/><rect class="cell" x="32" y="92" width="8" height="8"/><rect class="cell" x="48" y="92" width="8" height="8"/><rect class="cell" x="64" y="92" width="8" height="8"/><text class="lb" x="0" y="124">test_config.py</text><rect class="cell" x="0" y="132" width="8" height="8"/><rect class="cell" x="16" y="132" width="8" height="8"/><rect class="cell" x="32" y="132" width="8" height="8"/><rect class="cell" x="48" y="132" width="8" height="8"/><text class="lb" x="0" y="176"><tspan data-src="Olivesz/freeflow@6d541e6:README.md#L106-L107">no mic, model download or</tspan></text><text class="lb" x="0" y="192"><tspan data-src="Olivesz/freeflow@6d541e6:README.md#L106-L107">macOS permission</tspan></text></svg>
+        <figcaption id="fig3-cap"><span class="n">fig 3</span>every test in the Python core’s suite, one cell each, by file. all passed on CI.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="blk sec" aria-labelledby="s-src">
+    <h2 id="s-src"><span class="n">05</span>sources</h2>
+    <div class="body">
+      <ol class="srcs">
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L6-L7">freeflow@6d541e6 · README.md#L6-L7</a> the one-line description</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Package.swift#L1">freeflow@6d541e6 · mac/Package.swift#L1</a> Swift package</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L12">freeflow@6d541e6 · README.md#L12</a> the Python app</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L7">freeflow@6d541e6 · README.md#L7</a> on-device, Whisper via whisper.cpp</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Package.swift#L6">freeflow@6d541e6 · mac/Package.swift#L6</a> macOS 14</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L94-L96">freeflow@6d541e6 · README.md#L94-L96</a> typed once two passes agree</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L5-L6">freeflow@6d541e6 · README.md#L5-L6</a> a stand-in for Wispr Flow</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L7-L8">freeflow@6d541e6 · README.md#L7-L8</a> no account, no cloud, $0/month</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L4-L5">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L4-L5</a> the Swift streamer is a port of the Python engine</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/AudioCapture.swift#L3">freeflow@6d541e6 · mac/Sources/Freeflow/AudioCapture.swift#L3</a> resampled to 16 kHz mono</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L34">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L34</a> a pass every 350 ms</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L48">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L48</a> one word per segment</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L28-L29">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L28-L29</a> backspaces always 0</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Settings.swift#L19">freeflow@6d541e6 · mac/Sources/Freeflow/Settings.swift#L19</a> default shortcut</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L95">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L95</a> no pass under 0.5 s; the figure’s 0.5 s</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L37">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L37</a> silence floor 0.006</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L157">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L157</a> trailing quiet cut, +0.2 s</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L44-L45">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L44-L45</a> base.en, beam search</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L6">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L6</a> LocalAgreement-2</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/TextInjector.swift#L33-L35">freeflow@6d541e6 · mac/Sources/Freeflow/TextInjector.swift#L33-L35</a> Unicode key events</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L28">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L28</a> trim after 3.0 s</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L29">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L29</a> keep 1.5 s of context</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Settings.swift#L28">freeflow@6d541e6 · mac/Sources/Freeflow/Settings.swift#L28</a> 1,500 ms of silence ends a dictation</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L36">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L36</a> 400 ms grace</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L119-L120">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L119-L120</a> Whisper fills silence with “thank you”</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Diag.swift#L3-L5">freeflow@6d541e6 · mac/Sources/Freeflow/Diag.swift#L3-L5</a> the swallowed-words log</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Diag.swift#L37">freeflow@6d541e6 · mac/Sources/Freeflow/Diag.swift#L37</a> gaps over 0.7 s</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Diag.swift#L39">freeflow@6d541e6 · mac/Sources/Freeflow/Diag.swift#L39</a> speech energy above 0.02</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L27">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L27</a> was 8.0 / 2.0, ~2 s skips</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L24-L27">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L24-L27</a> large windows fall behind and skip</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/Dictation.swift#L45">freeflow@6d541e6 · mac/Sources/Freeflow/Dictation.swift#L45</a> beam search over greedy</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/tests/test_stt.py#L78-L79">freeflow@6d541e6 · tests/test_stt.py#L78-L79</a> the boundary-repeat test</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L88-L89">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L88-L89</a> text check over the last 6 words</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/WhisperStreamer.swift#L83-L84">freeflow@6d541e6 · mac/Sources/Freeflow/WhisperStreamer.swift#L83-L84</a> boundary repeats from coarse timestamps</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L106-L107">freeflow@6d541e6 · README.md#L106-L107</a> tested without mic, model or permission</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Package.swift#L11-L17">freeflow@6d541e6 · mac/Package.swift#L11-L17</a> the mac package has no test target</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/tests/test_stt.py#L121-L123">freeflow@6d541e6 · tests/test_stt.py#L121-L123</a> pass 3 sees the last 4 s</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/config.toml#L28">freeflow@6d541e6 · config.toml#L28</a> tick 600 → 350 ms</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L88">freeflow@6d541e6 · README.md#L88</a> the figure’s 350 ms</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/README.md#L60-L63">freeflow@6d541e6 · README.md#L60-L63</a> whisper.cpp base.en</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/6d541e647cb410e4751361bff33800821006dc31/mac/Sources/Freeflow/HUDView.swift#L16-L47">freeflow@6d541e6 · mac/Sources/Freeflow/HUDView.swift#L16-L47</a> the listening pill</li>
+        <li><a href="https://github.com/Olivesz/freeflow/actions/runs/38284608894">freeflow · CI run 38284608894 at 6d541e6</a> the Python core’s 29 tests, all passed (job log)</li>
+      </ol>
+    </div>
+  </section>
+
+  <nav class="blk case-nav" aria-label="case studies">
+    <a class="prev" href="emergence.html" rel="prev"><span class="k"><span class="back" aria-hidden="true">→</span> previous</span><span class="t">emergence</span></a>
+    <a class="all" href="../index.html#work"><span class="k">back to</span><span class="t">all the work</span></a>
+    <a class="next" href="kronos.html" rel="next"><span class="k">next <span aria-hidden="true">→</span></span><span class="t">KRONOS</span></a>
+  </nav>
+  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio">github.com/Olivesz/portfolio</a>.</p></footer>
+</main>
+
+<script>
+/* freeflow station: the focused app filling in as someone talks, the key and pill that start it, and below a rule
+   the two latest recognition passes over the audio they re-read. One scripted utterance; the commit and trim rules
+   are a port of WhisperStreamer.swift. Every visual is a pure function of u and the box it is drawn in. */
+(function (root) {
+"use strict";
+
+var PIN = "Olivesz/freeflow@6d541e6:";
+var SRC = {
+  tick: PIN + "README.md#L88",
+  stack: PIN + "README.md#L60-L63",
+  agree: PIN + "README.md#L94-L96",
+  trim: PIN + "README.md#L97-L99",
+  minWin: PIN + "mac/Sources/Freeflow/Dictation.swift#L95",
+  keys: PIN + "mac/Sources/Freeflow/Settings.swift#L10-L19",
+  hud: PIN + "mac/Sources/Freeflow/HUDView.swift#L16-L47",
+  script: "page:scripted"                                            // a figure of the scripted utterance; check-panels lists page: sources
+};
+var TOKS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule"];
+
+/* ---------- the script: one utterance with word times (s), and what an early pass mishears ---------- */
+// scripted, not recorded: no dictation log exists in the repo
+var WORDS = [["Send", .30, .52], ["the", .55, .64], ["draft", .66, .98], ["to", 1.02, 1.12], ["the", 1.14, 1.22],
+  ["team", 1.25, 1.55], ["by", 1.62, 1.78], ["Friday,", 1.82, 2.30], ["and", 2.55, 2.68], ["ask", 2.72, 2.95],
+  ["them", 2.98, 3.15], ["to", 3.18, 3.27], ["check", 3.30, 3.58], ["the", 3.61, 3.70], ["budget.", 3.74, 4.20]];
+var MISHEARD = { 2: ["drafts", .45], 5: ["tea", .2], 6: ["buy", .2], 7: ["Fry", .35], 10: ["the", .2], 12: ["chuck", .25] };
+var HEARD = 0.12;                  // a word enters a pass once this much of it is in the window
+var TICK = 0.35;                   // Dictation.swift L34 tickMs = 350
+var MIN_WIN = 0.5;                 // Dictation.swift L95: no pass on under 8,000 samples (0.5 s at 16 kHz)
+var TRIM_AFTER = 3.0, CONTEXT = 1.5;   // WhisperStreamer.swift L28-L29
+var SILENCE = 1.5;                 // Settings.swift silenceMs 1,500: toggle mode stops on silence
+var T_STOP = WORDS[WORDS.length - 1][2] + SILENCE;
+// the scrub: key tap, recording from U_REC; the speech runs to U_SIL, the silence to U_DONE, then the stopped state
+var U_KEY = 0.01, U_REC = 0.03, U_SIL = 0.84, U_DONE = 0.92;
+
+function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+function norm(s) { return s.trim().toLowerCase(); }
+function hyp(t, off) {
+  var out = [];
+  for (var i = 0; i < WORDS.length; i++) {
+    var w = WORDS[i];
+    if (t < w[1] + HEARD || w[1] < off - 0.05) continue;
+    var m = MISHEARD[i];
+    out.push({ i: i, w: m && t - w[1] < m[1] ? m[0] : w[0], s: w[1], e: w[2] });
+  }
+  return out;
+}
+
+/* ---------- LocalAgreement-2 with committed-word stripping and buffer trimming, as WhisperStreamer.swift does it ---------- */
+var SIM = (function () {
+  var committed = [], buffer = [], lastTime = 0, offset = 0, ticks = [], n = 0;
+  function strip(ws) {
+    var r = ws.filter(function (w) { return w.s > lastTime - 0.1; });
+    if (committed.length && r.length) {
+      var tail = committed.slice(-6).map(function (w) { return norm(w.w); }), head = r.slice(0, 6).map(function (w) { return norm(w.w); });
+      for (var k = Math.min(tail.length, head.length); k >= 1; k--) if (tail.slice(-k).join("|") === head.slice(0, k).join("|")) { r = r.slice(k); break; }
+    }
+    return r;
+  }
+  function snap(o) { o.text = committed.map(function (w) { return w.w; }); o.idx = committed.map(function (w) { return w.i; }); o.lastTime = lastTime; o.offset = offset; return o; }
+  for (var k = 1; TICK * k <= T_STOP + 1e-9; k++) {
+    var t = Math.round(TICK * k * 1000) / 1000;
+    if (t - offset < MIN_WIN) { ticks.push(snap({ k: k, t: t, n: 0, skip: true, full: [], got: [], trimmed: false })); continue; }
+    var full = hyp(t, offset), ws = strip(full), i = 0, got = [];
+    while (i < ws.length && i < buffer.length && norm(ws[i].w) === norm(buffer[i].w)) { got.push(ws[i]); lastTime = ws[i].e; i++; }
+    committed = committed.concat(got); buffer = ws.slice(i);
+    var trimmed = false;
+    if (lastTime - offset > TRIM_AFTER) { offset = Math.max(offset, lastTime - CONTEXT); trimmed = true; }
+    ticks.push(snap({ k: k, t: t, n: ++n, skip: false, full: full, got: got.map(function (w) { return w.i; }), trimmed: trimmed }));
+  }
+  var last = hyp(T_STOP, offset), rest = strip(last);              // the final pass on stop commits whatever is left
+  if (rest.length) { lastTime = rest[rest.length - 1].e; committed = committed.concat(rest); }
+  var fin = snap({ k: "stop", t: T_STOP, n: "on stop", skip: false, full: last, got: rest.map(function (w) { return w.i; }), trimmed: false });
+  var tA = 0;
+  ticks.forEach(function (p) { if (p.got.length) tA = p.t; });
+  return { ticks: ticks, fin: fin, tA: Math.min(T_STOP, tA + 0.1) };   // tA: just after the last pass that types a word
+})();
+
+function env(t) {                  // speech loudness 0..1 at t, deterministic
+  for (var i = 0; i < WORDS.length; i++) {
+    var w = WORDS[i];
+    if (t >= w[1] && t <= w[2]) {
+      var f = (t - w[1]) / (w[2] - w[1]), h = Math.abs(Math.sin(i * 12.9898 + Math.floor(t * 40) * 78.233) * 43758.5453) % 1;
+      return 0.35 + 0.65 * Math.sin(Math.PI * f) * (0.6 + 0.4 * h);
+    }
+  }
+  return 0.04;
+}
+function tOf(u) {
+  if (u < U_REC) return -1;
+  if (u < U_SIL) return (u - U_REC) / (U_SIL - U_REC) * SIM.tA;
+  if (u < U_DONE) return SIM.tA + (u - U_SIL) / (U_DONE - U_SIL) * (T_STOP - SIM.tA);
+  return T_STOP;
+}
+
+/* ---------- state at u: everything the figure shows, as data ---------- */
+var HOLD = (function () {
+  var best = null, prev = null;
+  SIM.ticks.forEach(function (p) {
+    if (p.skip) return;
+    if (prev) {
+      var got = {}, had = {}, kinds = {}, nw = {};
+      (p.got || []).forEach(function (j) { got[j] = 1; });
+      (p.idx || []).forEach(function (j) { had[j] = 1; });
+      p.full.forEach(function (w) {
+        if (w.s < p.offset - 0.05) return;
+        nw[w.i] = w.w; kinds[got[w.i] ? "wa" : had[w.i] ? "wc" : "wg"] = 1;
+      });
+      prev.full.forEach(function (w) { if (w.s >= p.offset - 0.05 && w.i in nw && nw[w.i] !== w.w) kinds.wo = 1; });
+      if (kinds.wa && kinds.wg && kinds.wo && kinds.wc) best = { prev: prev, cur: p, offset: p.offset };
+    }
+    prev = p;
+  });
+  return best;
+})();
+function stateAt(u) {
+  u = cl(u);
+  var t = tOf(u), done = u >= U_DONE, rec = t >= 0 && !done, p = null, prev = null, i;
+  for (i = 0; i < SIM.ticks.length; i++) if (SIM.ticks[i].t <= t + 1e-9) { prev = p; p = SIM.ticks[i]; }
+  var cur = done ? SIM.fin : p;
+  if (done) { prev = null; for (i = SIM.ticks.length - 1; i >= 0; i--) if (!SIM.ticks[i].skip) { prev = SIM.ticks[i]; break; } }
+  else if (p && !p.skip) { prev = null; for (i = SIM.ticks.indexOf(p) - 1; i >= 0; i--) { prev = SIM.ticks[i]; if (!prev.skip || i === 0) break; } }
+  return { u: u, t: t, rec: rec, done: done, key: u >= U_KEY && u < U_REC, keysUsed: u >= U_REC,
+    cur: cur, prev: done ? prev : (p && !p.skip ? prev : null),
+    text: cur ? cur.text : [], offset: cur ? cur.offset : 0, lastTime: cur ? cur.lastTime : 0,
+    trims: SIM.ticks.filter(function (q) { return q.trimmed && q.t <= t + 1e-9; }), hold: done ? HOLD : null };
+}
+
+/* ---------- dither: the site's 4x4 Bayer order; org is the grid phase of the box's cell (0, 0) ---------- */
+var BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+function bay(x, y) { return BAYER[((y & 3) << 2) | (x & 3)]; }
+function lev(r) { return Math.min(16, Math.floor(cl(r) * 16 + 1e-9)); }   // a cell is native when bay < lev
+
+/* ---------- layout, box-local CSS px; every frame edge sits on a cell boundary ---------- */
+var SIZE = { desk: { w: 72, h: 45, c: 8 }, phone: { w: 54, h: 42, c: 6 } };
+function layoutFor(phone) {
+  var z = phone ? SIZE.phone : SIZE.desk, c = z.c, W = z.w * c, H = z.h * c;
+  if (phone) return { phone: true, c: c, W: W, H: H, pad: 12, head: 18, fld: { x: 12, y: 24, lh: 24, fs: 15, lines: 2, mw: 300 }, panel: 78,
+    hud: { y: 84, kh: 18, ph: 24, kpad: 9, pw: 18 }, rule: 114, hdr: 117, rows: [134, 158], lab: 72, aud: { y0: 204, rows: 5, x0: 72, x1: W - 3 * c }, brk: 198, trl: 182, leg: 234 };
+  return { phone: false, c: c, W: W, H: H, pad: 16, head: 24, fld: { x: 16, y: 32, lh: 32, fs: 30, lines: 2, mw: 544 }, panel: 112,
+    hud: { y: 128, kh: 24, ph: 32, kpad: 12, pw: 18 }, rule: 176, hdr: 184, rows: [208, 232], lab: 64, aud: { y0: 280, rows: 5, x0: 64, x1: W - 4 * c }, brk: 272, trl: 256, leg: 336 };
+}
+var FONT = { sg: '"Space Grotesk", system-ui, sans-serif', mono: '"JetBrains Mono", ui-monospace, Menlo, monospace' };
+var mcv = null, mcache = {};
+function lbW(s) { return textW(s, 11, "mono") + 0.44 * s.length; }   // an 11px label: mono plus 0.04em tracking
+function textW(s, px, fam) {        // advance width, cached; the DOM spans are placed at these numbers
+  var k = px + fam + "|" + s;
+  if (mcache[k] != null) return mcache[k];
+  if (!mcv) mcv = document.createElement("canvas").getContext("2d");
+  mcv.font = "400 " + px + "px " + FONT[fam];
+  return (mcache[k] = mcv.measureText(s).width);
+}
+
+// a Space Grotesk word at 30px carries the site's -0.02em display tracking; 15px is set untracked
+function sgW(s, px) { return textW(s, px, "sg") - (px >= 30 ? 0.02 * px * s.length : 0); }
+
+// a text run and the bar that stands for it switch together, at the rank of the cell under the run's first glyph
+function anchor(x, y, lh, c) { return [Math.floor((x + 2) / c), Math.floor((y + lh / 2) / c)]; }
+
+/* ---------- the scene at (u, layout): positioned text runs, rects and cells, all in box px ---------- */
+function scene(u, L) {
+  var S = stateAt(u), c = L.c, runs = [], rects = [], cells = [], bars = [];
+  function run(x, y, txt, cls, src, lh) { runs.push({ x: x, y: y, t: txt, cls: cls, src: src || null, lh: lh || 16 }); }
+  // the focused app: header, rule, the typed words and the caret
+  rects.push({ k: "frame", x: 0, y: 0, w: L.W, h: L.panel, tok: "copper" });
+  rects.push({ k: "hline", x: 0, y: L.head, w: L.W, tok: "copper" });
+  run(L.pad, (L.head - 16) >> 1, "focused app", "lb");
+  var bs = "backspaces ", bx = Math.round(L.W - L.pad - lbW(bs) - textW("0", 13, "mono")), by = (L.head - 16) >> 1;
+  run(bx, by, bs + '<span class="ro" data-src="' + SRC.script + '">0</span>', "lb");
+  bars.push({ x: bx + Math.round(lbW(bs)), y: by, w: Math.ceil(textW("0", 13, "mono")), lh: 16, row: true, tok: "ink", a: anchor(bx, by, 16, c) });
+  var F = L.fld, x = 0, line = 0, sp = sgW(" ", F.fs), words = S.text;
+  for (var i = 0; i < words.length; i++) {
+    var ww = sgW(words[i], F.fs);
+    if (x > 0 && x + ww > F.mw) { x = 0; line++; }
+    var wx = F.x + Math.round(x), wy = F.y + line * F.lh;
+    run(wx, wy, words[i], "fw", null, F.lh);
+    bars.push({ x: wx, y: wy, w: Math.ceil(ww), lh: F.lh, tok: "ink", a: anchor(wx, wy, F.lh, c) });
+    x += ww + sp;
+  }
+  var cx = F.x + Math.round(words.length ? x - sp : 0) + 1, cy = F.y + line * F.lh;
+  rects.push({ k: "caret", x: cx, y: cy + (L.phone ? 4 : 3), w: 2, h: F.lh - (L.phone ? 8 : 6), tok: "signal", cell: [cx, cy, F.lh] });
+  // the key that starts it, and the pill that stays on screen
+  var H = L.hud, kx = 0, caps = ["option", "space"];
+  caps.forEach(function (k) {
+    var w = Math.ceil((lbW(k) + 2 * H.kpad) / c) * c;
+    rects.push({ k: S.key ? "keyDown" : "key", x: kx, y: H.y, w: w, h: H.kh, tok: "copper" });
+    run(kx + Math.round((w - lbW(k)) / 2), H.y + ((H.kh - 16) >> 1) + (S.key ? 1 : 0), k, S.key ? "kd" : S.keysUsed ? "lb" : "kc", null);
+    kx += w + c;
+  });
+  if (S.t >= 0) {
+    var pw = H.pw * c, px = Math.round((L.W - pw) / 2 / c) * c;
+    if (px < kx + c) px = kx + c;
+    rects.push({ k: "pill", x: px, y: H.y, w: pw, h: H.ph, tok: "copper", fill: "residue" });
+    var dz = S.rec ? c + 2 * Math.round(env(S.t) * 2) : c, dcx = px + 2 * c, dcy = H.y + (H.ph >> 1);
+    rects.push({ k: "dot", x: dcx - (dz >> 1), y: dcy - (dz >> 1), w: dz, h: dz, tok: S.rec ? "signal" : "copper", cell: [px + c + (c >> 1), H.y + (H.ph >> 1) - (c >> 1)] });
+    if (S.rec) run(px + 4 * c, H.y + ((H.ph - 24) >> 1), "listening", "pl", SRC.hud, 24);
+    else {
+      rects.push({ k: "copy", x: px + pw - 3 * c, y: dcy - (c >> 1) - 2, s: c, tok: "signal" });
+      run(px + pw - 4 * c - Math.ceil(lbW("copy")), H.y + ((H.ph - 16) >> 1), "copy", "lb");
+    }
+  }
+  // inside: a rule and a header that name what follows as the engine, not the app
+  rects.push({ k: "hline", x: 0, y: L.rule, w: L.W, tok: "copper" });
+  run(0, L.hdr, 'inside · <span data-src="' + SRC.stack + '">whisper.cpp base.en</span> · ' + (L.phone ? "" : "a pass ") + 'every <span data-src="' + SRC.tick + '">350</span> ms', "lb");
+  // two consecutive passes, word slots aligned so a disagreement sits in one column
+  var RS = S.hold || S, rowP = [RS.prev, RS.cur], mono = textW("0", 13, "mono"), avail = L.W - L.lab;
+  if (RS.cur && RS.cur.skip) rowP = [null, RS.cur];
+  var before = {}, got = {};
+  if (RS.cur) { (RS.cur.idx || []).forEach(function (j) { before[j] = 1; }); (RS.cur.got || []).forEach(function (j) { got[j] = 1; delete before[j]; }); }
+  var rowsW = rowP.map(function (P) { return P && !P.skip ? P.full.filter(function (w) { return w.s >= RS.offset - 0.05; }) : null; });
+  var slots = {}, order = [];
+  rowsW.forEach(function (ws) { if (ws) ws.forEach(function (w) { if (!(w.i in slots)) { slots[w.i] = 0; order.push(w.i); } slots[w.i] = Math.max(slots[w.i], w.w.length); }); });
+  order.sort(function (a, b) { return a - b; });
+  var total = function (from) { var n = 0; for (var q = from; q < order.length; q++) n += slots[order[q]] + 1; return n * mono; };
+  var first = 0;
+  while (first < order.length - 1 && total(first) > avail) first++;
+  var col = {}, cc = 0;
+  for (var q = first; q < order.length; q++) { col[order[q]] = cc; cc += slots[order[q]] + 1; }
+  rowP.forEach(function (P, r) {
+    var y = L.rows[r];
+    if (!P) return;
+    if (P.skip) { run(L.lab, y, 'under <span data-src="' + SRC.minWin + '">0.5</span> s of audio · no pass', "lb l24", null, 24); return; }
+    run(0, y, typeof P.n === "number" ? 'pass <span data-src="' + SRC.script + '">' + P.n + "</span>" : P.n, "lb l24", null, 24);
+    var newer = rowP[1] && !rowP[1].skip ? rowP[1].full : [], nw = {};
+    newer.forEach(function (w) { nw[w.i] = w.w; });
+    rowsW[r].forEach(function (w) {
+      if (!(w.i in col)) return;
+      var cls = before[w.i] ? "wc" : got[w.i] ? "wa" : (r === 0 && rowP[1] && nw[w.i] !== w.w) ? "wo" : "wg";
+      var wx = L.lab + Math.round(col[w.i] * mono);
+      run(wx, y, w.w, cls, SRC.script, 24);
+      bars.push({ x: wx, y: y, w: Math.ceil(w.w.length * mono), lh: 24, row: true, tok: cls === "wa" ? "ink" : cls === "wg" ? "signal" : "copper", a: anchor(wx, y, 24, c) });
+    });
+  });
+  // audio in whole cells: in question (signal-2), typed and still in the window (copper), trimmed (residue)
+  var A = L.aud, ncol = Math.floor((A.x1 - A.x0) / c), dt = T_STOP / ncol, mid = A.y0 + (A.rows >> 1) * c, resW = 0;
+  for (var k = 0; k < ncol; k++) {
+    var tb = (k + 0.5) * dt;
+    if (S.t < 0 || tb > S.t) continue;
+    var hh = Math.round(env(tb) * (A.rows >> 1)), gx = A.x0 + k * c, tok;
+    if (tb < S.offset) {
+      var tr = null;
+      for (var m = 0; m < S.trims.length; m++) if (tb < S.trims[m].offset) { tr = S.trims[m]; break; }
+      var lt = lev((S.t - tr.t) / 0.15);
+      for (var yy = -hh; yy <= hh; yy++) cells.push({ x: gx, y: mid + yy * c, tok: "residue", mask: lt, alt: "copper" });
+      resW = gx + c - A.x0;
+      continue;
+    }
+    tok = tb <= S.lastTime || S.done ? "copper" : "signal-2";
+    for (var y2 = -hh; y2 <= hh; y2++) cells.push({ x: gx, y: mid + y2 * c, tok: tok });
+  }
+  run(0, mid + (c >> 1) - 8, "audio", "lb");
+  if (S.rec) {
+    var xo = A.x0 + Math.floor(S.offset / dt) * c, xn = Math.min(A.x1 - 1, A.x0 + Math.round(S.t / dt * c));
+    rects.push({ k: "bracket", x: xo, y: L.brk, w: Math.max(1, xn - xo), tok: "signal-2" });
+    rects.push({ k: "vline", x: xn, y: A.y0, h: A.rows * c, tok: "signal" });
+  }
+  if (resW >= lbW("trimmed") + 8) run(A.x0, L.trl, "trimmed", "lb");
+  // the key to the rows
+  run(0, L.leg, '<span class="wa">typed</span> · <span class="wg">guess</span> · <span class="wo">overturned</span> · <span class="wc">re-read</span>', "lb");
+  return { S: S, runs: runs, rects: rects, cells: cells, bars: bars };
+}
+
+/* ---------- the cell footprint: the same scene drawn as whole cells (what the engine stamps) ---------- */
+var FP = { key: null, out: null };   // the last footprint: a clip asks for the same u every frame while r moves
+function footprint(u, phone) {
+  var fk = u + "|" + !!phone;
+  if (FP.key === fk) return FP.out;
+  var out = footprintOf(u, phone);
+  FP.key = fk; FP.out = out;
+  return out;
+}
+function footprintOf(u, phone) {
+  var L = layoutFor(phone), c = L.c, sc = scene(u, L), wc = L.W / c, hc = L.H / c, g = new Array(wc * hc).fill(null), an = {};
+  function set(x, y, tok, a) { if (x >= 0 && y >= 0 && x < wc && y < hc) { g[y * wc + x] = tok; if (a) an[y * wc + x] = a; else delete an[y * wc + x]; } }
+  function cellOf(v) { return Math.floor(v / c); }
+  sc.rects.forEach(function (r) {
+    var x0 = cellOf(r.x), y0 = cellOf(r.y), x1, y1, x, y;
+    if (r.k === "frame" || r.k === "key" || r.k === "keyDown" || r.k === "pill") {
+      x1 = cellOf(r.x + r.w - 1); y1 = cellOf(r.y + r.h - 1);
+      for (y = y0; y <= y1; y++) for (x = x0; x <= x1; x++) {
+        var edge = x === x0 || x === x1 || y === y0 || y === y1;
+        if (edge) set(x, y, r.tok); else if (r.k === "keyDown") set(x, y, "copper"); else if (r.fill) set(x, y, r.fill);
+      }
+    } else if (r.k === "hline") { for (x = x0; x <= cellOf(r.x + r.w - 1); x++) set(x, y0, r.tok); }
+    else if (r.k === "caret") { for (y = cellOf(r.cell[1]); y < cellOf(r.cell[1] + r.cell[2]); y++) set(cellOf(r.cell[0]), y, r.tok); }
+    else if (r.k === "dot") set(cellOf(r.cell[0]), cellOf(r.cell[1]), r.tok);
+  });
+  sc.bars.forEach(function (b) {      // words as bars across their x-height band
+    var y0 = cellOf(b.y + (b.row ? b.lh / 2 - 1 : b.lh * 0.3)), y1 = b.row ? y0 : cellOf(b.y + b.lh * 0.75 - 1);
+    for (var y = y0; y <= y1; y++) for (var x = cellOf(b.x); x <= cellOf(b.x + b.w - 1); x++) set(x, y, b.tok, b.a);
+  });
+  sc.cells.forEach(function (q) { set(cellOf(q.x), cellOf(q.y), q.mask != null && bay(cellOf(q.x), cellOf(q.y)) >= q.mask ? q.alt : q.tok); });
+  var out = [];
+  for (var i = 0; i < g.length; i++) if (g[i]) out.push(an[i] ? [i % wc, (i / wc) | 0, g[i], an[i][0], an[i][1]] : [i % wc, (i / wc) | 0, g[i]]);
+  return out;     // [x, y, token] or, for a word bar, [x, y, token, anchorX, anchorY]
+}
+// the cells still shown as cells at resolve level r: the complement of the native mask
+function cells(u, r, org, phone) {
+  var lv = lev(r), o = org || [0, 0];
+  if (lv >= 16) return [];
+  return footprint(u, phone).filter(function (q) { return q.length > 3 ? bay(o[0] + q[3], o[1] + q[4]) >= lv : bay(o[0] + q[0], o[1] + q[1]) >= lv; });
+}
+
+/* ---------- the native layer ---------- */
+var CSS = [
+  ".ff{position:absolute;left:0;top:0;overflow:hidden;pointer-events:none;contain:strict}",
+  ".ff canvas{position:absolute;left:0;top:0;display:block}",
+  ".ff .r{position:absolute;white-space:pre;margin:0}",
+  ".ff .lb{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}",
+  ".ff .lb.l24{line-height:24px}",
+  ".ff .lb .ro{font:400 13px/16px var(--mono);letter-spacing:0;color:var(--ink)}",
+  ".ff .kc{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body)}",
+  ".ff .kd{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--ink)}",
+  ".ff .fw{font:400 30px/32px var(--sg);letter-spacing:-.02em;color:var(--ink)}",
+  ".ff.ph .fw{font-size:15px;line-height:24px;letter-spacing:0}",
+  ".ff .pl{font:400 13px/24px var(--sg);color:var(--body)}",
+  ".ff .wa,.ff .wg,.ff .wo,.ff .wc{font:400 13px/24px var(--mono);letter-spacing:0}",
+  ".ff .lb .wa,.ff .lb .wg,.ff .lb .wo,.ff .lb .wc{font:inherit;letter-spacing:inherit}",
+  ".ff .wa{color:var(--ink);text-decoration:underline 1px var(--ink);text-underline-offset:3px}",
+  ".ff .wg{color:var(--signal)}",
+  ".ff .wo{color:var(--muted);text-decoration:line-through 1px var(--muted)}",
+  ".ff .wc{color:var(--muted)}"
+].join("\n");
+
+var M = null;                       // the mounted instance
+function tokens() {
+  var cs = getComputedStyle(document.documentElement), o = {};
+  TOKS.forEach(function (n) { o[n] = cs.getPropertyValue("--" + n).trim().toLowerCase(); });
+  return o;
+}
+function mount(host, opts) {
+  if (M) unmount();
+  opts = opts || {};
+  var d = document, st = d.createElement("style");
+  st.textContent = CSS; d.head.appendChild(st);
+  var el = d.createElement("div"), cv = d.createElement("canvas"), tx = d.createElement("div");
+  el.className = "ff" + (opts.phone ? " ph" : "");
+  el.setAttribute("data-native", "freeflow");
+  el.setAttribute("role", "img");
+  el.setAttribute("aria-label", "a message window filling in as someone talks after a key tap. below a rule, the two latest recognition passes over the audio they re-read; a word is typed once both agree. scripted, no microphone.");
+  tx.className = "tx";
+  el.appendChild(cv); el.appendChild(tx); host.appendChild(el);
+  M = { host: host, el: el, cv: cv, tx: tx, style: st, phone: !!opts.phone, L: layoutFor(!!opts.phone), tok: tokens(), html: null, key: null };
+  return M;
+}
+function unmount() {
+  if (!M) return;
+  M.el.remove(); M.style.remove(); M = null;
+}
+function setPhone(phone) { if (M && M.phone !== !!phone) { M.phone = !!phone; M.L = layoutFor(M.phone); M.el.className = "ff" + (M.phone ? " ph" : ""); M.key = null; } }
+
+/* draw(u, box, ctx): box = [x0, y0, x1, y1] CSS px of the station's beat box (from __walk.cellRect of its first and last cell);
+   ctx.r = resolve level (0 all cells, 1 all native); ctx.org = grid phase of cell (0, 0); ctx.dpr = device pixel ratio */
+function draw(u, box, ctx) {
+  if (!M) return;
+  ctx = ctx || {};
+  var L = M.L, c = L.c, r = ctx.r == null ? 1 : ctx.r, lv = lev(r), org = ctx.org || [0, 0], dpr = ctx.dpr > 0 ? ctx.dpr : 1, pp = Math.max(1, Math.round(c * dpr));
+  var bw = box[2] - box[0], bh = box[3] - box[1], s = bw / L.W;
+  // the box is the footprint at this pitch; the native layer is laid out at the station pitch and only placed here
+  M.el.style.left = box[0] + "px"; M.el.style.top = box[1] + "px";
+  M.el.style.width = L.W + "px"; M.el.style.height = L.H + "px";
+  M.el.style.visibility = lv > 0 && Math.abs(s - 1) < 0.01 && Math.abs(bh / L.H - 1) < 0.01 ? "visible" : "hidden";
+  var sc = scene(u, L), T = M.tok, cv = M.cv, g, key = [u, lv, org[0] & 3, org[1] & 3, dpr, L.W].join("|");
+  if (key === M.key) return sc;
+  M.key = key;
+  var CW = L.W / c * pp, CH = L.H / c * pp;
+  if (cv.width !== CW || cv.height !== CH) { cv.width = CW; cv.height = CH; cv.style.width = CW / dpr + "px"; cv.style.height = CH / dpr + "px"; }
+  g = cv.getContext("2d");
+  g.clearRect(0, 0, cv.width, cv.height);
+  var k = pp / c;                      // device px per CSS px on this grid (dpr, unless the pitch rounds)
+  function fr(x, y, w, h, t) { var X = Math.round(x * k), Y = Math.round(y * k); g.fillStyle = T[t]; g.fillRect(X, Y, Math.max(1, Math.round((x + w) * k) - X), Math.max(1, Math.round((y + h) * k) - Y)); }
+  sc.rects.forEach(function (q) {
+    if (q.k === "frame" || q.k === "key" || q.k === "keyDown" || q.k === "pill") {
+      if (q.fill) fr(q.x, q.y, q.w, q.h, q.fill);
+      if (q.k === "keyDown") fr(q.x, q.y, q.w, q.h, "copper");
+      fr(q.x, q.y, q.w, 1, q.tok); fr(q.x, q.y + q.h - 1, q.w, 1, q.tok); fr(q.x, q.y, 1, q.h, q.tok); fr(q.x + q.w - 1, q.y, 1, q.h, q.tok);
+      if (q.k === "key") fr(q.x, q.y + q.h - 3, q.w, 3, q.tok);       // an unpressed key stands on its lip
+    } else if (q.k === "hline") fr(q.x, q.y, q.w, 1, q.tok);
+    else if (q.k === "caret" || q.k === "dot") fr(q.x, q.y, q.w, q.h, q.tok);
+    else if (q.k === "bracket") { fr(q.x, q.y, q.w, 1, q.tok); fr(q.x, q.y, 1, 5, q.tok); }
+    else if (q.k === "vline") fr(q.x, q.y, 1, q.h, q.tok);
+    else if (q.k === "copy") {           // two offset squares, the copy glyph
+      var a = q.s;
+      fr(q.x + 3, q.y, a, 1, q.tok); fr(q.x + 3, q.y, 1, a, q.tok); fr(q.x + 3 + a - 1, q.y, 1, 3, q.tok);
+      fr(q.x, q.y + 3, a, 1, q.tok); fr(q.x, q.y + 3 + a - 1, a, 1, q.tok); fr(q.x, q.y + 3, 1, a, q.tok); fr(q.x + a - 1, q.y + 3, 1, a, q.tok);
+    }
+  });
+  sc.cells.forEach(function (q) {
+    var t = q.mask != null && bay(org[0] + q.x / c, org[1] + q.y / c) >= q.mask ? q.alt : q.tok;
+    fr(q.x, q.y, c, c, t);
+  });
+  // the handoff: every cell whose Bayer rank has not yet passed is still the engine's cell, so the native layer is clear there
+  if (lv < 16) for (var y = 0; y < L.H / c; y++) for (var x = 0; x < L.W / c; x++) if (bay(org[0] + x, org[1] + y) >= lv) g.clearRect(x * pp, y * pp, pp, pp);
+  // text runs switch whole, each at the rank of the cell under its first glyph
+  var html = "";
+  sc.runs.forEach(function (q) {
+    var a = anchor(q.x, q.y, q.lh, c), on = bay(org[0] + a[0], org[1] + a[1]) < lv;
+    if (!on) return;
+    html += '<p class="r ' + q.cls + '" data-run data-a="' + a[0] + "," + a[1] + '" style="left:' + q.x + "px;top:" + q.y + 'px"' + (q.src ? ' data-src="' + q.src + '"' : "") + ">" + q.t + "</p>";
+  });
+  if (html !== M.html) { M.html = html; M.tx.innerHTML = html; }
+  return sc;
+}
+
+/* ---------- self-check: every shown number re-derived from the data ---------- */
+function selfCheck() {
+  var d = {}, ok = true;
+  function need(name, cond, got) { d[name] = { ok: !!cond, got: got }; if (!cond) ok = false; }
+  var fin = SIM.fin.text.join(" "), want = WORDS.map(function (w) { return w[0]; }).join(" ");
+  need("final text is the script", fin === want, fin);
+  [false, true].forEach(function (ph) {
+    var L = layoutFor(ph), F = L.fld, x = 0, lines = 1, sp = sgW(" ", F.fs);
+    SIM.fin.text.forEach(function (w) { var ww = sgW(w, F.fs); if (x > 0 && x + ww > F.mw) { x = 0; lines++; } x += ww + sp; });
+    need((ph ? "phone" : "desktop") + " field holds the text", lines <= F.lines && F.y + lines * F.lh <= L.panel - 6, lines);
+  });
+  // append-only: each tick's typed words extend the last tick's, so the backspace count shown is the true count
+  var back = 0, prevT = [];
+  SIM.ticks.concat([SIM.fin]).forEach(function (p) {
+    for (var i = 0; i < prevT.length; i++) if (p.text[i] !== prevT[i]) { back += prevT.length - i; break; }
+    prevT = p.text;
+  });
+  need("backspaces 0", back === 0, back);
+  need("350 ms tick", Math.round(TICK * 1000) === 350 && SIM.ticks.every(function (p, i) { return Math.abs(p.t - 0.35 * (i + 1)) < 1e-9; }), Math.round(TICK * 1000));
+  var skips = SIM.ticks.filter(function (p) { return p.skip; });
+  need("0.5 s: exactly the ticks under it are skipped", skips.length > 0 && SIM.ticks.every(function (p) { return p.skip === (p.t - (p.offset || 0) < MIN_WIN); }), skips.map(function (p) { return p.t; }));
+  need("pass numbers count real passes", SIM.ticks.filter(function (p) { return !p.skip; }).every(function (p, i) { return p.n === i + 1; }), SIM.ticks.filter(function (p) { return !p.skip; }).length);
+  // every committed word was proposed by two consecutive passes with the same text
+  var agreed = true;
+  SIM.ticks.forEach(function (p, i) {
+    if (!p.got.length) return;
+    var q = null; for (var j = i - 1; j >= 0; j--) if (!SIM.ticks[j].skip) { q = SIM.ticks[j]; break; }
+    p.got.forEach(function (wi) {
+      var a = p.full.filter(function (w) { return w.i === wi; })[0], b = q && q.full.filter(function (w) { return w.i === wi; })[0];
+      if (!a || !b || norm(a.w) !== norm(b.w)) agreed = false;
+    });
+  });
+  need("typed only when two passes agree", agreed, agreed);
+  var trims = SIM.ticks.filter(function (p) { return p.trimmed; });
+  need("trim keeps 1.5 s behind the last typed word", trims.length > 0 && trims.every(function (p) { return Math.abs(p.lastTime - p.offset - CONTEXT) < 1e-9 || p.offset > p.lastTime - CONTEXT; }), trims.map(function (p) { return [p.t, +p.offset.toFixed(2)]; }));
+  var overturned = [];
+  SIM.ticks.forEach(function (p, i) { var q = SIM.ticks[i - 1]; if (!q || q.skip || p.skip) return; q.full.forEach(function (w) { var m = p.full.filter(function (x) { return x.i === w.i; })[0]; if (m && m.w !== w.w) overturned.push(w.w + "→" + m.w); }); });
+  need("misheard words are overturned before they are typed", overturned.length >= 3 && SIM.fin.text.every(function (w, i) { return w === WORDS[i][0]; }), overturned);
+  // reversibility and footprint registration: the same u gives the same scene and the same cells, whatever came before
+  var a1 = JSON.stringify(footprint(0.55, false)), z = footprint(1, false); footprint(0.1, true);
+  need("footprint is a pure function of u", a1 === JSON.stringify(footprint(0.55, false)) && z.length > 0, z.length);
+  return { ok: ok, details: d };
+}
+
+/* ---------- the engine adapter: a beat whose cells are the footprint at the station's resolve level ---------- */
+// res() returns { r, org } for the current frame; the engine owns both
+function beat(res, instruction) {
+  return { len: 0.75, w: SIZE.desk.w, h: SIZE.desk.h, pw: SIZE.phone.w, ph: SIZE.phone.h,
+    build: function (F, u) { var q = res(false); cells(u, q.r, q.org, false).forEach(function (k) { F(k[0], k[1], k[2]); }); },
+    phoneBuild: function (F, u) { var q = res(true); cells(u, q.r, q.org, true).forEach(function (k) { F(k[0], k[1], k[2]); }); },
+    instruction: instruction || "scripted · no microphone. typed once two passes agree.", input: null, selfCheck: "freeflow" };
+}
+
+/* ---------- the station facade the three native figures share ---------- */
+// ctx: {cell, phone, band, dpr, r, org}. The composition follows the station pitch: 8px cells get the 72-cell layout
+// (desktop, and the stacked layout from 768 to 1023), 6px cells the 54-cell one.
+function compact(ctx) { return (ctx && ctx.cell || 8) < 8; }
+var station = {
+  id: "freeflow",
+  size: function (ctx) { var z = compact(ctx) ? SIZE.phone : SIZE.desk; return { w: z.w, h: z.h }; },
+  cells: function (u, ctx) { ctx = ctx || {}; return cells(u, ctx.r || 0, ctx.org, compact(ctx)).map(function (q) { return [q[0], q[1], q[2]]; }); },
+  footprint: function (u, ctx) { return footprint(u, compact(ctx)); },
+  mount: function (host, opts) { return mount(host, opts || {}); },
+  draw: function (u, box, ctx) {
+    ctx = ctx || {};
+    if (!M) return null;
+    setPhone(compact(ctx));
+    if (!(ctx.r > 0)) { M.el.style.visibility = "hidden"; return null; }
+    return draw(u, [box.x, box.y, box.x + M.L.W, box.y + M.L.H], { r: ctx.r, org: ctx.org, dpr: ctx.dpr });
+  },
+  hide: function () { if (M) M.el.style.visibility = "hidden"; },
+  unmount: unmount,
+  selfCheck: selfCheck,
+  instruction: function () { return "scripted · no microphone. typed once two passes agree."; },
+  rest: function () { return 1; },
+  len: 0.75,
+  version: function () { return "ff1"; }
+};
+
+root.FigFreeflow = {
+  version: function () { return "ff1"; }, station: station,
+  size: function (phone) { var z = phone ? SIZE.phone : SIZE.desk; return { w: z.w, h: z.h, cell: z.c }; },
+  mount: mount, draw: draw, unmount: unmount, setPhone: setPhone,
+  footprint: footprint, cells: cells, beat: beat, selfCheck: selfCheck,
+  bay: bay, lev: lev, stateAt: stateAt, layout: layoutFor,
+  sim: SIM, src: SRC, U: { key: U_KEY, rec: U_REC, sil: U_SIL, done: U_DONE }
+};
+})(typeof window !== "undefined" ? window : this);
+
+</script>
+<script>
+/* fig 0: the freeflow station drawn 1:1, centred in the stage; u runs 0 to 1 over 4 s on case:play */
+(function () {
+  "use strict";
+  var stage = document.getElementById("hero"), ST = window.FigFreeflow && window.FigFreeflow.station;
+  if (!stage || !ST) return;
+  var DUR = 4000, u = 0, raf = 0, on = false;
+  function ctx() {
+    var c = innerWidth < 768 ? 6 : 8, b = stage.getBoundingClientRect();
+    return { cell: c, phone: c < 8, r: 1, org: [0, 0], dpr: Math.max(1, window.devicePixelRatio || 1), band: { l: b.left, r: b.right, t: b.top, b: b.bottom } };
+  }
+  function draw() {
+    if (!on) return;
+    var k = ctx(), z = ST.size(k), w = z.w * k.cell, h = z.h * k.cell, need = Math.ceil((h + 48) / 8) * 8 + "px";
+    // from 768 to 1023 the stage takes its phone height while the figure keeps the 8 px composition: size it to the figure
+    if (stage.style.getPropertyValue("--stage-h-phone") !== need) stage.style.setProperty("--stage-h-phone", need);
+    ST.draw(u, { x: Math.max(0, Math.floor((stage.clientWidth - w) / 2)), y: Math.max(0, Math.floor((stage.clientHeight - h) / 2)), w: w, h: h }, k);
+  }
+  // text widths are measured on first draw, so the real fonts must be in first
+  var ready = (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
+    ST.mount(stage, { phone: innerWidth < 768 }); on = true; draw();
+  });
+  stage.addEventListener("case:play", function () {
+    cancelAnimationFrame(raf);
+    ready.then(function () {
+      var t0 = performance.now();
+      (function tick(t) {
+        u = Math.min(1, Math.max(0, (t - t0) / DUR)); draw();
+        if (u < 1) raf = requestAnimationFrame(tick); else stage.dispatchEvent(new CustomEvent("case:done", { bubbles: true }));
+      })(t0);
+    });
+  });
+  stage.addEventListener("case:rest", function () { cancelAnimationFrame(raf); ready.then(function () { u = ST.rest(1); draw(); }); });
+  addEventListener("resize", draw);
+})();
+</script>
+<script src="assets/case.js" defer></script>
+</body>
+</html>

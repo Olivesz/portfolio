@@ -143,6 +143,17 @@ def shipped_files(include_self=False):
         yield p
 
 
+def readable(path):
+    """The text in a file that can state something. An SVG's path data and coordinates are geometry, not words
+    (resume-page.svg is resume.pdf's glyphs as outlines, and '1.05' turns up in its curves), so an SVG is read as
+    its text content plus its label, title, alt and link attributes. Tags become spaces, so line numbers hold."""
+    t = path.read_text(encoding="utf-8", errors="ignore")
+    if path.suffix.lower() != ".svg":
+        return t
+    said = re.findall(r'\s(?:aria-label|title|alt|href|xlink:href)\s*=\s*"([^"]*)"', t)
+    return re.sub(r"<[^>]*>", " ", t) + "\n" + "\n".join(said)
+
+
 def main():
     failures = []
     checked = 0
@@ -158,7 +169,7 @@ def main():
             return 1
     for path in shipped_files():
         try:
-            text = path.read_text(encoding="utf-8", errors="ignore")
+            text = readable(path)
         except OSError:
             continue
         checked += 1
@@ -176,7 +187,7 @@ def main():
     # personal data may not appear in it any more than anywhere else.
     private_repo = PRIVATE_PROFILE.resolve().parents[1].name
     for path in shipped_files(include_self=True):
-        t = path.read_text(encoding="utf-8", errors="ignore")
+        t = readable(path)
         # private patterns are matched in this file too: quoting one here is the leak
         for pattern, reason in hidden:
             for m in re.finditer(pattern, t, re.I):

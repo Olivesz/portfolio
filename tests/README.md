@@ -10,7 +10,7 @@ once, to read the native figure layers' labels.
 | `.venv/bin/python tests/contract.py --fast` | the subset a fix most often breaks, for use between edits | about 40 s |
 | `python3 tests/check-claims.py` | no retired claim or personal data is in a tracked file | 1 s |
 | `python3 tests/check-panels.py` | every figure is in the source line it cites | about 35 s; the first run fetches |
-| `python3 tests/check-links.py [--net]` | links resolve, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
+| `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
 | `.venv/bin/python tests/poster.py` | poster.jpg is a fresh render of its three lines over the map frame (`--render` writes it) | about 15 s |
 
 ## Setup
@@ -72,7 +72,7 @@ Nothing is taken on the page's word where it can be read back:
   - Wrappers on `addEventListener`, on the `on*` handler properties and on every page-scroll API. These count listeners and page-initiated scrolls.
   - Wrappers on the canvas 2D context: `drawImage`, `fillRect`, `fillStyle`/`strokeStyle`, `putImageData`, gradient stops, `shadowBlur`, `filter`, `fillText`. Every blit, rectangle, colour and text box is recorded as it happens.
   - The suite's own scrolls go through saved originals, so they never count against the page.
-- **Pink in the chaos:** world cells, through `cellTok`/`cellAt`, never canvas pixels, so the ant's halo is never a lit cell. A world cell counts when its drawn cell is on screen showing that cell's token; cells under the strip, the caption row or a label are not seen and not counted. At least 95% of lit cells are trail-family.
+- **Pink in the chaos:** world cells, through `cellTok`/`cellAt`, never canvas pixels, so the ant's halo is never a lit cell. A world cell counts when its drawn cell is on screen showing that cell's token; cells under the strip, the caption row or a label are not seen and not counted. At least 95% of lit cells are trail-family, or vivid cells the ant itself lit: until the lock resolves, the one ant's older chaos cells show the `--v-*` hue of the epoch that lit them. At every hold the ant's own cells carry no vivid token.
 - **Pink at a hold:** a visual share. A screenshot of the whole viewport (canvas, DOM and native layers together) is read back in the page, and pixels within 16 per channel of `#ff3d81` are counted; they may be at most 1.5% of its area. The ant's head trail counts, and so does a figure's own `--trail`: nothing is exempt. The `--trail` share of the ant's lit cells is printed beside it as a diagnostic only, since it rises as figures resolve into native layers while the pink on screen does not.
 - **Pixels:** the handoff finds the canvas ant as the only `#ffffff` pixels, read back with `getImageData`.
 - **Phone text:** the art band is screenshotted three times: as is, with native figure text made transparent, and with all DOM and SVG text made transparent. The last two differ only by DOM text other than the native layers, and that must be zero. The first two differ by the native layers' own labels, which must lie inside their layer's box. Text under the opaque band does not count.
@@ -81,10 +81,10 @@ Nothing is taken on the page's word where it can be read back:
 - **Colours:**
   - Every rendered element's computed colours, including `::before`/`::after`, borders, outlines and SVG shapes, resolved to sRGB by painting them.
   - Every colour literal in the CSSOM, which catches `:hover`, `:focus` and media variants that are not on screen.
-  - `:root` must define all 13 tokens.
+  - `:root` must define all 19 tokens: the 13 spec tokens and the six `--v-*` of palette_vivid.
 - **Resize:** in its own context, the viewport is resized at a transit, at two points of every hold and in the résumé (desktop to 1024×768, 1440×700 and back; a phone rotated to 844×390 and back). The scene after must be the scene before at the same fraction through it (within 0.04), and the résumé line first under the strip must stay within 24px. A resize may scroll the page once to get there; every other page-initiated scroll still needs a click.
 - **On its side:** `landcards` checks each held card sits in the text column clear of the art box, and is whole when it fits the viewport. `figclip` exempts the ant only where the figure itself fills the art box (custos at 740×360), and prints it.
-- **Perf:** `requestAnimationFrame` callbacks and scroll handlers are timed in-page under `Emulation.setCPUThrottlingRate {rate: 4}`, summed per frame, and the p95 is taken over one wheel run from the top to the bottom. Three runs per viewport, each in a fresh context; the verdict is the median p95, at most 2.0ms (the perf-budget ruling; the spec's own target is 1ms, which the page does not meet). The page's own `stats()` is printed beside it as a cross-check, never used as the verdict. The frames that cost most are station build and dim clips, where a station's cells are rebuilt and its native layer redrawn every frame.
+- **Perf:** `requestAnimationFrame` callbacks and scroll handlers are timed in-page under `Emulation.setCPUThrottlingRate {rate: 4}`, summed per frame, and the p95 is taken over one wheel run from the top to the bottom. Three runs per viewport, each in a fresh context; the verdict is the median p95, at most 2.3ms (the perf-budget ruling, which prices in the vivid colour layer; the spec's own target is 1ms, which the page does not meet). The page's own `stats()` is printed beside it as a cross-check, never used as the verdict. The frames that cost most are station build and dim clips, where a station's cells are rebuilt and its native layer redrawn every frame.
 - **Self-checks:** answers known outside the page are compared with `got`, not with the page's `want`:
   - NAND `1,1,1,0`
   - EM `14,7,2,0`
@@ -179,12 +179,12 @@ the fix a row names.
 | figclip | the page before phone stations framed the ant | FAIL | ant not drawn: 9 problems over 12 held frames at 390, 12 of 12 at 360 |
 | landing | the old 0.12-screen landing | FAIL | 160 landing samples after s 0.04 |
 | planting | the page before the bounded visitor ant (up to 6 live ants, 20,000 steps each, kept past the landing) | FAIL | ants 1, 2, 3, 4, 5 after five clicks; 5,237 visitor cells at s 0.20 desktop, 4,399 phone |
-| work | comic-reader's row given an extra theme (`data-k="play llm"`) | FAIL | agents & LLMs lists 6, want 5 |
-| work | KRONOS's marker moved 10 cells right in `#w-data` | FAIL | wide: kronos sits in data only, belongs to verify+data |
-| work | `#work .nm{color:#e8e6f1}`, one step off `--ink` | FAIL | colour rgb(232, 230, 241) on `h3.nm` |
-| work | `#work .ln{font-size:14px}` | FAIL | size 14px on `p.ln` |
-| work | the map's ground filled `#0a0b15` | FAIL | canvas pixel rgba(10,11,21,255) |
-| work | `tabindex="-1"` on the markets & data button | FAIL | Tab reaches 21 of 22 map controls, never t:data |
+| work | the data pane's first highlight (KRONOS) removed | FAIL | data: highlights ['imc-prosperity-4'], the rule says ['kronos', 'imc-prosperity-4'] |
+| work | `#work .k-nm{color:#e8e6f1}`, one step off `--ink` | FAIL | colour rgb(232, 230, 241) on `h3.k-nm` |
+| work | KRONOS's map box pulled 160px left | FAIL | hub:data touches kronos |
+| work | `:root{--t-llm:#b77ff2}` | FAIL | --t-llm is set on :root |
+| work | the demo prompt (`.k-a3`) never shown | FAIL | the prompt never read 'preview: each theme in turn' during the demo |
+| work | the systems chip reads 8 | FAIL | page:work-theme-systems reads '8', the taxonomy says 7 |
 | check-panels | `section#work` renamed (`--static --offline`) | ABORT | work rows came back empty |
 | caption | the old custos instruction, its lines cut to two as the caption drawer used to | FAIL | 9 of 12 at 360px; custos drew 'top: what the agent said. below: what it ran. pink: the log' |
 | errors | the old custos instruction, against the drawer's overflow report | FAIL | 1 console error: caption needs 3 lines at 360px |
@@ -222,6 +222,23 @@ from a copy with `--root`:
 | places | the page at 026da7f, at 360x740 DPR 1 | FAIL | 24 crossings from s 8.50: place row 1 over the custos card's meta and repo link; at DPR 2 the map pitch fits later and it passed, hence `phone-small-1x` |
 | check-panels team_meta | the custos meta with 'September 2026 hackathon.' restored | FAIL | 'names the month September; cards carry no months' |
 
+The playback checks (`play*`) each open fresh contexts, since the shared view has already scrolled through every
+station. Each was run at 1440x900 against a copy with one rule of the station clock broken:
+
+| assertion | mutation | expected | measured |
+|---|---|---|---|
+| playarrive | the first arrival goes straight to the end state | FAIL | all four: first frame `done` at p 1, no value inside (0, 1) |
+| playbudget | the clock runs at 0.8x | FAIL | done at 7267, 6353, 8247 and 6614ms against 5936, 5200, 6700 and 5400 |
+| playthrough | leaving mid-play no longer snaps to the end | FAIL | all four still `playing` after the flick; emergence 6121px off its end state on the way back |
+| playreverse | re-entering a hold from below restarts the clock | FAIL | all four `playing` from p 0 while wheeling up; 4978 to 20942px off the end state |
+| playreplay | the replay button no longer resets the clock | FAIL | all four never playing after the click |
+| playreduced | reduced motion runs the clock | FAIL | 73 of 73 frames `playing` after each arrival |
+
+Harness defects found by the first runs of these, and fixed: the shot a third of the way in waited for the page to
+settle, which under a clock means the end, so custos read 0px apart; the done time was read by the same loop that
+paused for that shot, so custos read 389ms late; and after the replay click the pointer rested on the button, whose
+hover colour put every replay 140px off.
+
 Harness defects found this way and fixed:
 
 - **An SVG root's default `fill`** read as an off-token colour. Only shapes and text are checked now.
@@ -235,6 +252,10 @@ Harness defects found this way and fixed:
 `RETIRED` is a list of (pattern, note) pairs, matched case-insensitively
 against every tracked file except check-claims.py itself. Each note says what
 not to state and which source governs instead.
+
+An SVG is read as its text content plus its `aria-label`, `title`, `alt` and link attributes, never its path data:
+resume-page.svg is resume.pdf's glyphs as outlines, and the retired KRONOS Sharpe turns up 44 times in its
+curves as coordinates. That Sharpe planted in a `<text>` or an `aria-label` fails.
 
 - **To retire a phrasing,** add its pattern with a note naming the governing source.
 - **Patterns that would disclose something are never written here.** An employer's internal names and figures, and a private repository's name or internals, are read at run time from the gitignored `.private/retired.json`, with control strings none of them may match. The run FAILS if that file is unreadable, malformed or empty, and those patterns are matched against check-claims.py itself.
@@ -268,7 +289,7 @@ Pattern controls also check what must *not* match: "21.05" and the drawdown figu
 
 - the FACTS block
 - every `data-src` element
-- four regions: cards, work rows (`li.row` in `section#work`), `instruction:` strings, and the label keys (`label`, `labels`, `short`, `phoneLabel(s)`, `caption(s)`)
+- four regions: cards, work highlights and more-rows (`li.k-card`, `li.k-mrow` in `section#work`), `instruction:` strings, and the label keys (`label`, `labels`, `short`, `phoneLabel(s)`, `caption(s)`)
 
 It then renders the page in headless Chromium, with Playwright from `.venv`, and
 reads the text of every native figure layer at eight points of each station's
@@ -330,7 +351,27 @@ Its allow-list holds only this repository. A public repository named in the
 copy but never linked is a warning; private repositories are never named in it.
 The profile repository is named after the account, which every github.com/Olivesz
 link spells out, so it is not counted as named. `--net` fetches each href as the
-browser resolves it (`&amp;` is `&`).
+browser resolves it (`&amp;` is `&`), six at a time, and retries a 5xx once,
+serially: GitHub answers a few blob-line links 503 under load.
+
+It reads `index.html` and every `work/*.html`, skipping script text. Every
+relative href or src must resolve to a file in the checkout, and every
+`#fragment` to an `id` in its target. Self-site URLs (canonical, og:url,
+og:image under olivesz.github.io/portfolio/) map to files and are never
+fetched, because a new page's canonical 404s until it deploys. Coverage: every
+`work/*.html` is linked from `index.html`, every `work/` link there has a page,
+and `sitemap.xml`'s `work/` entries are exactly the pages. The
+public-but-unlinked warning reads `index.html` only. **Falsified** on a copy with
+a missing stylesheet, a missing `#id`, a dead canonical and an unlinked,
+unlisted page: each failed, and the copy's missing poster.jpg and
+resume-page.svg failed too.
+
+The case studies' design contract is `contract.py`'s `cases` assertion: errors,
+requests off the origin, the two fonts from `work/assets`, tokens, DOM sizes,
+overflow, listeners, link names, targets, the hero's end state and every
+self-check a page exposes. **Falsified** on a copy with the custos-code page's
+old `L1`/`L3` source links, `case.css` without its inline-link padding and a
+planted `console.error`: 8 failures, each one planted.
 
 **Falsified** with copies of the page beside a copy of the guard, by the runner and
 log named under contract.py: the freeflow links
