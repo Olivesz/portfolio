@@ -44,6 +44,7 @@
       <dl class="facts">
         <div><dt>year</dt><dd><span data-src="Olivesz/kronos-quant@2e983e4:LICENSE#L3">2026</span></dd></div>
         <div><dt>stack</dt><dd data-src="Olivesz/kronos-quant@2e983e4:README.md#L5">Python <span class="dot">·</span> NumPy <span class="dot">·</span> pandas <span class="dot">·</span> SciPy</dd></div>
+        <div><dt>result</dt><dd><span data-src="Olivesz/kronos-quant@9932fa8:README.md#L134">net Sharpe 1.07, max drawdown −17.9%</span> <span class="dot">·</span> <span data-src="Olivesz/kronos-quant@9932fa8:README.md#L138">SPY 0.91, −33.7%</span></dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/kronos-quant">Olivesz/kronos-quant</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
         <div><dt>themes</dt><dd>
           <ul class="chips" aria-label="themes">
@@ -55,7 +56,7 @@
     </div>
   </header>
 
-  <figure class="blk hero-fig" aria-labelledby="hero-cap">
+  <figure class="blk wide hero-fig" aria-labelledby="hero-cap">
     <div class="stage" id="hero" data-play data-native="kronos" style="--stage-h:544px;--stage-h-phone:288px">
       <div class="k-host" style="position:absolute;inset:0;fill:var(--muted)"></div>
       <p class="sr-only">The drawing plants a regime switch in a synthetic series and shows the fitted estimate locking onto it, with a slider that moves the switch, then its verification gates lighting in turn, then the shipped run one step per quarter against SPY, with its drawdowns hanging below.</p>
@@ -120,6 +121,7 @@
   <section class="blk sec" aria-labelledby="s-src">
     <h2 id="s-src"><span class="n">05</span>sources</h2>
     <div class="body">
+      <details class="srcs-d"><summary>sources · 37 lines pinned to kronos-quant@2e983e4</summary>
       <ol class="srcs">
         <li data-src="Olivesz/kronos-quant@2e983e4:tests/run_all.py#L11-L61"><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4ab220c7ee7038a24ae13eb147df0c5388/tests/run_all.py#L11-L61">kronos-quant@2e983e4 · tests/run_all.py#L11-L61</a> fig 0: the gates, in run order</li>
         <li data-src="Olivesz/kronos-quant@2e983e4:README.md#L4-L5"><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4ab220c7ee7038a24ae13eb147df0c5388/README.md?plain=1#L4-L5">kronos-quant@2e983e4 · README.md#L4-L5</a> what it is; the stack</li>
@@ -159,6 +161,7 @@
         <li data-src="Olivesz/kronos-quant@2e983e4:README.md#L261-L263"><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4ab220c7ee7038a24ae13eb147df0c5388/README.md?plain=1#L261-L263">kronos-quant@2e983e4 · README.md#L261-L263</a> negative results reported</li>
         <li data-src="Olivesz/kronos-quant@2e983e4:README.md#L279-L281"><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4ab220c7ee7038a24ae13eb147df0c5388/README.md?plain=1#L279-L281">kronos-quant@2e983e4 · README.md#L279-L281</a> survivorship bias</li>
       </ol>
+      </details>
       <p>The per-quarter values in fig 0 come from the output of the run that the README headline reports; that output is not committed to the repo.</p>
     </div>
   </section>
@@ -1011,9 +1014,8 @@ root.FigKronos = api;
   }
   function draw() {
     var cx = ctx(), z = S.size(cx), c = cx.cell, w = z.w * c;
-    var x = cx.phone ? Math.max(0, Math.floor((cx.band.r - w) / 2 / c) * c) : 0, y = Math.max(0, Math.floor((cx.band.b - z.h * c) / 2 / c) * c);
+    var x = Math.max(0, Math.floor((cx.band.r - w) / 2 / c) * c), y = Math.max(0, Math.floor((cx.band.b - z.h * c) / 2 / c) * c);
     S.draw(u, { x: x, y: y, w: w, h: z.h * c }, cx);
-    if (row) row.style.maxWidth = cx.phone ? "" : w + "px";
     var t = S.instruction(u);
     if (instr.textContent !== t) instr.textContent = t;
     if (btn) { btn.hidden = playing || !cx.phone; var t2 = F.phoneView() === 0 ? "show the run" : "move the switch"; if (btn.textContent !== t2) btn.textContent = t2; }

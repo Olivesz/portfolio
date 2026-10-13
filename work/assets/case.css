@@ -93,6 +93,11 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .replay{flex:none;min-height:24px;padding:4px 8px;background:none;border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 11px/16px var(--mono);letter-spacing:.04em;cursor:pointer;transition:border-color var(--t-ui) var(--ease-enter)}
 .replay:hover,.replay:focus-visible{border-color:var(--ink)}
 .replay[hidden]{display:none}
+.cap-row{min-height:34px}
+@media (pointer:coarse){ .cap-row{min-height:42px} }
+.srcs-d summary{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);cursor:pointer;min-height:24px;padding:4px 0}
+.srcs-d summary:hover,.srcs-d summary:focus-visible{color:var(--ink)}
+.srcs-d[open] summary{margin-bottom:16px}
 @media (pointer:coarse){ .replay{min-height:32px} }
 /* inline links: padding grows the hit area without moving a line box */
 .srcs a,.facts dd a,main p a{padding:5px 0}

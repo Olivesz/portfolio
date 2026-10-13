@@ -95,7 +95,9 @@ a{color:inherit}
 .hero .date{margin:16px 0 0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);opacity:0;transition:opacity var(--t-ui) var(--ease-enter)}
 .hero .date.on{opacity:1}
 @media (max-width:1023px){ .hero{width:auto} .hero h1{font-size:44px;line-height:48px} .hero .rec{margin-top:16px;font-size:13px;line-height:20px} .hero .hl{margin-top:12px;line-height:20px} .hero .date{margin-top:12px} }
-.card .date{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);margin:0}
+#emergence,.place[data-ch=emergence]{--accent:var(--v-green)} #freeflow,.place[data-ch=freeflow]{--accent:var(--v-blue)}
+#kronos,.place[data-ch=kronos]{--accent:var(--v-amber)} #custos,.place[data-ch=custos]{--accent:var(--v-violet)}
+.card .date{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent,var(--muted));margin:0}
 .card h2{margin:8px 0 16px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
 .card .np{margin:0;font:400 15px/24px var(--sg);color:var(--ink)}
 .card .pf{margin:16px 0 0;font:400 15px/24px var(--sg);color:var(--body)}
@@ -108,9 +110,9 @@ a{color:inherit}
 .card .lk{margin:16px 0 0;font:400 13px/24px var(--mono)}
 .card .lk a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
 .card .lk a:hover,.card .lk a:focus-visible{text-decoration-color:var(--ink)}
-.card .rp{display:inline-block;height:24px;margin:0 0 0 12px;padding:0 4px;border:0;border-radius:0;background:none;font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--muted);vertical-align:top;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.card .rp:hover,.card .rp:focus-visible{color:var(--ink)}.card .rp:focus{outline:none}.card .rp:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
-@media (pointer:coarse){ .card .rp{height:32px;margin:-4px 0 -4px 8px} }
+.card .rp{display:inline-block;box-sizing:border-box;height:24px;margin:0 0 0 12px;padding:0 8px;border:1px solid var(--copper);border-radius:0;background:none;font:400 11px/22px var(--mono);letter-spacing:.04em;color:var(--ink);vertical-align:top;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.card .rp:hover,.card .rp:focus-visible{border-color:var(--ink)}.card .rp:focus{outline:none}.card .rp:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+@media (pointer:coarse){ .card .rp{height:32px;line-height:30px;margin:-4px 0 -4px 8px} }
 @media (max-width:1023px){ .card h2{font-size:30px;line-height:32px;margin:8px 0 12px} .card .pf,.card .pt,.card .meta{margin-top:12px} .card .lk{margin-top:8px} .card .pt th,.card .pt td{padding-left:12px} .card .pt thead th{letter-spacing:0}
   .card h2{margin-bottom:8px} .card .lk{margin-top:4px}
   /* a phone card is the phrase and the proof: every card fits its text band down to 360x640, and the note line is read, not shown */
@@ -118,7 +120,7 @@ a{color:inherit}
   .card .meta{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
   /* KRONOS turns one page at a time in the text band: the results with beats 1 and 2, the self-audit with beat 3 */
   .card .kp{display:grid} .card .kp>*{grid-area:1/1;transition:opacity var(--t-ui) var(--ease-enter)}
-  .card .kp-b,.card.k3 .kp-a{opacity:0} .card.k3 .kp-b{opacity:1} }
+  .card .kp-b,.card.k3 .kp-a{opacity:0} .card.k3 .kp-b{opacity:1} .card .kp-b{align-self:end} }
 
 /* map places: a click teleports, never flies */
 #places{position:fixed;z-index:3;left:0;top:0;width:100%;height:100lvh;pointer-events:none;opacity:0;transition:opacity 200ms var(--ease-enter)}
@@ -127,6 +129,7 @@ a{color:inherit}
 #places.park{position:absolute;top:var(--park,0)}
 #places.park .place{top:0!important;transform:none!important;height:100lvh;pointer-events:none}
 .place{position:absolute;left:0;top:0;pointer-events:auto;background:var(--void);border:0;padding:2px 4px;margin:0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);text-align:left;cursor:pointer;white-space:nowrap;border-radius:0}
+.place[data-ch]{color:var(--accent)}
 .place:hover,.place:focus-visible{color:var(--ink)}
 .place .d{color:var(--muted)}
 .place .k{display:inline-block;width:24px;color:var(--ink)}
@@ -264,7 +267,9 @@ a{color:inherit}
 #work .k-all[aria-pressed=true] b{color:var(--ink)}
 #work .k-chip[aria-pressed=true] i{background:var(--void)}
 #work .k-chip[data-k][aria-pressed=true] b{color:var(--void)}
-#work .k-chip.peek:not([aria-pressed=true]){background:var(--residue);border-width:1px}
+#work .k-chip.peek:not([aria-pressed=true]){background:none;outline:2px solid var(--h,var(--ink));outline-offset:-2px}
+#work .k-chip.k-all[aria-pressed=true]{background:var(--ink);color:var(--void);border-color:var(--ink)}
+#work .k-chip.k-all[aria-pressed=true] b{color:var(--void)}
 
 /* the stage: the map, with the panel beside it on desktop and under it on phone */
 #work .k-stage{display:grid;grid-template-columns:560px 304px;column-gap:32px;margin-top:32px;align-items:start;container-type:inline-size}
@@ -370,7 +375,6 @@ a{color:inherit}
 @media (max-width:599px){
   #work .k-chips{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   #work .k-chip{height:40px;padding:0 10px;justify-content:flex-start}
-  #work .k-chip.k-all{order:6}
   #work .k-node,#work .k-hub,#work .k-pick{font-size:11px}
   #work .k-hub{padding:0 8px}
   #work .k-node{gap:4px;padding:0 6px}
@@ -473,7 +477,7 @@ a{color:inherit}
       <a href="https://github.com/Olivesz">github</a>
       <a href="https://www.linkedin.com/in/oliver-zhang1">linkedin</a>
       <a href="mailto:oliver.zhang@utexas.edu">email</a>
-      <a href="resume.pdf">pdf</a>
+      <a href="resume.pdf" target="_blank" rel="noopener">résumé pdf</a>
     </nav>
   </div>
   <a class="jump" href="#work" data-go="work">work&nbsp;<span aria-hidden="true">↓</span></a>
@@ -485,7 +489,7 @@ a{color:inherit}
     <div class="stick hero" tabindex="-1">
       <h1>Oliver <em>Zhang</em></h1>
       <p class="rec"><span class="f">CS at UT&nbsp;Austin, Turing Scholars ’28</span><span class="sep"> · </span><span class="f">SWE intern at tradeInsight.ai (fall&nbsp;2026) and IBM (summer&nbsp;2026)</span></p>
-      <p class="hl"><a href="https://github.com/Olivesz">github</a> · <a href="https://www.linkedin.com/in/oliver-zhang1">linkedin</a> · <a href="mailto:oliver.zhang@utexas.edu">email</a> · <a href="resume.pdf">pdf</a></p>
+      <p class="hl"><a href="https://github.com/Olivesz">github</a> · <a href="https://www.linkedin.com/in/oliver-zhang1">linkedin</a> · <a href="mailto:oliver.zhang@utexas.edu">email</a> · <a href="resume.pdf" target="_blank" rel="noopener">résumé pdf</a></p>
       <p class="date" id="ch1">chapter i · 2023 to 2024</p>
       <p class="sr-only">One Langton’s ant walks the grid as the page scrolls: right on a dark cell, left on a lit one. Scrolling up runs it backward.</p>
       <p class="sr-only">Chapter one: dated trails from 2023 and 2024 beside the ant’s early chaos, until it falls into a repeating cycle and lays a straight road.</p>
@@ -1002,11 +1006,20 @@ a{color:inherit}
   if (state === "idle") {
     draw(0);
     if (window.IntersectionObserver) {
+      // an arrival faster than a screen a second (a jump, an anchor, a flick) is someone who came to read: the sheet is
+      // shown done at once and the build waits behind replay; a slower scroll in plays it
+      var enT = -1, enY = 0;
       new IntersectionObserver(function (es) {
         var e = es[es.length - 1], seen = e.intersectionRatio >= 0.35 || e.intersectionRect.height >= 0.5 * Math.min(vh(), H);
-        if (state === "idle" && seen) { if (ready) play(); else want = true; }
+        if (state === "idle" && e.isIntersecting && !seen && enT < 0) { enT = performance.now(); enY = window.scrollY; }
+        if (state === "idle" && seen) {
+          var dt = enT < 0 ? 0 : performance.now() - enT, fast = dt <= 0 || Math.abs(window.scrollY - enY) * 1000 / dt > vh();
+          enT = -1;
+          if (fast) finish(); else if (ready) play(); else want = true;
+        }
         else if (state === "play" && !e.isIntersecting) finish();
         else if (!e.isIntersecting) want = false;
+        if (!e.isIntersecting) enT = -1;
       }, { threshold: [0, 0.1, 0.2, 0.35] }).observe(box);
     } else finish();
   }
@@ -2231,7 +2244,7 @@ root.FigFreeflow = {
 (function (root) {
 "use strict";
 
-var TOKN = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule"];
+var TOKN = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule", "v-amber"];
 var PIN = "Olivesz/kronos-quant@9932fa8:";
 var SRC = {
   em: "page:em-fit (seeded synthetic series, fitted in this page)",
@@ -2248,7 +2261,7 @@ var SRC = {
 var COPY = {
   b1: "shaded days are planted. drag the switch; the estimate re-locks.",
   b2: "a gate passes when its estimator recovers the planted answer.",
-  b3: "KRONOS in white, SPY in grey. drawdowns hang below.",
+  b3: "KRONOS in amber, SPY in grey. drawdowns hang below.",
   caption: "A self-audit found a sign bug all 30 gates then in CI had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate.",
   aria: "planted regime switch, day"
 };
@@ -2534,7 +2547,7 @@ function paintRealFrame(P, g) {
   for (i = 1; i < MULTS.length; i++) P.rect(g.LG, ey(g, MULTS[i]), g.PA - g.LG, 1, "rule");
   P.rect(g.LG, D.z, g.PA - g.LG, 1, "copper");
   for (i = 0; i < NQ; i++) if (/Q1$/.test(Q.q[i])) P.rect(g.LG + i * g.qp, D.yt, 1, 3, "copper");
-  if (!g.wide) { P.rect(0, D.leg - 4, 10, 2, "ink"); P.rect(64, D.leg - 4, 10, 1, "muted"); }
+  if (!g.wide) { P.rect(0, D.leg - 4, 10, 2, "v-amber"); P.rect(64, D.leg - 4, 10, 1, "muted"); }
 }
 // quarter i owns x in [LG + i*qp, LG + (i+1)*qp): a clip at LG + n*qp shows exactly the first n quarters
 function paintRealSeries(P, g, n) {
@@ -2546,8 +2559,8 @@ function paintRealSeries(P, g, n) {
     if (i) P.rect(x, D.z + Math.min(pds, hs), 1, Math.abs(hs - pds) + 1, "muted");
     P.rect(x, ys, qp, 1, "muted");
     P.rect(x, Math.min(ps, ys), 1, Math.abs(ys - ps) + 1, "muted");
-    P.rect(x, yk, qp, 2, "ink");
-    P.rect(x, Math.min(pk, yk), 2, Math.abs(yk - pk) + 2, "ink");
+    P.rect(x, yk, qp, 2, "v-amber");
+    P.rect(x, Math.min(pk, yk), 2, Math.abs(yk - pk) + 2, "v-amber");
     pk = yk; ps = ys; pds = hs;
   }
 }
@@ -2590,11 +2603,11 @@ function textReal(g, s) {
     else out.push(T_(0, D.co, tw(ro) <= g.W ? ro : ddReadout(true)));
   }
   for (i = 0; i < NQ; i++) if (/Q1$/.test(Q.q[i]) && (Q.q[i].slice(0, 4) === "2014" || Q.q[i].slice(0, 4) === "2026")) out.push(T_(g.LG + i * g.qp, D.yl, [[Q.q[i].slice(0, 4), 11, "muted", SRC.quarters]]));
-  if (!g.wide) { out.push(T_(16, D.leg, [["KRONOS", 11, "muted"]])); out.push(T_(80, D.leg, [["SPY", 11, "muted"]])); }
+  if (!g.wide) { out.push(T_(16, D.leg, [["KRONOS", 11, "v-amber"]])); out.push(T_(80, D.leg, [["SPY", 11, "muted"]])); }
   if (n === 0 || !g.wide) return out;
   var hx = g.LG + n * g.qp + 6, lk = ey(g, Q.nav[n - 1]) + 4, ls = ey(g, Q.spy[n - 1]) + 4;
   if (Math.abs(lk - ls) < 14) { if (lk >= ls) lk = ls + 14; else ls = lk + 14; }
-  out.push(T_(hx, lk, [["KRONOS", 11, "muted"]])); out.push(T_(hx, ls, [["SPY", 11, "muted"]]));
+  out.push(T_(hx, lk, [["KRONOS", 11, "v-amber"]])); out.push(T_(hx, ls, [["SPY", 11, "muted"]]));
   return out;
 }
 
@@ -3930,7 +3943,7 @@ CHAPTERS.forEach(function (ch) {
 var TR = [
   { id: "ipccc",  label: "2023 · IEEE paper · LLM inference energy", short: "IEEE paper ’23",     cx: -22, cy: -30, dir: 1, a: 1400, b: 2300, side: "l" },
   { id: "iaria",  label: "2023 · IARIA paper · 2.6M+ Azure VMs",     short: "Azure paper ’23",    cx: 24,  cy: -28, dir: 2, a: 2400, b: 3300, side: "r" },
-  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Best U18 ’24",       cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
+  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Carbon Hack ’24 · best U18", cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
 ];
 var TR_LEN = 400;
 // '2.6M+' and 'Under 18' are covered by FACTS iaria_vms and carbon_u18 (https sources: no repo line holds them)
@@ -4213,7 +4226,7 @@ function beatU(ch, b) {                                       // from the statio
 }
 function updStation(ch, s, now) {
   var st = chT(ch), mine = clip && clip.ch === ch ? clip : null, ct = mine ? now - mine.t0 : 0;
-  if (ch.beats[0].native) ch.r = stationR(ch, now);
+  if (ch.beats[0].native) ch.r = s > PULL && mapMix(s) > 0 ? 0 : stationR(ch, now);
   var showing = st.on || (mine && mine.kind === "unbuild");
   if (st.dim !== (stDimL[ch.k] === 8) || (mine && (mine.kind === "dim" || mine.kind === "undim"))) {
     var lvl = mine && mine.kind === "dim" ? Math.round(8 * clamp01(ct / 240)) : mine && mine.kind === "undim" ? 8 - Math.round(8 * clamp01(ct / 240)) : st.dim ? 8 : 0;
@@ -4300,7 +4313,7 @@ var MAPW = 0, MAPH = 0, MAPA = [0, 0], mapP = 1, mapHalf = false, halfCv = null,
 var LAND = 0.03, LAND_CHAOS = 2.00, LOCK_END = 2.40, PULL_LEN = 0.70, MAP_LEN = 0.03, T_MIN = 0.35, T0_ON = 0.01, KD = 0.75;
 var CH_LIN = 0.17;                // the chaos curve's linear share: about one step per px from the first notch, not a flat start
 var PULL = 0, MAPS = 0, DOCS = 0, NAME_S = 2.6, heroH = 0, heroTop = 96, cardTop = 96, laidWide = null, laidNative = null;
-var lastW = -1, lastS = -1, HALO = {}, BB = [0, 0, 0, 0], MAPC = [0, 0], C8 = [0, 0], C16 = [0, 0], LOCKC = [0, 0];
+var lastW = -1, lastS = -1, HALO = {}, BB = [0, 0, 0, 0], MAPC = [0, 0], C8 = [0, 0], C16 = [0, 0], LOCKC = [0, 0], CI = [0, 0], ZL = 1;
 /* ---------- blooms: reaching a station grows its project's themes, in their vivid tokens, around the figure ---------- */
 // Each theme brings its own napkin rule, chosen from the ones that grow organic lace (LRRL, RLLR, RLLLR and kin grow boxes). Twelve turmites, two
 // in three in the chapter's own hue, start around the figure on one shared grid and turn back at a ragged radial edge.
@@ -4548,7 +4561,7 @@ function layout() {
     ch.bbot = Math.round(ch.hold * S + cardTop + ch.cardH);
     // the card before this one stays stuck through the transit and leaves the text column just as this station lands:
     // the column is never empty, and no two cards share a hold
-    var need = Math.round(ch.arrive * S + cardTop - 8), pv = CHAPTERS[ch.k - 1];
+    var need = Math.round(ch.arrive * S + (wide ? STRIP : cardTop - 8)), pv = CHAPTERS[ch.k - 1];
     if (pv && need > pv.bbot) { pv.bbot = need; $("#b-" + pv.id).style.height = pv.bbot - pv.btop + "px"; }
     if (!pv) { var hb = Math.round(heroTop + heroH + LOCK_END * S); if (need > hb) { hero.style.height = need + "px"; NAME_S += (need - hb) / S; } }
     blk.style.height = ch.bbot - ch.btop + "px";
@@ -4564,6 +4577,11 @@ function layout() {
   CHAOS_FIT = !PF ? 1e9 : Math.max(1, Math.floor(Math.min((ABW - 32) * dpr / (tb[2] - tb[0]), (ABH - 48) * dpr / (tb[3] - tb[1]))));
   var b6 = [1e9, 1e9, -1e9, -1e9]; for (q = 0; q <= 600; q++) gr(b6, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
   C16 = [(b6[0] + b6[2]) / 2, (b6[1] + b6[3]) / 2];
+  // the landing frames the intro's chaos at up to 3x its chapter-I scale: about 60% of the art box at rest
+  var bI = [1e9, 1e9, -1e9, -1e9]; for (q = 0; q <= INTRO; q++) gr(bI, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
+  CI = [(bI[0] + bI[2]) / 2, (bI[1] + bI[3]) / 2];
+  var eI = chaosPitchE(INTRO), pI = Math.exp(Math.log(devP(cssP("close"))) + (Math.log(Math.min(devP(cssP("chaos")), CHAOS_FIT)) - Math.log(devP(cssP("close")))) * eI) / dpr;
+  ZL = RM ? 1 : Math.max(1, Math.min(3, 0.6 * ABW / ((bI[2] - bI[0]) * pI), 0.6 * ABH / ((bI[3] - bI[1]) * pI)));
   // the map fits the whole walk at the largest integer device pitch, or two cells per device pixel when even one does not fit
   BB = [BBW[0], BBW[1], BBW[2], BBW[3]];
   TR.forEach(function (tr) { gr(BB, tr.bb[0], tr.bb[1], tr.bb[2], tr.bb[3]); });
@@ -4638,7 +4656,8 @@ function camAt(s) {
   if (s < LAND_CHAOS) {
     if (RM) return s < LAND ? { c: C16, pf: p16, key: 0 } : { c: C8, pf: pc, key: 1 };
     e = chaosPitchE(stepAt(s));
-    return { c: lerp2(C16, C8, e), pf: logP(p16, pc, e) };
+    var zw = 1 - ss(clamp01(s * S / 300));
+    return { c: lerp2(lerp2(C16, C8, e), CI, zw), pf: logP(p16, pc, e) * Math.exp(Math.log(ZL) * zw) };
   }
   if (s < LOCK_END) { a = [C8, pc]; b = poseLock(); e = (s - LAND_CHAOS) / 0.12; key = 2; }
   else {
@@ -4685,7 +4704,7 @@ function instrAt(s) {
       return bt.instructionAt ? bt.instructionAt(nativeU(bt.native, beatU(ch, 0, s))) : bt.instruction;
     }
   }
-  if (s >= PULL) return "the whole walk. every label is a place.";
+  if (s >= PULL) return Math.round(camAt(s).pf) <= (mapHalf ? 1 : mapP) && (wide || phoneMapClear(s, 0)) ? "the whole walk. every label is a place." : "";
   return "";
 }
 
@@ -4880,7 +4899,12 @@ function render(s, now) {
       var lines = [!PF ? t.label : t.short], own = t.n > 0 ? obst.splice(1 + trIx(i), 1) : null;
       var r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), t.side === "l" ? ["l", "tl", "bl", "t", "b", "r"] : ["r", "tr", "br", "t", "b", "l"], bounds, obst);
       if (own) obst.splice(1 + trIx(i), 0, own[0]);
-      if (r2) txt(lines[0], r2[0], r2[1] + 11 * dpr, 11, TOKCSS[T_BODY], al, "left");          // achievements, not chart ticks
+      if (r2) {
+        var px4 = Math.round(4 * dpr), py2 = Math.round(2 * dpr);
+        ctx.globalAlpha = al; ctx.fillStyle = TOKCSS[T_VOID];
+        ctx.fillRect(Math.round(r2[0]) - px4, Math.round(r2[1]) - py2, Math.round(r2[2] - r2[0]) + 2 * px4, Math.round(r2[3] - r2[1]) + 2 * py2);
+        txt(lines[0], r2[0], r2[1] + 11 * dpr, 11, TOKCSS[T_BODY], al, "left");          // achievements, not chart ticks
+      }
     }
   }
   if (pcss >= 4 && sc.m < 0.5) {
@@ -5058,7 +5082,11 @@ function landLine(ia, now, capY) {
     for (var r = 0; r < 3; r++) { ctx.fillStyle = TOKCSS[r === ph ? T_INK : T_COPPER]; ctx.fillRect(cx, cy + r * (c + g), c, c); }
     if (!RM) { clearTimeout(cueTimer); cueTimer = setTimeout(wake, CUE_MS - (now - cueT0) % CUE_MS + 4); }   // one frame per step: the rAF loop still stops between steps
   }
+  var hOn = introT0 >= 0 && now - introT0 >= INTRO_MS + 500 && targetS === 0 && !leftLanding, ha = fade("plant", hOn, now, 400) * ia;
+  if (!hOn && introT0 >= 0 && targetS === 0 && !plantWake) plantWake = setTimeout(function () { plantWake = 0; wake(); }, Math.max(16, introT0 + INTRO_MS + 520 - now));
+  if (ha > 0) txt(TOUCH ? "· or tap to plant an ant." : "· or click anywhere to plant an ant.", cx + c + Math.round(12 * dpr), b1, 11, TOKCSS[T_MUTED], ha, "left");
 }
+var plantWake = 0;
 function txt(t, X, Y, size, col, alpha, align) {
   drawn.push([t, Math.round(X / dpr), Math.round(Y / dpr), +alpha.toFixed(2)]);
   ctx.globalAlpha = alpha; ctx.font = Math.round(size * dpr) + 'px "JetBrains Mono", ui-monospace, monospace';
@@ -5109,6 +5137,7 @@ PLACES.push({ group: "a", id: "lock", bb: [posX[LOCK] - 1, posY[LOCK] - 1, posX[
 CHAPTERS.forEach(function (ch) { PLACES.push({ group: "b", id: ch.id, ch: ch, s: function () { return ch.arrive + (ch.lift || 0) / S + 0.05; }, label: ch.title, short: ch.title }); });
 PLACES.forEach(function (p, i) {
   var b = d0.createElement("button"); b.className = "place"; b.type = "button"; p.n = String(i + 1);
+  if (p.group === "b") b.setAttribute("data-ch", p.id);
   b.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); teleport(p.s()); landFocus(placeEl(p)); });
   placesEl.appendChild(b); p.el = b;
 });

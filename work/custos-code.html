@@ -53,7 +53,7 @@
     </div>
   </header>
 
-  <figure class="blk hero-fig" aria-labelledby="hero-cap">
+  <figure class="blk wide hero-fig" aria-labelledby="hero-cap">
     <div class="stage" id="hero" data-play data-native="custos" style="--stage-h:384px;--stage-h-phone:336px">
       <p class="sr-only" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4">The agent’s final report, “Everything passes now, the suite is green.”, set above the test run from its own log, pytest -q returning 2 failed, 7 passed. The rule reads the run, marks the claim “the suite is green.” contradicted and blocks the stop. Below, a control session’s claims: the test claim confirmed, the file claim unwitnessed.</p>
     </div>
@@ -117,6 +117,7 @@
   <section class="blk sec" aria-labelledby="s-src">
     <h2 id="s-src"><span class="n">05</span>sources</h2>
     <div class="body">
+      <details class="srcs-d"><summary>sources · 17 lines pinned to custos-code@f3737f8</summary>
       <ol class="srcs">
         <li>line links point at <a href="https://github.com/Olivesz/custos-code/tree/f3737f8fba789f5fc4806dd68102b406e925d5b5">Olivesz/custos-code@f3737f8</a></li>
         <li><a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md">README.md</a> · <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L3" aria-label="README.md line 3">line 3</a> what the tool checks · <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L20" aria-label="README.md line 20">line 20</a> the nudge is fixed text: 0 LLM tokens · <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L27-L33" aria-label="README.md lines 27–33">lines 27–33</a> hooks record every tool call; ten scoreboard scenarios · <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L138" aria-label="README.md line 138">line 138</a> 20,574 sessions; 22.58% of 16,118 episodes misreported; 2.99% self-corrected</li>
@@ -136,6 +137,7 @@
         <li><a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/src/custos_code/demo_fixtures/ok_tests_0.jsonl">src/custos_code/demo_fixtures/ok_tests_0.jsonl</a> · <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/src/custos_code/demo_fixtures/ok_tests_0.jsonl#L1-L8" aria-label="src/custos_code/demo_fixtures/ok_tests_0.jsonl lines 1–8">lines 1–8</a> fig 0: the control session</li>
         <li><a href="https://arxiv.org/html/2605.29442">arXiv 2605.29442</a> the study behind the session figures</li>
       </ol>
+      </details>
     </div>
   </section>
 
@@ -1068,8 +1070,8 @@ root.FigCustosNative = api;
   function draw(u) {
     cur = u;
     var c = ctx(), z = S.size(c), w = z.w * c.cell, h = z.h * c.cell;
-    // desktop: on the column's left edge, under the title and over the caption; phone: centred in the gutters
-    S.draw(u, { x: c.phone ? Math.round((c.band.r - w) / 2) : 0, y: Math.round((c.band.b - h) / 2), w: w, h: h }, c);
+    // centred in the stage on the cell lattice, as every case study's hero is
+    S.draw(u, { x: Math.max(0, Math.floor((c.band.r - w) / 2 / c.cell) * c.cell), y: Math.round((c.band.b - h) / 2), w: w, h: h }, c);
   }
   function play() {
     cancelAnimationFrame(raf);
