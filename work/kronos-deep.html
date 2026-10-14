@@ -1,0 +1,1912 @@
+<!doctype html>
+<html lang="en" class="a-data">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KRONOS, in depth · Oliver Zhang</title>
+<meta name="description" content="How a trading research platform learns to read market moods, and how it checks every estimator on planted answers before it trusts a price.">
+<meta property="og:title" content="KRONOS, in depth · Oliver Zhang">
+<meta property="og:description" content="How a trading research platform learns to read market moods, and how it checks every estimator on planted answers before it trusts a price.">
+<meta property="og:url" content="https://olivesz.github.io/portfolio/work/kronos-deep.html">
+<meta property="og:image" content="https://olivesz.github.io/portfolio/work/og/kronos-deep.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="KRONOS, in depth: a synthetic market with its planted moods, Bull, Volatile and Bear, marked under the price.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://olivesz.github.io/portfolio/work/og/kronos-deep.jpg">
+<meta name="twitter:image:alt" content="KRONOS, in depth: a synthetic market with its planted moods, Bull, Volatile and Bear, marked under the price.">
+<meta name="theme-color" content="#0a0b14">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0b14'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23ff3d81'/%3E%3Crect x='10' y='2' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3Crect x='2' y='10' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3C/svg%3E">
+<link rel="canonical" href="https://olivesz.github.io/portfolio/work/kronos-deep.html">
+<meta name="robots" content="index, follow, max-image-preview:large, noai, noimageai">
+<meta name="tdm-reservation" content="1">
+<link rel="preload" href="assets/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/jetbrains-mono.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/case.css">
+<link rel="stylesheet" href="assets/deep.css">
+<style>
+/* fig 2: the two lamps and the gate. lit and right is green, lit and wrong is ink */
+#sc-idea .lamp{fill:var(--copper)}
+#sc-idea .lamp.ok{fill:var(--v-green)}
+#sc-idea .lamp.bad{fill:var(--ink)}
+#sc-idea .gate{fill:var(--void);stroke:var(--copper);stroke-width:1px}
+#sc-idea .gate.ok{fill:var(--v-green);stroke:var(--v-green)}
+#sc-idea .gate-t{font-size:13px;fill:var(--muted)}
+#sc-idea .gate-t.ok{fill:var(--void)}
+/* a shut gate's way through steps down a token instead of fading: rule-coloured lines and box, muted words */
+#sc-idea .shut .ln-a,#sc-idea .ln-a.shut{stroke:var(--rule)} #sc-idea .shut .hd-a,#sc-idea .hd-a.shut{fill:var(--rule)}
+#sc-idea .bx.shut{stroke:var(--rule)} #sc-idea text.shut{fill:var(--muted)}
+/* range inputs under a scene: three in a row, one per line on a phone */
+.st > p.kr-here{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);margin:0 0 12px} .st > p.kr-here b{font-weight:400;color:var(--v-amber)}
+.kr-sl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:24px;row-gap:8px;margin-top:16px}
+.kr-sl.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kr-sl.one{grid-template-columns:minmax(0,1fr)}
+.kr-sl label{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.kr-sl output{color:var(--ink);font-variant-numeric:tabular-nums}
+.kr-sl input[type=range]{display:block;width:100%;height:24px;margin:4px 0 0;padding:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+/* the track and thumb in the tokens: a 2 px copper track, an amber thumb */
+.kr-sl input[type=range]:focus{outline:none} .kr-sl input[type=range]:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+.kr-sl input[type=range]::-webkit-slider-runnable-track{height:2px;background:var(--copper);border:0}
+.kr-sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:8px;height:16px;margin-top:-7px;background:var(--v-amber);border:0;border-radius:0}
+.kr-sl input[type=range]::-moz-range-track{height:2px;background:var(--copper);border:0}
+.kr-sl input[type=range]::-moz-range-thumb{width:8px;height:16px;background:var(--v-amber);border:0;border-radius:0}
+@media (max-width:767px){ .kr-sl,.kr-sl.two{grid-template-columns:minmax(0,1fr)} }
+@media (pointer:coarse){ .kr-sl input[type=range]{height:32px} .kr-sl input[type=range]::-webkit-slider-thumb{width:12px;height:24px;margin-top:-11px} .kr-sl input[type=range]::-moz-range-thumb{width:12px;height:24px} }
+.sc-l.kr-g{color:var(--v-green)} .sc-l.kr-t{color:var(--v-red)} .sc-l.kr-a{color:var(--v-amber)} .sc-l.kr-c{color:var(--v-cyan)}
+.sc-l.kr-s0{color:var(--v-blue)} .sc-l.kr-s1{color:var(--v-violet)} .sc-l.kr-s2{color:var(--v-red)}
+/* a label that sits on the art (fig 5's state names, fig 12's readout) gets a void tag so it stays readable */
+.sc-l.kr-tag{background:var(--void);padding:0 4px}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">skip to the story</a>
+<header class="strip">
+  <a class="nm" href="../index.html" target="_blank" rel="noopener noreferrer">Oliver Zhang</a>
+  <span class="here" aria-hidden="true">work · KRONOS · in depth</span>
+  <a class="sp" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the short version</a>
+  <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
+</header>
+
+<main id="main" tabindex="-1">
+  <header class="blk head">
+    <p class="kick">chapter iv <span class="sep">·</span> in depth</p>
+    <h1>KRONOS, in depth</h1>
+    <div class="head-grid">
+      <div>
+        <p class="lede">How a trading research platform learns to read market moods, and how it checks every estimator on a planted answer before it trusts a real price.</p>
+        <p class="lede lede-2">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>short</dt><dd><a href="kronos.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>stack</dt><dd data-src="Olivesz/kronos-quant@2e983e4:README.md#L5">Python <span class="dot">·</span> NumPy <span class="dot">·</span> pandas <span class="dot">·</span> SciPy</dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">github.com/Olivesz/kronos-quant</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>read</dt><dd data-derived="the page’s words at 250 a minute">about 15 minutes</dd></div>
+      </dl>
+    </div>
+  </header>
+
+  <div class="blk dd">
+    <aside class="dd-rail">
+      <nav class="dd-toc" aria-label="contents">
+        <p class="k">contents</p>
+        <ol>
+          <li><a href="#ch-situation"><span class="n">01</span>the situation</a></li>
+          <li><a href="#ch-idea"><span class="n">02</span>the idea</a></li>
+          <li><a href="#ch-build"><span class="n">03</span>the build</a>
+            <ol>
+              <li><a href="#st-world">the planted world</a></li>
+              <li><a href="#st-em">fitting it</a></li>
+              <li><a href="#st-filter">no future</a></li>
+              <li><a href="#st-label">the label</a></li>
+              <li><a href="#st-tails">fat tails</a></li>
+              <li><a href="#st-book">the book</a></li>
+              <li><a href="#st-overlay">the overlay</a></li>
+            </ol>
+          </li>
+          <li><a href="#ch-broke"><span class="n">04</span>what broke</a></li>
+          <li><a href="#ch-results"><span class="n">05</span>results</a></li>
+        </ol>
+        <a class="back-to" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the short version</a>
+      </nav>
+    </aside>
+
+    <article class="dd-body">
+      <!-- 01 -->
+      <section class="ch" id="ch-situation" aria-labelledby="h-situation">
+        <p class="ch-k">01 <span class="sep">·</span> the situation</p>
+        <h2 id="h-situation">One history, no answer key</h2>
+        <p class="np">Markets switch moods. Calm rallies, choppy stretches and selloffs come and go, and none of them is announced.</p>
+        <p>A model that labels those moods has nothing to check its labels against. Its answer for any given day can be wrong and still look right on a chart. <span data-src="Olivesz/kronos-quant@2e983e4:docs/METHODS.md#L56-L58">Most backtests are a single number computed once on one history, with no ground truth to check that number against.</span></p>
+
+        <figure class="scene" id="sc-market" aria-labelledby="sc-market-cap">
+          <div class="sc-stage"><div class="sc-art"></div></div>
+          <ol class="sc-keys">
+            <li data-key="draw" data-at="0">A market from the platform’s own generator: one price line, years of trading days. Under it, the row a regime model is asked to fill in.</li>
+            <li data-key="ask" data-at="4">Which stretches were the selloffs? From the price alone there is no way to be sure, and on real prices this row is never filled in.</li>
+            <li data-key="band" data-at="16">This world is synthetic, so the answer exists: the hidden mood behind each day, painted under the line.</li>
+            <li data-key="recipe" data-at="28">Three moods, each with its own drift, volatility and typical length: Bull is calm, Volatile is choppy, Bear is falling.</li>
+          </ol>
+          <figcaption class="sc-cap" id="sc-market-cap"><span class="n">fig 1</span><span data-src="Olivesz/kronos-quant@2e983e4:kronos/data.py#L80-L82">a synthetic market from the platform’s own generator, with fat tails, volatility clustering and regime shifts.</span> the coloured band is the answer it was built from. <span class="verb">click</span> new draw, or hide the answer to see what a model gets.</figcaption>
+        </figure>
+
+        <p>The platform runs fully offline on markets like this one, <span data-src="Olivesz/kronos-quant@2e983e4:kronos/data.py#L80-L82">built so every model has real structure to find</span>, and the answer to each one is known.</p>
+      </section>
+
+      <!-- 02 -->
+      <section class="ch" id="ch-idea" aria-labelledby="h-idea">
+        <p class="ch-k">02 <span class="sep">·</span> the idea</p>
+        <h2 id="h-idea">Plant the answer, then grade</h2>
+        <p class="np">Build worlds where the answer is planted. An estimator has to find the plant, and stay quiet in a world with nothing planted, before it is allowed near a real price.</p>
+        <p>The two halves have names. <span data-src="Olivesz/kronos-quant@2e983e4:docs/METHODS.md#L30-L34">Size: on a world where the effect is absent, the test does not fire. Power: on a world where it is present by construction, the test detects it.</span> A test that never fires has perfect size and is worth nothing, so both worlds are needed.</p>
+
+        <figure class="scene ig" id="sc-idea" aria-labelledby="sc-idea-cap">
+          <div class="sc-stage">
+            <div class="sc-art">
+              <svg class="ig-w" width="704" height="232" viewBox="0 0 704 232" role="img" aria-labelledby="sc-idea-t" xmlns="http://www.w3.org/2000/svg">
+                <title id="sc-idea-t">Two synthetic worlds, one with nothing planted and one with the answer planted, feed one estimator. Its lamp must stay dark on the first and light on the second before its gate opens to real prices.</title>
+                <g data-from="tiles">
+                  <rect class="bx" x="0.5" y="16.5" width="175" height="55"/>
+                  <text class="lb" x="12" y="36">world 1</text><text class="rd" x="12" y="60">nothing planted</text>
+                  <rect class="bx-a" x="0.5" y="128.5" width="175" height="55"/>
+                  <text class="lb" x="12" y="148">world 2</text><text class="rd-a" x="12" y="172">answer planted</text>
+                  <path class="ln draw" pathLength="1" d="M176 44.5H225"/><path class="hd tip" d="M225 40.5L232 44.5L225 48.5Z"/>
+                  <path class="ln-a draw" pathLength="1" d="M176 156.5H225"/><path class="hd-a tip" d="M225 152.5L232 156.5L225 160.5Z"/>
+                  <rect class="bx" x="232.5" y="16.5" width="175" height="167"/>
+                  <text class="lb" x="244" y="36">estimator</text><text class="rd" x="244" y="60">under test</text>
+                </g>
+                <g data-from="size">
+                  <path class="ln draw" pathLength="1" d="M408 44.5H440"/>
+                  <rect class="lamp lamp-n" x="440" y="36" width="16" height="16"/>
+                  <text class="rd" x="472" y="49">size</text>
+                  <text class="lb kr-m" data-m="ok never" x="472" y="68">silent on a null world</text>
+                  <text class="lb-i kr-m" data-m="always" x="472" y="68">fires on noise</text>
+                </g>
+                <g data-from="power">
+                  <path class="ln-a draw" pathLength="1" d="M408 156.5H440"/>
+                  <rect class="lamp lamp-p" x="440" y="148" width="16" height="16"/>
+                  <text class="rd" x="472" y="161">power</text>
+                  <text class="lb kr-m" data-m="ok always" x="472" y="180">finds what was planted</text>
+                  <text class="lb-i kr-m" data-m="never" x="472" y="180">misses the plant</text>
+                </g>
+                <g data-from="gate">
+                  <rect class="gate" x="232.5" y="200.5" width="175" height="31"/>
+                  <text class="gate-t kr-m" data-m="ok" x="244" y="221">gate passes</text>
+                  <text class="gate-t kr-m" data-m="always" x="244" y="221">gate shut · no size</text>
+                  <text class="gate-t kr-m" data-m="never" x="244" y="221">gate shut · no power</text>
+                  <g class="kr-open"><path class="ln-a" d="M408 216.5H489"/><path class="hd-a" d="M489 212.5L496 216.5L489 220.5Z"/></g>
+                  <rect class="bx kr-open" x="496.5" y="200.5" width="207" height="31"/>
+                  <text class="rd kr-open" x="508" y="221">real prices</text>
+                  <text class="lb" x="696" y="16" text-anchor="end"><tspan data-src="Olivesz/kronos-quant@2e983e4:README.md#L82-L85">41 gates hold this rule</tspan></text>
+                </g>
+              </svg>
+              <svg class="ig-n" width="328" height="328" viewBox="0 0 328 328" role="img" aria-labelledby="sc-idea-tn" xmlns="http://www.w3.org/2000/svg">
+                <title id="sc-idea-tn">Two synthetic worlds, one with nothing planted and one with the answer planted, feed one estimator. Its lamp must stay dark on the first and light on the second before its gate opens to real prices.</title>
+                <g data-from="tiles">
+                  <rect class="bx" x="0.5" y="0.5" width="155" height="55"/>
+                  <text class="lb" x="8" y="20">world 1</text><text class="rd" x="8" y="44">nothing planted</text>
+                  <rect class="bx-a" x="172.5" y="0.5" width="155" height="55"/>
+                  <text class="lb" x="180" y="20">world 2</text><text class="rd-a" x="180" y="44">answer planted</text>
+                  <path class="ln draw" pathLength="1" d="M78.5 56V81"/><path class="hd tip" d="M74.5 81L78.5 88L82.5 81Z"/>
+                  <path class="ln-a draw" pathLength="1" d="M250.5 56V81"/><path class="hd-a tip" d="M246.5 81L250.5 88L254.5 81Z"/>
+                  <rect class="bx" x="0.5" y="88.5" width="327" height="47"/>
+                  <text class="lb" x="8" y="108">estimator</text><text class="rd" x="8" y="128">under test</text>
+                </g>
+                <g data-from="size">
+                  <rect class="lamp lamp-n" x="8" y="152" width="16" height="16"/>
+                  <text class="rd" x="40" y="165">size</text>
+                  <text class="lb kr-m" data-m="ok never" x="96" y="164">silent on a null world</text>
+                  <text class="lb-i kr-m" data-m="always" x="96" y="164">fires on noise</text>
+                </g>
+                <g data-from="power">
+                  <rect class="lamp lamp-p" x="8" y="192" width="16" height="16"/>
+                  <text class="rd" x="40" y="205">power</text>
+                  <text class="lb kr-m" data-m="ok always" x="96" y="204">finds the plant</text>
+                  <text class="lb-i kr-m" data-m="never" x="96" y="204">misses the plant</text>
+                </g>
+                <g data-from="gate">
+                  <rect class="gate" x="0.5" y="232.5" width="327" height="31"/>
+                  <text class="gate-t kr-m" data-m="ok" x="8" y="253">gate passes</text>
+                  <text class="gate-t kr-m" data-m="always" x="8" y="253">gate shut · no size</text>
+                  <text class="gate-t kr-m" data-m="never" x="8" y="253">gate shut · no power</text>
+                  <g class="kr-open"><path class="ln-a" d="M164.5 264V289"/><path class="hd-a" d="M160.5 289L164.5 296L168.5 289Z"/></g>
+                  <rect class="bx kr-open" x="0.5" y="296.5" width="327" height="31"/>
+                  <text class="rd kr-open" x="8" y="317">real prices</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ol class="sc-keys">
+            <li data-key="tiles" data-at="0">Two synthetic worlds go through the same estimator: one with nothing planted, one with the effect built in.</li>
+            <li data-key="size" data-at="1">On the null world its lamp must stay dark. That is size.</li>
+            <li data-key="power" data-at="2">On the planted world its lamp must light. That is power.</li>
+            <li data-key="gate" data-at="3">Only an estimator that does both passes its gate and may see a real price. The platform holds <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L82-L85">41</span> gates.</li>
+          </ol>
+          <figcaption class="sc-cap" id="sc-idea-cap"><span class="n">fig 2</span>every estimator is graded twice on synthetic data. <span class="verb">click</span> always fires or never fires to break the estimator.</figcaption>
+        </figure>
+
+        <p class="pull"><span data-src="Olivesz/kronos-quant@2e983e4:README.md#L40-L41">No estimator is trusted until it passes a gate on data where the answer is already known.</span></p>
+      </section>
+
+      <!-- 03 -->
+      <section class="ch" id="ch-build" aria-labelledby="h-build">
+        <p class="ch-k">03 <span class="sep">·</span> the build</p>
+        <h2 id="h-build">From a planted world to a sized book</h2>
+        <p>Seven steps, each built on the one before. The first five follow one planted world through the regime model; the last two turn its label into positions. First, the whole machine on one page.</p>
+
+        <figure class="scene ig" id="sc-flow" aria-labelledby="sc-flow-cap">
+          <div class="sc-stage">
+            <div class="sc-art">
+              <svg class="ig-w" width="704" height="232" viewBox="0 0 704 232" role="img" aria-labelledby="sc-flow-t" xmlns="http://www.w3.org/2000/svg">
+                <title id="sc-flow-t">Six stages left to right: prices, regimes, signals, book, overlay, and the next day's return. A volatility forecast feeds the overlay and a pairs sleeve adds to the day's return. Everything is decided at the close of day t and earns from day t+1.</title>
+                <g data-from="stages">
+                  <rect class="bx" x="0.5" y="16.5" width="103" height="63"/><text class="rd" x="8" y="40">prices</text><text class="lb" x="8" y="58">~48 names</text><text class="lb" x="8" y="72"><tspan data-src="Olivesz/kronos-quant@2e983e4:README.md#L273">2010–2026</tspan></text>
+                  <path class="ln draw" pathLength="1" d="M104 48.5H113"/><path class="hd tip" d="M113 44.5L120 48.5L113 52.5Z"/>
+                  <rect class="bx" x="120.5" y="16.5" width="103" height="63"/><text class="rd" x="128" y="40">regimes</text><text class="lb" x="128" y="58">Student-t HMM</text><text class="lb" x="128" y="72">filtered only</text>
+                  <path class="ln draw" pathLength="1" d="M224 48.5H233"/><path class="hd tip" d="M233 44.5L240 48.5L233 52.5Z"/>
+                  <rect class="bx" x="240.5" y="16.5" width="103" height="63"/><text class="rd" x="248" y="40">signals</text><text class="lb" x="248" y="58">mix set by</text><text class="lb" x="248" y="72">the label</text>
+                  <path class="ln draw" pathLength="1" d="M344 48.5H353"/><path class="hd tip" d="M353 44.5L360 48.5L353 52.5Z"/>
+                  <rect class="bx" x="360.5" y="16.5" width="103" height="63"/><text class="rd" x="368" y="40">book</text><text class="lb" x="368" y="58">HRP + tilt</text><text class="lb" x="368" y="72"><tspan data-src="Olivesz/kronos-quant@2e983e4:config.py#L83">12%</tspan> cap</text>
+                  <path class="ln draw" pathLength="1" d="M464 48.5H473"/><path class="hd tip" d="M473 44.5L480 48.5L473 52.5Z"/>
+                  <rect class="bx-a" x="480.5" y="16.5" width="103" height="63"/><text class="rd-a" x="488" y="40">overlay</text><text class="lb" x="488" y="58">lever × brake</text><text class="lb" x="488" y="72">up to <tspan data-src="Olivesz/kronos-quant@2e983e4:README.md#L127">1.5×</tspan></text>
+                  <path class="ln-a draw" pathLength="1" d="M584 48.5H593"/><path class="hd-a tip" d="M593 44.5L600 48.5L593 52.5Z"/>
+                  <rect class="bx" x="600.5" y="16.5" width="103" height="63"/><text class="rd" x="608" y="40">day t+1</text><text class="lb" x="608" y="58">gross × size</text><text class="lb" x="608" y="72">− costs</text>
+                  <text class="lb" x="128" y="98">steps 01–05</text><text class="lb" x="248" y="98">step 06</text><text class="lb" x="368" y="98">step 06</text><text class="lb" x="488" y="98">step 07</text>
+                </g>
+                <g data-from="feeds">
+                  <rect class="bx" x="480.5" y="120.5" width="103" height="47"/><text class="rd" x="488" y="141">forecast</text><text class="lb" x="488" y="158">1, 5, 22 days</text>
+                  <path class="ln draw" pathLength="1" d="M532.5 120V87"/><path class="hd tip" d="M528.5 87L532.5 80L536.5 87Z"/>
+                  <rect class="bx" x="600.5" y="120.5" width="103" height="47"/><text class="rd" x="608" y="141">pairs</text><text class="lb" x="608" y="158"><tspan data-src="Olivesz/kronos-quant@2e983e4:config.py#L72">10%</tspan> gross</text>
+                  <path class="ln draw" pathLength="1" d="M652.5 120V87"/><path class="hd tip" d="M648.5 87L652.5 80L656.5 87Z"/>
+                </g>
+                <g data-from="clock">
+                  <rect class="bx" x="0.5" y="192.5" width="463" height="31"/><text class="rd" x="8" y="213">close of day t · decide from data up to t</text>
+                  <path class="ln-a draw" pathLength="1" d="M464 208.5H593"/><path class="hd-a tip" d="M593 204.5L600 208.5L593 212.5Z"/>
+                  <rect class="bx-a" x="600.5" y="192.5" width="103" height="31"/><text class="rd-a" x="608" y="213">t+1 · earn</text>
+                </g>
+              </svg>
+              <svg class="ig-n" width="328" height="376" viewBox="0 0 328 376" role="img" aria-labelledby="sc-flow-tn" xmlns="http://www.w3.org/2000/svg">
+                <title id="sc-flow-tn">Six stages top to bottom: prices, regimes, signals, book, overlay, and the next day's return. A volatility forecast feeds the overlay and a pairs sleeve adds to the day's return. Everything is decided at the close of day t and earns from day t+1.</title>
+                <g data-from="stages">
+                  <rect class="bx" x="0.5" y="0.5" width="207" height="39"/><text class="rd" x="8" y="18">prices</text><text class="lb" x="8" y="33">~48 names, 2010–2026</text>
+                  <path class="ln draw" pathLength="1" d="M104.5 40V45"/><path class="hd tip" d="M100.5 45L104.5 52L108.5 45Z"/>
+                  <rect class="bx" x="0.5" y="52.5" width="207" height="39"/><text class="rd" x="8" y="70">regimes</text><text class="lb" x="8" y="85">Student-t HMM · filtered</text><text class="lb" x="200" y="70" text-anchor="end">01–05</text>
+                  <path class="ln draw" pathLength="1" d="M104.5 92V97"/><path class="hd tip" d="M100.5 97L104.5 104L108.5 97Z"/>
+                  <rect class="bx" x="0.5" y="104.5" width="207" height="39"/><text class="rd" x="8" y="122">signals</text><text class="lb" x="8" y="137">mix set by the label</text><text class="lb" x="200" y="122" text-anchor="end">06</text>
+                  <path class="ln draw" pathLength="1" d="M104.5 144V149"/><path class="hd tip" d="M100.5 149L104.5 156L108.5 149Z"/>
+                  <rect class="bx" x="0.5" y="156.5" width="207" height="39"/><text class="rd" x="8" y="174">book</text><text class="lb" x="8" y="189">HRP + tilt · cap 12%</text><text class="lb" x="200" y="174" text-anchor="end">06</text>
+                  <path class="ln draw" pathLength="1" d="M104.5 196V201"/><path class="hd tip" d="M100.5 201L104.5 208L108.5 201Z"/>
+                  <rect class="bx-a" x="0.5" y="208.5" width="207" height="39"/><text class="rd-a" x="8" y="226">overlay</text><text class="lb" x="8" y="241">lever × brake · ≤ 1.5×</text><text class="lb" x="200" y="226" text-anchor="end">07</text>
+                  <path class="ln-a draw" pathLength="1" d="M104.5 248V253"/><path class="hd-a tip" d="M100.5 253L104.5 260L108.5 253Z"/>
+                  <rect class="bx" x="0.5" y="260.5" width="207" height="39"/><text class="rd" x="8" y="278">day t+1</text><text class="lb" x="8" y="293">gross × size − costs</text>
+                </g>
+                <g data-from="feeds">
+                  <rect class="bx" x="224.5" y="208.5" width="103" height="39"/><text class="rd" x="232" y="226">forecast</text><text class="lb" x="232" y="241">1, 5, 22 days</text>
+                  <path class="ln draw" pathLength="1" d="M224 228.5H215"/><path class="hd tip" d="M215 224.5L208 228.5L215 232.5Z"/>
+                  <rect class="bx" x="224.5" y="260.5" width="103" height="39"/><text class="rd" x="232" y="278">pairs</text><text class="lb" x="232" y="293">10% gross</text>
+                  <path class="ln draw" pathLength="1" d="M224 280.5H215"/><path class="hd tip" d="M215 276.5L208 280.5L215 284.5Z"/>
+                </g>
+                <g data-from="clock">
+                  <rect class="bx" x="0.5" y="320.5" width="207" height="31"/><text class="rd" x="8" y="341">close t · decide</text>
+                  <path class="ln-a draw" pathLength="1" d="M208 336.5H217"/><path class="hd-a tip" d="M217 332.5L224 336.5L217 340.5Z"/>
+                  <rect class="bx-a" x="224.5" y="320.5" width="103" height="31"/><text class="rd-a" x="232" y="341">t+1 · earn</text>
+                  <text class="lb" x="0" y="370">numbers on the right: the step that builds it</text>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ol class="sc-keys">
+            <li data-key="stages" data-at="0"><span data-src="Olivesz/kronos-quant@2e983e4:README.md#L113-L114">The whole machine, one rebalance: prices in, a regime label, a signal mix chosen by the label, a risk-balanced book tilted toward the signal, and an overlay that sizes the whole book.</span></li>
+            <li data-key="feeds" data-at="1">Two side parts. <span data-src="Olivesz/kronos-quant@2e983e4:kronos/risk.py#L23-L55">A forecast of the book’s own volatility sets the lever: the book’s squared returns averaged over the last 1, 5 and 22 days, regressed on the next day’s.</span> <span data-src="Olivesz/kronos-quant@2e983e4:run_kronos.py#L90-L96">A pairs sleeve at <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L72">10%</span> gross adds its return to the day’s.</span></li>
+            <li data-key="clock" data-at="2"><span data-src="Olivesz/kronos-quant@2e983e4:kronos/backtest.py#L3-L9">Everything is decided at the close of day t, from data up to t. Trades, costs and returns start at t+1.</span></li>
+          </ol>
+          <figcaption class="sc-cap" id="sc-flow-cap"><span class="n">fig 3</span>the shipped book, stage by stage. the strip above each step below marks where it sits in this picture.</figcaption>
+        </figure>
+
+        <div class="st" id="st-world">
+          <p class="st-k">step 01 <span class="sep">·</span> the planted world</p>
+          <p class="kr-here" aria-label="where this step sits in fig 3">prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> book <span aria-hidden="true">→</span> overlay <span aria-hidden="true">→</span> t+1</p>
+          <h3>A hidden chain, two numbers a day</h3>
+          <p>Gate 2, the regime model’s gate, builds its world from three hidden moods. Each day a Markov chain either stays in the current mood or moves, and the mood emits two numbers: the day’s return, and the log of its volatility. <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L16-L28">The gate fixes the length, the switching odds, and each mood’s centre and spread.</span></p>
+          <p>On real data the same two features come from the market: <span data-src="Olivesz/kronos-quant@2e983e4:kronos/regime.py#L201-L207">the daily market return and the log of its realized volatility, annualized</span>, over a <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L47">10</span>-day window.</p>
+
+          <figure class="scene" id="sc-chain" aria-labelledby="sc-chain-cap">
+            <div class="sc-stage"><div class="sc-art"></div></div>
+            <ol class="sc-keys">
+              <li data-key="nodes" data-at="0">Three hidden moods. Each day Bull stays put with probability <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L17-L19">0.97</span>, Volatile and Bear with <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L17-L19">0.94</span>; otherwise the chain moves.</li>
+              <li data-key="hop" data-at="1">One day at a time: the current mood picks a return and a volatility, and the day lands as a dot in its colour. The arrows carry the odds of moving.</li>
+              <li data-key="ff" data-at="40">Run it for <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L16">3,000</span> days and three overlapping clouds appear. Crosses mark the planted centres, each labelled with its daily return and volatility.</li>
+              <li data-key="stays" data-at="41">Those odds mean long stays: about <span data-derived="1 / (1 − 0.97) = 33.3" data-inputs="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L17-L19">33</span> days in Bull and about <span data-derived="1 / (1 − 0.94) = 16.7" data-inputs="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L17-L19">17</span> in the other two.</li>
+              <li data-key="grey" data-at="42">Strip the colour and this grey cloud is all a model ever gets.</li>
+            </ol>
+            <figcaption class="sc-cap" id="sc-chain-cap"><span class="n">fig 4</span>gate 2’s world, drawn fresh in the browser. the next figure fits this same draw. <span class="verb">click</span> new draw to plant another.</figcaption>
+          </figure>
+        </div>
+
+        <div class="st" id="st-em">
+          <p class="st-k">step 02 <span class="sep">·</span> fitting it</p>
+          <p class="kr-here" aria-label="where this step sits in fig 3">prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> book <span aria-hidden="true">→</span> overlay <span aria-hidden="true">→</span> t+1</p>
+          <h3>EM finds the plant</h3>
+          <p>The model is a hidden Markov model: three states, each with its own centre and spread in the two features, and a table of day-to-day switching odds. It is fitted by expectation-maximisation, which alternates two moves.</p>
+          <p>First, score every day against the current guesses with a forward sweep and a backward sweep through time. Then move each guess to the weighted average of the days that belong to it. <span data-src="Olivesz/kronos-quant@2e983e4:kronos/regime.py#L106-L154">Repeat until the fit stops improving.</span> <span data-src="Olivesz/kronos-quant@2e983e4:kronos/regime.py#L94-L104">The fit starts <span>3</span> times, the later starts nudged at random, and keeps the best.</span></p>
+
+          <figure class="scene" id="sc-em" aria-labelledby="sc-em-cap">
+            <div class="sc-stage"><div class="sc-art"></div></div>
+            <ol class="sc-keys">
+              <li data-key="start" data-at="0">First guess: sort the days by volatility and cut them into thirds. Each third gives a starting ellipse, and every state is guessed to stay put <span data-src="Olivesz/kronos-quant@2e983e4:kronos/regime.py#L55-L56">0.95</span> of the time.</li>
+              <li data-key="fwd" data-at="1">Expectation, forward: sweep through time, giving each day the odds of each state from the days before it.</li>
+              <li data-key="bwd" data-at="13">Expectation, backward: sweep back from the end. Together the sweeps give each dot a share in each state; it takes the colour of its largest share.</li>
+              <li data-key="mstep" data-at="25">Maximisation: move each ellipse to the weighted centre and spread of its dots, and re-count the day-to-day switches.</li>
+              <li data-key="repeat" data-at="26">Repeat. The log-likelihood climbs until it moves by less than <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L49">one part in a million</span>, or <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L48">200</span> rounds.</li>
+              <li data-key="name" data-at="50">Name the states: the lowest mean return is Bear, the calmer of the other two is Bull, and the last is Volatile.</li>
+              <li data-key="grade" data-at="52">Grade it against the plant: every stay above <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L39">0.85</span>, Bull and Bear centred near their planted returns, and the right state on more than <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L45">0.80</span> of days.</li>
+            </ol>
+            <figcaption class="sc-cap" id="sc-em-cap"><span class="n">fig 5</span>gate 2’s fit, run in the browser on this draw: the Gaussian engine the gate tests. readouts marked “this draw” are computed here; the pass lines are the gate’s.</figcaption>
+          </figure>
+
+          <p>On real data the same gate asks history to agree: <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime.py#L62-L72">more than 0.7 of March 2020 labelled Bear or Volatile, and more than 0.7 of 2017 labelled Bull</span>.</p>
+        </div>
+
+        <div class="st" id="st-filter">
+          <p class="st-k">step 03 <span class="sep">·</span> no future</p>
+          <p class="kr-here" aria-label="where this step sits in fig 3">prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> book <span aria-hidden="true">→</span> overlay <span aria-hidden="true">→</span> t+1</p>
+          <h3>Read it without the future</h3>
+          <p><span data-src="Olivesz/kronos-quant@2e983e4:docs/METHODS.md#L68-L75">A fitted model can answer two questions about any day. Filtered: given the data up to that day, which state is it in now? Smoothed: given the whole sample, which state was it in? The smoothed answer is cleaner because it uses days that had not happened yet.</span></p>
+          <p>Gate 2’s world is so clean that both readings agree on almost every day. The next two figures use a murkier market from fig 1’s generator, fitted the same way and read through the same two features as real data.</p>
+          <p><span data-src="Olivesz/kronos-quant@2e983e4:README.md#L119-L120">Every trading decision reads filtered probabilities only.</span> The model is refit walk-forward: first after <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L45">750</span> days, then every <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L46">21</span> trading days.</p>
+
+          <figure class="scene" id="sc-causal" aria-labelledby="sc-causal-cap">
+            <div class="sc-stage"><div class="sc-art"></div></div>
+            <ol class="sc-keys">
+              <li data-key="cursor" data-at="0">Two readings of the same fit, zoomed to the last weeks before the cut. At the cursor, the top row may use only the days to its left; the smoothed row uses every day, including ones after the cut.</li>
+              <li data-key="clean" data-at="20">The smoothed row switches moods cleanly, right on the change. It looks psychic because it uses days that had not happened yet.</li>
+              <li data-key="cut" data-at="24">Cut off every day after the line and read again (the gate itself cuts the last <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime_engine.py#L102">300</span>). The smoothed row, before and after the cut: outlined days changed their reading, because the days they leaned on are gone.</li>
+              <li data-key="same" data-at="28">The filtered row did not move on a single shared day. Its gate allows a change of <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime_engine.py#L111">under a billionth</span>.</li>
+            </ol>
+            <figcaption class="sc-cap" id="sc-causal-cap"><span class="n">fig 6</span>filtered and smoothed readings of a market from fig 1’s generator, fitted in the browser: the days just before the cut, read again after it. <span class="verb">click</span> move the cut to cut somewhere else.</figcaption>
+          </figure>
+
+          <p>The trading system gets the same test: <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_trade.py#L62-L81">drop the last 200 days, and every earlier target weight has to stay within a billionth</span>.</p>
+        </div>
+
+        <div class="st" id="st-label">
+          <p class="st-k">step 04 <span class="sep">·</span> the label</p>
+          <p class="kr-here" aria-label="where this step sits in fig 3">prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> book <span aria-hidden="true">→</span> overlay <span aria-hidden="true">→</span> t+1</p>
+          <h3>From probabilities to a label</h3>
+          <p>A filtered probability jitters from day to day. Trading on its raw leader would turn the book over on noise, so the label follows two rules.</p>
+          <p><span data-src="Olivesz/kronos-quant@2e983e4:kronos/regime.py#L264-L293">A new state has to lead above <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L50">0.65</span> for <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L51">5</span> straight days. And the label stays put for at least <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L52">10</span> days after a change, unless the new state is above <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L53">0.90</span> on the day it is confirmed.</span></p>
+
+          <figure class="scene" id="sc-hyst" aria-labelledby="sc-hyst-cap">
+            <div class="sc-stage"><div class="sc-art"></div></div>
+            <ol class="sc-keys">
+              <li data-key="raw" data-at="0">Three filtered probabilities, one per state, and the label built from them. Their leader alone would flicker.</li>
+              <li data-key="blip" data-at="1">A false alarm: a new state leads above <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L50">0.65</span>, then falls back before <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L51">5</span> straight days. No change.</li>
+              <li data-key="flip" data-at="2">A real change: <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L51">5</span> straight days above <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L50">0.65</span>, at least <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L52">10</span> days since the last change. The label flips and the counters reset.</li>
+              <li data-key="urgent" data-at="3">An urgent change: the label moved fewer than <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L52">10</span> days ago, but the new state is above <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L53">0.90</span>, so the wait is waived.</li>
+              <li data-key="stable" data-at="4">A steady label under jittery lines.</li>
+            </ol>
+            <figcaption class="sc-cap" id="sc-hyst-cap"><span class="n">fig 7</span>the label rule run day by day on that market’s filtered readings. the readout counts days in a row above 0.65 and days since the last change. <span class="verb">click</span> no hysteresis to see the raw leader.</figcaption>
+          </figure>
+        </div>
+
+        <div class="st" id="st-tails">
+          <p class="st-k">step 05 <span class="sep">·</span> fat tails</p>
+          <p class="kr-here" aria-label="where this step sits in fig 3">prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> book <span aria-hidden="true">→</span> overlay <span aria-hidden="true">→</span> t+1</p>
+          <h3>Fat tails fake regimes</h3>
+          <p>Real returns have fat tails: big days come far more often than a bell curve allows. A Gaussian model tends to explain them by inventing extra states.</p>
+          <p><span data-src="Olivesz/kronos-quant@2e983e4:config.py#L43">The shipped engine is a Student-t HMM instead.</span> <span data-src="Olivesz/kronos-quant@2e983e4:kronos/thmm.py#L1-L16">Each state emits a Student-t, and each day gets a weight that shrinks as it lands further from its state’s centre, so one outlier cannot drag the fit.</span> <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_regime_engine.py#L1-L10">It runs with the same features, refits, label rules and causality test as the Gaussian engine.</span></p>
+
+          <figure class="scene" id="sc-tails" aria-labelledby="sc-tails-cap">
+            <div class="sc-stage"><div class="sc-art"></div></div>
+            <ol class="sc-keys">
+              <li data-key="bell" data-at="0">One state’s returns from a fat-tailed world, counted on a log scale, with the best-fitting bell. Outlined bins hold days the bell says should almost never happen.</li>
+              <li data-key="mix" data-at="1">A Gaussian model covers them with a second, wider bell. <span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L69">On fat-tailed worlds with 3 true states, Gaussian model selection picked too many states in 88% of 8 seeds (6 of 8 chose 5), against 50% on plain Gaussian worlds; the Student-t picked too many in 38%.</span></li>
+              <li data-key="tee" data-at="2">A Student-t bell has the tails built in. <span data-src="Olivesz/kronos-quant@2e983e4:kronos/thmm.py#L7-L9">Each day gets a weight in the fit that shrinks with its distance from the centre</span>: in the strip below, each square sits at a return and is sized by the weight a day there gets.</li>
+              <li data-key="gate" data-at="3">Its gate checks both ways: <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_thmm.py#L61">on a t(5) world the fitted tail index lands within 2 of 5</span>, and <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_thmm.py#L84">on a Gaussian world it runs past 15</span>.</li>
+              <li data-key="real" data-at="4"><span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L71">On real data each state gets its own tail index: Bull about 17, Volatile about 3.7, Bear about 300</span>, <span data-src="Olivesz/kronos-quant@2e983e4:kronos/thmm.py#L15-L16">the ceiling of the fit: a plain bell</span>. The surprises live in the volatile state.</li>
+            </ol>
+            <figcaption class="sc-cap" id="sc-tails-cap"><span class="n">fig 8</span>one state’s returns, drawn in the browser; ν is the tail index (low means fat tails). the last step draws the curves fitted on real data, over this draw’s bins ghosted. <span class="verb">click</span> gaussian world to compare.</figcaption>
+          </figure>
+        </div>
+
+        <div class="st" id="st-book">
+          <p class="st-k">step 06 <span class="sep">·</span> the book</p>
+          <p class="kr-here" aria-label="where this step sits in fig 3">prices <span aria-hidden="true">→</span> regimes <span aria-hidden="true">→</span> <b>signals</b> <span aria-hidden="true">→</span> <b>book</b> <span aria-hidden="true">→</span> overlay <span aria-hidden="true">→</span> t+1</p>
+          <h3>From a label to a book</h3>
+          <p>Every <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L102">21</span> trading days the label picks a signal mix, the mix ranks the names, and the book is built around a risk-balanced backbone.</p>
+
+          <figure class="scene" id="sc-book" aria-labelledby="sc-book-cap">
+            <div class="sc-stage"><div class="sc-art"></div></div>
+            <ol class="sc-keys">
+              <li data-key="mix" data-at="0"><span data-src="Olivesz/kronos-quant@2e983e4:config.py#L24-L28">The label picks the mix: Bull leans on momentum, Volatile splits between reversal and low volatility, Bear leans on low volatility.</span></li>
+              <li data-key="sig" data-at="1"><span data-src="Olivesz/kronos-quant@2e983e4:kronos/signals.py#L23-L56">Three signals: 12-1 momentum, the return from a year back to a month back; reversal, which fades the z-score of the last <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L58">20</span> days; and low volatility, which ranks by volatility over the last <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L59">60</span> days.</span></li>
+              <li data-key="hrp" data-at="2"><span data-src="Olivesz/kronos-quant@2e983e4:kronos/hrp.py#L1-L5">The backbone is hierarchical risk parity: cluster the names by correlation, then split the list in half again and again, giving each half its share by inverse variance. No matrix is inverted.</span></li>
+              <li data-key="tilt" data-at="3"><span data-src="Olivesz/kronos-quant@2e983e4:kronos/black_litterman.py#L35-L60">The signal tilts the backbone, and any name above the cap of <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L83">0.12</span> is clipped, its excess spread over the rest.</span></li>
+              <li data-key="clock" data-at="4"><span data-src="Olivesz/kronos-quant@2e983e4:kronos/backtest.py#L3-L9">Weights set at the close of day t earn from t+1.</span> The next rebalance comes <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L102">21</span> trading days later.</li>
+            </ol>
+            <figcaption class="sc-cap" id="sc-book-cap"><span class="n">fig 9</span><span data-src="Olivesz/kronos-quant@2e983e4:kronos/data.py#L80-L82">one rebalance on real tickers with synthetic prices from the platform’s generator</span>, drawn in the browser. the weights are not a result. the tilt uses the combined signal itself as its view. <span class="verb">click</span> a regime to re-mix.</figcaption>
+          </figure>
+        </div>
+
+        <div class="st" id="st-overlay">
+          <p class="st-k">step 07 <span class="sep">·</span> the overlay</p>
+          <p class="kr-here" aria-label="where this step sits in fig 3">prices <span aria-hidden="true">→</span> regimes <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> book <span aria-hidden="true">→</span> <b>overlay</b> <span aria-hidden="true">→</span> t+1</p>
+          <h3>Lever times the tighter brake</h3>
+          <p>The size of the whole book is set last. <span data-src="Olivesz/kronos-quant@2e983e4:kronos/risk.py#L69-L75">A lever aims the book’s volatility at its target by dividing the target by a forecast of the book’s own volatility</span>, capped at <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L127">1.5×</span>. <span data-src="Olivesz/kronos-quant@2e983e4:kronos/risk.py#L77-L93">Two brakes can only hold it back: a tail-loss brake and a drawdown throttle. Exposure is the lever times whichever brake is tighter.</span></p>
+          <p><span data-src="Olivesz/kronos-quant@2e983e4:kronos/risk.py#L23-L55">The forecast is a small regression, refit every 21 days: the book’s squared daily returns, averaged over the last 1, 5 and 22 days, predict the next day’s.</span> A short window reacts to a shock, a long one remembers the regime, and the regression learns how much to trust each. That is the “forecast” box in fig 3.</p>
+
+          <figure class="scene" id="sc-overlay" aria-labelledby="sc-overlay-cap">
+            <div class="sc-stage"><div class="sc-art"></div></div>
+            <ol class="sc-keys">
+              <li data-key="calm" data-at="0">A calm book at <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L56">5%</span> volatility: the lever wants <span data-derived="0.13 / 0.05 = 2.6" data-inputs="Olivesz/kronos-quant@2e983e4:config.py#L86; Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L56">2.6×</span>, and the cap holds it to <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L127">1.5×</span>.</li>
+              <li data-key="hot" data-at="1">A hot book at <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L57">30%</span>: the lever drops to <span data-derived="0.13 / 0.30 = 0.433" data-inputs="Olivesz/kronos-quant@2e983e4:config.py#L86; Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L57">0.43×</span>.</li>
+              <li data-key="dd" data-at="2">A drawdown of <span data-derived="a chosen reading between the −8% start and the −20% floor" data-inputs="Olivesz/kronos-quant@2e983e4:config.py#L89-L90">14%</span>: the throttle reads <span data-derived="1 − ((−0.08 + 0.14) / 0.12) × 0.75 = 0.625" data-inputs="Olivesz/kronos-quant@2e983e4:config.py#L89-L91; Olivesz/kronos-quant@2e983e4:kronos/risk.py#L86-L87">0.625</span>, and exposure is the lever times <span data-derived="see above">0.625</span>.</li>
+              <li data-key="floor" data-at="3">Past a <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L90">20%</span> drawdown the throttle sits at its <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L91">0.25</span> floor.</li>
+              <li data-key="day" data-at="4"><span data-src="Olivesz/kronos-quant@2e983e4:kronos/backtest.py#L3-L9">Exposure set at the close of day t applies from t+1.</span> The day’s net return is gross times exposure, minus trading costs and financing on <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L41-L43">the part above 1×</span>.</li>
+            </ol>
+            <figcaption class="sc-cap" id="sc-overlay-cap"><span class="n">fig 10</span>the overlay’s formula, computed in the browser. drag the sliders, or switch the tilt, to size your own book.</figcaption>
+          </figure>
+
+          <p><span data-src="Olivesz/kronos-quant@2e983e4:kronos/risk.py#L96">The result is smoothed over <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L92">5</span> days</span>, and a <span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L1124">±15%</span> tilt on the sign of the market’s recent momentum rides inside the cap. <span data-src="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L1-L8">Gate X27 pins the direction of the lever and the drawdown brake, the 1.5× cap and the financing charge</span>; <span data-src="Olivesz/kronos-quant@2e983e4:tests/run_all.py#L59-L60">the tilt has its own gate</span>.</p>
+          <p><span data-src="Olivesz/kronos-quant@2e983e4:config.py#L63-L72">Beside the book runs a small pairs sleeve: pairs of names that move together, with a Kalman-filtered hedge ratio, traded when their spread stretches, at <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L72">10%</span> gross.</span> <span data-src="Olivesz/kronos-quant@2e983e4:run_kronos.py#L90-L96">Its return is added to the book’s each day.</span></p>
+        </div>
+      </section>
+
+      <!-- 04 -->
+      <section class="ch" id="ch-broke" aria-labelledby="h-broke">
+        <p class="ch-k">04 <span class="sep">·</span> what broke</p>
+        <h2 id="h-broke">The brake that pushed the wrong way</h2>
+        <p class="np">Every gate passed, and the book still fell short of its own plan.</p>
+        <p>Realized volatility sat at <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L26">6.9%</span> against a <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L24">13%</span> target, so the question was where the return went. The gates themselves were the first place to look.</p>
+
+        <figure class="scene" id="sc-gates" aria-labelledby="sc-gates-cap">
+          <div class="sc-stage"><div class="sc-art"></div></div>
+          <ol class="sc-keys">
+            <li data-key="e1" data-at="0"><span data-derived="commit date of 454fe62">13 July</span>, the first commit: <span data-derived="len(GATES) at 454fe62 = 27" data-inputs="Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29">27</span> gates.</li>
+            <li data-key="e2" data-at="16"><span data-derived="commit date of 0c1b53b">15 July</span>: <span data-src="Olivesz/kronos-quant@0c1b53b:README.md#L10">30</span> gates, all green. None of them asks which way the drawdown brake pushes.</li>
+            <li data-key="e3" data-at="32"><span data-derived="commit date of 7383e32">11 August</span>: the fix lands with the missing gate, the <span data-derived="30 + X27 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L40-L41">31</span>st. <span data-src="Olivesz/kronos-quant@2e983e4:tests/run_all.py#L50-L51">X27 checks the risk overlay’s direction, its leverage and its financing.</span></li>
+            <li data-key="e4" data-at="48"><span data-derived="commit date of 2e983e4">12 October</span>: <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L82-L85">41 gates, 39 on synthetic worlds with the answer planted and 2 calibrating against the real market</span>.</li>
+            <li data-key="badge" data-at="64">The count itself once drifted: the README badge said <span data-src="Olivesz/kronos-quant@7383e32:README.md#L10">30</span> while the list held <span data-derived="len(GATES) at 7383e32 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42">31</span>. <span data-src="Olivesz/kronos-quant@2e983e4:tests/run_all.py#L63-L67">The runner now refuses to pass if the badge disagrees with the list.</span></li>
+          </ol>
+          <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 11</span>the gate list at four commits, in run order, one tile per gate. between steps the runner re-checks them in order.</figcaption>
+        </figure>
+
+        <p><span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L30-L31">The drawdown throttle shrinks the book as it falls from its last high: full size down to a <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L89">−8%</span> drawdown, then a straight line to <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L91">0.25</span> at <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L90">−20%</span>.</span> <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L14-L23">As written, the line’s span came out negative, so it ran the wrong way.</span></p>
+
+        <figure class="scene" id="sc-throttle" aria-labelledby="sc-throttle-cap">
+          <div class="sc-stage"><div class="sc-art"></div></div>
+          <ol class="sc-keys">
+            <li data-key="both" data-at="0">Two throttles, each drawn from its formula: <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L30-L31">fixed in amber, full exposure down to a −8% drawdown, then straight down to 0.25 at −20%</span>; as found in red. Shaded: where they disagree. As found, it brakes hardest at the high and lets go by −8%.</li>
+            <li data-key="written" data-at="1">Why: as written, the span is negative, so the line runs the wrong way: <span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L843-L847">0.50 at the high-water mark</span>, rising to <span data-derived="1 + (−0.20 + 0.08) × 0.75 / (−0.12) = 1.75" data-inputs="Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L39-L42; Olivesz/kronos-quant@2e983e4:config.py#L89-L91">1.75</span> at <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L90">−20%</span>, before any clip.</li>
+            <li data-key="clip" data-at="12"><span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L843-L847">A clip to the range 0.25 to 1 cut off everything above 1. What survived braked hardest at the high and let go by −8%, wide open through every crash</span>, and clipped, it looks like a sensible brake.</li>
+            <li data-key="damage" data-at="16"><span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L847-L848">Measured: it bound on 93.6% of days, at a mean multiplier of 0.64.</span> <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L14-L15">The same formula sat in two files, and both were fixed.</span></li>
+          </ol>
+          <figcaption class="sc-cap" id="sc-throttle-cap"><span class="n">fig 12</span>the drawdown throttle as found and fixed, each drawn from its formula. drag the drawdown to read both.</figcaption>
+        </figure>
+
+        <p><span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L5-L7">The repair was pre-registered: the findings, the two repairs, the expected outcomes and the kill criteria were written down before the repaired system ran.</span> <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L103-L104">It shipped with the missing gate, and the old numbers stay in the repo as the baseline row.</span></p>
+
+        <figure class="scene" id="sc-repair" aria-labelledby="sc-repair-cap">
+          <div class="sc-stage"><div class="sc-art"></div></div>
+          <ol class="sc-keys">
+            <li data-key="path" data-at="0"><span data-src="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L28-L33">Gate X27’s engineered path: flat, a steady slide, then a recovery</span>, <span data-derived="days 300 to 340 of the path" data-inputs="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L31">40</span> days down and <span data-derived="days 340 to 420 of the path" data-inputs="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L32">80</span> back up. The slide bottoms near <span data-derived="0.99278^40 − 1 = −25.2%" data-inputs="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L31">−25%</span>.</li>
+            <li data-key="traces" data-at="23">Both throttles on that path, day by day: as found in red, fixed in amber.</li>
+            <li data-key="checks" data-at="24"><span data-src="Olivesz/kronos-quant@2e983e4:tests/test_risk.py#L38-L52">X27’s checks: exactly 1 at every high, never more exposure for a deeper drawdown, strictly between the floor and 1 from −10% to −18%, and the floor past <span data-src="Olivesz/kronos-quant@2e983e4:config.py#L90">−20%</span>.</span> Graded the same way, the throttle as written fails all four, starting on day one.</li>
+            </ol>
+          <figcaption class="sc-cap" id="sc-repair-cap"><span class="n">fig 13</span>gate X27 replayed on its own path, computed in the browser. <span class="verb">click</span> grade as found to put the old throttle through the same checks.</figcaption>
+        </figure>
+
+        <p><span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L67-L73">Two kill lines were written before the run: if Sharpe fell by more than 0.05, the leverage would not ship; if financing ate half the leverage gain, the leverage would be dropped.</span></p>
+
+        <figure class="scene" id="sc-pay" aria-labelledby="sc-pay-cap">
+          <div class="sc-stage"><div class="sc-art"></div></div>
+          <ol class="sc-keys">
+            <li data-key="rule" data-at="0"><span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L36-L41">The repair had a second half. The old rule took the smallest of the lever and the brakes, and the brakes top out at 1, so a calm book could never be levered.</span> Now exposure is the lever times the tighter brake.</li>
+            <li data-key="fin" data-at="1"><span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L867-L870">Both kill lines held. Financing took about 37% of the leverage gain, under the 50% line.</span></li>
+            <li data-key="ladder" data-at="2">Where the return went, by realized volatility: <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L26">6.9%</span> as found, <span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L863">8.7%</span> with the fix alone, <span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L864">11.6%</span> with the lever as well, in the August run, against the <span data-src="Olivesz/kronos-quant@2e983e4:docs/design/DESIGN15.md#L24">13%</span> target.</li>
+          </ol>
+          <figcaption class="sc-cap" id="sc-pay-cap"><span class="n">fig 14</span>did the repair pay? a calm book at full brakes under each rule, the financing bill against its kill line, and realized volatility at each stage.</figcaption>
+        </figure>
+
+        <p><span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L1126-L1130">A later gate checks the exposure cap under an extreme tilt instead of assuming it, and its record says why: an inverted overlay hid in this codebase once.</span> Direction is now something the suite tests.</p>
+        <p class="pull">A brake that braked at the top and let go in a crash passed every gate, because no gate asked which way it pushed.</p>
+      </section>
+
+      <!-- 05 -->
+      <section class="ch" id="ch-results" aria-labelledby="h-results">
+        <p class="ch-k">05 <span class="sep">·</span> results</p>
+        <h2 id="h-results">Against SPY, same days</h2>
+        <p class="np"><span data-src="Olivesz/kronos-quant@2e983e4:README.md#L28-L29">In-sample and after costs, the shipped book earns a higher Sharpe than SPY at just over half its drawdown.</span> <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L140-L141">SPY still makes more money.</span></p>
+        <p><span data-src="Olivesz/kronos-quant@2e983e4:README.md#L134-L137">After the August repair, the shipped book added the volatility forecast behind the lever, the Student-t regimes and the momentum tilt.</span> Its realized volatility settled at <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L134">11.0%</span>, a little under the August run’s <span data-src="Olivesz/kronos-quant@2e983e4:docs/FINDINGS.md#L864">11.6%</span>.</p>
+
+        <figure class="scene" id="sc-results" aria-labelledby="sc-results-cap">
+          <div class="sc-stage"><div class="sc-art"></div></div>
+          <ol class="sc-keys">
+            <li data-key="slide" data-at="0">Each row on its own scale from zero: KRONOS in amber, SPY in grey. Sharpe is return per unit of risk; CAGR is the yearly growth rate.</li>
+            <li data-key="read" data-at="12">Net Sharpe <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L134">1.07</span> against <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L138">0.91</span>; max drawdown <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L134">−17.9%</span> against <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L138">−33.7%</span>, a ratio of <span data-derived="17.9 / 33.7 = 0.53" data-inputs="Olivesz/kronos-quant@2e983e4:README.md#L134; Olivesz/kronos-quant@2e983e4:README.md#L138">0.53</span>.</li>
+            <li data-key="spy" data-at="14">CAGR <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L134">11.8%</span> against <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L138">15.0%</span>: SPY wins on raw return.</li>
+            <li data-key="caveat" data-at="16"><span data-src="Olivesz/kronos-quant@2e983e4:README.md#L28">In-sample</span>, after costs, <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L127">up to 1.5× leverage</span>, financing <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L142">1.26%/yr</span>, <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L279-L281">on today’s liquid names, which carries survivorship bias</span>.</li>
+          </ol>
+          <figcaption class="sc-cap" id="sc-results-cap"><span class="n">fig 15</span>the shipped book against SPY over the same days.</figcaption>
+        </figure>
+
+        <ul class="stats">
+          <li><span class="v" data-src="Olivesz/kronos-quant@2e983e4:README.md#L134">1.07</span><span class="k">net Sharpe</span><span class="b" data-src="Olivesz/kronos-quant@2e983e4:README.md#L138">SPY 0.91</span></li>
+          <li><span class="v" data-src="Olivesz/kronos-quant@2e983e4:README.md#L134">−17.9%</span><span class="k">max drawdown</span><span class="b" data-src="Olivesz/kronos-quant@2e983e4:README.md#L138">SPY −33.7%</span></li>
+          <li><span class="v" data-src="Olivesz/kronos-quant@2e983e4:README.md#L82-L85">41</span><span class="k">gates</span><span class="b" data-src="Olivesz/kronos-quant@2e983e4:README.md#L82-L85">39 synthetic, planted answer · 2 real-market calibration</span></li>
+        </ul>
+
+        <p>Beside the book sit <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L149">34</span> pre-registered experiments, with <span data-src="Olivesz/kronos-quant@2e983e4:README.md#L261-L263">negative results reported as plainly as positive ones: stat-arb is dead, random-matrix denoising does not help here, duration models do not beat the plain HMM, and the trading system does not beat the S&amp;P on CAGR</span>.</p>
+        <p>Every number on this page comes from <a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">Olivesz/kronos-quant</a> at a pinned commit, listed below, and the short version is in <a href="kronos.html" target="_blank" rel="noopener noreferrer">the case study</a>.</p>
+        <details class="srcs-d"><summary>sources · 5 lines pinned to kronos-quant@2e983e4</summary>
+          <ol class="srcs">
+            <li><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/README.md" target="_blank" rel="noopener noreferrer">README.md</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/config.py" target="_blank" rel="noopener noreferrer">config.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/run_kronos.py" target="_blank" rel="noopener noreferrer">run_kronos.py</a> · 2e983e4</li>
+            <li><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/data.py" target="_blank" rel="noopener noreferrer">kronos/data.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/regime.py" target="_blank" rel="noopener noreferrer">regime.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/thmm.py" target="_blank" rel="noopener noreferrer">thmm.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/signals.py" target="_blank" rel="noopener noreferrer">signals.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/hrp.py" target="_blank" rel="noopener noreferrer">hrp.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/black_litterman.py" target="_blank" rel="noopener noreferrer">black_litterman.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/risk.py" target="_blank" rel="noopener noreferrer">risk.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/kronos/backtest.py" target="_blank" rel="noopener noreferrer">backtest.py</a> · 2e983e4</li>
+            <li><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/tests/test_regime.py" target="_blank" rel="noopener noreferrer">tests/test_regime.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/tests/test_regime_engine.py" target="_blank" rel="noopener noreferrer">test_regime_engine.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/tests/test_thmm.py" target="_blank" rel="noopener noreferrer">test_thmm.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/tests/test_risk.py" target="_blank" rel="noopener noreferrer">test_risk.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/tests/test_trade.py" target="_blank" rel="noopener noreferrer">test_trade.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/tests/run_all.py" target="_blank" rel="noopener noreferrer">run_all.py</a> · 2e983e4</li>
+            <li><a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/docs/METHODS.md" target="_blank" rel="noopener noreferrer">docs/METHODS.md</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/docs/FINDINGS.md" target="_blank" rel="noopener noreferrer">FINDINGS.md</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/2e983e4/docs/design/DESIGN15.md" target="_blank" rel="noopener noreferrer">design/DESIGN15.md</a> · 2e983e4</li>
+            <li>the gate list over time: <a href="https://github.com/Olivesz/kronos-quant/blob/454fe62/tests/run_all.py" target="_blank" rel="noopener noreferrer">454fe62</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/0c1b53b/tests/run_all.py" target="_blank" rel="noopener noreferrer">0c1b53b</a> (and the throttle as found, <a href="https://github.com/Olivesz/kronos-quant/blob/0c1b53b/kronos/risk.py" target="_blank" rel="noopener noreferrer">kronos/risk.py</a>), <a href="https://github.com/Olivesz/kronos-quant/blob/7383e32/tests/run_all.py" target="_blank" rel="noopener noreferrer">7383e32</a></li>
+          </ol>
+        </details>
+      </section>
+    </article>
+  </div>
+
+  <nav class="blk case-nav" aria-label="deep dives">
+    <a class="prev" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the short version</span></a>
+    <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
+    <a class="next" href="custos-code-deep.html" rel="next noopener noreferrer" target="_blank"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">custos-code</span></a>
+  </nav>
+  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
+</main>
+
+<script src="assets/deep.js"></script>
+<script>
+/* KRONOS, in depth: fifteen scenes. Every model here is an in-browser port of the pinned code (Olivesz/kronos-quant@2e983e4):
+   the synthetic market of kronos/data.py, gate 2's planted world (tests/test_regime.py), the Gaussian HMM's EM, forward pass
+   and hysteresis (kronos/regime.py), HRP and the capped tilt (kronos/hrp.py, kronos/black_litterman.py), the risk overlay
+   (kronos/risk.py) and gate X27's path (tests/test_risk.py). A JS random stream is not numpy's, so live numbers are labelled
+   "this draw" and sit beside the gate's own pass line. */
+(function () {
+  "use strict";
+  var R = "Olivesz/kronos-quant@2e983e4:";
+  var ST = ["v-blue", "v-violet", "v-red"], SN = ["Bull", "Volatile", "Bear"], SC = ["kr-s0", "kr-s1", "kr-s2"];
+  var PHONE = function () { return window.innerWidth < 768; };
+
+  /* ---------------- seeded random numbers ---------------- */
+  function Rng(seed) {
+    var a = seed >>> 0;
+    var r = function () {
+      a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    r.normal = function () { var u = 0; while (u === 0) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); };
+    r.chi2 = function (k) { var s = 0; for (var i = 0; i < k; i++) { var z = r.normal(); s += z * z; } return s; };
+    r.t = function (df) { return r.normal() / Math.sqrt(r.chi2(df) / df); };
+    r.pick = function (p) { var u = r(), c = 0; for (var i = 0; i < p.length; i++) { c += p[i]; if (u < c) return i; } return p.length - 1; };
+    r.unif = function (lo, hi) { return lo + (hi - lo) * r(); };
+    return r;
+  }
+  function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
+  function lse3(a, b, c) { var m = Math.max(a, b, c); return m + Math.log(Math.exp(a - m) + Math.exp(b - m) + Math.exp(c - m)); }
+  function fmt(v, d) { return v.toFixed(d); }
+  function pct(v, d) { return (v * 100).toFixed(d === undefined ? 1 : d) + "%"; }
+  function minus(s) { return String(s).replace(/-/g, "−"); }
+
+  /* ---------------- drawing in cell units ---------------- */
+  function G(api) { var S = api.scene; return { c: S.ctx, p: S.dp, d: S.dpr }; }
+  function fill(api, x, y, w, h, tok, alpha) {
+    var g = G(api); g.c.globalAlpha = alpha === undefined ? 1 : alpha; g.c.fillStyle = api.tok(tok);
+    var x0 = Math.round(x * g.p), y0 = Math.round(y * g.p), x1 = Math.round((x + w) * g.p), y1 = Math.round((y + h) * g.p);
+    g.c.fillRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0)); g.c.globalAlpha = 1;
+  }
+  /* a 1 css-px rule, horizontal or vertical, on whole device pixels */
+  function hr(api, x0, x1, y, tok, alpha, dash) {
+    var g = G(api), Y = Math.round(y * g.p), a = Math.round(x0 * g.p), b = Math.round(x1 * g.p);
+    g.c.globalAlpha = alpha === undefined ? 1 : alpha; g.c.fillStyle = api.tok(tok);
+    if (!dash) g.c.fillRect(a, Y, b - a, g.d);
+    else for (var x = a; x < b; x += 6 * g.d) g.c.fillRect(x, Y, Math.min(3 * g.d, b - x), g.d);
+    g.c.globalAlpha = 1;
+  }
+  function vr(api, x, y0, y1, tok, alpha, dash) {
+    var g = G(api), X = Math.round(x * g.p), a = Math.round(y0 * g.p), b = Math.round(y1 * g.p);
+    g.c.globalAlpha = alpha === undefined ? 1 : alpha; g.c.fillStyle = api.tok(tok);
+    if (!dash) g.c.fillRect(X, a, g.d, b - a);
+    else for (var y = a; y < b; y += 6 * g.d) g.c.fillRect(X, y, g.d, Math.min(3 * g.d, b - y));
+    g.c.globalAlpha = 1;
+  }
+  function box(api, x, y, w, h, tok, lw, dash) {
+    hr(api, x, x + w, y, tok, 1, dash); hr(api, x, x + w, y + h - (lw || 1) / api.pitch, tok, 1, dash);
+    vr(api, x, y, y + h, tok, 1, dash); vr(api, x + w - 1 / api.pitch, y, y + h, tok, 1, dash);
+  }
+  function line(api, pts, tok, w, alpha, dash) {
+    if (pts.length < 2) return;
+    var g = G(api); g.c.globalAlpha = alpha === undefined ? 1 : alpha; g.c.strokeStyle = api.tok(tok); g.c.lineWidth = (w || 1) * g.d;
+    g.c.lineJoin = "round"; g.c.setLineDash(dash ? [dash[0] * g.d, dash[1] * g.d] : []);
+    g.c.beginPath(); g.c.moveTo(pts[0][0] * g.p, pts[0][1] * g.p);
+    for (var i = 1; i < pts.length; i++) g.c.lineTo(pts[i][0] * g.p, pts[i][1] * g.p);
+    g.c.stroke(); g.c.setLineDash([]); g.c.globalAlpha = 1;
+  }
+  /* a square of s css px centred on (x, y) cells */
+  function sq(api, x, y, s, tok, alpha) {
+    var g = G(api), S = Math.max(1, Math.round(s * g.d)); g.c.globalAlpha = alpha === undefined ? 1 : alpha; g.c.fillStyle = api.tok(tok);
+    g.c.fillRect(Math.round(x * g.p - S / 2), Math.round(y * g.p - S / 2), S, S); g.c.globalAlpha = 1;
+  }
+
+  /* labels: every frame names the ones it uses; the rest are hidden */
+  var USED = {};
+  function begin(api) { USED[api.scene.id] = {}; api.clear(); }
+  function lab(api, id, text, x, y, o) {
+    o = o || {};
+    var L = api.scene.labels[id]; if (L) L.e.hidden = false;
+    x -= o.align === "right" ? 1 : o.align === "center" ? 0.5 : 0;
+    var e = api.label(id, text, x, y, o);
+    var base = o.cls === "r" ? "sc-r" : "sc-l" + (o.cls ? " " + o.cls : "");
+    var want = base + (o.k ? " " + o.k : "");
+    if (e.className !== want) { e.className = want; api.label(id, null, x, y, o); }
+    ["src", "derived", "inputs"].forEach(function (a) { if (o[a]) e.setAttribute("data-" + a, o[a]); else e.removeAttribute("data-" + a); });
+    if (o.live) e.setAttribute("data-live", "this draw"); else e.removeAttribute("data-live");
+    USED[api.scene.id][id] = 1;
+    return e;
+  }
+  function end(api) { var u = USED[api.scene.id] || {}, L = api.scene.labels; for (var id in L) if (!L[id].lead && !u[id]) L[id].e.hidden = true; }
+
+  /* a row of range inputs under a scene, before its stepper; native controls, so the keyboard works */
+  function sliders(figId, defs, cls) {
+    var fig = document.getElementById(figId), bar = fig.querySelector(".sc-bar"), row = document.createElement("div");
+    row.className = "kr-sl" + (cls ? " " + cls : ""); fig.insertBefore(row, bar);
+    var out = {};
+    defs.forEach(function (d) {
+      var lb = document.createElement("label"), sp = document.createElement("span"), o = document.createElement("output"), inp = document.createElement("input");
+      sp.textContent = d.label + " "; inp.type = "range"; inp.min = d.min; inp.max = d.max; inp.step = d.step; inp.value = d.value;
+      inp.id = figId + "-" + d.id; o.setAttribute("for", inp.id);
+      lb.appendChild(sp); lb.appendChild(o); lb.appendChild(inp); row.appendChild(lb);
+      out[d.id] = { inp: inp, out: o, fmt: d.fmt };
+      o.textContent = d.fmt(+inp.value);
+      inp.addEventListener("input", function () { o.textContent = d.fmt(+inp.value); d.on(+inp.value); });
+    });
+    out.set = function (id, v) { var s = out[id]; s.inp.value = v; s.out.textContent = s.fmt(+s.inp.value); };
+    return out;
+  }
+
+  /* ======================================================================================================
+     1 · a synthetic market from kronos/data.py#L57-L101: the regime recipe, the chain, the fat-tailed market factor
+     ====================================================================================================== */
+  var SYN = [[0.14, 0.11, 180], [0.02, 0.22, 45], [-0.25, 0.38, 30]];
+  function genMarket(seed, T) {
+    var r = Rng(seed);
+    var P = SYN.map(function (q, i) { var stay = 1 - 1 / q[2], row = [(1 - stay) / 2, (1 - stay) / 2, (1 - stay) / 2]; row[i] = stay; return row; });
+    var s = new Int8Array(T), mkt = new Float64Array(T), lp = new Float64Array(T), x = 0, lo = 0, hi = 0;
+    for (var t = 0; t < T; t++) {
+      if (t) s[t] = r.pick(P[s[t - 1]]);
+      var q = SYN[s[t]]; mkt[t] = q[0] / 252 + q[1] / Math.sqrt(252) * r.t(5) / Math.sqrt(5 / 3);
+      x += mkt[t]; lp[t] = x; if (x < lo) lo = x; if (x > hi) hi = x;
+    }
+    return { s: s, mkt: mkt, lp: lp, lo: lo, hi: hi, r: r, T: T };
+  }
+
+  (function () {
+    var T = 1500, seed = 4, M = genMarket(seed, T);
+    Deep.scene("sc-market", {
+      grid: { cols: 88, rows: 32, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 72 : 64; } },
+      ticks: 30, tps: 8,
+      inputs: [{ id: "draw", label: "new draw", momentary: true }, { id: "hide", label: "hide the answer", states: ["off", "on"] }],
+      onInput: function (api, id) { if (id === "draw") { seed += 1; M = genMarket(seed, T); } },
+      draw: function (api, tick) {
+        begin(api);
+        var W = api.cols, k = api.keyIndex, hide = !!api.inputs.hide, ph = api.phone;
+        var top = 1, bot = 22, b0 = 24, bh = 6;
+        var nd = T;                                                 // the whole line from the first frame: the band and the question animate
+        function X(t) { return t / (T - 1) * W; }
+        function Y(v) { return bot - (v - M.lo) / (M.hi - M.lo) * (bot - top); }
+        hr(api, 0, W, bot + 0.5, "rule");
+        var pts = []; for (var t = 0; t < nd; t += 2) pts.push([X(t), Y(M.lp[t])]);
+        if (nd === T) pts.push([X(T - 1), Y(M.lp[T - 1])]);
+        line(api, pts, "ink", 1.5);
+        lab(api, "t", "a synthetic market · this draw", 0, 0, { dy: -24 });
+        // the band: asked for, then painted in; the toggle takes it away again (what real prices give a model)
+        var reveal = !hide && k >= 2 ? 1 : 0;
+        var hatch = hide;
+        var g = G(api), cw = g.p * W / T;
+        if (hatch) {
+          for (var c = 0; c < W; c += 2) fill(api, c, b0, 1, bh, "copper");
+          lab(api, "never", "real prices: this layer is never given", W / 2, b0 + 1.5, { align: "center", cls: "i" });
+        } else if (reveal > 0) {
+          var lim = Math.round(reveal * T);
+          for (var t2 = 0; t2 < lim; t2++) {
+            g.c.fillStyle = api.tok(ST[M.s[t2]]); var x0 = Math.round(t2 * cw), x1 = Math.round((t2 + 1) * cw);
+            if (x1 > x0) g.c.fillRect(x0, b0 * g.p, x1 - x0, bh * g.p);
+          }
+        } else {
+          box(api, 0, b0, W, bh, "copper");
+          lab(api, "q", k >= 1 ? "regime: ?" : "regime", 1, b0 + 1.5, { cls: k >= 1 ? "i" : "" });
+        }
+        // the cursor that asks, day by day, which mood it was
+        if (k === 1 && !hide && tick < 16) {
+          var cx = clamp((tick - 4) / 11, 0, 1) * (W - 1);
+          vr(api, cx, top, b0 + bh, "v-cyan");
+          lab(api, "qq", "?", clamp(cx, 1, W - 1), b0 - (ph ? 5.5 : 2.5), { align: "center", cls: "r" });
+        }
+        // the key from the moment the band appears, then the recipe, read from data.py
+        if (k >= 2 && !hatch) {
+          var y = b0 + bh + 1, row = 0;                             // one per line, the same pattern on every row
+          [["Bull", "+14% a year · vol 11% · ~180 days", "#L58"],
+           ["Volatile", "+2% a year · vol 22% · ~45 days", "#L59"],
+           ["Bear", "−25% a year · vol 38% · ~30 days", "#L60"]].forEach(function (q, i) {
+            var x = 0, yy = y + i * (ph ? 4.5 : 2.25);
+            lab(api, "rc" + i, k >= 3 ? q[0] + " · " + q[1] : q[0], x, yy, { dy: 1, k: SC[i], src: R + "kronos/data.py" + q[2] });
+            row++;
+          });
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ======================================================================================================
+     2 · plant the answer, then grade (an SVG diagram: lamps and gate follow the step and the two break switches)
+     ====================================================================================================== */
+  (function () {
+    var fig = document.getElementById("sc-idea"), mode = "ok", K = 0;
+    function paint() {
+      [].forEach.call(fig.querySelectorAll(".lamp-n"), function (e) { e.classList.toggle("bad", mode === "always" && K >= 1); });
+      [].forEach.call(fig.querySelectorAll(".lamp-p"), function (e) { e.classList.toggle("ok", mode !== "never" && K >= 2); });
+      var pass = mode === "ok" && K >= 3;
+      [].forEach.call(fig.querySelectorAll(".gate"), function (e) { e.classList.toggle("ok", pass); });
+      [].forEach.call(fig.querySelectorAll(".kr-m"), function (e) {
+        var on = (" " + e.getAttribute("data-m") + " ").indexOf(" " + mode + " ") >= 0;
+        e.style.display = on ? "" : "none";
+        if (e.classList.contains("gate-t")) e.classList.toggle("ok", pass);
+      });
+      [].forEach.call(fig.querySelectorAll(".kr-open"), function (e) { e.classList.toggle("shut", !pass); });
+    }
+    Deep.scene("sc-idea", {
+      ticks: 3, tps: 1,
+      inputs: [{ id: "always", label: "always fires", states: ["off", "on"] }, { id: "never", label: "never fires", states: ["off", "on"] }],
+      onKey: function (api, k) { K = k; paint(); },
+      onInput: function (api, id, on) {
+        var S = api.scene;
+        if (on) { var other = id === "always" ? "never" : "always"; S.inputs[other] = false; S.syncInputs(); }
+        mode = S.inputs.always ? "always" : S.inputs.never ? "never" : "ok";
+        S.show(S.keys[S.keys.length - 1].at); K = S.keys.length - 1; paint();
+      }
+    });
+  })();
+
+  /* the whole machine, one rebalance (an SVG diagram: README.md#L113-L114, kronos/risk.py#L23-L55, run_kronos.py#L90-L96) */
+  Deep.scene("sc-flow", { ticks: 2, tps: 1, read: 250 });
+
+  /* ======================================================================================================
+     3-6 · gate 2's planted world (tests/test_regime.py#L16-L28), the Gaussian HMM (kronos/regime.py#L38-L194) and the
+     hysteresis (kronos/regime.py#L264-L293): one draw, followed through four scenes
+     ====================================================================================================== */
+  var A_TRUE = [[0.97, 0.02, 0.01], [0.03, 0.94, 0.03], [0.02, 0.04, 0.94]];
+  var MU_T = [[0.0008, Math.log(0.10)], [0.0, Math.log(0.20)], [-0.0015, Math.log(0.35)]];
+  var SD_T = [[0.006, 0.08], [0.012, 0.10], [0.022, 0.12]];
+  var NT = 3000;
+
+  function planted(seed) {
+    var r = Rng(seed), s = new Int8Array(NT), X = new Float64Array(2 * NT);
+    for (var t = 0; t < NT; t++) {
+      if (t) s[t] = r.pick(A_TRUE[s[t - 1]]);
+      X[2 * t] = MU_T[s[t]][0] + SD_T[s[t]][0] * r.normal();
+      X[2 * t + 1] = MU_T[s[t]][1] + SD_T[s[t]][1] * r.normal();
+    }
+    return { s: s, X: X };
+  }
+  function copyP(P) { return { m: P.m.map(function (v) { return v.slice(); }), c: P.c.map(function (v) { return v.slice(); }), A: P.A.map(function (v) { return v.slice(); }), pi: P.pi.slice() }; }
+  function logB(X, T, P) {
+    var out = new Float64Array(3 * T), L2PI = Math.log(2 * Math.PI);
+    for (var k = 0; k < 3; k++) {
+      var a = P.c[k][0], b = P.c[k][1], c = P.c[k][2], det = a * c - b * b, ia = c / det, ib = -b / det, ic = a / det, ld = Math.log(det), mx = P.m[k][0], my = P.m[k][1];
+      for (var t = 0; t < T; t++) { var dx = X[2 * t] - mx, dy = X[2 * t + 1] - my; out[3 * t + k] = -L2PI - 0.5 * ld - 0.5 * (ia * dx * dx + 2 * ib * dx * dy + ic * dy * dy); }
+    }
+    return out;
+  }
+  function forward(lb, T, P) {
+    var la = new Float64Array(3 * T), A = P.A, e = [0, 0, 0];
+    for (var k = 0; k < 3; k++) la[k] = Math.log(P.pi[k]) + lb[k];
+    for (var t = 1; t < T; t++) {
+      var o = 3 * (t - 1), m = Math.max(la[o], la[o + 1], la[o + 2]);
+      for (var i = 0; i < 3; i++) e[i] = Math.exp(la[o + i] - m);
+      for (var j = 0; j < 3; j++) la[3 * t + j] = lb[3 * t + j] + m + Math.log(e[0] * A[0][j] + e[1] * A[1][j] + e[2] * A[2][j] + 1e-300);
+    }
+    return la;
+  }
+  function backward(lb, T, P) {
+    var bt = new Float64Array(3 * T), A = P.A, e = [0, 0, 0];
+    for (var t = T - 2; t >= 0; t--) {
+      var o = 3 * (t + 1), n0 = lb[o] + bt[o], n1 = lb[o + 1] + bt[o + 1], n2 = lb[o + 2] + bt[o + 2], m = Math.max(n0, n1, n2);
+      e[0] = Math.exp(n0 - m); e[1] = Math.exp(n1 - m); e[2] = Math.exp(n2 - m);
+      for (var i = 0; i < 3; i++) bt[3 * t + i] = m + Math.log(A[i][0] * e[0] + A[i][1] * e[1] + A[i][2] * e[2] + 1e-300);
+    }
+    return bt;
+  }
+  function normRows(l, T) { var p = new Float64Array(3 * T); for (var t = 0; t < T; t++) { var z = lse3(l[3 * t], l[3 * t + 1], l[3 * t + 2]); for (var k = 0; k < 3; k++) p[3 * t + k] = Math.exp(l[3 * t + k] - z); } return p; }
+  function filtered(X, T, P) { return normRows(forward(logB(X, T, P), T, P), T); }
+  function smoothed(X, T, P) { var lb = logB(X, T, P), la = forward(lb, T, P), bt = backward(lb, T, P), s = new Float64Array(3 * T); for (var i = 0; i < 3 * T; i++) s[i] = la[i] + bt[i]; return normRows(s, T); }
+  function quantile(arr, q) { var a = Array.prototype.slice.call(arr).sort(function (x, y) { return x - y; }), p = q * (a.length - 1), lo = Math.floor(p), hi = Math.ceil(p); return a[lo] + (a[hi] - a[lo]) * (p - lo); }
+
+  function initParams(X, T, jitter, r) {
+    var order = []; for (var t = 0; t < T; t++) order.push(t);
+    order.sort(function (a, b) { return X[2 * a + 1] - X[2 * b + 1]; });
+    var sx = 0, sy = 0, sxx = 0, syy = 0; for (t = 0; t < T; t++) { sx += X[2 * t]; sy += X[2 * t + 1]; }
+    sx /= T; sy /= T; for (t = 0; t < T; t++) { sxx += (X[2 * t] - sx) * (X[2 * t] - sx); syy += (X[2 * t + 1] - sy) * (X[2 * t + 1] - sy); }
+    var sdx = Math.sqrt(sxx / T), sdy = Math.sqrt(syy / T);
+    var P = { m: [], c: [], A: [], pi: [1 / 3, 1 / 3, 1 / 3] }, base = Math.floor(T / 3), extra = T % 3, at = 0;
+    for (var k = 0; k < 3; k++) {
+      var n = base + (k < extra ? 1 : 0), idx = order.slice(at, at + n); at += n;
+      var mx = 0, my = 0; idx.forEach(function (i) { mx += X[2 * i]; my += X[2 * i + 1]; }); mx /= n; my /= n;
+      var cxx = 0, cxy = 0, cyy = 0; idx.forEach(function (i) { var dx = X[2 * i] - mx, dy = X[2 * i + 1] - my; cxx += dx * dx; cxy += dx * dy; cyy += dy * dy; });
+      if (jitter > 0) { mx += r.normal() * jitter * sdx; my += r.normal() * jitter * sdy; }
+      P.m.push([mx, my]); P.c.push([cxx / (n - 1) + 1e-8, cxy / (n - 1), cyy / (n - 1) + 1e-8]);
+      P.A.push([0.025, 0.025, 0.025]); P.A[k][k] = 0.95;
+    }
+    return P;
+  }
+  function emStep(X, T, P) {
+    var lb = logB(X, T, P), la = forward(lb, T, P), bt = backward(lb, T, P);
+    var ll = lse3(la[3 * T - 3], la[3 * T - 2], la[3 * T - 1]);
+    var g = new Float64Array(3 * T), t, i, j;
+    for (t = 0; t < T; t++) { var a0 = la[3 * t] + bt[3 * t], a1 = la[3 * t + 1] + bt[3 * t + 1], a2 = la[3 * t + 2] + bt[3 * t + 2], z = lse3(a0, a1, a2); g[3 * t] = Math.exp(a0 - z); g[3 * t + 1] = Math.exp(a1 - z); g[3 * t + 2] = Math.exp(a2 - z); }
+    var logA = P.A.map(function (row) { return row.map(Math.log); }), xs = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], v = new Float64Array(9);
+    for (t = 0; t < T - 1; t++) {
+      var m = -Infinity;
+      for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) { var q = la[3 * t + i] + logA[i][j] + lb[3 * t + 3 + j] + bt[3 * t + 3 + j]; v[3 * i + j] = q; if (q > m) m = q; }
+      var s = 0; for (i = 0; i < 9; i++) { v[i] = Math.exp(v[i] - m); s += v[i]; }
+      for (i = 0; i < 3; i++) for (j = 0; j < 3; j++) xs[i][j] += v[3 * i + j] / s;
+    }
+    var N = copyP(P), ps = (g[0] + 1e-6) + (g[1] + 1e-6) + (g[2] + 1e-6);
+    N.pi = [(g[0] + 1e-6) / ps, (g[1] + 1e-6) / ps, (g[2] + 1e-6) / ps];
+    for (i = 0; i < 3; i++) { var rs = xs[i][0] + xs[i][1] + xs[i][2] + 3; N.A[i] = [(xs[i][0] + 1) / rs, (xs[i][1] + 1) / rs, (xs[i][2] + 1) / rs]; }
+    for (var k = 0; k < 3; k++) {
+      var Nk = 0; for (t = 0; t < T; t++) Nk += g[3 * t + k];
+      if (Nk < 4) {                                               // a collapsed state is re-seeded from the tails
+        var qx = [], qy = []; for (t = 0; t < T; t++) { qx.push(X[2 * t]); qy.push(X[2 * t + 1]); }
+        var qq = 0.1 + 0.4 * k / 2; N.m[k] = [quantile(qx, qq), quantile(qy, qq)]; continue;
+      }
+      var mx = 0, my = 0; for (t = 0; t < T; t++) { mx += g[3 * t + k] * X[2 * t]; my += g[3 * t + k] * X[2 * t + 1]; } mx /= Nk; my /= Nk;
+      var cxx = 0, cxy = 0, cyy = 0; for (t = 0; t < T; t++) { var w = g[3 * t + k] / Nk, dx = X[2 * t] - mx, dy = X[2 * t + 1] - my; cxx += w * dx * dx; cxy += w * dx * dy; cyy += w * dy * dy; }
+      N.m[k] = [mx, my]; N.c[k] = [Math.max(cxx + 1e-10, 1e-10), cxy, Math.max(cyy + 1e-10, 1e-10)];
+    }
+    return { ll: ll, g: g, P: N };
+  }
+  function quant8(g) { var q = new Uint8Array(g.length); for (var i = 0; i < g.length; i++) q[i] = Math.round(g[i] * 255); return q; }
+  function fitHMM(X, T, seed) {
+    var r = Rng(seed), best = null;
+    for (var rs = 0; rs < 3; rs++) {
+      var P = initParams(X, T, rs === 0 ? 0 : 0.15, r), hist = [{ P: copyP(P) }], prev = -Infinity, ll = -Infinity;
+      for (var it = 0; it < 200; it++) {
+        var o = emStep(X, T, P); ll = o.ll;
+        hist[hist.length - 1].ll = ll; hist[hist.length - 1].g = quant8(o.g);
+        P = o.P; hist.push({ P: copyP(P) });
+        if (Math.abs(ll - prev) < 1e-6 * Math.max(Math.abs(prev), 1)) { prev = ll; break; }
+        prev = ll;
+      }
+      if (!best || prev > best.ll) best = { ll: prev, P: P, hist: hist, restart: rs };
+    }
+    // name the states: lowest mean return is Bear, the calmer of the rest is Bull (kronos/regime.py#L156-L170)
+    var P2 = best.P, mean = P2.m.map(function (v) { return v[0]; }), vol = P2.c.map(function (v) { return Math.sqrt(v[0]); });
+    var bear = mean.indexOf(Math.min.apply(null, mean)), rest = [0, 1, 2].filter(function (k) { return k !== bear; });
+    var bull = vol[rest[0]] <= vol[rest[1]] ? rest[0] : rest[1], mid = rest[0] === bull ? rest[1] : rest[0];
+    best.order = [bull, mid, bear];                       // canonical label c -> raw state order[c]
+    best.canon = [0, 0, 0]; best.order.forEach(function (raw, c) { best.canon[raw] = c; });
+    return best;
+  }
+  function canonProbs(p, T, order) { var q = new Float64Array(3 * T); for (var t = 0; t < T; t++) for (var c = 0; c < 3; c++) q[3 * t + c] = p[3 * t + order[c]]; return q; }
+
+  /* the label rule, exactly as kronos/regime.py#L264-L293, with a log of what happened each day */
+  var HY = { prob: 0.65, days: 5, dwell: 10, urgent: 0.90 };
+  function hysteresis(F, T) {
+    var reg = new Int8Array(T), raw = new Int8Array(T), log = [], current = -1, sst = -1, streak = 0, dwell = 0;
+    for (var i = 0; i < T; i++) {
+      var a = F[3 * i], b = F[3 * i + 1], c = F[3 * i + 2], cand = a >= b && a >= c ? 0 : b >= c ? 1 : 2, maxp = Math.max(a, b, c);
+      raw[i] = cand;
+      if (current === -1) current = cand;
+      dwell += 1;
+      var ev = null, prevStreak = streak, dw = dwell;
+      if (cand !== current && maxp >= HY.prob) {
+        if (cand === sst) streak += 1; else { if (streak >= 2) ev = "blip"; sst = cand; streak = 1; }
+        var confirmed = streak >= HY.days, urgent = maxp >= HY.urgent;
+        if (confirmed && (dwell >= HY.dwell || urgent)) { ev = dwell >= HY.dwell ? "flip" : "urgent"; current = cand; sst = -1; streak = 0; dwell = 0; }
+      } else { if (streak >= 2) ev = "blip"; sst = -1; streak = 0; }
+      reg[i] = current;
+      log.push({ cand: cand, maxp: maxp, streak: streak, shown: ev === "flip" || ev === "urgent" ? prevStreak + 1 : streak, dwell: ev === "flip" || ev === "urgent" ? dw : dwell, ev: ev, cur: current });
+    }
+    return { reg: reg, raw: raw, log: log };
+  }
+
+  var WIN = 120;
+  function findWindow(H, NTW) {
+    var ev = H.log.map(function (l) { return l.ev; }), best = null;
+    for (var a = 0; a + WIN <= NTW; a += 2) {
+      var first = {};
+      for (var i = a + 4; i < a + WIN - 4; i++) if (ev[i] && first[ev[i]] === undefined) first[ev[i]] = i - a;
+      var n = (first.blip !== undefined) + (first.flip !== undefined) + (first.urgent !== undefined);
+      var ats = Object.keys(first).map(function (e) { return first[e]; }), last = ats.length ? Math.max.apply(null, ats) : WIN;
+      var so = ats.slice().sort(function (x, y) { return x - y; }), gap = WIN;
+      for (var q = 1; q < so.length; q++) gap = Math.min(gap, so[q] - so[q - 1]);
+      var ok = so.length && so[0] >= 12 && last <= WIN - 12, score = n * 1000 + (ok ? 500 : 0) + Math.min(gap, 30) * 5 - last / 10;
+      if (!best || score > best.score) best = { a: a, n: n, at: first, score: score };
+    }
+    return best;
+  }
+
+  var WORLD = null, WSEED = 7, MWORLD = null, MSEED = 3;
+  /* figs 6 and 7: a market from fig 1's generator, read through the two features used on real data: the day's return and the
+     log of its 10-day realized volatility, annualized (kronos/regime.py#L201-L207) */
+  function makeMarketWorld(seed) {
+    var M = genMarket(seed, 2010), X = [], s = [];
+    for (var t = 9; t < M.T; t++) {
+      var m = 0, v = 0; for (var i = t - 9; i <= t; i++) m += M.mkt[i]; m /= 10; for (i = t - 9; i <= t; i++) v += (M.mkt[i] - m) * (M.mkt[i] - m);
+      X.push(M.mkt[t], Math.log(Math.max(1e-4, Math.sqrt(v / 9) * Math.sqrt(252)))); s.push(M.s[t]);
+    }
+    var T = s.length, Xf = new Float64Array(X), fit = fitHMM(Xf, T, 42), P = fit.P;
+    var F = canonProbs(filtered(Xf, T, P), T, fit.order), Sm = canonProbs(smoothed(Xf, T, P), T, fit.order), H = hysteresis(F, T);
+    return { seed: seed, T: T, X: Xf, fit: fit, F: F, Sm: Sm, H: H, win: findWindow(H, T) };
+  }
+  function mworld() { if (!MWORLD) MWORLD = makeMarketWorld(MSEED); return MWORLD; }
+  function makeWorld(seed) {
+    var w = planted(seed), fit = fitHMM(w.X, NT, 42), P = fit.P;
+    var filtRaw = filtered(w.X, NT, P), F = canonProbs(filtRaw, NT, fit.order), Sm = canonProbs(smoothed(w.X, NT, P), NT, fit.order);
+    var acc = 0; for (var t = 0; t < NT; t++) { var c = F[3 * t] >= F[3 * t + 1] && F[3 * t] >= F[3 * t + 2] ? 0 : F[3 * t + 1] >= F[3 * t + 2] ? 1 : 2; if (c === w.s[t]) acc++; }
+    acc /= NT;
+    var o = fit.order, diag = [P.A[o[0]][o[0]], P.A[o[1]][o[1]], P.A[o[2]][o[2]]];
+    var grade = {
+      stays: diag.every(function (d) { return d > 0.85; }), diag: diag,
+      bull: Math.abs(P.m[o[0]][0] - 0.0008) < 4e-4, bullMean: P.m[o[0]][0],
+      bear: Math.abs(P.m[o[2]][0] + 0.0015) < 1.2e-3, bearMean: P.m[o[2]][0],
+      acc: acc > 0.80, accV: acc
+    };
+    grade.all = grade.stays && grade.bull && grade.bear && grade.acc;
+    // the starting guess, read forward and both ways, for fig 5's first round
+    var P0 = fit.hist[0].P, f0 = canonProbs(filtered(w.X, NT, P0), NT, fit.order);
+    return { seed: seed, s: w.s, X: w.X, fit: fit, F: F, Sm: Sm, f0: f0, acc: acc, grade: grade };
+  }
+  function world() { if (!WORLD) WORLD = makeWorld(WSEED); return WORLD; }
+
+  /* the plane figs 4 and 5 draw on: daily return across, log volatility up */
+  var XR = [-0.07, 0.07], YR = [-2.7, -0.55];
+  function plane(api) {
+    if (api.phone) return { x0: 7, x1: 87, y0: 25, y1: 64 };
+    return { x0: 34, x1: 87, y0: 1, y1: 37 };
+  }
+  function px(pl, v) { return pl.x0 + (v - XR[0]) / (XR[1] - XR[0]) * (pl.x1 - pl.x0); }
+  function py(pl, v) { return pl.y1 - (v - YR[0]) / (YR[1] - YR[0]) * (pl.y1 - pl.y0); }
+  function axes(api, pl, id) {
+    hr(api, pl.x0, pl.x1, pl.y1, "rule"); vr(api, pl.x0, pl.y0, pl.y1, "rule");
+    vr(api, px(pl, 0), pl.y0, pl.y1, "rule", 0.6, true);
+    lab(api, id + "ax", "daily return →", pl.x1, pl.y1, { align: "right", dy: 4 });
+    lab(api, id + "ay", "↑ log volatility", pl.x0, pl.y0, { dx: 6, dy: -2 });
+  }
+  function ellipse(api, pl, m, c, tok, w) {
+    var l11 = Math.sqrt(c[0]), l21 = c[1] / l11, l22 = Math.sqrt(Math.max(1e-16, c[2] - l21 * l21)), pts = [];
+    for (var i = 0; i <= 48; i++) { var th = i / 48 * 2 * Math.PI, a = Math.cos(th), b = Math.sin(th); pts.push([px(pl, m[0] + 2 * l11 * a), py(pl, m[1] + 2 * (l21 * a + l22 * b))]); }
+    line(api, pts, tok, w || 2);
+  }
+
+  /* ---------- fig 4: the chain and the cloud ---------- */
+  var sc3, sc4, sc5, sc6;
+  (function () {
+    function nodes(api) {
+      if (api.phone) return [[2, 3, 18, 6], [68, 3, 18, 6], [35, 15, 18, 6]];
+      return [[0, 4, 10, 5], [22, 4, 10, 5], [11, 25, 10, 5]];
+    }
+    /* a directed edge from box a to box b, offset to one side so both directions show, with its odds beside it */
+    function arrow(api, a, b, side, id, p) {
+      var ca = [a[0] + a[2] / 2, a[1] + a[3] / 2], cb = [b[0] + b[2] / 2, b[1] + b[3] / 2], dx = cb[0] - ca[0], dy = cb[1] - ca[1], L = Math.sqrt(dx * dx + dy * dy);
+      dx /= L; dy /= L; var nx = -dy * side, ny = dx * side, off = 0.8;
+      function rim(c, box, sgn) { var r = Math.min(Math.abs(dx) > 1e-9 ? box[2] / 2 / Math.abs(dx) : 1e9, Math.abs(dy) > 1e-9 ? box[3] / 2 / Math.abs(dy) : 1e9) + 0.6; return [c[0] + sgn * dx * r + nx * off, c[1] + sgn * dy * r + ny * off]; }
+      var s0 = rim(ca, a, 1), s1 = rim(cb, b, -1);
+      line(api, [s0, s1], "copper", 1);
+      var g = G(api), hx = s1[0] * g.p, hy = s1[1] * g.p, ux = dx * 7 * g.d, uy = dy * 7 * g.d, vx = -dy * 3.5 * g.d, vy = dx * 3.5 * g.d;
+      g.c.fillStyle = api.tok("copper"); g.c.beginPath(); g.c.moveTo(hx, hy); g.c.lineTo(hx - ux + vx, hy - uy + vy); g.c.lineTo(hx - ux - vx, hy - uy - vy); g.c.closePath(); g.c.fill();
+      var mx = (s0[0] + s1[0]) / 2 + nx * (api.phone ? 3.6 : 1.9), my = (s0[1] + s1[1]) / 2 + ny * (api.phone ? 3.6 : 1.9);
+      lab(api, id, fmt(p, 2), mx, my, { align: "center", dy: -8, src: R + "tests/test_regime.py#L17-L19" });
+    }
+    function daysAt(tick) { return tick <= 30 ? tick : Math.min(NT, 30 + Math.round((tick - 30) / 10 * (NT - 30))); }
+    sc3 = Deep.scene("sc-chain", {
+      grid: { cols: 88, get rows() { return PHONE() ? 86 : 38; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 8, get bottom() { return PHONE() ? 40 : 16; } },
+      ticks: 42, tps: 8, check: function () { return world().s.length === NT; },
+      inputs: [{ id: "draw", label: "new draw", momentary: true }],
+      onInput: function () { WSEED += 1; WORLD = makeWorld(WSEED); refreshWorld(); },
+      draw: function (api, tick) {
+        begin(api);
+        var Wd = world(), k = api.keyIndex, n = daysAt(tick), grey = k >= 4, ph = api.phone, pl = ph ? { x0: 7, x1: 58, y0: 36, y1: 84 } : { x0: 36, x1: 72, y0: 1, y1: 37 }, N = nodes(api);   // a narrower plane: the planted centres are labelled in the margin
+        var cur = Wd.s[Math.max(0, n - 1)];
+        // edges between the three moods
+        [[0, 1], [1, 2], [0, 2]].forEach(function (e) {
+          arrow(api, N[e[0]], N[e[1]], 1, "o" + e[0] + e[1], A_TRUE[e[0]][e[1]]);
+          arrow(api, N[e[1]], N[e[0]], 1, "o" + e[1] + e[0], A_TRUE[e[1]][e[0]]);
+        });
+        N.forEach(function (b, i) {
+          fill(api, b[0], b[1], b[2], b[3], "void");
+          if (i === cur && n > 0 && k < 4) fill(api, b[0], b[1], b[2], b[3], ST[i]); else box(api, b[0], b[1], b[2], b[3], ST[i]);
+          lab(api, "n" + i, SN[i], b[0] + b[2] / 2, b[1] + b[3] / 2, { align: "center", dy: -8, cls: "i" });
+          var stay = A_TRUE[i][i];
+          lab(api, "st" + i, "stays " + fmt(stay, 2), b[0] + b[2] / 2, b[1] + b[3], { align: "center", dy: 4, src: R + "tests/test_regime.py#L17-L19" });
+          if (k >= 3) {
+            var dd = Math.round(1 / (1 - stay));
+            lab(api, "ex" + i, "~" + dd + " days", b[0] + b[2] / 2, b[1] + b[3], { align: "center", dy: 20, cls: "i", derived: "1 / (1 − " + fmt(stay, 2) + ")", inputs: R + "tests/test_regime.py#L17-L19" });
+          }
+        });
+        // the day counter
+        if (n > 0) lab(api, "day", n < NT ? "day " + n.toLocaleString("en-US") : NT.toLocaleString("en-US") + " days", ph ? 2 : 0, ph ? 28 : 35, { cls: "r", src: n >= NT ? R + "tests/test_regime.py#L16" : null });
+        axes(api, pl, "a");
+        // every day so far, as a dot in its mood's colour, then grey
+        var g = G(api), s2 = Math.max(1, Math.round((ph ? 2 : 3) * g.d)), last = n - 1;
+        for (var t = 0; t < n; t++) {
+          var st = Wd.s[t]; g.c.globalAlpha = grey ? 0.55 : 0.75; g.c.fillStyle = api.tok(grey ? "muted" : ST[st]);
+          g.c.fillRect(Math.round(px(pl, Wd.X[2 * t]) * g.p - s2 / 2), Math.round(py(pl, Wd.X[2 * t + 1]) * g.p - s2 / 2), s2, s2);
+        }
+        g.c.globalAlpha = 1;
+        if (n > 0 && n <= 30) { sq(api, px(pl, Wd.X[2 * last]), py(pl, Wd.X[2 * last + 1]), 8, "ink"); sq(api, px(pl, Wd.X[2 * last]), py(pl, Wd.X[2 * last + 1]), 4, ST[Wd.s[last]]); }
+        // the planted centres, as ghost crosses
+        if (k >= 2) MU_T.forEach(function (m, i) {
+          var x = px(pl, m[0]), y = py(pl, m[1]); hr(api, x - 1.5, x + 1.5, y, "ink"); vr(api, x, y - 1.5, y + 1.5, "ink");
+          if (!grey) {
+            var ret = (m[0] > 0 ? "+" : m[0] < 0 ? "−" : "") + Math.abs(m[0] * 100).toFixed(2) + "%", vol = Math.round(Math.exp(m[1]) * 100) + "%", lx = pl.x1 + 2;
+            hr(api, x + 2, pl.x1 + 1.5, y, "muted", 0.7, true);
+            lab(api, "pc" + i, SN[i], lx, y, { dy: -24, k: SC[i] });
+            lab(api, "pr" + i, ret + " a day", lx, y, { dy: -8, cls: "i", src: R + "tests/test_regime.py#L20-L23" });
+            lab(api, "pv" + i, "vol " + vol, lx, y, { dy: 8, cls: "i", src: R + "tests/test_regime.py#L20-L23" });
+          }
+        });
+        if (grey) lab(api, "see", "what the model sees", ph ? pl.x0 : pl.x1, ph ? pl.y1 : pl.y0, ph ? { dy: 24, cls: "i" } : { align: "right", cls: "i" });
+        end(api);
+      }
+    });
+  })();
+
+  /* ---------- fig 5: EM on the grey cloud ---------- */
+  (function () {
+    var STRIP_BINS = 0;
+    function lay(api) {
+      if (api.phone) return { pl: { x0: 7, x1: 87, y0: 1, y1: 41 }, sy: 47, sh: 6, rx: 0, ry: 59 };
+      return { pl: { x0: 4, x1: 52, y0: 1, y1: 33 }, sy: 37, sh: 5, rx: 56, ry: 1 };
+    }
+    function phase(tick, nIt) {
+      if (tick === 0) return { it: 0, sweep: null };
+      if (tick <= 12) return { it: 0, sweep: "f", u: (tick - 1) / 11 };
+      if (tick <= 24) return { it: 0, sweep: "b", u: 1 - (tick - 13) / 11 };
+      if (tick === 25) return { it: 1, tint: 0 };
+      if (tick < 50) { var j = 1 + Math.round((tick - 26) / 23 * (nIt - 1)); return { it: j, tint: j }; }
+      return { it: nIt, tint: nIt - 1, done: true };
+    }
+    function strip(api, L, probs, u0, u1) {                          // stacked state shares, one column per css px
+      var g = G(api), x0 = Math.round(L.pl.x0 * g.p), x1 = Math.round(L.pl.x1 * g.p), cols = Math.round((x1 - x0) / g.d), y0 = L.sy * g.p, h = L.sh * g.p;
+      for (var c = Math.floor(u0 * cols); c < Math.ceil(u1 * cols); c++) {
+        var a = Math.floor(c / cols * NT), b = Math.max(a + 1, Math.floor((c + 1) / cols * NT)), s = [0, 0, 0];
+        for (var t = a; t < b; t++) for (var k = 0; k < 3; k++) s[k] += probs(t, k);
+        var tot = s[0] + s[1] + s[2], yy = y0;
+        for (k = 0; k < 3; k++) { var hh = Math.round(s[k] / tot * h); g.c.fillStyle = api.tok(ST[k]); g.c.fillRect(x0 + c * g.d, Math.round(yy), g.d, hh); yy += hh; }
+      }
+    }
+    sc4 = Deep.scene("sc-em", {
+      grid: { cols: 88, get rows() { return PHONE() ? 57 : 43; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 8, get bottom() { return PHONE() ? 272 : 8; } },
+      ticks: 54, tps: 8, check: function () { var w = world(); return w.fit.hist.length > 2 && isFinite(w.fit.ll); },
+      draw: function (api, tick) {
+        begin(api);
+        var Wd = world(), fit = Wd.fit, L = lay(api), pl = L.pl, k = api.keyIndex, nIt = fit.hist.length - 1, ph = phase(tick, nIt);
+        var P = fit.hist[Math.min(ph.it, nIt)].P, canon = fit.canon, g = G(api), s2 = Math.max(1, Math.round((api.phone ? 2 : 3) * g.d));
+        axes(api, pl, "b");
+        // the dots: grey until the backward sweep has scored them, then the colour of their largest share
+        var tintG = ph.tint !== undefined ? fit.hist[Math.min(ph.tint, nIt - 1)].g : ph.sweep === "b" ? fit.hist[0].g : null;
+        var cut = ph.sweep === "b" ? Math.floor(ph.u * NT) : 0;
+        for (var t = 0; t < NT; t++) {
+          var tok = "muted", al = 0.5;
+          if (tintG && t >= cut) {
+            var a = tintG[3 * t], b = tintG[3 * t + 1], c = tintG[3 * t + 2], kk = a >= b && a >= c ? 0 : b >= c ? 1 : 2, mx = Math.max(a, b, c) / 255;
+            tok = ST[canon[kk]]; al = 0.25 + 0.6 * mx;
+          }
+          g.c.globalAlpha = al; g.c.fillStyle = api.tok(tok);
+          g.c.fillRect(Math.round(px(pl, Wd.X[2 * t]) * g.p - s2 / 2), Math.round(py(pl, Wd.X[2 * t + 1]) * g.p - s2 / 2), s2, s2);
+        }
+        g.c.globalAlpha = 1;
+        for (var r = 0; r < 3; r++) ellipse(api, pl, P.m[r], P.c[r], ST[canon[r]], 2);
+        // the time strip under the plane: the forward reading, then the two-way reading, then each round's
+        box(api, pl.x0, L.sy, pl.x1 - pl.x0, L.sh, "copper");
+        lab(api, "sl", "every day, left to right · share of each state", pl.x0, L.sy + L.sh, { dy: 4 });
+        if (ph.sweep === "f") {
+          strip(api, L, function (t, kk) { return Wd.f0[3 * t + kk]; }, 0, ph.u);
+          vr(api, pl.x0 + ph.u * (pl.x1 - pl.x0), L.sy - 1, L.sy + L.sh + 1, "v-cyan");
+        } else if (ph.sweep === "b") {
+          strip(api, L, function (t, kk) { return Wd.f0[3 * t + kk]; }, 0, ph.u);
+          strip(api, L, function (t, kk) { return fit.hist[0].g[3 * t + fit.order[kk]]; }, ph.u, 1);
+          vr(api, pl.x0 + ph.u * (pl.x1 - pl.x0), L.sy - 1, L.sy + L.sh + 1, "v-cyan");
+        } else if (tintG) {
+          strip(api, L, function (t, kk) { return tintG[3 * t + fit.order[kk]]; }, 0, 1);
+        }
+        // readouts: this draw's numbers, beside the gate's lines
+        var rx = L.rx, ry = L.ry, line_ = api.phone ? 6 : 3, i = 0;
+        function ro(id, txt, o) { lab(api, id, txt, rx, ry + (i++) * line_, o); }
+        var it = Math.min(ph.it, nIt), llv = fit.hist[Math.min(it, nIt - 1)].ll;
+        ro("r0", "round " + it + " of " + nIt + " · this draw", { live: 1 });
+        ro("r1", "log-likelihood " + (tick === 0 ? "…" : Math.round(llv).toLocaleString("en-US")), { cls: "r", live: 1 });
+        ro("r2", "stays " + [0, 1, 2].map(function (c) { var raw = fit.order[c]; return fmt(P.A[raw][raw], 3); }).join(" · "), { cls: "r", live: 1 });
+        if (k >= 5) {
+          var gr = Wd.grade;
+          ro("r3", "states named, colours fixed", {});
+          for (var c = 0; c < 3; c++) {
+            var raw = fit.order[c], m = P.m[raw];
+            lab(api, "nm" + c, SN[c], px(pl, m[0] + 2 * Math.sqrt(P.c[raw][0])) + 0.5, py(pl, m[1]), { dy: -8, k: SC[c] + " kr-tag" });
+          }
+          if (k >= 6) {
+            i++;
+            ro("g0", (gr.stays ? "pass" : "fail") + " · every stay > 0.85", { k: gr.stays ? "kr-g" : "i", src: R + "tests/test_regime.py#L39" });
+            ro("g1", (gr.bull ? "pass" : "fail") + " · Bull mean 0.0008 ± 0.0004", { k: gr.bull ? "kr-g" : "i", src: R + "tests/test_regime.py#L37" });
+            ro("g2", (gr.bear ? "pass" : "fail") + " · Bear mean −0.0015 ± 1.2e-3", { k: gr.bear ? "kr-g" : "i", src: R + "tests/test_regime.py#L38" });
+            ro("g3", (gr.acc ? "pass" : "fail") + " · right state > 0.80 of days", { k: gr.acc ? "kr-g" : "i", src: R + "tests/test_regime.py#L45" });
+            ro("g4", "this draw: " + pct(gr.accV, 1) + " of days right", { live: 1 });
+            ro("g5", "Bull " + minus(fmt(gr.bullMean, 5)) + " · Bear " + minus(fmt(gr.bearMean, 5)), { live: 1 });
+          }
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ---------- fig 6: filtered never moves when the future is cut ---------- */
+  (function () {
+    var BEFORE = 60, AFTER = 6, SPAN = BEFORE + AFTER, CUTS = null, ci = 0, memo = null, cw0 = null;
+    function lead(P, t) { var a = P[3 * t], b = P[3 * t + 1], c = P[3 * t + 2]; return a >= b && a >= c ? 0 : b >= c ? 1 : 2; }
+    /* cuts a few days after a change in the full-sample smoothed leader, where cutting the future visibly moves the smoothed reading */
+    function cuts() {
+      var Wd = mworld(); if (CUTS && cw0 === Wd) return CUTS;
+      var NT = Wd.T, P = Wd.fit.P, o = Wd.fit.order, out = [];
+      for (var t = NT - 120; t > 760 && out.length < 3; t--) {
+        if (lead(Wd.Sm, t) === lead(Wd.Sm, t - 1)) continue;
+        var Tc = t + 3, Sc = canonProbs(smoothed(Wd.X, Tc, P), Tc, o), flips = 0;
+        for (var d = Tc - BEFORE; d < Tc; d++) if (lead(Sc, d) !== lead(Wd.Sm, d)) flips++;
+        if (flips >= 2 && (!out.length || out[out.length - 1] - (NT - Tc) < -150)) out.push(NT - Tc);
+        if (flips >= 2) t -= 150;
+      }
+      if (!out.length) out = [300, 120, 480];
+      CUTS = out; cw0 = Wd; ci = 0; return out;
+    }
+    function cutData() {
+      var Wd = mworld(), NT = Wd.T, cutLen = cuts()[ci];
+      if (memo && memo.w === Wd && memo.c === cutLen) return memo;
+      var Tc = NT - cutLen, P = Wd.fit.P, o = Wd.fit.order;
+      var Fc = canonProbs(filtered(Wd.X, Tc, P), Tc, o), Sc = canonProbs(smoothed(Wd.X, Tc, P), Tc, o);
+      var maxF = 0, changed = new Uint8Array(NT), nCh = 0, flip = new Uint8Array(NT), nFlip = 0;
+      for (var t = 0; t < Tc; t++) {
+        for (var k = 0; k < 3; k++) {
+          maxF = Math.max(maxF, Math.abs(Fc[3 * t + k] - Wd.F[3 * t + k]));
+          if (Math.abs(Sc[3 * t + k] - Wd.Sm[3 * t + k]) > 1e-3 && !changed[t]) { changed[t] = 1; nCh++; }
+        }
+        if (lead(Sc, t) !== lead(Wd.Sm, t)) { flip[t] = 1; if (t >= Tc - BEFORE) nFlip++; }
+      }
+      memo = { w: Wd, c: cutLen, Tc: Tc, Fc: Fc, Sc: Sc, maxF: maxF, changed: changed, nCh: nCh, flip: flip, nFlip: nFlip };
+      return memo;
+    }
+    /* one row of stacked state shares, one column per day; days from t0 */
+    function ribbon(api, y, h, get, t0, a, b) {
+      var g = G(api), W = api.cols, cw = W * g.p / SPAN;
+      for (var d = a; d < b; d++) {
+        var t = t0 + d, X0 = Math.round(d * cw) + (cw >= 6 * g.d ? g.d : 0), X1 = Math.round((d + 1) * cw), yy = y * g.p;
+        if (X1 <= X0) continue;
+        for (var k = 0; k < 3; k++) { var hh = get(t, k) * h * g.p; g.c.fillStyle = api.tok(ST[k]); g.c.fillRect(X0, Math.round(yy), X1 - X0, Math.round(yy + hh) - Math.round(yy)); yy += hh; }
+      }
+    }
+    function lay(ph) { return ph ? { yF: 4, yS: 19, yS2: 34, h: 9, ro: 44 } : { yF: 2, yS: 12, yS2: 22, h: 6, ro: 28 }; }
+    sc5 = Deep.scene("sc-causal", {
+      grid: { cols: 88, get rows() { return PHONE() ? 46 : 29; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 64 : 48; } },
+      ticks: 30, tps: 8, check: function () { var c = cutData(); return c.maxF < 1e-9; },
+      inputs: [{ id: "cut", label: "move the cut", momentary: true }],
+      onInput: function (api) { ci = (ci + 1) % cuts().length; var S = api.scene; S.show(S.keys[2].at); },
+      draw: function (api, tick) {
+        begin(api);
+        var Wd = mworld(), k = api.keyIndex, W = api.cols, C = cutData(), ph = api.phone, L = lay(ph), h = L.h;
+        var t0 = C.Tc - BEFORE, cx = BEFORE / SPAN * W, g = G(api), cw = W * g.p / SPAN;
+        lab(api, "lf", ph ? "filtered · days up to it" : "filtered · each day reads only the days up to it", 0, L.yF, { dy: -20, cls: "i" });
+        if (k < 2) {
+          lab(api, "ls", ph ? "smoothed · every day" : "smoothed · each day reads every day, later ones too", 0, L.yS, { dy: -20, cls: "i" });
+          ribbon(api, L.yF, h, function (t, kk) { return Wd.F[3 * t + kk]; }, t0, 0, SPAN);
+          ribbon(api, L.yS, h, function (t, kk) { return Wd.Sm[3 * t + kk]; }, t0, 0, SPAN);
+          if (k === 0) {
+            var cur = clamp(tick / 20, 0, 1) * W;
+            fill(api, cur, L.yF, W - cur, h, "void");
+            vr(api, cur, L.yF - 1, L.yS + h + 1, "v-cyan");
+          }
+          if (k === 1) lab(api, "ps", ph ? "clean, because it uses later days" : "clean switches, because it reads days that had not happened yet", W, L.yS + h, { align: "right", dy: 4 });
+          lab(api, "dd", SPAN + " days, one column each · this draw", 0, L.ro, { dy: 4, live: 1 });
+        } else {
+          lab(api, "ls", ph ? "smoothed · before the cut" : "smoothed · read before the cut", 0, L.yS, { dy: -20, cls: "i" });
+          lab(api, "ls2", ph ? "smoothed · after the cut" : "smoothed · read again after the cut", 0, L.yS2, { dy: -20, cls: "i" });
+          ribbon(api, L.yF, h, function (t, kk) { return C.Fc[3 * t + kk]; }, t0, 0, BEFORE);
+          ribbon(api, L.yS, h, function (t, kk) { return Wd.Sm[3 * t + kk]; }, t0, 0, SPAN);
+          ribbon(api, L.yS2, h, function (t, kk) { return C.Sc[3 * t + kk]; }, t0, 0, BEFORE);
+          fill(api, cx, L.yF, W - cx, h, "residue"); fill(api, cx, L.yS2, W - cx, h, "residue");
+          vr(api, cx, L.yF - 1, L.yS2 + h + 1, "ink");
+          lab(api, "cutl", "cut", cx, L.yF, { dx: 6, dy: -20, cls: "i" });
+          // the days whose smoothed reading changed, outlined in ink on the after-cut row
+          for (var d = 0; d < BEFORE; d++) if (C.changed[t0 + d]) {
+            var X0 = Math.round(d * cw), X1 = Math.round((d + 1) * cw), Y0 = Math.round((L.yS2 - 0.5) * g.p), Y1 = Math.round((L.yS2 + h + 0.5) * g.p), lw = Math.max(1, Math.round(1.5 * g.d));
+            g.c.fillStyle = api.tok("ink"); g.c.fillRect(X0, Y0, X1 - X0, lw); g.c.fillRect(X0, Y1 - lw, X1 - X0, lw);
+            g.c.fillRect(X0, Y0, lw, Y1 - Y0); g.c.fillRect(X1 - lw, Y0, lw, Y1 - Y0);
+          }
+          var nIn = 0; for (d = 0; d < BEFORE; d++) if (C.changed[t0 + d]) nIn++;
+          lab(api, "chg", nIn + (ph ? " of the last " + BEFORE + " days changed · this draw" : " of the last " + BEFORE + " days before the cut changed their smoothed reading · this draw"), 0, L.ro, { dy: 4, live: 1 });
+          if (k >= 3) {
+            lab(api, "same", (ph ? "filtered, shared days: max change " : "filtered row, max change on shared days: ") + (C.maxF === 0 ? "0" : C.maxF.toExponential(1)) + " · this draw", 0, L.ro, { dy: 24, cls: "i", live: 1 });
+            lab(api, "gl", ph ? "its gate: under a billionth" : "its gate allows under a billionth", 0, L.ro, { dy: 44, k: "kr-g", src: R + "tests/test_regime_engine.py#L111" });
+          }
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ---------- fig 7: the label rule, day by day ---------- */
+  (function () {
+    var fig = document.getElementById("sc-hyst");
+    function placeKeys() {
+      var w = mworld().win, at = w.at, keys = fig.querySelectorAll(".sc-keys li");
+      [].forEach.call(keys, function (li) {
+        var n = li.getAttribute("data-key");
+        if (n === "raw") li.setAttribute("data-at", 0);
+        else if (n === "stable") li.setAttribute("data-at", WIN);
+        else li.setAttribute("data-at", at[n] !== undefined ? at[n] : WIN);
+      });
+      var ol = fig.querySelector(".sc-keys");                       // the words read in time order without script too
+      [].slice.call(keys).sort(function (x, y) { return x.getAttribute("data-at") - y.getAttribute("data-at"); }).forEach(function (li) { ol.appendChild(li); });
+    }
+    placeKeys();
+    function lay(api) { return api.phone ? { y0: 2, y1: 30, by: 33, bh: 3, ry: 39 } : { y0: 2, y1: 24, by: 27, bh: 3, ry: 33 }; }
+    sc6 = Deep.scene("sc-hyst", {
+      grid: { cols: 88, get rows() { return PHONE() ? 42 : 36; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 40 : 8; } },
+      ticks: WIN, tps: 14, check: function () { return mworld().win.n >= 1; },
+      inputs: [{ id: "raw", label: "no hysteresis", states: ["off", "on"] }],
+      draw: function (api, tick) {
+        begin(api);
+        var Wd = mworld(), w = Wd.win, a = w.a, L = lay(api), W = api.cols, F = Wd.F, H = Wd.H, cur = Math.min(WIN - 1, tick);
+        function X(d) { return (d + 0.5) / WIN * W; }
+        function Y(p) { return L.y1 - p * (L.y1 - L.y0); }
+        hr(api, 0, W, Y(0), "rule");
+        hr(api, 0, W, Y(HY.prob), "muted", 1, true); hr(api, 0, W, Y(HY.urgent), "muted", 1, true);
+        lab(api, "p65", "0.65", W, Y(HY.prob), { align: "right", dy: -18, src: R + "config.py#L50" });
+        lab(api, "p90", "0.90", W, Y(HY.urgent), { align: "right", dy: -18, src: R + "config.py#L53" });
+        for (var k = 0; k < 3; k++) {
+          var pts = []; for (var d = 0; d <= cur; d++) pts.push([X(d), Y(F[3 * (a + d) + k])]);
+          if (pts.length === 1) pts.push([pts[0][0] + 0.01, pts[0][1]]);
+          line(api, pts, ST[k], 1.5);
+        }
+        // the label bar (and the raw leader under it, on request)
+        var g = G(api), cw = W * g.p / WIN;
+        function bar(y, h, arr) { for (var d = 0; d <= cur; d++) { g.c.fillStyle = api.tok(ST[arr[a + d]]); g.c.fillRect(Math.round(d * cw), Math.round(y * g.p), Math.round((d + 1) * cw) - Math.round(d * cw), Math.round(h * g.p)); } }
+        bar(L.by, L.bh, H.reg);
+        lab(api, "lb", "label", 0, L.by + L.bh, { dy: 2 });
+        if (api.inputs.raw) { bar(L.by + L.bh + 3, L.bh, H.raw); lab(api, "lr", "raw leader, no rule", 0, L.by + 2 * L.bh + 3, { dy: 2, cls: "i" }); }
+        // events the cursor has passed
+        ["blip", "flip", "urgent"].forEach(function (e) {
+          var d = w.at[e];
+          if (d !== undefined && d <= cur) { vr(api, X(d), L.y0, L.by + L.bh, "ink", 0.6, true); lab(api, "e" + e, { blip: "false alarm", flip: "flip", urgent: "urgent flip" }[e], X(d), L.y0, { align: "center", dy: -20, cls: "i" }); }
+        });
+        vr(api, X(cur), L.y0, L.by + L.bh, "v-cyan");
+        var lg = H.log[a + cur];
+        lab(api, "ro", (api.phone ? "day " + (cur + 1) + " · in a row " + lg.shown + " · since change " + lg.dwell + " · " + SN[lg.cur] : "day " + (cur + 1) + " · days in a row " + lg.shown + " · days since the last change " + lg.dwell + " · label " + SN[lg.cur] + " · this draw"), 0, L.ry, { dy: api.phone ? 8 : 0, cls: api.phone ? "i" : "r", live: 1 });
+        var miss = ["blip", "flip", "urgent"].filter(function (e) { return w.at[e] === undefined; });
+        if (miss.length && cur >= WIN - 1) lab(api, "miss", "this draw has no " + miss.map(function (e) { return { blip: "false alarm", flip: "normal flip", urgent: "urgent flip" }[e]; }).join(" or ") + " in view", 0, L.ry, { dy: api.phone ? 32 : 24, cls: "i" });
+        end(api);
+      }
+    });
+  })();
+
+  /* a new draw in fig 4 carries through fig 5 */
+  function refreshWorld() { if (sc4) { sc4.drawnTick = -1; if (sc4.mode !== "auto" && sc4.mode !== "seg") sc4.render(true); } }
+
+  /* ======================================================================================================
+     7 · fat tails fake regimes: a t(5) state, a Gaussian fit, a two-bell Gaussian mixture, and a fitted Student-t
+     ====================================================================================================== */
+  function lgamma(x) {
+    var c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+    var y = x, tmp = x + 5.5; tmp -= (x + 0.5) * Math.log(tmp); var ser = 1.000000000190015;
+    for (var j = 0; j < 6; j++) ser += c[j] / ++y;
+    return -tmp + Math.log(2.5066282746310005 * ser / x);
+  }
+  function tlogpdf(x, nu, sc) { var z = x / sc; return lgamma((nu + 1) / 2) - lgamma(nu / 2) - 0.5 * Math.log(nu * Math.PI) - (nu + 1) / 2 * Math.log(1 + z * z / nu) - Math.log(sc); }
+  function unitScale(nu) { return Math.sqrt((nu - 2) / nu); }
+  (function () {
+    var N = 4000, seed = 21, BIN = 0.25, LO = -6, NB = 48, D = null;
+    function sample(gauss) {
+      var r = Rng(seed + (gauss ? 1000 : 0)), x = new Float64Array(N);
+      for (var i = 0; i < N; i++) x[i] = gauss ? r.normal() : r.t(5) * Math.sqrt(3 / 5);
+      var cnt = new Float64Array(NB); for (i = 0; i < N; i++) { var b = Math.floor((x[i] - LO) / BIN); if (b >= 0 && b < NB) cnt[b]++; }
+      var m = 0, v = 0; for (i = 0; i < N; i++) m += x[i]; m /= N; for (i = 0; i < N; i++) v += (x[i] - m) * (x[i] - m); var sd = Math.sqrt(v / N);
+      // a two-bell Gaussian mixture by EM
+      var w = [0.8, 0.2], mu = [m, m], s = [sd * 0.7, sd * 2];
+      for (var it = 0; it < 80; it++) {
+        var S0 = [0, 0], S1 = [0, 0], S2 = [0, 0];
+        for (i = 0; i < N; i++) {
+          var p0 = w[0] * Math.exp(-0.5 * Math.pow((x[i] - mu[0]) / s[0], 2)) / s[0], p1 = w[1] * Math.exp(-0.5 * Math.pow((x[i] - mu[1]) / s[1], 2)) / s[1], z = p0 + p1 || 1e-300;
+          var r0 = p0 / z, r1 = p1 / z; S0[0] += r0; S0[1] += r1; S1[0] += r0 * x[i]; S1[1] += r1 * x[i]; S2[0] += r0 * x[i] * x[i]; S2[1] += r1 * x[i] * x[i];
+        }
+        for (var j = 0; j < 2; j++) { w[j] = S0[j] / N; mu[j] = S1[j] / S0[j]; s[j] = Math.sqrt(Math.max(1e-4, S2[j] / S0[j] - mu[j] * mu[j])); }
+      }
+      // a Student-t by maximum likelihood over the tail index and the scale, on the bracket [2.05, 300]
+      var best = { ll: -Infinity };
+      for (var a = 0; a <= 60; a++) {
+        var nu = Math.exp(Math.log(2.05) + a / 60 * (Math.log(300) - Math.log(2.05)));
+        for (var q = 0; q <= 30; q++) {
+          var sc = 0.5 + q / 30 * 0.7, ll = 0; for (i = 0; i < N; i++) ll += tlogpdf(x[i] - m, nu, sc);
+          if (ll > best.ll) best = { ll: ll, nu: nu, sc: sc };
+        }
+      }
+      return { x: x, cnt: cnt, m: m, sd: sd, w: w, mu: mu, s: s, t: best };
+    }
+    var cache = {};
+    function data(gauss) { var key = gauss ? "g" : "t"; if (!cache[key]) cache[key] = sample(gauss); return cache[key]; }
+    function lay(api) { return api.phone ? { y0: 1, y1: 24, sy: 30, sh: 7, dy: 39 } : { y0: 1, y1: 22, sy: 25.5, sh: 4, dy: 31 }; }
+    Deep.scene("sc-tails", {
+      grid: { cols: 88, get rows() { return PHONE() ? 40 : 32; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 72 : 48; } },
+      ticks: 4, tps: 1, check: function () { var d = data(false); return d.t.nu > 3 && d.t.nu < 9; },
+      inputs: [{ id: "gauss", label: "gaussian world", states: ["off", "on"] }],
+      draw: function (api) {
+        begin(api);
+        var gauss = !!api.inputs.gauss, Dd = data(gauss), k = api.keyIndex, L = lay(api), W = api.cols, cw = W / NB;
+        var YL = -1, YH = 3;                                       // log10 of days per bin
+        function X(v) { return (v - LO) / (NB * BIN) * W; }
+        function Y(c) { return L.y1 - (Math.log(Math.max(c, 0.1)) / Math.LN10 - YL) / (YH - YL) * (L.y1 - L.y0); }
+        hr(api, 0, W, L.y1, "rule");
+        vr(api, X(0), L.y0, L.y1, "rule", 0.6, true);
+        lab(api, "yl", "days per bin, log scale", 0, L.y0, { dy: -24 });
+        lab(api, "xl", api.phone ? "return, in s.d. →" : "return, in standard deviations →", W, L.y1, { align: "right", dy: 4 });
+        function expN(pdf, v) { return N * BIN * pdf(v); }
+        var gpdf = function (v) { return Math.exp(-0.5 * Math.pow((v - Dd.m) / Dd.sd, 2)) / (Dd.sd * Math.sqrt(2 * Math.PI)); };
+        var tails = 0;
+        for (var b = 0; b < NB; b++) {
+          var c = Dd.cnt[b]; if (!c) continue;
+          var x0 = b * cw, mid = LO + (b + 0.5) * BIN, y = Y(c);
+          fill(api, x0 + 0.1, y, cw - 0.2, L.y1 - y, "copper", k === 4 ? 0.3 : 1);
+          if (k === 0 && expN(gpdf, mid) < 0.5) { box(api, x0, y - 0.25, cw, L.y1 - y + 0.25, "ink"); tails++; }
+        }
+        function curve(pdf, tok, w, dash) { var pts = []; for (var v = LO; v <= -LO + 1e-9; v += 0.05) { var e = expN(pdf, v); if (e >= 0.1) pts.push([X(v), Y(e)]); else if (pts.length) { line(api, pts, tok, w, 1, dash); pts = []; } } line(api, pts, tok, w, 1, dash); }
+        if (k <= 1) curve(gpdf, "ink", 1.5);
+        if (k === 0) lab(api, "tl", tails ? tails + (api.phone ? " bins outside the bell · this draw" : " bins the bell calls almost impossible · this draw") : "no bin outside the bell · this draw", 0, L.dy, { cls: "i", live: 1 });
+        if (k === 1) {
+          for (var j = 0; j < 2; j++) (function (j) { curve(function (v) { return Dd.w[j] * Math.exp(-0.5 * Math.pow((v - Dd.mu[j]) / Dd.s[j], 2)) / (Dd.s[j] * Math.sqrt(2 * Math.PI)); }, "ink", 1, [4, 3]); })(j);
+          var wide = Dd.s[0] > Dd.s[1] ? 0 : 1;
+          lab(api, "mx", api.phone ? "bell 2: " + fmt(Dd.s[wide] / Dd.s[1 - wide], 1) + "× wider · " + pct(Dd.w[wide], 0) + " of days · this draw" : "a second bell, " + fmt(Dd.s[wide] / Dd.s[1 - wide], 1) + "× wider, holds " + pct(Dd.w[wide], 0) + " of days · this draw", 0, L.dy, { cls: "i", live: 1 });
+        }
+        if (k >= 2 && k <= 3) {
+          var T5 = Dd.t, tp = function (v) { return Math.exp(tlogpdf(v - Dd.m, T5.nu, T5.sc)); };
+          curve(tp, "v-amber", 2);
+          lab(api, "nu", (api.phone ? "tail index ν " + fmt(T5.nu, 1) : "fitted tail index ν " + fmt(T5.nu, 1) + " (low = fat tails)") + (gauss ? " · runs high" : " · planted 5") + " · this draw", 0, L.dy, { cls: "i", live: 1 });
+          // the weight strip, on the histogram's own x-axis: one square per sampled day at its return, sized by its weight
+          // in the fit, u = (ν + 1) / (ν + z²) (kronos/thmm.py#L7-L9 with d = 1)
+          var uMax = (T5.nu + 1) / T5.nu, smin = 2, smax = api.phone ? 7 : 14, ys = L.sy + L.sh / 2;
+          hr(api, 0, W, L.sy + L.sh + 0.25, "rule");
+          for (var bb = 0; bb < NB; bb++) {                          // one square per bin that holds days, at the bin's return
+            if (!Dd.cnt[bb]) continue;
+            var xv = LO + (bb + 0.5) * BIN, z = (xv - Dd.m) / T5.sc, u = (T5.nu + 1) / (T5.nu + z * z);
+            sq(api, X(xv), ys, smin + (smax - smin) * u / uMax, "v-amber");
+          }
+          lab(api, "uw", "weight in the fit", 0, L.sy, { dy: -18 });
+        }
+        if (k === 3) {
+          // on a phone the curve fills the plot, so the gate lines go under the readout instead of over the curve
+          if (api.phone) {
+            lab(api, "x1", "gate X11: on a t(5) world, ν within 2 of 5", 0, L.dy, { dy: 26, k: "kr-g", src: R + "tests/test_thmm.py#L61" });
+            lab(api, "x2", "on a Gaussian world, ν past 15", 0, L.dy, { dy: 44, k: "kr-g", src: R + "tests/test_thmm.py#L84" });
+          } else {
+            lab(api, "x1", "gate X11: on a t(5) world, ν within 2 of 5", W, L.y0, { align: "right", dy: 0, k: "kr-g", src: R + "tests/test_thmm.py#L61" });
+            lab(api, "x2", "on a Gaussian world, ν past 15", W, L.y0, { align: "right", dy: 18, k: "kr-g", src: R + "tests/test_thmm.py#L84" });
+          }
+        }
+        if (k === 4) {
+          [[17, 0], [3.7, 1], [300, 2]].forEach(function (q) { var nu = q[0], sc = unitScale(nu); curve(function (v) { return Math.exp(tlogpdf(v, nu, sc)); }, ST[q[1]], 2); });
+          [["Bull ν ≈ 17", 0], ["Volatile ν ≈ 3.7", 1], ["Bear ν ≈ 300, the ceiling: a plain bell", 2]].forEach(function (q, i) {
+            lab(api, "rn" + i, q[0], api.phone ? 0 : [0, 18, 42][i], L.dy + (api.phone ? i * 4.5 : 0), { k: SC[q[1]], src: R + "docs/FINDINGS.md#L71" });
+          });
+          lab(api, "rnote", api.phone ? "fitted per state on real data" : "fitted per state on real data · unit variance · ghosted bins: this synthetic draw", 0, L.dy, { dy: api.phone ? 60 : 20 });
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ======================================================================================================
+     8 · from a label to a book: signal mix (config.py#L24-L28), signals (kronos/signals.py), HRP (kronos/hrp.py) and the
+     capped tilt (kronos/black_litterman.py#L35-L60), on synthetic names from kronos/data.py's factor model
+     ====================================================================================================== */
+  var MIX = [[0.55, 0.15, 0.30], [0.20, 0.40, 0.40], [0.10, 0.30, 0.60]];
+  var NAMES = [["AAPL", "tech"], ["MSFT", "tech"], ["NVDA", "tech"], ["JPM", "fin"], ["GS", "fin"], ["XOM", "energy"], ["CVX", "energy"], ["PG", "staples"], ["KO", "staples"], ["NEE", "util"], ["DUK", "util"], ["TLT", "defensive"]];
+  function ninv(p) {                                                // inverse normal CDF (Acklam)
+    var a = [-39.69683028665376, 220.9460984245205, -275.9285104469687, 138.357751867269, -30.66479806614716, 2.506628277459239],
+      b = [-54.47609879822406, 161.5858368580409, -155.6989798598866, 66.80131188771972, -13.28068155288572],
+      c = [-0.007784894002430293, -0.3223964580411365, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783],
+      d = [0.007784695709041462, 0.3224671290700398, 2.445134137142996, 3.754408661907416], q, r;
+    if (p < 0.02425) { q = Math.sqrt(-2 * Math.log(p)); return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    if (p > 1 - 0.02425) { q = Math.sqrt(-2 * Math.log(1 - p)); return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) / ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1); }
+    q = p - 0.5; r = q * q; return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q / (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+  }
+  function xz(v, cap) { var n = v.length, m = 0, s = 0; v.forEach(function (x) { m += x; }); m /= n; v.forEach(function (x) { s += (x - m) * (x - m); }); s = Math.sqrt(s / (n - 1)); return v.map(function (x) { return s > 1e-14 ? clamp((x - m) / s, -cap, cap) : 0; }); }
+  function makeBook(seed) {
+    var T = 400, M = genMarket(seed, T), r = M.r, secs = {}, n = NAMES.length;
+    NAMES.forEach(function (q) { if (!secs[q[1]]) { var a = new Float64Array(T); for (var t = 0; t < T; t++) a[t] = r.normal() * 0.004; secs[q[1]] = a; } });
+    var px = NAMES.map(function (q) {
+      var tk = q[0], sec = q[1], beta = tk === "TLT" ? r.unif(-0.25, 0.1) : (sec === "staples" || sec === "util") ? r.unif(0.5, 0.8) : sec === "tech" ? r.unif(1.1, 1.5) : r.unif(0.8, 1.2);
+      var isd = r.unif(0.006, 0.014), drift = 0.00015 + 0.0001 * r.normal(), lp = 0, p = new Float64Array(T);
+      for (var t = 0; t < T; t++) { lp += drift + beta * M.mkt[t] + secs[sec][t] + isd * r.normal(); p[t] = 100 * Math.exp(lp); }
+      return p;
+    });
+    var t = T - 1, rets = px.map(function (p) { var a = new Float64Array(T - 1); for (var i = 1; i < T; i++) a[i - 1] = p[i] / p[i - 1] - 1; return a; });
+    // the three signals at the rebalance date (kronos/signals.py#L23-L56)
+    var mom = xz(px.map(function (p) { return p[t - 21] / p[t - 252] - 1; }), 3);
+    var rev = xz(px.map(function (p) { var w = Array.prototype.slice.call(p, t - 19, t + 1), m = w.reduce(function (a, b) { return a + b; }, 0) / 20, s = Math.sqrt(w.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / 19); return -clamp((p[t] - m) / s, -3, 3); }), 3);
+    var vol = rets.map(function (a) { var w = Array.prototype.slice.call(a, a.length - 60), m = w.reduce(function (x, y) { return x + y; }, 0) / 60; return Math.sqrt(w.reduce(function (x, y) { return x + (y - m) * (y - m); }, 0) / 59); });
+    var rk = vol.map(function (v) { return vol.filter(function (u) { return u < v; }).length + 1; });
+    var low = xz(rk.map(function (q) { return -ninv((q - 0.375) / (n + 0.25)); }), 3);
+    // an exponentially weighted covariance over the last 252 days, half-life 63 (config.py#L75-L76)
+    var L = 252, wts = [], ws = 0; for (var i = 0; i < L; i++) { var w = Math.pow(0.5, (L - 1 - i) / 63); wts.push(w); ws += w; }
+    var mu = rets.map(function (a) { var s = 0; for (var i = 0; i < L; i++) s += wts[i] * a[a.length - L + i]; return s / ws; });
+    var C = []; for (var x = 0; x < n; x++) { C.push([]); for (var y = 0; y < n; y++) { var s = 0, ax = rets[x], ay = rets[y]; for (i = 0; i < L; i++) s += wts[i] * (ax[ax.length - L + i] - mu[x]) * (ay[ay.length - L + i] - mu[y]); C[x].push(s / ws); } }
+    var corr = C.map(function (row, x) { return row.map(function (v, y) { return clamp(v / Math.sqrt(C[x][x] * C[y][y]), -1, 1); }); });
+    // HRP: correlation distance, single linkage, leaf order, recursive bisection (kronos/hrp.py#L20-L57)
+    var dist = corr.map(function (row) { return row.map(function (v) { return Math.sqrt(Math.max(0, 0.5 * (1 - v))); }); });
+    var clusters = {}; for (i = 0; i < n; i++) clusters[i] = { id: i, leaves: [i] };
+    var next = n;
+    while (Object.keys(clusters).length > 1) {
+      var ids = Object.keys(clusters).map(Number), best = null;
+      for (var p = 0; p < ids.length; p++) for (var q = p + 1; q < ids.length; q++) {
+        var A = clusters[ids[p]], B = clusters[ids[q]], dmin = Infinity;
+        A.leaves.forEach(function (u) { B.leaves.forEach(function (v) { if (dist[u][v] < dmin) dmin = dist[u][v]; }); });
+        if (!best || dmin < best.d) best = { d: dmin, a: Math.min(ids[p], ids[q]), b: Math.max(ids[p], ids[q]) };
+      }
+      clusters[next] = { id: next, leaves: clusters[best.a].leaves.concat(clusters[best.b].leaves) }; delete clusters[best.a]; delete clusters[best.b]; next++;
+    }
+    var order = clusters[Object.keys(clusters)[0]].leaves;
+    function cvar(idx) { var iv = idx.map(function (i) { return 1 / C[i][i]; }), s = iv.reduce(function (a, b) { return a + b; }, 0); iv = iv.map(function (v) { return v / s; }); var t2 = 0; idx.forEach(function (i, a) { idx.forEach(function (j, b) { t2 += iv[a] * C[i][j] * iv[b]; }); }); return t2; }
+    var wh = new Array(n).fill(1), cl = [order], splits = [];
+    while (cl.length) {
+      var nx = [];
+      cl.forEach(function (c) { if (c.length <= 1) return; var mid = c.length >> 1, l = c.slice(0, mid), rr = c.slice(mid), vl = cvar(l), vr2 = cvar(rr), al = 1 - vl / (vl + vr2); l.forEach(function (i) { wh[i] *= al; }); rr.forEach(function (i) { wh[i] *= 1 - al; }); splits.push({ at: order.indexOf(rr[0]), depth: splits.length < 1 ? 0 : 1, size: c.length }); nx.push(l, rr); });
+      cl = nx;
+    }
+    var sw = wh.reduce(function (a, b) { return a + b; }, 0); wh = wh.map(function (v) { return v / sw; });
+    return { M: M, px: px, mom: mom, rev: rev, low: low, corr: corr, order: order, wh: wh, splits: splits };
+  }
+  function tilt(B, reg) {
+    var n = B.wh.length, comb = xz(B.mom.map(function (v, i) { return MIX[reg][0] * v + MIX[reg][1] * B.rev[i] + MIX[reg][2] * B.low[i]; }), 3);
+    var m = comb.reduce(function (a, b) { return a + b; }, 0) / n, sd = Math.sqrt(comb.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / (n - 1));
+    var t = B.wh.map(function (w, i) { return Math.max(0, w * (1 + 1.0 * (comb[i] - m) / sd)); }), s = t.reduce(function (a, b) { return a + b; }, 0);
+    t = t.map(function (v) { return v / s; });
+    var pre = t.slice(), CAP = 0.12;
+    for (var it = 0; it < 20; it++) {
+      var over = t.map(function (v) { return v > CAP; }); if (!over.some(Boolean)) break;
+      var ex = 0; t = t.map(function (v, i) { if (over[i]) { ex += v - CAP; return CAP; } return v; });
+      var room = t.map(function (v, i) { return over[i] ? 0 : Math.max(0, CAP - v); }), rs = room.reduce(function (a, b) { return a + b; }, 0);
+      if (rs <= 1e-12) break;
+      t = t.map(function (v, i) { return v + ex * room[i] / rs; });
+    }
+    s = t.reduce(function (a, b) { return a + b; }, 0);
+    return { comb: comb, pre: pre, w: t.map(function (v) { return v / s; }) };
+  }
+  (function () {
+    var seed = 31, B = makeBook(seed), reg = 0;
+    Deep.scene("sc-book", {
+      grid: { cols: 88, get rows() { return PHONE() ? 64 : 40; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, bottom: 16 },
+      ticks: 4, tps: 1, check: function () { var t = tilt(B, 0); return t.w.every(function (v) { return v <= 0.12 + 1e-9; }); },
+      inputs: [{ id: "r0", label: "Bull", momentary: true }, { id: "r1", label: "Volatile", momentary: true }, { id: "r2", label: "Bear", momentary: true }, { id: "nd", label: "new names", momentary: true }],
+      onInput: function (api, id) {
+        if (id === "nd") { seed += 1; B = makeBook(seed); } else reg = +id.slice(1);
+        var S = api.scene; if (id !== "nd" && S.k !== 0 && S.k !== 3) S.show(S.keys[0].at);
+        if (id === "nd" && S.k !== 2 && S.k !== 3) S.show(S.keys[2].at);
+      },
+      draw: function (api) {
+        begin(api);
+        var k = api.keyIndex, W = api.cols, ph = api.phone, n = NAMES.length;
+        lab(api, "reg", "regime: " + SN[reg], 0, 0, { dy: -24, k: SC[reg] });
+        if (k === 0) {
+          // one bar per regime, its three weights as segments; the number sits above its segment, the names in one legend row
+          var segTok = ["v-amber", "v-cyan", "v-violet"], segN = ["momentum", "reversal", "low vol"], g0 = G(api);
+          for (var r = 0; r < 3; r++) {
+            var y = ph ? 8 + r * 18 : 5 + r * 9, x = ph ? 0 : 14, w = ph ? W : W - 14, xx = x, al = r === reg ? 1 : 0.35;
+            lab(api, "rn" + r, SN[r], 0, y, ph ? { dy: -36, k: SC[r] } : { dy: 8, k: SC[r] });
+            for (var s = 0; s < 3; s++) {
+              var sw = MIX[r][s] * w; fill(api, xx, y, sw - 0.25, 4, segTok[s], al);
+              if (sw * g0.p / g0.d >= 32) lab(api, "sv" + r + s, fmt(MIX[r][s], 2), xx, y, { dy: -18, cls: r === reg ? "i" : "", src: R + "config.py#L" + (25 + r) });
+              xx += sw;
+            }
+          }
+          var ly = ph ? 8 + 3 * 18 - 4 : 5 + 3 * 9 - 2, lx = ph ? 0 : 14;
+          segN.forEach(function (nm, s) { var x = lx + s * (ph ? 28 : 18); fill(api, x, ly + 0.5, ph ? 3 : 1.5, ph ? 3 : 1.5, segTok[s]); lab(api, "lg" + s, nm, x + (ph ? 4.5 : 2.5), ly, { dy: ph ? -2 : -4 }); });
+        } else if (k === 1) {
+          var p = B.px[2], T = p.length, lo = Infinity, hi = -Infinity; for (var t = T - 260; t < T; t++) { lo = Math.min(lo, p[t]); hi = Math.max(hi, p[t]); }
+          var y0 = ph ? 7 : 3.5, y1 = ph ? 28 : 18, pts = [];
+          for (t = T - 260; t < T; t++) pts.push([(t - (T - 260)) / 259 * W, y1 - (p[t] - lo) / (hi - lo) * (y1 - y0)]);
+          line(api, pts, "ink", 1.5);
+          lab(api, "nm", NAMES[2][0] + " · synthetic prices · last 260 days", 0, 0, { dy: 0 });
+          function X(back) { return (259 - back) / 259 * W; }
+          var rows = [[252, 21, "momentum · 252 to 21 days back", "config.py#L56-L57", "v-amber"], [20, 0, "reversal · fade the last 20 days", "config.py#L58", "v-cyan"], [60, 0, "low vol · rank by the last 60 days", "config.py#L59", "v-violet"]];
+          rows.forEach(function (q, i) {
+            var yy = (ph ? 34 : 22) + i * (ph ? 11 : 4.5); fill(api, X(q[0]), yy, X(q[1]) - X(q[0]), 1.5, q[4]);
+            lab(api, "sg" + i, q[2], ph ? 0 : X(q[0]) < W / 2 ? X(q[0]) : 0, yy + 1.5, { dy: 2, src: R + q[3] });
+          });
+          vr(api, W - 0.01, y0, y1, "v-cyan"); lab(api, "now", "rebalance day", W, y1, { align: "right", dy: 4, cls: "i" });
+        } else {
+          // the correlation heatmap in clustered order, void to amber; on a phone it stacks above the bars
+          var cs = ph ? 4 : 2.2, mx = ph ? 3 : 0, my = ph ? 2 : 3, showHeat = k === 2 || !ph, side = ph && k === 2;   // phone: bars sit beside the heatmap, row for row
+          if (showHeat) {
+            for (var a = 0; a < n; a++) for (var b = 0; b < n; b++) { var v = B.corr[B.order[a]][B.order[b]]; fill(api, mx + 6 + b * cs, my + a * cs, cs - 0.2, cs - 0.2, "v-amber", clamp(v, 0, 1) * 0.95); }
+            B.order.forEach(function (i, a) { lab(api, "cn" + a, NAMES[i][0], mx + 5.5, my + a * cs + cs / 2, { align: "right", dy: -8 }); });
+            B.splits.slice(0, 1).forEach(function (s) { var d = s.at; vr(api, mx + 6 + d * cs - 0.1, my - 0.5, my + n * cs + 0.5, "v-cyan"); hr(api, mx + 6 - 0.5, mx + 6 + n * cs + 0.5, my + d * cs - 0.1, "v-cyan"); });
+          }
+          var bx0 = side ? 52 : ph ? 3 : 40, by0 = side ? my : ph ? 4 : 3, bw = side ? 28 : ph ? 72 : 46, sc = bw / 0.25;
+          var Tt = tilt(B, reg), barH = side ? cs - 0.6 : ph ? 3.5 : 2.2, gap = ph ? 0.6 : 0.4;
+          B.order.forEach(function (i, a) {
+            var y = by0 + a * (barH + gap);
+            if (k === 2) fill(api, bx0 + 6, y, B.wh[i] * sc, barH, "v-amber");
+            else { fill(api, bx0 + 6, y, Tt.pre[i] * sc, barH, "copper"); fill(api, bx0 + 6, y, Tt.w[i] * sc, barH, "v-amber"); hr(api, bx0 + 6 + B.wh[i] * sc - 0.5, bx0 + 6 + B.wh[i] * sc + 0.5, y + barH / 2, "ink"); }
+            if (!side) lab(api, "bn" + a, NAMES[i][0], bx0 + 5.5, y + barH / 2, { align: "right", dy: -8 });
+          });
+          var capX = bx0 + 6 + 0.12 * sc, yb = by0 + n * (barH + gap);
+          if (k >= 3) { vr(api, capX, by0 - 1, yb, "ink", 1, true); lab(api, "cap", "cap 0.12", capX, by0 - 1, { align: "center", dy: -18, cls: "i", src: R + "config.py#L83" }); }
+          var capY = Math.max(yb, showHeat ? my + n * cs : 0);
+          lab(api, "bt", k === 2 ? (ph ? "bars, right: HRP weight · this draw" : "bars: HRP weight · this draw") : (ph ? "amber: after the cap · dark: before it" : "amber: tilted and capped · dark: before the cap · tick: HRP weight · this draw"), 0, capY, { dy: 6, live: 1 });
+          if (k >= 3 && ph) lab(api, "bt2", "tick: HRP weight · this draw", 0, capY, { dy: 24, live: 1 });
+          if (showHeat) lab(api, "ct", ph ? "heatmap: correlation · cyan: first split" : "heatmap: correlation in clustered order, brighter is closer · cyan: the first split", 0, capY, { dy: k >= 3 && ph ? 42 : 24 });
+          if (k === 4) lab(api, "t1", ph ? "earns from t+1 · every 21 days" : "set at the close of day t · earns from t+1 · next rebalance in 21 days", W, 0, { align: "right", dy: -24, k: "kr-c", src: R + "config.py#L102" });
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ======================================================================================================
+     9 · the overlay: lever × min(brakes) × tilt, capped at 1.5 (kronos/risk.py#L69-L96; config.py#L86-L97)
+     ====================================================================================================== */
+  var OV = { target: 0.13, cap: 1.5, cvar: 0.018, ddS: -0.08, ddF: -0.20, floor: 0.25, tilt: 0.15, fin: 0.035 };
+  function ddFixed(dd) { return 1 - clamp((OV.ddS - dd) / (OV.ddS - OV.ddF), 0, 1) * (1 - OV.floor); }
+  function ddWritten(dd) { return 1 + (dd - OV.ddS) * (1 - OV.floor) / (OV.ddF - OV.ddS); }
+  (function () {
+    var SCN = [{ v: 0.05, dd: 0, cv: 0.012 }, { v: 0.30, dd: 0, cv: 0.012 }, { v: 0.13, dd: -0.14, cv: 0.012 }, { v: 0.13, dd: -0.24, cv: 0.012 }, { v: 0.05, dd: 0, cv: 0.012 }];
+    var st = { v: 0.05, dd: 0, cv: 0.012, tl: 0 }, lastK = -1, SL = null, scene = null;
+    var TL = [0, 1, -1], TLN = ["tilt off", "tilt +15%", "tilt −15%"];
+    function sync() { if (!SL) return; SL.set("v", Math.round(st.v * 100)); SL.set("dd", Math.round(-st.dd * 100)); SL.set("cv", (st.cv * 100).toFixed(1)); }
+    scene = Deep.scene("sc-overlay", {
+      grid: { cols: 88, get rows() { return PHONE() ? 42 : 32; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 8, bottom: 24 },
+      ticks: 4, tps: 1, check: function () { return Math.abs(ddFixed(-0.14) - 0.625) < 1e-12 && ddFixed(0) === 1 && Math.abs(ddFixed(-0.3) - 0.25) < 1e-12; },
+      inputs: [{ id: "tilt", label: "tilt off", momentary: true }],
+      onKey: function (api, k) { if (k !== lastK) { lastK = k; var s = SCN[k]; st.v = s.v; st.dd = s.dd; st.cv = s.cv; st.tl = 0; sync(); var b = api.scene.inputBtns.tilt; if (b) b.b.firstChild.textContent = TLN[0]; } },
+      onInput: function (api) { st.tl = (st.tl + 1) % 3; api.scene.inputBtns.tilt.b.firstChild.textContent = TLN[st.tl]; if (api.keyIndex === 4) { lastK = 0; api.scene.show(api.scene.keys[0].at); } },
+      draw: function (api) {
+        begin(api);
+        var k = api.keyIndex, W = api.cols, ph = api.phone;
+        function r3(x) { return Math.round(x * 1000) / 1000; }              // round once, print what was used
+        var lever = r3(Math.min(OV.cap, OV.target / st.v)), mc = r3(Math.min(1, OV.cvar / st.cv)), md = r3(ddFixed(st.dd)), brake = Math.min(mc, md);
+        var tf = 1 + OV.tilt * TL[st.tl], ex = r3(clamp(lever * brake * tf, 0, OV.cap));
+        if (k === 4) {
+          var bw = ph ? 42 : 38, y = 4, rc = ph ? "i" : "r";
+          box(api, 0, y, bw, 10, "copper"); box(api, W - bw, y, bw, 10, "v-amber");
+          lab(api, "c0", "close of day t", 1, y, { dy: 6 }); lab(api, "c1", "exposure set: " + fmt(ex, 3) + "×", 1, y, { dy: 26, cls: rc });
+          lab(api, "c2", "day t+1", W - bw + 1, y, { dy: 6 }); lab(api, "c3", ph ? "gross × exposure" : "net = gross × exposure", W - bw + 1, y, { dy: 26, cls: rc });
+          lab(api, "c3b", "− costs − financing", W - bw + 1, y, { dy: ph ? 42 : 50, cls: rc });
+          line(api, [[bw + 1, y + 5], [W - bw - 2, y + 5]], "v-cyan", 2); sq(api, W - bw - 2, y + 5, 6, "v-cyan");
+          var fy = ph ? 20 : 19;
+          lab(api, "f0", ph ? "costs: 1 bp + 2 bp spread + impact, cap 25 bp" : "costs: 1 bp commission + 2 bp spread + square-root impact, capped at 25 bp", 0, fy, { src: R + "README.md#L259-L260" });
+          var finbp = Math.max(0, ex - 1) * OV.fin / 252 * 1e4;
+          lab(api, "f1", (ph ? "financing: " + fmt(Math.max(0, ex - 1), 2) + " × 3.5%/yr ÷ 252 = " : "financing: " + fmt(Math.max(0, ex - 1), 2) + " × 3.5% a year ÷ 252 = ") + fmt(finbp, 2) + " bp" + (ph ? "" : " a day"), 0, fy, { dy: ph ? 40 : 24, cls: "i", derived: "(exposure − 1) × 0.035 / 252", inputs: R + "docs/design/DESIGN15.md#L42-L43" });
+          lab(api, "f2", ph ? "charged only above 1× · gate X27" : "charged only above 1×, and gate X27 checks exactly that", 0, fy, { dy: ph ? 64 : 48, k: "kr-g", src: R + "tests/test_risk.py#L82-L91" });
+          end(api); return;
+        }
+        var x0 = 2, x1 = W - 2, U = (x1 - x0) / 2;
+        function X(v) { return x0 + clamp(v, 0, 2) * U; }
+        var rows = ph ? [6, 15, 22, 33] : [3, 10, 16, 25], bh = 3;
+        [0, 0.25, 1, 1.5, 2].forEach(function (v, i) { vr(api, X(v), rows[0] - 1, rows[3] + bh + 1, "rule", 1, v !== 1 && v !== 1.5); lab(api, "ax" + i, v === 0.25 ? "0.25" : v.toString() + (v ? "×" : ""), X(v), rows[3] + bh + 1, { align: "center", dy: 2, src: v === 0.25 ? R + "config.py#L91" : v === 1.5 ? R + "README.md#L127" : null }); });
+        function lbl(id, txt, r, o) { lab(api, id, txt, x0, rows[r], Object.assign({ dy: o && o.cls === "r" ? -26 : -18 }, o || {})); }
+        // the lever: target over the forecast, capped
+        fill(api, X(0), rows[0], X(lever) - X(0), bh, "v-amber");
+        if (OV.target / st.v > OV.cap) { fill(api, X(lever), rows[0], X(OV.target / st.v) - X(lever), bh, "copper"); }
+        lbl("l0", "lever · 13% ÷ " + pct(st.v, 0) + " = " + fmt(OV.target / st.v, 2) + (OV.target / st.v > OV.cap ? ", capped 1.5" : ""), 0, { cls: "i" });
+        // the brakes: each between its floor and 1; the tighter one binds
+        fill(api, X(0), rows[1], X(mc) - X(0), bh, "body"); fill(api, X(0), rows[2], X(md) - X(0), bh, "body");
+        var bind = brake < 1 ? (mc <= md ? 1 : 2) : 0;                  // a brake binds only when it removes something
+        if (bind) box(api, X(0), rows[bind], X(bind === 1 ? mc : md) - X(0), bh, "ink");
+        lbl("l1", "tail-loss brake · " + fmt(mc, 3) + (bind === 1 ? " · binding" : ""), 1, { cls: bind === 1 ? "i" : "" });
+        lbl("l2", "drawdown brake · " + fmt(md, 3) + (bind === 2 ? " · binding" : ""), 2, { cls: bind === 2 ? "i" : "" });
+        fill(api, X(0), rows[3], X(ex) - X(0), bh, "v-amber");
+        lbl("l3", "exposure · " + fmt(lever, 2) + " × " + fmt(brake, 3) + (TL[st.tl] ? " × " + fmt(tf, 2) : "") + " = " + fmt(ex, 3), 3, { cls: "r" });
+        end(api);
+      }
+    });
+    SL = sliders("sc-overlay", [
+      { id: "v", label: "forecast vol", min: 3, max: 40, step: 1, value: 5, fmt: function (v) { return v + "%"; }, on: function (v) { st.v = v / 100; scene.render(true); } },
+      { id: "dd", label: "drawdown", min: 0, max: 30, step: 1, value: 0, fmt: function (v) { return v ? "−" + v + "%" : "0%"; }, on: function (v) { st.dd = -v / 100; scene.render(true); } },
+      { id: "cv", label: "tail loss a day", min: 0.5, max: 4, step: 0.1, value: 1.2, fmt: function (v) { return (+v).toFixed(1) + "%"; }, on: function (v) { st.cv = v / 100; scene.render(true); } }
+    ]);
+    sync();
+  })();
+
+  /* ======================================================================================================
+     10 · the gate list at four commits (tests/run_all.py at 454fe62, 0c1b53b, 7383e32, 2e983e4)
+     ====================================================================================================== */
+  var PIN = ["regime", "signals_pairs", "portfolio", "backtest", "volest", "sjm", "dhmm", "vollab", "rough", "rmt", "statarb", "cvar", "ensemble", "forensics", "thmm", "infer", "rfsv", "tails", "laws", "clock", "surge", "infobudget", "entropyprod", "decathlon", "decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "critical", "reflex", "constants", "trade", "transfer", "crypto", "risk", "lever", "regime_engine", "harvest", "live", "momtilt"];
+  var ERA = [
+    { n: 27, sha: "454fe62", date: "13 Jul 2026", drop: ["tails", "decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "transfer", "crypto", "risk", "lever", "regime_engine", "harvest", "live", "momtilt"] },
+    { n: 30, sha: "0c1b53b", date: "15 Jul 2026", drop: ["decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "risk", "lever", "regime_engine", "harvest", "live", "momtilt"] },
+    { n: 31, sha: "7383e32", date: "11 Aug 2026", drop: ["decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "lever", "regime_engine", "harvest", "live", "momtilt"] },
+    { n: 41, sha: "2e983e4", date: "12 Oct 2026", drop: [] }
+  ];
+  (function () {
+    var BASE = [0, 16, 32, 48];
+    Deep.scene("sc-gates", {
+      grid: { cols: 88, get rows() { return PHONE() ? 48 : 24; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 56 : 40; } },
+      ticks: 66, tps: 12,
+      check: function () { return PIN.length === 41 && ERA.every(function (e) { return PIN.length - e.drop.length === e.n; }); },
+      draw: function (api, tick) {
+        begin(api);
+        var k = api.keyIndex, e = Math.min(3, k), E = ERA[e], ph = api.phone, per = ph ? 11 : 14, tw = ph ? 7 : 5, ts = ph ? 6 : 4;
+        var present = PIN.filter(function (g) { return E.drop.indexOf(g) < 0; });
+        var sweep = k >= 4 ? 1 : clamp((tick - BASE[e] - 1) / 12, 0, 1), run = sweep > 0 && sweep < 1 ? Math.floor(sweep * present.length) : -1;
+        lab(api, "hd", E.date + " · " + E.sha + " · ", 0, 0, { dy: -24, derived: "commit date and sha" });
+        lab(api, "hn", E.n + " gates", 0, 0, { dy: -24, dx: 176, cls: "i", src: e === 0 ? "Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29" : e === 1 ? "Olivesz/kronos-quant@0c1b53b:tests/run_all.py#L11-L40" : e === 2 ? "Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42" : R + "tests/run_all.py#L11-L61" });
+        var j = 0, riskPos = null;
+        PIN.forEach(function (g, i) {
+          var x = (i % per) * tw, y = 1 + Math.floor(i / per) * tw, here = E.drop.indexOf(g) < 0;
+          if (g === "risk") riskPos = [x, y];
+          if (!here) { if (g === "risk" && e === 1) box(api, x, y, ts, ts, "muted", 1, true); return; }
+          var at = j === run; j++;                                      // every tile of a commit is lit at its step; the runner re-checks them in between
+          fill(api, x, y, ts, ts, g === "risk" ? "v-amber" : "v-green");
+          if (at) { fill(api, x - 0.5, y - 0.5, ts + 1, ts + 1, "ink"); fill(api, x, y, ts, ts, g === "risk" ? "v-amber" : "v-green"); }
+        });
+        var rows = Math.ceil(PIN.length / per), yb = 1 + rows * tw + 1;
+        if (e === 1) lab(api, "slot", "no gate yet on the overlay’s direction", ph ? 0 : riskPos[0] + ts / 2, riskPos[1] + ts, { align: ph ? "left" : "center", dy: 4, cls: "i" });
+        if (e >= 2) lab(api, "x27", ph ? "X27 · overlay direction, leverage, financing" : "X27 · risk-overlay direction + leverage + financing", ph ? 0 : riskPos[0] + ts / 2, riskPos[1] + ts, { align: ph ? "left" : "center", dy: 4, k: "kr-a", src: R + "tests/run_all.py#L50-L51" });
+        if (e === 3) lab(api, "split", ph ? "39 synthetic · 2 real-market calibration" : "39 synthetic, planted answer · 2 real-market calibration", 0, yb + (ph ? 5 : 3), { dy: 4, src: R + "README.md#L82-L85" });
+        if (k >= 4) {
+          lab(api, "b1", ph ? "badge 41 = list 41 · checked every run" : "README badge 41 = list 41 · the runner checks before it runs", 0, yb + (ph ? 10 : 6), { dy: 8, k: "kr-g", src: R + "tests/run_all.py#L63-L67" });
+          lab(api, "b0", ph ? "at 7383e32: badge 30, list 31" : "at 7383e32 the badge said 30 while the list held 31", 0, yb + (ph ? 10 : 6), { dy: 28, src: "Olivesz/kronos-quant@7383e32:README.md#L10" });
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ======================================================================================================
+     11 · the throttle as written (kronos/risk.py#L39-L42 at 0c1b53b) and as designed (DESIGN15.md#L30-L31)
+     ====================================================================================================== */
+  (function () {
+    var cur = -0.12, SL = null, scene;
+    var XM = -0.25, YM = 2.25;
+    function lay(api) { return { x0: api.phone ? 9 : 6, x1: 87, y0: 7, y1: 33 }; }
+    scene = Deep.scene("sc-throttle", {
+      grid: { cols: 88, rows: 36, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 64 : 48; } },
+      ticks: 18, tps: 8,
+      check: function () { return Math.abs(ddWritten(0) - 0.5) < 1e-12 && Math.abs(ddWritten(-0.08) - 1) < 1e-12 && Math.abs(ddWritten(-0.20) - 1.75) < 1e-12 && Math.abs(ddFixed(-0.20) - 0.25) < 1e-12; },
+      inputs: [{ id: "noclip", label: "remove the clip", states: ["off", "on"] }],
+      draw: function (api, tick) {
+        begin(api);
+        var k = api.keyIndex, L = lay(api), ph = api.phone, noclip = api.inputs.noclip;
+        function X(dd) { return L.x0 + dd / XM * (L.x1 - L.x0); }
+        function Y(m) { return L.y1 - m / YM * (L.y1 - L.y0); }
+        // the axes and the reference lines (on a phone, 0.50 is left out so the ticks do not collide)
+        hr(api, L.x0, L.x1, Y(0), "rule");
+        [[0.25, R + "config.py#L91", "0.25"], [0.5, R + "docs/FINDINGS.md#L843-L847", "0.50"], [1, R + "docs/FINDINGS.md#L843-L847", "1.0"], [1.75, null, "1.75"]].forEach(function (q, i) {
+          if (q[0] === 1.75 && k !== 1 && !noclip) return;
+          if (q[0] === 0.5 && ph) return;
+          hr(api, L.x0, L.x1, Y(q[0]), "rule", 1, q[0] !== 1);
+          lab(api, "yt" + i, q[2], L.x0 - 0.5, Y(q[0]), { align: "right", dy: -8, src: q[1], derived: q[1] ? null : "1 + (−0.20 + 0.08) × 0.75 / (−0.12)", inputs: q[1] ? null : "Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L39-L42" });
+        });
+        [[0, "high-water mark", null], [-0.08, "−8%", R + "config.py#L89"], [-0.20, "−20%", R + "config.py#L90"], [-0.25, "−25%", R + "tests/test_risk.py#L31"]].forEach(function (q, i) {
+          vr(api, X(q[0]), Y(0), Y(0) + 0.75, "muted");
+          if (ph && i === 0) return;
+          lab(api, "xt" + i, q[1], X(q[0]), Y(0), { align: i === 0 ? "left" : i === 3 ? "right" : "center", dy: 6, src: q[2] });
+        });
+        lab(api, "xl", "drawdown from the high →", L.x1, Y(0), { align: "right", dy: 24 });
+        var raw = k === 1 || noclip, clipOn = !raw;
+        if (k >= 2 && clipOn) fill(api, L.x0, Y(1), L.x1 - L.x0, Y(0.25) - Y(1), "residue");
+        // the gap between the two, shaded where they disagree
+        var dd, g = G(api);
+        if (clipOn) for (dd = 0; dd >= XM + 1e-9; dd -= 0.0025) {
+          var y0 = Y(clamp(ddWritten(dd), 0.25, 1)), y1 = Y(ddFixed(dd));
+          if (Math.abs(y1 - y0) > 0.05) fill(api, X(dd), Math.min(y0, y1), X(dd - 0.0025) - X(dd), Math.abs(y1 - y0), "copper");
+        }
+        // fixed, in amber
+        var pts = []; for (dd = 0; dd >= XM - 1e-9; dd -= 0.0025) pts.push([X(dd), Y(ddFixed(dd))]);
+        line(api, pts, "v-amber", 2);
+        lab(api, "li", "fixed", L.x1, Y(0.25), { align: "right", dy: -22, k: "kr-a" });
+        // as found: the clipped line; before the clip on step 2 (drawn on) or on request
+        // drawn on while it plays; a step reached by hand, or with reduced motion, shows the whole line its words describe
+        var u = k === 1 && (api.mode === "auto" || api.mode === "seg") ? clamp((tick - 1) / 10, 0, 1) : 1, rw = [], cl = [];
+        for (dd = 0; dd >= XM * u - 1e-9; dd -= 0.0025) { rw.push([X(dd), Y(ddWritten(dd))]); cl.push([X(dd), Y(clamp(ddWritten(dd), 0.25, 1))]); }
+        if (clipOn) {
+          if (k >= 2) line(api, rw, "v-red", 1, 0.35, [4, 4]);
+          line(api, cl, "v-red", 3);
+          lab(api, "lw", "as found", ph ? X(-0.19) : X(-0.16), Y(1), { dy: -22, k: "kr-t" });
+        } else { line(api, rw, "v-red", 2.5); lab(api, "lw", ph ? "as written" : "as written, before the clip", X(-0.12), Y(ddWritten(-0.12)), { dy: -24, dx: -40, k: "kr-t" }); }
+        if (k >= 3) {
+          hr(api, L.x0, X(-0.08), Y(0.64), "ink", 1, true);
+          lab(api, "dm", ph ? "as found: bound 93.6% of days · mean 0.64" : "as found: bound on 93.6% of days · mean 0.64 (dashed)", ph ? 0 : L.x0 + 0.5, ph ? L.y1 : Y(1), { dy: ph ? 68 : -24, cls: "i", k: ph ? "" : "kr-tag", src: R + "docs/FINDINGS.md#L847-L848" });
+        }
+        // the reader's cursor
+        vr(api, X(cur), Y(YM), Y(0), "v-cyan");
+        var w = ddWritten(cur), f = ddFixed(cur), wc = clamp(w, 0.25, 1);
+        var rdt = ph ? minus(pct(cur, 1)) + ": as found " + fmt(raw ? w : wc, 2) + " · fixed " + fmt(f, 2) : "at " + minus(pct(cur, 1)) + ": as found " + fmt(raw ? w : wc, 2) + (raw ? " before the clip" : "") + " · fixed " + fmt(f, 2);
+        lab(api, "rd", rdt, 0, L.y1, { dy: 44, cls: ph ? "i" : "r", derived: "the two formulas at the cursor" });
+        end(api);
+      }
+    });
+    SL = sliders("sc-throttle", [{ id: "dd", label: "drawdown", min: 0, max: 25, step: 0.5, value: 12, fmt: function (v) { return v ? "−" + (+v).toFixed(1) + "%" : "0%"; }, on: function (v) { cur = -v / 100; scene.render(true); } }], "one");
+  })();
+
+  /* ======================================================================================================
+     12 · the repair: gate X27's engineered path (tests/test_risk.py#L28-L52), the old and new combination rule, the kill
+     lines and the volatility ladder
+     ====================================================================================================== */
+  (function () {
+    var T = 1500, r = new Float64Array(T); for (var i = 300; i < 340; i++) r[i] = -0.00722; for (i = 340; i < 420; i++) r[i] = 0.004;
+    var nav = new Float64Array(T), dd = new Float64Array(T), hi = 0, v = 1;
+    for (i = 0; i < T; i++) { v *= 1 + r[i]; nav[i] = v; hi = Math.max(hi, v); dd[i] = v / hi - 1; }
+    var mF = new Float64Array(T), mW = new Float64Array(T);
+    for (i = 0; i < T; i++) { mF[i] = ddFixed(dd[i]); mW[i] = clamp(ddWritten(dd[i]), 0.25, 1); }
+    function grade(m) {
+      var a = true, b = true, c = true, d = true, firstFail = -1;
+      for (var i = 0; i < T; i++) {
+        if (dd[i] >= -1e-12 && !(m[i] > 0.999)) { a = false; if (firstFail < 0) firstFail = i; }
+        if (dd[i] < OV.ddF && Math.abs(m[i] - OV.floor) > 1e-9) b = false;
+        if (dd[i] < -0.10 && dd[i] > -0.18 && !(m[i] < 1 && m[i] > OV.floor)) d = false;
+      }
+      var idx = []; for (i = 300; i < 340; i++) idx.push(i); idx.sort(function (x, y) { return dd[x] - dd[y]; });
+      for (i = 1; i < idx.length; i++) if (m[idx[i]] - m[idx[i - 1]] < -1e-12) c = false;
+      return { a: a, b: b, c: c, d: d, first: firstFail };
+    }
+    var GF = grade(mF), GW = grade(mW), A = 250, B = 470;
+    Deep.scene("sc-repair", {
+      grid: { cols: 88, get rows() { return PHONE() ? 52 : 34; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 16 : 24; } },
+      ticks: 26, tps: 8,
+      check: function () { return GF.a && GF.b && GF.c && GF.d && !GW.a && GW.first === 0 && Math.abs(nav[339] - Math.pow(1 - 0.00722, 40)) < 1e-9; },
+      inputs: [{ id: "swap", label: "grade as found", states: ["off", "on"] }],
+      draw: function (api, tick) {
+        begin(api);
+        var k = api.keyIndex, W = api.cols, ph = api.phone, swap = !!api.inputs.swap;
+        function X(d) { return (d - A) / (B - A) * W; }
+        if (k <= 2) {
+          // drawn on while it plays; a step reached by hand, or with reduced motion, shows what its words describe
+          var still = api.mode !== "auto" && api.mode !== "seg";
+          var u0 = still ? 1 : clamp(tick / 11, 0, 1), u1 = still ? (k >= 1 ? 1 : 0) : clamp((tick - 12) / 10, 0, 1);
+          var ny0 = 1, ny1 = ph ? 13 : 11, my0 = ph ? 17 : 15, my1 = ph ? 34 : 29;
+          function YN(x) { return ny1 - (x - 0.74) / (1.0 - 0.74) * (ny1 - ny0); }
+          function YM(m) { return my1 - m / 1.1 * (my1 - my0); }
+          hr(api, 0, W, YN(1), "rule", 1, true); hr(api, 0, W, YN(0.748), "rule", 1, true);
+          lab(api, "n1", "NAV, days " + A + " to " + B + " of 1,500", 0, ny0, { dy: -24, src: R + "tests/test_risk.py#L24" });
+          var pts = []; for (var d = A; d <= A + (B - A) * u0; d++) pts.push([X(d), YN(nav[d])]);
+          line(api, pts, "ink", 1.5);
+          lab(api, "n2", "−25.2%", X(340), YN(nav[339]), { dy: 4, align: "center", cls: "i", derived: "0.99278^40 − 1", inputs: R + "tests/test_risk.py#L31" });
+          hr(api, 0, W, YM(0), "rule"); hr(api, 0, W, YM(1), "rule", 1, true); hr(api, 0, W, YM(0.25), "rule", 1, true);
+          lab(api, "m1", "1", W, YM(1), { align: "right", dy: -18 }); lab(api, "m2", "0.25", W, YM(0.25), { align: "right", dy: -18, src: R + "config.py#L91" });
+          if (u1 > 0) {
+            var pw = [], pf = []; for (d = A; d <= A + (B - A) * u1; d++) { pw.push([X(d), YM(mW[d])]); pf.push([X(d), YM(mF[d])]); }
+            line(api, pw, "v-red", 2); line(api, pf, "v-amber", 2);
+            lab(api, "tw", "as found", X(A + 4), YM(mW[A]), { dy: 4, k: "kr-t" }); lab(api, "tf", "fixed", X(A + 10), YM(1), { dy: -20, k: "kr-a" });
+          }
+          if (k === 2) {
+            var Gd = swap ? GW : GF, who = swap ? "as found" : "fixed";
+            [["a", "1 at every high"], ["c", "never more for deeper"], ["d", "between the floor and 1, −10% to −18%"], ["b", "the floor past −20%"]].forEach(function (q, i) {
+              lab(api, "ck" + i, (Gd[q[0]] ? "pass · " : "fail · ") + q[1], ph ? 0 : (i % 2) * 44, my1 + 1 + (ph ? i * 4.5 : Math.floor(i / 2) * 2.5), { dy: 2, k: Gd[q[0]] ? "kr-g" : "i", src: R + "tests/test_risk.py#L38-L52" });
+            });
+            lab(api, "who", "grading: " + who + (swap ? " · fails on day one at " + fmt(mW[0], 2) : ""), W, ny0, { align: "right", dy: -24, k: swap ? "kr-t" : "kr-a" });
+          }
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ======================================================================================================
+     13b · did the repair pay? the combination rule on a calm book (DESIGN15.md#L36-L41), the financing bill against its kill
+     line (FINDINGS.md#L867-L870) and the volatility ladder (DESIGN15.md#L26, FINDINGS.md#L863-L864)
+     ====================================================================================================== */
+  (function () {
+    Deep.scene("sc-pay", {
+      grid: { cols: 88, get rows() { return PHONE() ? 46 : 26; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 24 : 24; } },
+      ticks: 2, tps: 1, read: 250,
+      draw: function (api) {
+        begin(api);
+        var k = api.keyIndex, W = api.cols, ph = api.phone;
+        if (k === 0) {
+          // a calm book: the lever wants more than the cap, both brakes sit at 1
+          var U = (W - (ph ? 14 : 8)) / 1.5; function XB(v) { return v * U; }
+          lab(api, "h0", ph ? "calm book · lever 1.5 · brakes at 1" : "a calm book · lever capped at 1.5 · both brakes at 1", 0, 0, { dy: -24, cls: "i" });
+          [[ph ? "smallest of lever and brakes" : "the smallest of the lever and the brakes", 1.0, "copper", "old rule", "Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L44-L45"], [ph ? "lever × tighter brake" : "the lever times the tighter brake", 1.5, "v-amber", "new rule", R + "kronos/risk.py#L89-L93"]].forEach(function (q, i) {
+            var yy = (ph ? 3 : 2) + i * (ph ? 14 : 9);
+            lab(api, "mp" + i, q[3] + " · " + q[0], 0, yy, { dy: 0, cls: i ? "i" : "", src: q[4] });
+            fill(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, q[2]);
+            vr(api, XB(1), yy + (ph ? 4 : 2), yy + (ph ? 11 : 8), "ink", 1, true);
+            lab(api, "mv" + i, fmt(q[1], 1) + "×", XB(q[1]), yy + (ph ? 5 : 3), { dx: 8, dy: ph ? 2 : 8, cls: "r" });
+          });
+          lab(api, "one", "1×: where the brakes top out", XB(1), ph ? 30 : 21, { align: ph ? "right" : "center", dy: 4, src: R + "docs/design/DESIGN15.md#L39-L41" });
+        } else if (k === 1) {
+          var gx0 = 0, gx1 = W - 2, gy = ph ? 8 : 6;
+          function XG(v) { return gx0 + v * (gx1 - gx0); }
+          lab(api, "h1", "share of the leverage gain spent on financing", 0, 0, { dy: -24, cls: "i" });
+          hr(api, gx0, gx1, gy + 2, "copper"); fill(api, XG(0), gy, XG(0.37) - XG(0), 4, "v-amber");
+          vr(api, XG(0.5), gy - 3, gy + 7, "ink", 1, true); vr(api, XG(1), gy - 1, gy + 5, "muted");
+          lab(api, "f37", "~37%", XG(0.37), gy, { dx: 8, dy: -18, k: "kr-a", src: R + "docs/FINDINGS.md#L869-L870" });
+          lab(api, "f50", "kill line 50%", XG(0.5), gy + 7, { align: "center", dy: 4, cls: "i", src: R + "docs/design/DESIGN15.md#L72-L73" });
+          lab(api, "f100", "all of it", XG(1), gy + 5, { align: "right", dy: 4 });
+          lab(api, "fok", "both kill lines held", 0, gy + 12, { dy: ph ? 16 : 8, k: "kr-g", src: R + "docs/FINDINGS.md#L867-L868" });
+        } else {
+          var sv = (W - 2) / 0.14, yy0 = 2;
+          lab(api, "h2", "realized volatility", 0, 0, { dy: -24, cls: "i" });
+          [["as found", 0.069, "docs/design/DESIGN15.md#L26"], ["fix alone, no leverage", 0.087, "docs/FINDINGS.md#L863"], ["fix + lever, August", 0.116, "docs/FINDINGS.md#L864"]].forEach(function (q, i) {
+            var y = yy0 + i * (ph ? 12 : 7);
+            lab(api, "vl" + i, q[0] + " · " + pct(q[1], 1), 0, y, { dy: 0, src: R + q[2] });
+            fill(api, 0, y + (ph ? 5 : 2.5), q[1] * sv, ph ? 4 : 3, "v-amber", 0.5 + i * 0.25);
+          });
+          vr(api, 0.13 * sv, 1, ph ? 38 : 23, "ink", 1, true);
+          lab(api, "vt", "target 13%", 0.13 * sv, ph ? 38 : 23, { align: "right", dy: 4, cls: "i", src: R + "docs/design/DESIGN15.md#L24" });
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* ======================================================================================================
+     13 · against SPY, same days (README.md#L134, #L138)
+     ====================================================================================================== */
+  (function () {
+    var ROWS = [
+      { n: "net Sharpe", k: 1.07, s: 0.91, max: 1.2, f: function (v) { return v.toFixed(2); } },
+      { n: "max drawdown", k: 17.9, s: 33.7, max: 40, f: function (v) { return "−" + v.toFixed(1) + "%"; } },
+      { n: "CAGR", k: 11.8, s: 15.0, max: 18, f: function (v) { return v.toFixed(1) + "%"; } },
+      { n: "realized vol", k: 11.0, s: 16.8, max: 20, f: function (v) { return v.toFixed(1) + "%"; }, tgt: 13 }
+    ];
+    Deep.scene("sc-results", {
+      grid: { cols: 88, get rows() { return PHONE() ? 56 : 28; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 8, get bottom() { return PHONE() ? 24 : 32; } },
+      ticks: 16, tps: 8,
+      draw: function (api, tick) {
+        begin(api);
+        var k = api.keyIndex, W = api.cols, ph = api.phone, u = 1, e = 1;   // placed from the first frame: the steps add the reading
+        var x0 = ph ? 1 : 22, x1 = W - (ph ? 16 : 14);
+        ROWS.forEach(function (q, i) {
+          var y = ph ? 6 + i * 12 : 3 + i * 6.5, X = function (v) { return x0 + v / q.max * (x1 - x0); };
+          hr(api, x0, x1, y, "rule"); vr(api, x0, y - 1, y + 1, "muted");
+          lab(api, "rn" + i, q.n, ph ? x0 : 0, y, { dy: ph ? -22 : -8, cls: "i" });
+          var kx = X(q.k * e), sx = X(q.s * e);
+          hr(api, Math.min(kx, sx), Math.max(kx, sx), y, "body");
+          sq(api, sx, y + 0.06, 12, "muted"); sq(api, kx, y + 0.06, 12, "v-amber");
+          if (q.tgt) { vr(api, X(q.tgt), y - 1.5, y + 1.5, "ink", 1, true); lab(api, "tg", "target 13%", X(q.tgt), ph ? y - 1.5 : y + 1.5, { align: "center", dy: ph ? -16 : 2, src: R + "docs/design/DESIGN15.md#L24" }); }
+          if ((k >= 1 || u >= 1) && ph) {
+            lab(api, "kv" + i, "KRONOS " + q.f(q.k), x0, y, { dy: 8, k: "kr-a", src: R + "README.md#L134" });
+            lab(api, "sv" + i, "SPY " + q.f(q.s), x0 + 26, y, { dy: 8, src: R + "README.md#L138" });
+          } else if (k >= 1 || u >= 1) {
+            var kl = kx < sx;
+            lab(api, "kv" + i, "KRONOS " + q.f(q.k), kx, y, { align: kl ? "right" : "left", dx: kl ? -10 : 10, dy: -12, k: "kr-a", src: R + "README.md#L134" });
+            lab(api, "sv" + i, "SPY " + q.f(q.s), sx, y, { align: kl ? "left" : "right", dx: kl ? 10 : -10, dy: -12, src: R + "README.md#L138" });
+          }
+          if (i === 2 && k >= 2 && !ph) lab(api, "wins", "SPY wins on raw return", W, y, { align: "right", dx: -4, dy: 6, cls: "i", src: R + "README.md#L140-L141" });
+        });
+        if (k >= 3) {
+          lab(api, "cv", ph ? "in-sample · after costs · up to 1.5×" : "in-sample · after costs · up to 1.5× leverage, financing 1.26%/yr", 0, ph ? 50 : 27, { dy: -4, cls: "i", src: R + "README.md#L142" });
+          lab(api, "cv2", ph ? "financing 1.26%/yr · survivorship bias" : "today’s liquid names, which carries survivorship bias", 0, ph ? 50 : 27, { dy: 14, cls: "i", src: R + "README.md#L279-L281" });
+        }
+        end(api);
+      }
+    });
+  })();
+
+  /* read-only hook for checks */
+  window.__kronosDeep = {
+    world: function () { var w = world(), m = mworld(); return { seed: w.seed, rounds: w.fit.hist.length - 1, restart: w.fit.restart, ll: w.fit.ll, grade: w.grade, market: { seed: m.seed, T: m.T, rounds: m.fit.hist.length - 1, window: m.win } }; },
+    marketSeeds: function (seeds) { return seeds.map(function (s) { var m = makeMarketWorld(s), d = 0; for (var i = 0; i < 3 * m.T; i++) d += Math.abs(m.F[i] - m.Sm[i]); return { seed: s, rounds: m.fit.hist.length - 1, meanFS: +(d / m.T).toFixed(3), win: m.win.n, at: m.win.at, a: m.win.a }; }); },
+    gradeSeeds: function (seeds) { return seeds.map(function (s) { var w = makeWorld(s); return { seed: s, all: w.grade.all, stays: w.grade.stays, bull: w.grade.bull, bear: w.grade.bear, acc: +w.acc.toFixed(3), diag: w.grade.diag.map(function (d) { return +d.toFixed(3); }) }; }); }
+  };
+})();
+</script>
+</body>
+</html>

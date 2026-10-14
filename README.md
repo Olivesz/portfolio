@@ -10,6 +10,11 @@ index of other work.
 inline woff2, and the facts block every figure is sourced from. No build step,
 no external requests at load.
 
+Each featured project has a case study in `work/<slug>.html` and a deep dive in
+`work/<slug>-deep.html`: the problem, the idea and the build, step by step, as
+figures that play when they reach the screen and step at the reader's pace. They
+share `work/assets/`.
+
 ## Run locally
 
 ```bash
@@ -65,6 +70,6 @@ covers what each assertion measures and how each was made to fail on purpose.
 ## Deploy
 
 GitHub Pages, from `main`, at the root. `poster.jpg` is the link-preview image
-named in the page head. `robots.txt` allows search indexing, opts out of
-training crawlers, and points at `sitemap.xml`. `resume.pdf` is the résumé the
-page links to.
+named in the page head; each case study's and deep dive's card is in `work/og/`.
+`robots.txt` allows search indexing, opts out of training crawlers, and points
+at `sitemap.xml`. `resume.pdf` is the résumé the page links to.

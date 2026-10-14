@@ -1,0 +1,164 @@
+/* deep dives: the long-read layer over case.css. Load case.css first; this file adds no colour and no font size of its own
+   (every colour is a :root token, every size is one of 72 44 40 30 15 13 11). */
+
+/* the long read: a sticky contents rail in the 160 px gutter, the story in the 704 px column beside it */
+.dd{display:grid;grid-template-columns:160px 704px;column-gap:32px;margin-top:64px;align-items:stretch}
+.dd-rail{grid-column:1;min-width:0}
+.dd-body{grid-column:2;min-width:0}
+
+/* contents: chapter numbers in the accent, the chapter you are in drawn in ink with a 2 px bar beside it */
+.dd-toc{position:sticky;top:calc(var(--strip) + 24px);max-height:calc(100vh - var(--strip) - 48px);overflow:auto;font:400 11px/16px var(--mono);letter-spacing:.04em}
+.dd-toc .k{color:var(--muted);padding-bottom:8px}
+.dd-toc ol{list-style:none;margin:0;padding:0}
+.dd-toc a{position:relative;display:block;padding:4px 0 4px 12px;color:var(--muted);text-decoration:none}
+.dd-toc a::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:2px;background:var(--rule)}
+.dd-toc a .n{color:var(--accent);margin-right:8px}
+.dd-toc a:hover,.dd-toc a:focus-visible{color:var(--ink)}
+.dd-toc a.on{color:var(--ink)}
+.dd-toc a.on::before{background:var(--accent)}
+/* the build's steps sit under their chapter and open while you are in it */
+.dd-toc ol ol{display:none;padding-left:12px}
+.dd-toc li.open>ol{display:block}
+.dd-toc ol ol a::before{top:4px;bottom:4px}
+.dd-toc .back-to{display:block;margin-top:16px;padding:4px 0;color:var(--body);text-decoration:none}
+.dd-toc .back-to:hover,.dd-toc .back-to:focus-visible{color:var(--ink)}
+
+/* chapters: a rule, the number and name in mono, a 40 px title */
+.ch{padding-top:16px;border-top:1px solid var(--rule)}
+.ch+.ch,.dd-body>.ch:not(:first-child){margin-top:96px}
+.ch-k{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent)}
+.ch-k .sep{color:var(--muted)}
+.ch>h2{margin-top:8px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
+/* steps inside a chapter (the build): a kicker and a 30 px title */
+.st{margin-top:64px}
+.st-k{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent)}
+.st-k .sep{color:var(--muted)}
+.st>h3{margin-top:8px;font:500 30px/40px var(--sg);letter-spacing:-.015em;color:var(--ink)}
+/* prose: 576 px measure, 16 px between paragraphs, 32 px around figures */
+.ch>p:not(.ch-k),.st>p:not(.st-k),.ch>ul:not(.stats),.st>ul:not(.stats){max-width:576px;color:var(--body);margin-top:16px}
+.ch>h2+p,.st>h3+p{margin-top:24px}
+.ch>p.np,.st>p.np{color:var(--ink)}
+.ch>ul:not(.stats),.st>ul:not(.stats){padding-left:16px}
+.ch>ul:not(.stats) li+li,.st>ul:not(.stats) li+li{margin-top:8px}
+.dd-body .m{font:400 13px/24px var(--mono);color:var(--ink)}
+.ch>.scene,.st>.scene,.ch>.ig,.st>.ig,.ch>.stats,.st>.stats,.ch>.tbl,.st>.tbl{margin-top:32px}
+.ch>.scene+p,.st>.scene+p,.ch>.ig+p,.st>.ig+p,.ch>.stats+p,.st>.stats+p,.ch>.tbl+p,.st>.tbl+p{margin-top:32px}
+/* a pull line: one sentence that carries the chapter, ink on a 2 px accent bar */
+.pull{max-width:576px;margin-top:32px;padding-left:16px;border-left:2px solid var(--accent);font:500 15px/24px var(--sg);color:var(--ink)}
+/* the sources, folded, as on every case study */
+.ch>.srcs-d,.st>.srcs-d{margin-top:24px}
+
+/* the deep dive's own header extras: the link back to the short version */
+.dd-back{margin-top:24px;font:400 11px/16px var(--mono);letter-spacing:.04em}
+.dd-back a{color:var(--body)}
+
+/* ---------- scenes ---------- */
+.scene{position:relative}
+.sc-stage{position:relative;padding:24px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);overflow:hidden}
+.sc-art{position:relative;margin:0}
+.sc-art>canvas{display:block}
+.sc-art>svg{display:block;overflow:visible}
+/* labels drawn as DOM text over the art, placed on whole pixels by deep.js */
+.sc-l,.sc-r{position:absolute;white-space:nowrap;pointer-events:none}
+.sc-l{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.sc-l.i{color:var(--ink)}
+.sc-l.a{color:var(--accent)}
+.sc-r{font:400 13px/24px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
+.sc-r .a{color:var(--accent)}
+.sc-lead{position:absolute;width:1px;background:var(--muted);pointer-events:none}
+/* a transparent hit target over input cells on the art */
+.sc-hit{position:absolute;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.sc-hit:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+
+/* keyed parts of an SVG or DOM scene: shown from, until or only at a named step */
+.scene [data-from],.scene [data-until],.scene [data-only]{transition:opacity 320ms var(--ease-enter)}
+.scene.js [data-from]:not(.on),.scene.js [data-until]:not(.on),.scene.js [data-only]:not(.on){opacity:0}
+/* a stroke that draws itself on when it (or the keyed group it sits in) turns on: give the path pathLength="1" and the
+   class draw. An arrowhead with the class tip appears as the stroke arrives. */
+.scene.js .draw{stroke-dasharray:1 1;stroke-dashoffset:1;transition:stroke-dashoffset 640ms var(--ease-enter)}
+.scene.js .draw.on,.scene.js .on .draw{stroke-dashoffset:0}
+.scene.js .tip{opacity:0;transition:opacity 160ms var(--ease-enter)}
+.scene.js .tip.on,.scene.js .on .tip{opacity:1;transition-delay:520ms}
+
+/* Wireworld's states in SVG diagrams: the same tokens the canvas uses for head, tail and wire */
+.scene .ww-h,.ig .ww-h{fill:var(--signal)} .scene .ww-t,.ig .ww-t{fill:var(--signal-2)} .scene .ww-w,.ig .ww-w{fill:var(--copper)}
+
+/* the step's words: every step shares one grid cell, so the line never changes the figure's height */
+.sc-keys{display:grid;margin:16px 0 0;padding:0;list-style:none;font:400 15px/24px var(--sg);color:var(--ink);max-width:576px}
+.sc-keys li{grid-area:1/1}
+.scene.js .sc-keys li{visibility:hidden;opacity:0;transition:opacity 240ms var(--ease-enter)}
+.scene.js .sc-keys li.on{visibility:visible;opacity:1}
+.scene:not(.js) .sc-keys{display:block}
+.scene:not(.js) .sc-keys li+li{margin-top:8px}
+
+/* inputs: labelled toggles with the bit's state drawn as a square, ink when on */
+.sc-in{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px}
+.sc-in .k{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);margin-right:8px}
+.sc-tg{display:inline-flex;align-items:center;gap:8px;min-height:24px;padding:4px 8px;background:none;border:1px solid var(--copper);border-radius:0;color:var(--body);font:400 11px/16px var(--mono);letter-spacing:.04em;cursor:pointer}
+.sc-tg::before{content:"";width:8px;height:8px;background:var(--copper);flex:none}
+.sc-tg[aria-pressed="true"]{color:var(--ink);border-color:var(--ink)}
+.sc-tg[aria-pressed="true"]::before{background:var(--ink)}
+.sc-tg:hover,.sc-tg:focus-visible{border-color:var(--ink)}
+.sc-tg .v{color:var(--muted)}
+.sc-tg[aria-pressed="true"] .v{color:var(--accent)}
+
+/* the stepper: prev, step n of m, next, one square per step, and replay at the end of the row. Its colours change at
+   once, never by transition: the page flips them itself as a scene plays, and a colour caught halfway is not a token */
+.sc-bar{display:flex;flex-wrap:wrap;align-items:center;column-gap:8px;row-gap:8px;margin-top:16px}
+.sc-btn{min-height:24px;padding:4px 8px;background:none;border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 11px/16px var(--mono);letter-spacing:.04em;cursor:pointer}
+.sc-btn:hover,.sc-btn:focus-visible{border-color:var(--ink)}
+.sc-btn:disabled{color:var(--muted);border-color:var(--rule);cursor:default}
+.sc-n{min-width:88px;text-align:center;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sc-pips{display:flex;flex-wrap:wrap;margin:0 0 0 8px;padding:0;list-style:none}
+.sc-pip{display:grid;place-items:center;width:24px;height:24px;margin:0;padding:0;background:none;border:0;border-radius:0;cursor:pointer}
+.sc-pip::before{content:"";width:8px;height:8px;background:var(--copper)}
+.sc-pip.done::before{background:var(--accent)}
+.sc-pip[aria-current="step"]::before{background:var(--ink)}
+.sc-pip:hover::before,.sc-pip:focus-visible::before{background:var(--body)}
+.sc-bar .replay{margin-left:auto}
+/* one anatomy on every deep dive: the art, its step words, the try-it inputs, then the stepper and the caption */
+.scene.js{display:flex;flex-direction:column}
+.scene.js>*{order:2}
+.scene.js>.sc-stage{order:0} .scene.js>.sc-keys{order:1} .scene.js>.sc-bar{order:3} .scene.js>.sc-cap{order:4}
+.sc-bar .replay.idle{visibility:hidden}
+/* the figure's caption: number in the accent, mono 11 */
+.sc-cap{margin-top:16px;max-width:576px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.sc-cap .n{color:var(--accent);margin-right:8px}
+
+.sc-btn,.sc-tg{min-width:24px}
+/* inline links in the long read (prose, step words, captions, tables, source lists): padding grows the hit area to
+   24 px (32 on touch) without moving a line box, as case.css does for the case studies' prose */
+.dd-body a{padding:5px 0}
+@media (pointer:coarse){ .sc-btn,.sc-tg{min-height:32px;min-width:32px} .sc-pip{width:32px;height:32px}
+  .dd-body a{padding:9px 0} .dd-toc a{padding-top:8px;padding-bottom:8px} .dd-toc a::before{top:8px;bottom:8px} .dd-back a{padding:8px 0} }
+
+/* wide scenes break out to the right, up to the wide edge, from 1280 px */
+@media (min-width:1280px){
+  .scene.wide{width:min(1104px,calc(704px + (100vw - 896px) / 2 - var(--gut) - 16px))}
+  @supports (width:round(down,1px,8px)){ .scene.wide{width:min(1104px,round(down,704px + (100vw - 896px) / 2 - var(--gut) - 16px,8px))} }
+  .scene.wide .sc-keys,.scene.wide .sc-cap{max-width:576px}
+}
+
+/* tablet and phone: one column; the contents become a short list under the header */
+@media (max-width:1023px){
+  .dd{grid-template-columns:1fr;margin-top:32px}
+  .dd-rail,.dd-body{grid-column:1}
+  .dd-toc{position:static;max-height:none;overflow:visible;padding-top:16px;border-top:1px solid var(--rule)}
+  .dd-toc ol ol{display:none!important}
+  .dd-toc .back-to{display:none}
+  .dd-body{margin-top:48px}
+  .ch+.ch,.dd-body>.ch:not(:first-child){margin-top:72px}
+  .st{margin-top:48px}
+  .sc-stage{padding:16px 0}
+}
+/* phone: prev, step n of m, next and replay on the first row; the step squares on a row of their own, so every scene's
+   bar has the same shape */
+@media (max-width:767px){
+  .sc-bar{display:grid;grid-template-columns:auto auto auto 1fr auto;align-items:center}
+  .sc-bar .replay{grid-column:5;grid-row:1;margin-left:0}
+  .sc-pips{grid-column:1 / -1;grid-row:2;margin-left:-8px}
+}
+@media (max-width:767px) and (pointer:coarse){ .sc-pips{margin-left:-12px} }
+
+@media (prefers-reduced-motion:reduce){ .scene.js .draw{stroke-dashoffset:0} .scene.js .tip{opacity:1} }
+@media print{ .dd-rail{display:none} .dd{grid-template-columns:1fr} .sc-bar,.sc-in{display:none} .scene.js .sc-keys li{visibility:visible} }

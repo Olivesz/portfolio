@@ -10,8 +10,8 @@ once, to read the native figure layers' labels.
 | `.venv/bin/python tests/contract.py --fast` | the subset a fix most often breaks, for use between edits | about 40 s |
 | `python3 tests/check-claims.py` | no retired claim or personal data is in a tracked file | 1 s |
 | `python3 tests/check-panels.py` | every figure is in the source line it cites | about 35 s; the first run fetches |
-| `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
-| `.venv/bin/python tests/poster.py` | poster.jpg is a fresh render of its three lines over the map frame (`--render` writes it) | about 15 s |
+| `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, every page has its own link-preview card, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
+| `.venv/bin/python tests/poster.py` | poster.jpg is a fresh render of its three lines beside the map after a full read-through, every bloom grown (`--render` writes it) | about 15 s |
 
 ## Setup
 
@@ -54,6 +54,13 @@ It exits 1 on any FAIL, and also when nothing ran.
 
 Perf runs last, in its own contexts, at 4× CPU throttle, three times per viewport.
 
+**The deep dives.** `deep` loads each `work/*-deep.html` and checks its steppers: every `figure.scene` became a
+scene with a stepper; with motion (a fake clock) each scene, scrolled to, starts on its own and moves on a step, and a
+square, next and prev move it; with reduced motion each rests and the stepper moves it; and by keyboard alone every
+stepper control is a focusable native button, Space on the first square goes to step 1 and Enter on next goes to
+step 2. `cases` covers their errors, requests off the origin, fonts, tokens and sizes. About two minutes for both
+viewports; not in `--fast`.
+
 **`--fast`** runs selfchecks, notch advance and planting on desktop; all the work on desktop and phone; colours, font sizes,
 inner scrollers and listeners on desktop and phone; overflow and errors on
 desktop, phone and phone-small. It skips the hold sweeps,
@@ -78,6 +85,8 @@ Nothing is taken on the page's word where it can be read back:
 - **Phone text:** the art band is screenshotted three times: as is, with native figure text made transparent, and with all DOM and SVG text made transparent. The last two differ only by DOM text other than the native layers, and that must be zero. The first two differ by the native layers' own labels, which must lie inside their layer's box. Text under the opaque band does not count.
 - **Reading zone at a hold:** the card being read is the one stuck at its sticky top, not the one with the most overlap.
 - **Native figure layers** (HOOKS.md) are found by `data-native` or their module's root class. Colours, sizes, the phone text test and clipping all include them.
+- **Station playback:** a station's clock may run only while its figure is in frame (the share of its box in the art region, from `figVis`, at least 0.2 once running) and its own layer is on screen. `playwalk` logs every frame of the lens's visitor (110px every 120ms, top to the map) twice: stopping 1.5s at each hold's start, every station plays from p 0 to done at p 1; never stopping, p never advances on a frame when the figure was out of frame (that frame and the one before, since the suite's poll and the page's frame may run in either order) and never runs ahead of its own clock (more than its fastest key segment allows in the time since the last frame, + 50ms and 0.005), so nothing snaps to its end. `playthrough` flicks past every station, then visits each hold: a paused clock resumes where it stopped and finishes. `playreplay` also clicks each card's replay button 1, 3, 6 and 10 notches past its hold, wherever the button is still on screen and not under the strip or a phone's art band: in every frame the clock advances, the station is the scene and the current figure, at least half in frame, with its native layer on screen inside `figure().art`.
+- **Colour at a hold:** `vivid` reads a screenshot of the whole viewport at every hold sample. Pixels within 16 per channel of any `--v-*` token inside the art region may be at most half of the figure's own ink, every non-ground pixel inside `figure().cells` (its native box included).
 - **Colours:**
   - Every rendered element's computed colours, including `::before`/`::after`, borders, outlines and SVG shapes, resolved to sRGB by painting them.
   - Every colour literal in the CSSOM, which catches `:hover`, `:focus` and media variants that are not on screen.
@@ -179,12 +188,8 @@ the fix a row names.
 | figclip | the page before phone stations framed the ant | FAIL | ant not drawn: 9 problems over 12 held frames at 390, 12 of 12 at 360 |
 | landing | the old 0.12-screen landing | FAIL | 160 landing samples after s 0.04 |
 | planting | the page before the bounded visitor ant (up to 6 live ants, 20,000 steps each, kept past the landing) | FAIL | ants 1, 2, 3, 4, 5 after five clicks; 5,237 visitor cells at s 0.20 desktop, 4,399 phone |
-| work | the data pane's first highlight (KRONOS) removed | FAIL | data: highlights ['imc-prosperity-4'], the rule says ['kronos', 'imc-prosperity-4'] |
 | work | `#work .k-nm{color:#e8e6f1}`, one step off `--ink` | FAIL | colour rgb(232, 230, 241) on `h3.k-nm` |
-| work | KRONOS's map box pulled 160px left | FAIL | hub:data touches kronos |
 | work | `:root{--t-llm:#b77ff2}` | FAIL | --t-llm is set on :root |
-| work | the demo prompt (`.k-a3`) never shown | FAIL | the prompt never read 'preview: each theme in turn' during the demo |
-| work | the systems chip reads 8 | FAIL | page:work-theme-systems reads '8', the taxonomy says 7 |
 | check-panels | `section#work` renamed (`--static --offline`) | ABORT | work rows came back empty |
 | caption | the old custos instruction, its lines cut to two as the caption drawer used to | FAIL | 9 of 12 at 360px; custos drew 'top: what the agent said. below: what it ran. pink: the log' |
 | errors | the old custos instruction, against the drawer's overflow report | FAIL | 1 console error: caption needs 3 lines at 360px |
@@ -196,18 +201,25 @@ the fix a row names.
 | cardfit | the page before every card fit (db1a9ba) | FAIL | custos 332px against 323 at 360×740 and 275 at 360×640, emergence 296px against 288 at 375×667; custos showed its note line at all four sizes |
 | cardfit | the phone card rule removed (phrase and proof at 15/24, the note line shown) | FAIL | the same heights as db1a9ba: emergence and custos over at 375×667 and 360×640 |
 | cardfit | the custos short layout never chosen | FAIL | the custos layer 12px out of its art box at 375×667, 18px at 360×640 |
+| zoomrest | the pull-back dissolve scrubbed by scroll again (`ch.r` from `mapMix(s) / 0.02`) | FAIL | custos rests at resolve level 0.9999 at ZOOM+0.004 and 0.9888 at ZOOM+0.020 |
+| zoomrest | + the blooms no longer wait for the cells | FAIL | 1,024 vivid device px within 48px of the native layer at ZOOM+0.004 |
+| trlabels | the page before the two-line phone label for the 2024 trail | FAIL | no label for Carbon Hack at s 1.34, 1.39 and 1.44 on a phone |
 | resize | the resize handler without its scroll back | FAIL | desktop 12 of 30 kept, phone 9 of 20 (a rotation at emergence landed in KRONOS) |
 | resize | the résumé line read at the resize event, not when idle | FAIL | phone 18 of 20; after a rotation the line was 632px off |
 | figclip, landcards, caption | the page before the side-by-side layout, at 844×390 and 740×360 | FAIL | 21 and 22 clipping problems; every held card over the art; at 844×390 the caption ran into the figure's own numbers (caption at 740×360 passed) |
 | quotes | the custos phrase with a straight apostrophe | FAIL | 1 straight quote |
 | jumpfocus | the page before jumps moved focus (d1375a4) | FAIL | desktop and phone; on phone 16 of 18: Tab after 'résumé ↓' went 11005 → 2245, after 'jump to KRONOS' 5049 → 7730 |
 | linknames | the page before the work links were named (a403e2f) | FAIL | 'repo →' shared by 9 hrefs, 'paper' by 2; 19 arrows read aloud |
+| newtab | the page before every link opened a new tab (0b8d6d8) | FAIL | 398 of 398 off-page links; the résumé PDF link had `rel=noopener` only |
+| newtab | the work list's built rows not copying the case-study link's `target` and `rel` | FAIL | 12 bad, every one a row the page builds (`work/kronos.html target=null`) |
 | check-panels | IARIA's résumé bullet changed 2.6M+ to 9.9M+ (`--static`) | FAIL | '9.9M+' not in any line of resume.pdf; with its data-src removed too, 'undeclared figure' in the résumé region |
 | stripname | the phone strip named against the strip, not the art band | FAIL | unnamed 0.03 screen after the name left view |
 | pitch | at 1536×864 @1.25, `view()` reports pp + 0.5 | FAIL | non-integer at 334 of 334 samples; before pp was sampled at this viewport, the line read `0 of 0` and passed |
 | poster.py | the poster before the map-frame render | FAIL | mean diff 10.09, 4.94% of pixels off by more than 48 |
 | poster.py | one glyph added to the subline | FAIL | 0.0037% of pixels off by more than 48 (the limit is 0.002%) |
 | poster.py | none (baseline) | PASS | mean diff 0.002, 0.001% off |
+| poster.py | the grey poster (the map frame with no blooms), after the read-through render | FAIL | mean diff 13.33, 6.75% of pixels off by more than 48 |
+| poster.py | none (read-through render, baseline) | PASS | mean diff 0.000, 0.000% off |
 
 The checks added in the first review round were each run against the page at 026da7f, before its fix
 (transits sized by the cards alone, cards fading in at the gate, the custos verdict at u 0.63), served
@@ -229,15 +241,28 @@ station. Each was run at 1440x900 against a copy with one rule of the station cl
 |---|---|---|---|
 | playarrive | the first arrival goes straight to the end state | FAIL | all four: first frame `done` at p 1, no value inside (0, 1) |
 | playbudget | the clock runs at 0.8x | FAIL | done at 7267, 6353, 8247 and 6614ms against 5936, 5200, 6700 and 5400 |
-| playthrough | leaving mid-play no longer snaps to the end | FAIL | all four still `playing` after the flick; emergence 6121px off its end state on the way back |
 | playreverse | re-entering a hold from below restarts the clock | FAIL | all four `playing` from p 0 while wheeling up; 4978 to 20942px off the end state |
 | playreplay | the replay button no longer resets the clock | FAIL | all four never playing after the click |
 | playreduced | reduced motion runs the clock | FAIL | 73 of 73 frames `playing` after each arrival |
 
+The station clock's round-5 rules (it runs only in frame, pauses instead of snapping, replays the real figure) and
+the round-5 colour and work checks, each run at 1440x900 against a copy with one rule put back the way it was:
+
+| assertion | mutation | expected | measured |
+|---|---|---|---|
+| playthrough | leaving mid-play snaps to the end (the old rule) | FAIL | all four `done` at p 1 after the flick, each by one frame that ran ahead of its clock (steps of 0.66 to 0.98) |
+| playwalk | the same | FAIL | never stopping, all four `done`, each by one frame that ran ahead of its clock (steps of 0.14 to 0.69) |
+| playreplay | replay resets the clock wherever the visitor is, with no jump back | FAIL | one notch past emergence's hold, 164 of 164 playing frames were not the station in frame as itself |
+| vivid | the old bloom rule (a bloom grows on the way into its station and is whole halfway through the hold) | FAIL | 10.45x the figure's ink at custos s 8.65 (485,376 vivid against 46,448 ink device px); emergence 1.49x |
+| work | every blob drawn at one size | FAIL | 338 to 343 cells for 4 to 7 projects: systems (7) no larger than verify (5) |
+
 Harness defects found by the first runs of these, and fixed: the shot a third of the way in waited for the page to
 settle, which under a clock means the end, so custos read 0px apart; the done time was read by the same loop that
 paused for that shot, so custos read 389ms late; and after the replay click the pointer rested on the button, whose
-hover colour put every replay 140px off.
+hover colour put every replay 140px off. In round 5: the frame poll and the page's own frame run in either order, so an
+advance is out of frame only when two frames in a row were; a replay button under a phone's art band is not on screen,
+so it is hit-tested, not just boxed; and a snap from 0.85 to the end was smaller than any fixed per-frame cap, so the
+check is the clock's own fastest segment over the time since the last frame.
 
 Harness defects found this way and fixed:
 
@@ -246,12 +271,18 @@ Harness defects found this way and fixed:
 - **The colour resolver's own canvas** was recorded as page fills, so `fills` failed whenever `colours` ran first. The resolver's canvas is now ignored.
 - **A cached frame was taken for the page's position.** `phonetext` and `settle` could screenshot or measure wherever the previous check had left the page. They now scroll to the sample. Native labels went unseen until this was fixed.
 - **SVG text was not hidden** in the phone text diff, so SVG text in the art band passed unseen.
+- **A held frame was taken before its station had finished.** `frame_at` settled for at most 2.5s, but a jump into a hold builds the station and runs its clock for up to 3.5s, so at 360×740 emergence's register tape moved between `phonetext`'s three shots and read as 7,171 to 9,355 px of DOM text (on the page before round 5 too). It settles for up to 4s now; 0 px.
 
 ## check-claims.py
 
 `RETIRED` is a list of (pattern, note) pairs, matched case-insensitively
 against every tracked file except check-claims.py itself. Each note says what
-not to state and which source governs instead.
+not to state and which source governs instead. A third element, a tuple of
+globs, scopes a pattern to the files a claim can appear in: the retired KRONOS
+Sharpe and drawdown are matched only in `index.html`, `work/kronos*.html` and
+`README.md`, because freeflow's three passes rightly take 1.05 s. **Falsified**:
+without the scope the freeflow deep dive and its script fail three times; with it,
+"Sharpe 1.05" planted in `work/kronos-deep.html` still fails.
 
 An SVG is read as its text content plus its `aria-label`, `title`, `alt` and link attributes, never its path data:
 resume-page.svg is resume.pdf's glyphs as outlines, and the retired KRONOS Sharpe turns up 44 times in its
@@ -284,6 +315,17 @@ The private patterns were falsified the same way: an internal name planted in RE
 Pattern controls also check what must *not* match: "21.05" and the drawdown figure without a minus.
 
 ## check-panels.py
+
+**The deep dives.** Every `work/*-deep.html` is read as text with the same rules: each `data-src` element in
+`<main>` must hold the figure its line holds, and every prose figure outside navigation and furniture (contents rail,
+kickers, figure numbers, stepper, sources list, case-nav, fact labels) must sit inside a `data-src`, `data-derived`
+(computed in the page from cited inputs) or `data-live` (this visitor's random draw) element. A step's `.sc-keys li`
+carries `data-at` as its tick, so `data-at` is ignored on an element with `data-key`. The deep dives shipped with
+citations that point near a figure rather than at its line, and with uncited cross-references and worked values, so
+this part is a ratchet: `DEEP_KNOWN` holds each page's (not in its line, uncovered) counts, a page over either FAILS,
+a page under is told to lower them, and a deep dive not listed must be clean. Labels a scene draws as it steps are not
+read. **Falsified**: a cited 41 changed to 47 in `work/kronos-deep.html`, the same 41 with its `data-src` removed, and
+an unlisted copy of the freeflow deep dive each fail.
 
 **What it reads.** It reads `index.html` as text:
 
@@ -360,13 +402,22 @@ relative href or src must resolve to a file in the checkout, and every
 og:image under olivesz.github.io/portfolio/) map to files and are never
 fetched, because a new page's canonical 404s until it deploys. Coverage: every
 `work/*.html` is linked from `index.html`, every `work/` link there has a page,
-and `sitemap.xml`'s `work/` entries are exactly the pages. The
+and `sitemap.xml`'s `work/` entries are exactly the pages. Every page carries one link preview: og:title, og:description, og:url equal
+to its canonical, a self-site `.jpg` og:image with alt text, the same image and alt for X,
+and `summary_large_image`; no two pages share a card. **Falsified** on the
+heads before the cards (`og:image:alt`, `twitter:image` missing) and with two
+pages pointed at one card. The
 public-but-unlinked warning reads `index.html` only. **Falsified** on a copy with
 a missing stylesheet, a missing `#id`, a dead canonical and an unlinked,
 unlisted page: each failed, and the copy's missing poster.jpg and
 resume-page.svg failed too.
 
-The case studies' design contract is `contract.py`'s `cases` assertion: errors,
+The deep dives (`work/*-deep.html`) are case studies to every guard here, so
+each must be linked from `index.html` and listed in `sitemap.xml`; each also
+pairs with its case study, which must link it, and must link back. **Falsified**
+with the KRONOS case study's two deep-dive links pointed at itself.
+
+The case studies' and deep dives' design contract is `contract.py`'s `cases` assertion: errors,
 requests off the origin, the two fonts from `work/assets`, tokens, DOM sizes,
 overflow, listeners, link names, targets, the hero's end state and every
 self-check a page exposes. **Falsified** on a copy with the custos-code page's

@@ -7,8 +7,15 @@
 <meta name="description" content="Memory for ChatGPT and Claude. A Chrome extension shows which memories it will add before sending. Memories are stored and searched locally; extraction and compression call Groq.">
 <meta property="og:title" content="inf-mem · Oliver Zhang">
 <meta property="og:description" content="Memory for ChatGPT and Claude. A Chrome extension shows which memories it will add before sending. Memories are stored and searched locally; extraction and compression call Groq.">
-<meta property="og:image" content="https://olivesz.github.io/portfolio/poster.jpg">
 <meta property="og:url" content="https://olivesz.github.io/portfolio/work/inf-mem.html">
+<meta property="og:image" content="https://olivesz.github.io/portfolio/work/og/inf-mem.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="inf-mem: a prompt held on Enter, matched against stored memories at a 0.35 gate, reviewed in a panel and sent to the chat site; after the reply, extraction calls Groq.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://olivesz.github.io/portfolio/work/og/inf-mem.jpg">
+<meta name="twitter:image:alt" content="inf-mem: a prompt held on Enter, matched against stored memories at a 0.35 gate, reviewed in a panel and sent to the chat site; after the reply, extraction calls Groq.">
 <meta name="theme-color" content="#0a0b14">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0b14'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23ff3d81'/%3E%3Crect x='10' y='2' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3Crect x='2' y='10' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3C/svg%3E">
@@ -22,25 +29,26 @@
 <body>
 <a class="skip" href="#main">skip to the story</a>
 <header class="strip">
-  <a class="nm" href="../index.html">Oliver Zhang</a>
+  <a class="nm" href="../index.html" target="_blank" rel="noopener noreferrer">Oliver Zhang</a>
   <span class="here" aria-hidden="true">work · inf-mem</span>
-  <a class="sp" href="../index.html#work"><span class="back" aria-hidden="true">→</span>&nbsp;all the work</a>
-  <a class="to" href="../resume.pdf">résumé pdf</a>
+  <a class="sp" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;all the work</a>
+  <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
 </header>
 
 <main id="main" tabindex="-1">
   <header class="blk head">
-    <p class="kick">tool <span class="sep">·</span> case study</p>
+    <p class="kick">beyond the walk <span class="sep">·</span> case study</p>
     <h1>inf-mem</h1>
     <div class="head-grid">
       <div>
         <p class="lede" data-src="Olivesz/inf-mem@2f86999:README.md#L5-L26">Memory for ChatGPT and Claude. A Chrome extension shows which memories it will add before sending.</p>
         <p class="lede lede-2" data-src="Olivesz/inf-mem@2f86999:README.md#L5">Memories are stored and searched locally; extraction and compression call Groq.</p>
+        <a class="dd-cta" href="inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth"><span><span class="k">the full walkthrough</span><span class="t">How it works, in depth</span><span class="d">the problem, the idea and the build, step by step, in figures you can play and pause</span></span><span class="ar" aria-hidden="true">→</span></a>
       </div>
       <dl class="facts">
         <div><dt>year</dt><dd data-src="public_resume.tex#L88">2025–26</dd></div>
         <div><dt>stack</dt><dd data-src="Olivesz/inf-mem@2f86999:README.md#L52-L73">Python <span class="dot">·</span> FastAPI <span class="dot">·</span> SQLite <span class="dot">·</span> ONNX <span class="dot">·</span> Chrome extension</dd></div>
-        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/inf-mem">github.com/Olivesz/inf-mem</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer">github.com/Olivesz/inf-mem</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
         <div><dt>themes</dt><dd>
           <ul class="chips">
             <li class="chip t-llm">agents &amp; LLMs</li>
@@ -119,60 +127,64 @@
   <section class="blk sec" aria-labelledby="s-src">
     <h2 id="s-src"><span class="n">05</span>sources</h2>
     <div class="body">
+      <details class="srcs-d"><summary>sources · 43 lines pinned to inf-mem@2f86999</summary>
       <ol class="srcs">
-        <li><a href="https://github.com/Olivesz/inf-mem/actions/runs/38284602893">inf-mem · CI run 38284602893</a> 18 passed on Python 3.11 and on 3.12, at 2f86999</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/.github/workflows/ci.yml#L14">inf-mem@2f86999 · .github/workflows/ci.yml#L14</a> Python 3.11 and 3.12</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/.github/workflows/ci.yml#L29-L33">inf-mem@2f86999 · .github/workflows/ci.yml#L29-L33</a> ruff and pytest in CI</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L5">inf-mem@2f86999 · README.md#L5</a> local store and search, Groq extraction and compression, works across ChatGPT and Claude</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L5-L26">inf-mem@2f86999 · README.md#L5-L26</a> the one-line description and the round trip</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L11">inf-mem@2f86999 · README.md#L11</a> the problem</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L22">inf-mem@2f86999 · README.md#L22</a> the review panel, three memories</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L32-L34">inf-mem@2f86999 · README.md#L32-L34</a> popup: live health and memory count</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L52-L73">inf-mem@2f86999 · README.md#L52-L73</a> stack</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L69">inf-mem@2f86999 · README.md#L69</a> 384-dim vectors, BAAI/bge-small-en-v1.5</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L73">inf-mem@2f86999 · README.md#L73</a> fastembed on ONNX Runtime, ~130MB model downloaded once</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L32-L41">inf-mem@2f86999 · backend/extractor.py#L32-L41</a> four memory types, importance 1 to 10</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L151">inf-mem@2f86999 · backend/extractor.py#L151</a> llama-3.1-8b-instant</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L210">inf-mem@2f86999 · backend/extractor.py#L210</a> duplicate gate 0.85</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L210-L216">inf-mem@2f86999 · backend/extractor.py#L210-L216</a> update only if more important or longer</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L62-L81">inf-mem@2f86999 · backend/main.py#L62-L81</a> startup builds the store; a failed load stops the backend</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L84-L89">inf-mem@2f86999 · backend/main.py#L84-L89</a> health endpoint and memory count</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L292-L296">inf-mem@2f86999 · backend/main.py#L292-L296</a> backend on 127.0.0.1, port 7842</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L35">inf-mem@2f86999 · backend/memory_store.py#L35</a> matrix rows follow the ID order</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L46-L51">inf-mem@2f86999 · backend/memory_store.py#L46-L51</a> ~/.inf_mem, memories.db, embeddings.npy, memory_ids.npy</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L56-L60">inf-mem@2f86999 · backend/memory_store.py#L56-L60</a> both files loaded on open, pickle off</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L57">inf-mem@2f86999 · backend/memory_store.py#L57</a> shape N × 384</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L343-L347">inf-mem@2f86999 · backend/memory_store.py#L343-L347</a> the load-time crash</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L349-L350">inf-mem@2f86999 · backend/memory_store.py#L349-L350</a> IDs saved as a plain string array</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L24-L26">inf-mem@2f86999 · backend/retriever.py#L24-L26</a> a small ONNX embedding model, no PyTorch</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L42">inf-mem@2f86999 · backend/retriever.py#L42</a> BAAI/bge-small-en-v1.5</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L73">inf-mem@2f86999 · backend/retriever.py#L73</a> cosine in [-1, 1], typically [0, 1] for these embeddings</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L92-L93">inf-mem@2f86999 · backend/retriever.py#L92-L93</a> top 5, threshold 0.35</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L93">inf-mem@2f86999 · backend/retriever.py#L93</a> threshold 0.35</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L151">inf-mem@2f86999 · backend/retriever.py#L151</a> importance 1 to 10, multiplier 1.1 to 2.0</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L151-L153">inf-mem@2f86999 · backend/retriever.py#L151-L153</a> the score rule</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L14">inf-mem@2f86999 · extension/background.js#L14</a> compression off by default</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L110-L123">inf-mem@2f86999 · extension/background.js#L110-L123</a> extraction posted fire-and-forget</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L94-L105">inf-mem@2f86999 · extension/content/chatgpt.js#L94-L105</a> Enter held, Shift+Enter left alone</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L113-L146">inf-mem@2f86999 · extension/content/chatgpt.js#L113-L146</a> the send button intercepted</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L61-L65">inf-mem@2f86999 · extension/content/shared.js#L61-L65</a> the context block in front of the prompt</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L130-L141">inf-mem@2f86999 · extension/content/shared.js#L130-L141</a> panel buttons; the third only with a compressed prompt</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/manifest.json#L2">inf-mem@2f86999 · extension/manifest.json#L2</a> Manifest V3</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/manifest.json#L11-L15">inf-mem@2f86999 · extension/manifest.json#L11-L15</a> the three chat hosts</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L1-L5">inf-mem@2f86999 · tests/test_backend.py#L1-L5</a> offline suite: LLM faked, embedding patched, tmp store</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L126-L133">inf-mem@2f86999 · tests/test_backend.py#L126-L133</a> the reopen test</li>
-        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L133">inf-mem@2f86999 · tests/test_backend.py#L133</a> (1, 384) after reopening</li>
-        <li><a href="../resume.pdf">résumé pdf</a> years</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/actions/runs/38284602893" target="_blank" rel="noopener noreferrer">inf-mem · CI run 38284602893</a> 18 passed on Python 3.11 and on 3.12, at 2f86999</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/.github/workflows/ci.yml#L14" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · .github/workflows/ci.yml#L14</a> Python 3.11 and 3.12</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/.github/workflows/ci.yml#L29-L33" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · .github/workflows/ci.yml#L29-L33</a> ruff and pytest in CI</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L5" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L5</a> local store and search, Groq extraction and compression, works across ChatGPT and Claude</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L5-L26" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L5-L26</a> the one-line description and the round trip</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L11" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L11</a> the problem</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L22" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L22</a> the review panel, three memories</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L32-L34" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L32-L34</a> popup: live health and memory count</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L52-L73" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L52-L73</a> stack</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L69" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L69</a> 384-dim vectors, BAAI/bge-small-en-v1.5</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L73" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L73</a> fastembed on ONNX Runtime, ~130MB model downloaded once</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L32-L41" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L32-L41</a> four memory types, importance 1 to 10</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L151" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L151</a> llama-3.1-8b-instant</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L210" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L210</a> duplicate gate 0.85</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L210-L216" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L210-L216</a> update only if more important or longer</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L62-L81" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/main.py#L62-L81</a> startup builds the store; a failed load stops the backend</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L84-L89" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/main.py#L84-L89</a> health endpoint and memory count</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L292-L296" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/main.py#L292-L296</a> backend on 127.0.0.1, port 7842</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L35" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L35</a> matrix rows follow the ID order</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L46-L51" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L46-L51</a> ~/.inf_mem, memories.db, embeddings.npy, memory_ids.npy</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L56-L60" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L56-L60</a> both files loaded on open, pickle off</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L57" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L57</a> shape N × 384</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L343-L347" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L343-L347</a> the load-time crash</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L349-L350" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L349-L350</a> IDs saved as a plain string array</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L24-L26" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L24-L26</a> a small ONNX embedding model, no PyTorch</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L42" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L42</a> BAAI/bge-small-en-v1.5</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L73" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L73</a> cosine in [-1, 1], typically [0, 1] for these embeddings</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L92-L93" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L92-L93</a> top 5, threshold 0.35</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L93" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L93</a> threshold 0.35</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L151" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L151</a> importance 1 to 10, multiplier 1.1 to 2.0</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L151-L153" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L151-L153</a> the score rule</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L14" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L14</a> compression off by default</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L110-L123" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L110-L123</a> extraction posted fire-and-forget</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L94-L105" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/chatgpt.js#L94-L105</a> Enter held, Shift+Enter left alone</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L113-L146" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/chatgpt.js#L113-L146</a> the send button intercepted</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L61-L65" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/shared.js#L61-L65</a> the context block in front of the prompt</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L130-L141" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/shared.js#L130-L141</a> panel buttons; the third only with a compressed prompt</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/manifest.json#L2" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/manifest.json#L2</a> Manifest V3</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/manifest.json#L11-L15" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/manifest.json#L11-L15</a> the three chat hosts</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L1-L5" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L1-L5</a> offline suite: LLM faked, embedding patched, tmp store</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L126-L133" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L126-L133</a> the reopen test</li>
+        <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L133" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L133</a> (1, 384) after reopening</li>
+        <li><a href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a> years</li>
       </ol>
+      </details>
     </div>
   </section>
 
+  <div class="blk dd-end"><a class="dd-cta" href="inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth"><span><span class="k">the full walkthrough</span><span class="t">How it works, in depth</span><span class="d">the problem, the idea and the build, step by step, in figures you can play and pause</span></span><span class="ar" aria-hidden="true">→</span></a></div>
+
   <nav class="blk case-nav" aria-label="case studies">
-    <a class="prev" href="imc-prosperity-4.html" rel="prev"><span class="k"><span class="back" aria-hidden="true">→</span> previous</span><span class="t">IMC Prosperity 4</span></a>
-    <a class="all" href="../index.html#work"><span class="k">back to</span><span class="t">all the work</span></a>
-    <a class="next" href="emergence.html" rel="next"><span class="k">next <span aria-hidden="true">→</span></span><span class="t">emergence</span></a>
+    <a class="prev" href="custos-code.html" target="_blank" rel="prev noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> previous</span><span class="t">custos-code</span></a>
+    <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
+    <a class="next" href="emergence.html" target="_blank" rel="next noopener noreferrer"><span class="k">next <span aria-hidden="true">→</span></span><span class="t">emergence</span></a>
   </nav>
-  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio">github.com/Olivesz/portfolio</a>.</p></footer>
+  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
 </main>
 
 <script>

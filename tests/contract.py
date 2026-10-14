@@ -708,7 +708,7 @@ class View:
         if f is not None and (not census or "census" in f) and (not here or self.cur == key):
             return f
         self.scroll_s(s)
-        ms = self.settle(2500)
+        ms = self.settle(4000)          # a station's build and clock take up to 3.5s after a jump: a held frame is one they have finished
         z = self.zone()
         f = self.js(FRAME_JS, {"z0": z[0], "z1": z[1], "census": census, "tok": {k: list(v) for k, v in TOK_RGB.items()},
                                "names": [[k, (c[0] << 16) | (c[1] << 8) | c[2]] for k, c in TOK_RGB.items()]})
@@ -832,39 +832,53 @@ def a_planting(v):
                 f"back at s 0 {c3['ants']} ants, {c3['cells']} cells")
 
 
-# all the work: the known answer is the explore taxonomy (projects.json, taxonomy B) and the binding weighting, restated
-# here so the suite never reads the rule from the page it checks
+# all the work: the known answer is the explore taxonomy (projects.json, taxonomy B, IMC Prosperity dropped by ruling) and
+# the signature rule, restated here so the suite never reads the rule from the page it checks
 WORK_THEMES = ["llm", "verify", "systems", "data", "play"]
-WORK_MEMBERS = {"ai-capabilities": ["llm", "verify", "play"], "carbon-hack": ["systems"], "care": ["play"], "charity-screening": ["llm", "data"], "comic-extractor": ["data"], "comic-reader": ["play"], "custos-code": ["llm", "verify"], "emergence": ["verify", "systems", "play"], "freeflow": ["verify", "systems"], "iaria-green": ["systems", "data"], "ieee-ipccc": ["llm", "systems"], "imc-prosperity-4": ["data"], "inf-mem": ["llm"], "kronos": ["verify", "data"], "matmul": ["systems"], "x86-compiler": ["systems"]}
-WORK_PRIDE = ["custos-code", "kronos", "freeflow", "emergence", "imc-prosperity-4", "inf-mem", "ai-capabilities", "ieee-ipccc"]
+WORK_SHORT = {"llm": "agents & LLMs", "verify": "verification", "systems": "systems", "data": "markets & data", "play": "interactive"}
+WORK_MEMBERS = {"ai-capabilities": ["llm", "verify", "play"], "carbon-hack": ["systems"], "care": ["play"], "charity-screening": ["llm", "data"], "comic-extractor": ["data"], "comic-reader": ["play"], "custos-code": ["llm", "verify"], "emergence": ["verify", "systems", "play"], "freeflow": ["verify", "systems"], "iaria-green": ["systems", "data"], "ieee-ipccc": ["llm", "systems"], "inf-mem": ["llm"], "kronos": ["verify", "data"], "matmul": ["systems"], "x86-compiler": ["systems"]}
+WORK_NAMES = {"ai-capabilities": "ai-capabilities", "carbon-hack": "Carbon Hack", "care": "C.A.R.E.", "charity-screening": "charity screening", "comic-extractor": "comic-extractor", "comic-reader": "comic-reader", "custos-code": "custos-code", "emergence": "emergence", "freeflow": "freeflow", "iaria-green": "IARIA GREEN", "ieee-ipccc": "IEEE IPCCC", "inf-mem": "inf-mem", "kronos": "KRONOS", "matmul": "matrix multiplication", "x86-compiler": "x86-64 compiler"}
+WORK_PRIDE = ["custos-code", "kronos", "freeflow", "emergence", "inf-mem", "ai-capabilities", "ieee-ipccc"]
 WORK_TIER = {p: (1 if i < 4 else 2) for i, p in enumerate(WORK_PRIDE)}          # every other project is tier 3
 WORK_PRIMARY = {"custos-code": "llm", "kronos": "data", "freeflow": "systems", "emergence": "verify"}
-WORK_CAP = 3
+WORK_SIGMAX = 2
 
 
 def work_expected():
-    hi, more = {}, {}
+    """Each theme's signatures, named in its blob: the four chapters in their primary themes, then the tier-2 projects
+    in pride order, each into the member theme with the fewest signatures so far (the earlier theme on a tie); at most
+    two per theme, and no project named twice. The rest of each theme follow in its pane, by tier, then name."""
+    sig = {k: [] for k in WORK_THEMES}
+    for p, k in WORK_PRIMARY.items():
+        sig[k].append(p)
+    for p in WORK_PRIDE[4:]:
+        ks = [k for k in WORK_THEMES if k in WORK_MEMBERS[p] and len(sig[k]) < WORK_SIGMAX]
+        if ks:
+            sig[min(ks, key=lambda k: (len(sig[k]), WORK_THEMES.index(k)))].append(p)
+    rest = {}
     for k in WORK_THEMES:
         mem = [p for p, ks in WORK_MEMBERS.items() if k in ks]
-        top = sorted((p for p in mem if p in WORK_TIER), key=lambda p: (WORK_TIER[p], WORK_PRIMARY.get(p) != k, WORK_PRIDE.index(p)))
-        hi[k] = top[:WORK_CAP]
-        more[k] = sorted(set(mem) - set(hi[k]))
-    return hi, more
+        rest[k] = sorted((p for p in mem if p not in sig[k]), key=lambda p: (WORK_TIER.get(p, 3), WORK_NAMES[p].lower()))
+    return sig, rest
 
 
-WORK_STATE_JS = r"""() => { const w = document.getElementById('work'); if (!w || !w.querySelector('.k-map')) return null;
+WORK_STATE_JS = r"""() => { const w = document.getElementById('work'); if (!w || !w.querySelector('.k-field')) return null;
     const q = s => [...w.querySelectorAll(s)], cur = w.querySelector('.k-pane.cur');
-    return { pane: cur && cur.dataset.pane, nodes: q('.k-node').map(n => n.dataset.p).sort(),
-      lit: q('.k-node.on').map(n => n.dataset.p).sort(), hubs: q('.k-hub.on').map(n => n.dataset.k).sort(),
-      lines: q('.k-svg line.on').map(l => l.dataset.p + '>' + l.dataset.k).sort(),
+    const seen = e => { for (let a = e; a && a !== w; a = a.parentElement) { const c = getComputedStyle(a); if (c.display === 'none' || c.visibility !== 'visible') return false; } return e.getClientRects().length > 0; };
+    const cells = (b, sel) => [...b.querySelectorAll(sel)].reduce((n, p) => n + ((p.getAttribute('d') || '').match(/M/g) || []).length, 0);
+    return { pane: cur && cur.dataset.pane,
+      blobs: q('.k-blob').map(b => ({ k: b.dataset.k, tag: b.tagName, ctl: b.getAttribute('aria-controls'), pressed: b.getAttribute('aria-pressed'),
+        off: b.classList.contains('off'), names: [...b.querySelectorAll('.k-bn')].map(e => e.textContent.trim()),
+        more: (b.querySelector('.k-bm b') || { textContent: '' }).textContent.trim(), cells: cells(b, '.k-bs path'), shown: cells(b, '.k-bs path:not(.k-hid)') })),
       cards: cur ? [...cur.querySelectorAll('.k-hi .k-card')].map(c => c.dataset.p) : [],
-      more: cur ? [...cur.querySelectorAll('.k-more .k-mrow')].map(c => c.dataset.p).sort() : [],
-      moreOpen: cur ? [...cur.querySelectorAll('.k-more')].some(d => d.open) : false,
+      rows: cur ? [...cur.querySelectorAll('.k-rest .k-mrow')].map(c => c.dataset.p) : [],
+      unseen: cur ? [...cur.querySelectorAll('.k-card, .k-mrow')].filter(e => !seen(e)).length : 0,
+      lists: q('[data-pane=rest] li').length, lines: q('svg line').length, chips: q('.k-chip').length, details: q('details').length,
       unsourced: cur ? [...cur.querySelectorAll('.k-ln,.k-why,.k-sk')].filter(e => !e.getAttribute('data-src')).length : 0,
-      pressed: q('.k-chip[aria-pressed=true]').map(c => c.dataset.k || 'all'),
+      msg: seen(w.querySelector('.k-msg')) ? w.querySelector('.k-msg').textContent.trim() : '',
       ask: [...w.querySelectorAll('.k-ask > span')].filter(e => getComputedStyle(e).display !== 'none').map(e => e.textContent).join(' '),
       h: w.getBoundingClientRect().height }; }"""
-# what #work paints in this state: computed colours and text sizes of every element it renders, SVG strokes included
+# what #work paints in this state: computed colours and text sizes of every element it renders, SVG fills included
 WORK_PAINT_JS = r"""() => { const w = document.getElementById('work'), colors = {}, sizes = {};
     const add = (b, k, ex) => { if (!b[k]) b[k] = ex; };
     for (const el of [w, ...w.querySelectorAll('*')]) { if (!el.getClientRects().length || el.tagName === 'SCRIPT') continue;
@@ -884,207 +898,199 @@ WORK_PAINT_JS = r"""() => { const w = document.getElementById('work'), colors = 
     return { colors, sizes, tvars }; }"""
 # every figure the section computes carries data-src="page:work-<what>"; the suite knows each answer from the taxonomy
 WORK_FIGS_JS = r"""() => [...document.querySelectorAll('#work [data-src^="page:work-"]')].map(e => [e.dataset.src.slice(10), e.textContent.trim()])"""
-WORK_GEOM_JS = r"""() => { const w = document.getElementById('work'), m = w.querySelector('.k-map').getBoundingClientRect();
-    const box = e => { const r = e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; };
-    const bs = [...w.querySelectorAll('.k-hub,.k-node')].map(b => ({ id: b.dataset.p || 'hub:' + b.dataset.k, r: box(b) }));
-    const sv = w.querySelector('.k-svg').getBoundingClientRect();
-    const ls = [...w.querySelectorAll('.k-svg line')].map(l => ({ p: l.dataset.p, k: l.dataset.k,
-      a: [sv.left + +l.getAttribute('x1'), sv.top + +l.getAttribute('y1')], b: [sv.left + +l.getAttribute('x2'), sv.top + +l.getAttribute('y2')] }));
-    return { map: [m.left, m.top, m.right, m.bottom], bs, ls }; }"""
 WORK_SMALL_JS = r"""(mn) => [...document.querySelectorAll('#work button, #work a, #work summary')].filter(e => {
     const r = e.getBoundingClientRect(), cs = getComputedStyle(e);
     return r.width > 0 && cs.visibility !== 'hidden' && !e.closest('.sr-only') && (r.height < mn - 0.5 || r.width < mn - 0.5); })
     .map(e => __ct.desc(e) + ' ' + Math.round(e.getBoundingClientRect().width) + 'x' + Math.round(e.getBoundingClientRect().height))"""
+# where things are after a pick: the status line, the picked blob, the first project, and each blob's place
 WORK_FOLD_JS = r"""(k) => { const w = document.getElementById('work'), c = w.querySelector('.k-pane.cur .k-card').getBoundingClientRect(),
-    h = w.querySelector('.k-hub[data-k=' + k + ']').getBoundingClientRect();
-    return { card: c.bottom, ht: h.top, hb: h.bottom, msg: w.querySelector('.k-msg').getBoundingClientRect().top,
-      top: w.querySelector('.k-chips').getBoundingClientRect().top }; }"""
-WORK_DEMO_JS = r"""() => { const s = window.__workDemo.state(), w = document.getElementById('work');
-    return { k: s.shown && s.shown.k, d: s.demoing, done: s.done, p: getComputedStyle(w.querySelector('.k-a3')).display !== 'none',
-      h: Math.round(w.getBoundingClientRect().height), c: Math.round(w.querySelector('.k-chips').getBoundingClientRect().top) }; }"""
+    b = w.querySelector('.k-blob[data-k=' + k + '] .k-bt').getBoundingClientRect(), m = w.querySelector('.k-msg').getBoundingClientRect();
+    return { card: c.bottom, bt: b.top, bb: b.bottom, msg: m.top, msgb: m.bottom,
+      blobs: [...w.querySelectorAll('.k-blob')].map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.left), Math.round(r.top - w.getBoundingClientRect().top)]; }) }; }"""
+# a point of one blob's own cells (never the box corner another blob may cover), and a point of the field on no cell
+WORK_AIM_JS = r"""(k) => { const w = document.getElementById('work'), p = w.querySelector('.k-blob[data-k=' + k + '] .k-bs path:not(.k-hid)');
+    if (!p) return null; const b = w.querySelector('.k-blob[data-k=' + k + '] .k-bt').getBoundingClientRect();
+    const x = b.left + b.width / 2, y = b.bottom + 6; const hit = document.elementFromPoint(x, y);
+    return { x, y, hit: hit && hit.closest('.k-blob') ? hit.closest('.k-blob').dataset.k : null }; }"""
+WORK_GAP_JS = r"""() => { const f = document.querySelector('#work .k-field').getBoundingClientRect();
+    for (let y = f.top + 4; y < f.bottom - 4; y += 6) for (let x = f.left + 4; x < f.right - 4; x += 6) {
+      if (x < 0 || y < 40 || x > innerWidth || y > innerHeight) continue;
+      const e = document.elementFromPoint(x, y); if (e && e.closest('.k-field') && !e.closest('.k-blob')) {
+        // a gap between blobs: inside the boxes of two blobs at once if possible, else any point of the field off every cell
+        const over = [...document.querySelectorAll('#work .k-blob')].filter(b => { const r = b.getBoundingClientRect(); return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom; }).length;
+        if (over >= 1) return { x, y, over }; } }
+    return null; }"""
+WORK_GROW_JS = r"""() => { const s = window.__workGrow ? window.__workGrow.state() : null, w = document.getElementById('work');
+    const cells = sel => [...w.querySelectorAll(sel)].reduce((n, p) => n + ((p.getAttribute('d') || '').match(/M/g) || []).length, 0);
+    return { s, shown: cells('.k-bs path:not(.k-hid)'), all: cells('.k-bs path'), h: Math.round(w.getBoundingClientRect().height),
+      g: [...w.querySelectorAll('.k-blob')].map(b => { const r = b.getBoundingClientRect(); return Math.round(r.left) + ',' + Math.round(r.top - w.getBoundingClientRect().top); }).join(' ') }; }"""
 
 
-def seg_rect(p, q, r):
-    """does the segment p-q pass through the rectangle r (Liang-Barsky)"""
-    (x0, y0), (x1, y1) = p, q
-    t0, t1, dx, dy = 0.0, 1.0, x1 - x0, y1 - y0
-    for pp, qq in ((-dx, x0 - r[0]), (dx, r[2] - x0), (-dy, y0 - r[1]), (dy, r[3] - y0)):
-        if pp == 0:
-            if qq < 0:
-                return False
-        else:
-            t = qq / pp
-            t0, t1 = (max(t0, t), t1) if pp < 0 else (t0, min(t1, t))
-    return t0 < t1
-
-
-def work_pick(v, sel):
-    """a real click, or a tap on a touch view; a control that cannot be hit within 3s is a failed pick"""
+def work_pick(v, k):
+    """a real click, or a tap on a touch view, on the theme blob's own cells; a blob that cannot be hit within 3s is a failed pick"""
+    a = v.js(WORK_AIM_JS, k)
+    if not a or a["hit"] != k:
+        return False
     try:
-        (v.page.tap if v.phone else v.page.click)(sel, timeout=3000)
+        (v.page.touchscreen.tap if v.phone else v.page.mouse.click)(a["x"], a["y"])
     except Exception:
         return False
-    v.page.wait_for_timeout(60)
+    v.page.wait_for_timeout(80)
     return True
 
 
 def work_to(v, sel="#work", dy=0):
     v.js("([s, dy]) => __ct.scrollTo(0, document.querySelector(s).getBoundingClientRect().top + scrollY + dy)", [sel, dy])
-    v.page.wait_for_timeout(120)
+    v.page.wait_for_timeout(150)
 
 
-def work_chips(v):
-    """bring the theme buttons up: the section's top on desktop, the chips just below the strip on a phone"""
-    work_to(v, "#work .k-chips", -56) if v.phone else work_to(v)
+def work_field(v):
+    """bring the field up: the section's top on desktop, the field just below the strip on a phone"""
+    work_to(v, "#work .k-field", -56) if v.phone else work_to(v)
 
 
-def work_demo(v, reduced):
-    """a fresh page (the demo runs once per load): scroll to the map, sample the demo every 100ms for 5.5s"""
+def work_grow(v, reduced):
+    """a fresh page (the blobs grow once per load): before the field is in view, then sampled every 100ms for 2.5s"""
     ctx = v.run.browser.new_context(reduced_motion="reduce" if reduced else "no-preference", **VIEWPORTS[v.name])
     try:
         pg = ctx.new_page()
         pg.goto(v.run.url, wait_until="load")
-        pg.wait_for_timeout(400)
+        pg.wait_for_timeout(500)
+        before = pg.evaluate(WORK_GROW_JS)
         pg.evaluate("document.getElementById('work').scrollIntoView({ block: 'start' })")
-        seq, prompt, geo = [], False, set()
-        for _ in range(55):
-            s = pg.evaluate(WORK_DEMO_JS)
-            if s["d"] and (not seq or seq[-1] != s["k"]):
-                seq.append(s["k"])
-            prompt |= s["p"] and s["d"]
-            geo.add((s["h"], s["c"]))
+        seq = []
+        for _ in range(25):
+            seq.append(pg.evaluate(WORK_GROW_JS))
             pg.wait_for_timeout(100)
-        last = pg.evaluate("window.__workDemo.state()")
-        pg.evaluate("window.scrollTo(0, 0)")
-        pg.wait_for_timeout(300)
-        pg.evaluate("document.getElementById('work').scrollIntoView({ block: 'start' })")
-        pg.wait_for_timeout(1200)
-        again = pg.evaluate("window.__workDemo.state().demoing")
     finally:
         ctx.close()
-    return seq, prompt, geo, last, again
+    return before, seq
 
 
 def a_work(v):
     st = v.js(WORK_STATE_JS)
     if st is None:
-        raise Missing("section#work with its theme map is absent")
+        raise Missing("section#work with its field of theme blobs is absent")
     bad = []
-    hi, more = work_expected()
-    shown = sorted(WORK_TIER)
+    sig, rest = work_expected()
     work_to(v)
-    v.js("() => document.querySelector('#work .k-chip.k-all').click()")
+    v.js("() => { const p = document.querySelector('#work .k-blob[aria-pressed=true]'); if (p) p.click(); }")   # an earlier check may have picked one
+    v.js("async () => { for (let i = 0; i < 40; i++) { const s = window.__workGrow && __workGrow.state(); if (s && s.grown && !s.growing) return; await new Promise(r => setTimeout(r, 100)); } }")
     st = v.js(WORK_STATE_JS)
-    if st["nodes"] != shown:
-        bad.append(f"the map shows {st['nodes']}, not the tier 1-2 projects")
-    if st["pane"] != "rest" or st["pressed"] != ["all"]:
-        bad.append(f"rest is pane {st['pane']}, pressed {st['pressed']}")
+    # the field: five native buttons in order, each naming exactly its signatures and counting the rest
+    if [b["k"] for b in st["blobs"]] != WORK_THEMES or any(b["tag"] != "BUTTON" or b["ctl"] != "k-panel" for b in st["blobs"]):
+        bad.append(f"the field holds {[(b['k'], b['tag'], b['ctl']) for b in st['blobs']]}, not five theme buttons in order")
+    named = []
+    for b in st["blobs"]:
+        k = b["k"]
+        if k not in sig:
+            continue
+        want = [WORK_NAMES[p] for p in sig[k]]
+        if b["names"] != want:
+            bad.append(f"{k}: names {b['names']}, the rule says {want}")
+        if b["more"] != str(len(rest[k])):
+            bad.append(f"{k}: '+{b['more']} more', the taxonomy says {len(rest[k])}")
+        named += b["names"]
+    if len(named) != len(set(named)):
+        bad.append(f"a project is named in two blobs: {sorted(named)}")
+    for p, k in WORK_PRIMARY.items():
+        if WORK_NAMES[p] not in next((b["names"] for b in st["blobs"] if b["k"] == k), []):
+            bad.append(f"{p} is not named in its own theme, {k}")
+    # a blob is as large as its theme: its cell area follows the count to within a fifth
+    cnt = {k: sum(1 for ks in WORK_MEMBERS.values() if k in ks) for k in WORK_THEMES}
+    area = {b["k"]: b["cells"] for b in st["blobs"]}
+    for k in WORK_THEMES:
+        for j in WORK_THEMES:
+            if cnt[k] > cnt[j] and not area.get(k, 0) > area.get(j, 0):
+                bad.append(f"{k} ({cnt[k]} projects) is no larger than {j} ({cnt[j]}): {area.get(k)} vs {area.get(j)} cells")
+    base = min(WORK_THEMES, key=lambda k: cnt[k])
+    for k in WORK_THEMES:
+        r = (area.get(k, 0) / max(1, area.get(base, 0))) / (cnt[k] / cnt[base])
+        if not 0.8 <= r <= 1.25:
+            bad.append(f"{k}: area off its count by {r:.2f}x")
+    # the default view is the field: no list of projects, no line graph, no chip row, nothing behind a closed disclosure
+    if st["pane"] != "rest" or any(b["pressed"] != "false" or b["off"] for b in st["blobs"]):
+        bad.append(f"at rest: pane {st['pane']}, pressed {[b['k'] for b in st['blobs'] if b['pressed'] == 'true']}")
+    if st["lists"] or st["lines"] or st["chips"] or st["details"]:
+        bad.append(f"at rest the section still shows {st['lists']} listed projects, {st['lines']} lines, {st['chips']} chips, {st['details']} disclosures")
     want_ask = "tap a theme" if v.phone else "pick a theme"
     if not st["ask"].startswith(want_ask):
         bad.append(f"the prompt reads {st['ask']!r}")
     if v.name == "desktop" and st["h"] > 844:
         bad.append(f"#work is {st['h']:.0f}px at rest at 1440x900, over 844")
     rest_h = st["h"]
-    multi = sum(1 for ks in WORK_MEMBERS.values() if len(ks) > 1)
-    figs = {"total": len(WORK_MEMBERS), "themes": len(WORK_THEMES), "cap": WORK_CAP,
-            "status": f"{len(WORK_TIER)} of {len(WORK_MEMBERS)} · pick a theme for more"}
+    figs = {"total": len(WORK_MEMBERS), "themes": len(WORK_THEMES)}
     for k in WORK_THEMES:
-        figs[f"theme-{k}"] = sum(1 for ks in WORK_MEMBERS.values() if k in ks)
-        figs[f"more-{k}"] = len(more[k])
+        figs[f"more-{k}"] = len(rest[k])
     words = {"three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8}
     got_figs = v.js(WORK_FIGS_JS)
     for key, txt in got_figs:
         want = figs.get(key)
-        val = txt if key == "status" else (int(txt) if txt.isdigit() else words.get(txt.lower()))
+        val = int(txt) if txt.isdigit() else words.get(txt.lower())
         if want is None or val != want:
             bad.append(f"page:work-{key} reads {txt!r}, the taxonomy says {want!r}")
     if {k for k, _ in got_figs} != set(figs):
         bad.append(f"page:work-* figures missing {sorted(set(figs) - {k for k, _ in got_figs})}")
-    paints = [("all", v.js(WORK_PAINT_JS))]
+    paints = [("rest", v.js(WORK_PAINT_JS))]
     small = set(v.js(WORK_SMALL_JS, 32 if v.phone else 24))
-    # membership: each theme lights exactly its tier 1-2 members, their lines and its own box; highlights follow the
-    # rule, 'more' holds the rest, collapsed; every line is sourced
+    # a pick opens every project in the theme: its signatures as cards, the rest as rows, all shown, all sourced; the
+    # other blobs step down; the status names the theme and its count
+    geo0 = None
     for k in WORK_THEMES:
-        work_chips(v)
-        work_pick(v, f"#work .k-chip[data-k={k}]")
+        work_field(v)
+        if not work_pick(v, k):
+            bad.append(f"{k}: its cells cannot be hit")
+            continue
         s = v.js(WORK_STATE_JS)
-        mem = {p for p, ks in WORK_MEMBERS.items() if k in ks}
-        if s["pane"] != k or s["pressed"] != [k]:
-            bad.append(f"{k}: pane {s['pane']}, pressed {s['pressed']}")
-        if set(s["lit"]) != mem & set(shown) or s["hubs"] != [k]:
-            bad.append(f"{k}: lights {s['lit']}, boxes {s['hubs']}")
-        if set(s["lines"]) != {f"{p}>{k}" for p in mem & set(shown)}:
-            bad.append(f"{k}: lit lines {s['lines']}")
-        if s["cards"] != hi[k]:
-            bad.append(f"{k}: highlights {s['cards']}, the rule says {hi[k]}")
-        if s["more"] != more[k] or s["moreOpen"]:
-            bad.append(f"{k}: 'more' holds {s['more']} (open {s['moreOpen']}), want {more[k]}")
+        if s["pane"] != k or [b["k"] for b in s["blobs"] if b["pressed"] == "true"] != [k] \
+                or [b["k"] for b in s["blobs"] if b["off"]] != [j for j in WORK_THEMES if j != k]:
+            bad.append(f"{k}: pane {s['pane']}, pressed {[b['k'] for b in s['blobs'] if b['pressed'] == 'true']}, off {[b['k'] for b in s['blobs'] if b['off']]}")
+        if s["cards"] != sig[k]:
+            bad.append(f"{k}: cards {s['cards']}, its signatures are {sig[k]}")
+        if s["rows"] != rest[k]:
+            bad.append(f"{k}: rows {s['rows']}, want {rest[k]}")
+        if s["unseen"] or s["details"]:
+            bad.append(f"{k}: {s['unseen']} of its projects not shown, {s['details']} disclosures")
         if s["unsourced"]:
             bad.append(f"{k}: {s['unsourced']} lines without data-src")
-        # fold: the lit box and the first highlight share the screen; on desktop the status line too, and the controls stay put
+        n = sum(1 for ks in WORK_MEMBERS.values() if k in ks)
+        if WORK_SHORT[k] not in s["msg"] or f"{n} of {len(WORK_MEMBERS)}" not in s["msg"]:
+            bad.append(f"{k}: the status reads {s['msg']!r}")
         g = v.js(WORK_FOLD_JS, k)
         top_min = 0 if not v.phone else 40
-        if g["card"] > v.vh or g["hb"] > v.vh or g["ht"] < top_min or (not v.phone and g["msg"] < 0):
-            bad.append(f"{v.vw}x{v.vh} {k}: box {g['ht']:.0f}-{g['hb']:.0f}, first highlight ends {g['card']:.0f}, status at {g['msg']:.0f}")
+        if g["card"] > v.vh or g["msg"] < top_min or (not v.phone and (g["bt"] < 0 or g["bb"] > v.vh)):
+            bad.append(f"{v.vw}x{v.vh} {k}: blob words {g['bt']:.0f}-{g['bb']:.0f}, status at {g['msg']:.0f}, first project ends {g['card']:.0f}")
+        if geo0 is None:
+            geo0 = g["blobs"]
+        elif g["blobs"] != geo0:
+            bad.append(f"picking {k} moves the blobs")
         paints.append((k, v.js(WORK_PAINT_JS)))
         small |= set(v.js(WORK_SMALL_JS, 32 if v.phone else 24))
-    if not v.phone:
-        work_to(v)
-        top0 = v.js(WORK_FOLD_JS, "llm")["top"]
-        for k in WORK_THEMES:
-            work_pick(v, f"#work .k-chip[data-k={k}]")
-            if abs(v.js(WORK_FOLD_JS, k)["top"] - top0) > 0.5:
-                bad.append(f"picking {k} moves the controls")
-    work_chips(v)
-    work_pick(v, "#work .k-chip.k-all")
-    work_chips(v)
-    work_pick(v, "#work .k-chip[data-k=play]")
-    work_chips(v)
-    work_pick(v, "#work .k-chip[data-k=play]")
+    # the picked blob again returns to the field at rest; a tag in a card picks its theme; a click off every cell picks nothing
+    work_field(v)
+    work_pick(v, "llm")
+    work_field(v)
+    work_pick(v, "play")
+    work_field(v)
+    work_pick(v, "play")
     if v.js(WORK_STATE_JS)["pane"] != "rest":
-        bad.append("pressing the picked theme again does not reset")
-    # each project lights exactly its themes (tap on touch views: a node, a box and a chip all pick)
-    for p in shown:
-        work_to(v, "#work .k-map", -60)
-        work_pick(v, f"#work .k-node[data-p={p}]")
-        s = v.js(WORK_STATE_JS)
-        if s["pane"] != f"p:{p}" or s["hubs"] != sorted(WORK_MEMBERS[p]) or s["lit"] != [p]:
-            bad.append(f"{p}: pane {s['pane']}, boxes {s['hubs']}")
-    paints.append(("p:emergence", None))
-    work_to(v, "#work .k-map", -60)
-    work_pick(v, "#work .k-node[data-p=emergence]")
-    paints[-1] = ("p:emergence", v.js(WORK_PAINT_JS))
-    small |= set(v.js(WORK_SMALL_JS, 32 if v.phone else 24))
-    work_to(v, "#work .k-map", -60)
-    work_pick(v, "#work .k-hub[data-k=data]")
-    if v.js(WORK_STATE_JS)["pane"] != "data":
-        bad.append("a pick on the markets box does not pick it")
-    work_chips(v)
-    work_pick(v, "#work .k-chip.k-all")
-    st = v.js(WORK_STATE_JS)
-    if st["pane"] != "rest":
-        bad.append("'all' does not return to the overview")
+        bad.append("pressing the picked theme again does not return to the field at rest")
+    work_field(v)
+    work_pick(v, "data")
+    tag = v.js("() => { const t = document.querySelector('#work .k-pane.cur .k-tag'); if (!t) return null; t.click(); return t.dataset.k; }")
+    if not tag or v.js(WORK_STATE_JS)["pane"] != tag:
+        bad.append(f"the 'also in' tag ({tag}) does not pick its theme")
+    work_field(v)
+    gap = v.js(WORK_GAP_JS)
+    before = v.js(WORK_STATE_JS)["pane"]
+    if gap:
+        (v.page.touchscreen.tap if v.phone else v.page.mouse.click)(gap["x"], gap["y"])
+        v.page.wait_for_timeout(80)
+        if v.js(WORK_STATE_JS)["pane"] != before:
+            bad.append(f"a click at {gap['x']:.0f},{gap['y']:.0f}, between the blobs, picked {v.js(WORK_STATE_JS)['pane']}")
+    else:
+        bad.append("no point of the field lies off every blob's cells")
     bad += [f"target {x} under {32 if v.phone else 24}px" for x in sorted(small)[:3]]
-    # lines: no line passes under a box it does not own, and no two boxes touch
-    G = v.js(WORK_GEOM_JS)
-    m = G["map"]
-    for i, b in enumerate(G["bs"]):
-        r = b["r"]
-        if r[0] < m[0] - 0.5 or r[2] > m[2] + 0.5 or r[1] < m[1] - 0.5 or r[3] > m[3] + 0.5:
-            bad.append(f"{b['id']} leaves the map")
-        for c in G["bs"][i + 1:]:
-            s2 = c["r"]
-            if not (r[2] + 4 <= s2[0] or s2[2] + 4 <= r[0] or r[3] + 4 <= s2[1] or s2[3] + 4 <= r[1]):
-                bad.append(f"{b['id']} touches {c['id']}")
-    for ln in G["ls"]:
-        for b in G["bs"]:
-            if b["id"] not in (ln["p"], "hub:" + ln["k"]):
-                r = b["r"]
-                if seg_rect(ln["a"], ln["b"], (r[0] - 2, r[1] - 2, r[2] + 2, r[3] + 2)):
-                    bad.append(f"line {ln['p']}>{ln['k']} runs under {b['id']}")
-    want_lines = sum(1 for p in shown for _ in WORK_MEMBERS[p])
-    if len(G["ls"]) != want_lines:
-        bad.append(f"{len(G['ls'])} lines on the map, the taxonomy has {want_lines}")
     # colours and sizes in every state: tokens only (the vivid set included), no alpha, shadow, image or opacity;
     # the --t-* theme names live on #work, never on :root
     cols, sizes = {}, {}
@@ -1100,18 +1106,18 @@ def a_work(v):
         if c.startswith(("shadow:", "image:", "opacity:")):
             bad.append(f"{c[:40]} ({cols[c]})")
             continue
-        k = classify(res.get(c), TOK_RGB)
-        if k != "transparent" and (k is None or k == "unparsed" or k.endswith("@alpha") or k in TRAIL_FAMILY):
+        kk = classify(res.get(c), TOK_RGB)
+        if kk != "transparent" and (kk is None or kk == "unparsed" or kk.endswith("@alpha") or kk in TRAIL_FAMILY):
             bad.append(f"colour {c} ({cols[c]})")
     bad += [f"size {z} ({sizes[z]})" for z in sorted(sizes, key=lambda z: float(z[:-2]))
             if round(float(z[:-2])) not in DOM_SIZES or abs(float(z[:-2]) - round(float(z[:-2]))) > 0.01]
     extra = ""
     if not v.phone:
-        # keyboard: Tab from 'all' reaches the first theme; Enter and Space pick; Tab reaches a project, Enter picks it
-        v.js("() => document.querySelector('#work .k-chip.k-all').focus()")
+        # keyboard: the blobs are in the tab order, in order; Enter and Space pick
+        v.js("() => { const w = document.getElementById('work'), p = w.querySelector('.k-blob[aria-pressed=true]'); if (p) p.click(); w.focus(); }")
         v.page.keyboard.press("Tab")
-        if v.js("() => document.activeElement.dataset.k || ''") != "llm":
-            bad.append("Tab from 'all' does not land on the first theme")
+        if v.js("() => document.activeElement.classList.contains('k-blob') ? document.activeElement.dataset.k : ''") != "llm":
+            bad.append("Tab into the section does not land on the first theme")
         v.page.keyboard.press("Enter")
         v.page.wait_for_timeout(60)
         if v.js(WORK_STATE_JS)["pane"] != "llm":
@@ -1121,38 +1127,28 @@ def a_work(v):
         v.page.wait_for_timeout(60)
         if v.js(WORK_STATE_JS)["pane"] != "verify":
             bad.append("Space does not pick the focused theme")
-        for _ in range(12):
-            v.page.keyboard.press("Tab")
-            if v.js("() => document.activeElement.classList.contains('k-node')"):
-                break
-        else:
-            bad.append("Tab never reaches a project on the map")
-        v.page.keyboard.press("Enter")
-        v.page.wait_for_timeout(60)
-        if not (v.js(WORK_STATE_JS)["pane"] or "").startswith("p:"):
-            bad.append("Enter on a project does not pick it")
-        v.js("() => { document.activeElement && document.activeElement.blur(); document.querySelector('#work .k-chip.k-all').click(); }")
-    if v.name == "desktop":
-        # the arrival demo: each theme once, in order, under its own prompt; rests on all; once; nothing moves; never under reduced motion
-        seq, prompt, geo, last, again = work_demo(v, False)
-        if seq != WORK_THEMES:
-            bad.append(f"the demo showed {seq}, not each theme once in order")
-        if not prompt:
-            bad.append("the prompt never read 'preview: each theme in turn' during the demo")
-        if last["shown"] is not None or last["demoing"] or not last["done"] or again:
-            bad.append(f"the demo does not rest on all, or ran twice: {last}, again {again}")
-        if len(geo) > 1:
-            bad.append(f"the section moved during the demo: {sorted(geo)[:3]}")
-        rseq, _, _, rlast, _ = work_demo(v, True)
-        if rseq or rlast["done"]:
-            bad.append(f"the demo ran under reduced motion: {rseq}")
-        extra = f"; demo previewed {len(seq)} themes in order, held still, rested on all, none under reduced motion"
+        v.js("() => { document.activeElement && document.activeElement.blur(); const p = document.querySelector('#work .k-blob[aria-pressed=true]'); if (p) p.click(); }")
+    if v.name in ("desktop", "phone"):
+        # on arrival the blobs grow once, centre out, without moving anything; reduced motion shows them whole
+        b0, seq = work_grow(v, False)
+        shown = [x["shown"] for x in seq]
+        full = seq[-1]["all"]
+        if b0["shown"] != 0:
+            bad.append(f"{b0['shown']} blob cells shown before the field was in view")
+        if any(b < a for a, b in zip(shown, shown[1:])) or shown[-1] != full or len({x for x in shown if 0 < x < full}) < 3:
+            bad.append(f"the blobs did not grow in steps to whole: {shown[:12]}")
+        if len({(x["h"], x["g"]) for x in seq}) > 1:
+            bad.append("the section moved while the blobs grew")
+        r0, rseq = work_grow(v, True)
+        if r0["shown"] != r0["all"] or any(x["shown"] != x["all"] for x in rseq):
+            bad.append("under reduced motion the blobs are not whole from the start")
+        extra = f"; grew in {len({x for x in shown if 0 < x < full})} steps to {full} cells without moving, whole at once under reduced motion"
     v.cur = None
-    return not bad, (f"{len(shown)} projects on the map, {len(G['ls'])} lines, none under a box it does not own; 5 themes light exactly "
-                     f"their members, highlights {[len(hi[k]) for k in WORK_THEMES]} by the rule, the rest behind a closed 'more'; "
+    return not bad, (f"5 theme blobs naming {len(named)} signatures, areas {[area.get(k) for k in WORK_THEMES]} cells for {[cnt[k] for k in WORK_THEMES]} projects; "
+                     f"at rest no list, line or chip; each pick opens its signatures and all {sum(len(r) for r in rest.values())} other rows, shown and sourced; "
                      f"{len(paints)} states: {len(cols)} colours, sizes {sorted(sizes, key=lambda z: float(z[:-2]))}; "
-                     f"{len(got_figs)} page:work-* figures equal the taxonomy; rest height {rest_h:.0f}px; targets >= {32 if v.phone else 24}px"
-                     + ("; keyboard picks" if not v.phone else "; taps pick a chip, a box and a project") + extra
+                     f"{len(got_figs)} page:work-* figures equal the taxonomy; rest height {rest_h:.0f}px"
+                     + ("; keyboard picks" if not v.phone else "; taps pick") + extra
                      + ("; " + "; ".join(bad[:4]) if bad else ""))
 
 
@@ -1261,20 +1257,15 @@ def a_tabreach(v):
 JUMPS_JS = """() => [...document.querySelectorAll('#strip [data-go], #places .place, #work a[data-walk]')].map((e, i) => {
   e.setAttribute('data-jf', i);
   const pn = e.matches('a[data-walk]') && e.closest('.k-pane');
-  const pk = pn ? pn.getAttribute('data-pane') : null;
-  return { i, walk: e.matches('a[data-walk]'), pane: pk,
-           shut: !!pk && pk.startsWith('p:') && !document.querySelector(`#work .k-node[data-p='${pk.slice(2)}']`),
+  return { i, walk: e.matches('a[data-walk]'), pane: pn ? pn.getAttribute('data-pane') : null,
            name: (e.getAttribute('aria-label') || e.textContent).trim().slice(0, 40) }; })"""
-# a walk link shows once its project is picked; the strip's name once the hero has left: start each jump from where a reader meets it
+# a walk link shows once its theme is picked; the strip's name once the hero has left: start each jump from where a reader meets it
 JUMP_PREP = """j => { const a = document.activeElement; if (a && a.blur) a.blur();
   const w = document.querySelector('#work');
   if (j.walk || j.name === 'Oliver Zhang') __ct.scrollTo(0, Math.round(w.getBoundingClientRect().top + scrollY - 80));
-  if (j.walk && j.pane) {   // open the link's own pane: its theme's chip, or the project's box on the map
-    const b = j.pane.startsWith('p:') ? document.querySelector(`#work .k-node[data-p='${j.pane.slice(2)}']`)
-                                      : document.querySelector(`#work .k-chip[data-k='${j.pane}']`);
-    const all = document.querySelector('#work .k-chip.k-all'); if (all) all.click();
-    if (b) b.click();
-    const L = document.querySelector(`[data-jf='${j.i}']`), d = L && L.closest('details'); if (d) d.open = true; } }"""
+  if (j.walk && j.pane) {   // open the link's own pane with its theme's blob
+    const b = document.querySelector(`#work .k-blob[data-k='${j.pane}']`);
+    if (b && b.getAttribute('aria-pressed') !== 'true') b.click(); } }"""
 
 
 READABLE_JS = """() => { const W = __walk, S = W.S(), vh = innerHeight;
@@ -1303,8 +1294,7 @@ def a_jumpfocus(v):
         ok = v.js("i => { const e = document.querySelector(`[data-jf='${i}']`); e.focus(); return document.activeElement === e; }", j["i"])
         if not ok:
             # a walk link is display:none on a phone (its row's actions are not shown there); anything else must take focus
-            # ... or sits in a project pane that no control on the page opens (a project not on the map)
-            (skip if j["walk"] and (v.phone or j.get("shut")) else bad).append(f"{j['name']!r} cannot take focus")
+            (skip if j["walk"] and v.phone else bad).append(f"{j['name']!r} cannot take focus")
             continue
         v.settle(300)
         v.page.keyboard.press("Enter")
@@ -1316,7 +1306,7 @@ def a_jumpfocus(v):
         n += 1
         if abs(r["y"] - y1) >= r["h"]:
             bad.append(f"{j['name']!r} landed {y1}, Tab to {r['a']!r} moved to {r['y']}")
-    m = f"{n} of {len(jumps)} jumps" + (f" ({len(skip)} walk links not shown here or in a pane no control opens)" if skip else "") + "; "
+    m = f"{n} of {len(jumps)} jumps" + (f" ({len(skip)} walk links not shown here)" if skip else "") + "; "
     return not bad and n > 0, m + (f"{len(bad)} bad: " + "; ".join(bad[:8]) if bad else "each next Tab stays within one screen")
 
 
@@ -1337,6 +1327,45 @@ def a_linknames(v):
     r = v.js(LINKNAMES_JS)
     return not r["dup"] and not r["arrows"] and r["names"] > 0, \
         f"{r['names']} link names; shared by different hrefs: {', '.join(r['dup'][:6]) or 'none'}; arrows read aloud: {r['arrows']}"
+
+
+# Every link that leaves the page opens a new tab and hands it no opener and no referrer; a same-page anchor
+# (a hash on this document) stays in this tab. Read from the rendered DOM, so links the page builds count too.
+NEWTAB_JS = r"""() => {
+  const here = location.href.split('#')[0], bad = [], stay = []; let off = 0, inpage = 0;
+  for (const a of document.querySelectorAll('a[href]')) {
+    const raw = a.getAttribute('href'), u = new URL(raw, document.baseURI), rel = (a.getAttribute('rel') || '').toLowerCase().split(/\s+/);
+    const id = raw.slice(0, 48) + (typeof a.className === 'string' && a.className ? ' .' + a.className.split(' ')[0] : '');
+    if (u.hash && u.href.split('#')[0] === here) { inpage++; if (a.hasAttribute('target')) stay.push(id + ' target=' + a.getAttribute('target')); continue; }
+    off++;
+    if (a.getAttribute('target') !== '_blank' || !rel.includes('noopener') || !rel.includes('noreferrer'))
+      bad.push(id + ' target=' + a.getAttribute('target') + ' rel=' + a.getAttribute('rel'));
+  }
+  return { off, inpage, bad, stay, hot: document.querySelectorAll('a.rv-hot').length, rows: document.querySelectorAll('.k-rest a').length };
+}"""
+
+
+def a_newtab(v):
+    """index.html (as built, the résumé hotspots and the work list's rows included) and every work/*.html."""
+    r = v.js(NEWTAB_JS)
+    bad = [f"index {x}" for x in r["bad"] + r["stay"]]
+    if not r["hot"] or not r["rows"]:
+        bad.append(f"index built {r['hot']} résumé hotspots and {r['rows']} work rows, so the built links went unchecked")
+    off, inpage = r["off"], r["inpage"]
+    base = v.run.url.rsplit("/", 1)[0]
+    pages = sorted((v.run.root / "work").glob("*.html"))
+    for page in pages:
+        ctx = v.run.browser.new_context(**VIEWPORTS[v.name])
+        try:
+            pg = ctx.new_page()
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            w = pg.evaluate(NEWTAB_JS)
+        finally:
+            ctx.close()
+        bad += [f"{page.name} {x}" for x in w["bad"] + w["stay"]] + ([f"{page.name} has no off-page link"] if not w["off"] else [])
+        off, inpage = off + w["off"], inpage + w["inpage"]
+    return not bad and off > 0, (f"{off} off-page links over index + {len(pages)} case studies, {inpage} same-page anchors; "
+                                 + (f"{len(bad)} bad: " + "; ".join(bad[:5]) if bad else "every one opens a new tab with noopener noreferrer, every anchor stays"))
 
 
 SWAP_READ = """() => { const L = document.querySelector('[data-native=kronos]'); if (!L || L.style.display === 'none') return null;
@@ -1842,6 +1871,84 @@ def a_custos(v):
     return not bad and not early_pink, m
 
 
+TR_NAMES = ("IEEE", "Azure", "Carbon Hack")    # a word every layout's label for each chapter-I trail carries
+
+
+def a_trlabels(v):
+    """Chapter I's three dated trails are each labelled while the chaos runs: once the last trail is whole and until the
+    lock, every frame's drawn() text names all three, the honour included. A label that finds no slot is skipped without
+    an error, so only its absence shows it (the Carbon Hack award once vanished on phones this way)."""
+    last = 4900                                   # the step the last trail (2024) is whole: TR's b in the page
+    rows, bad, s = 0, [], 0.04
+    while s < 3.0:
+        v.scroll_s(s)
+        v.settle(1500)
+        q = v.js("""(s) => ({ sc: __walk.sceneId(s), st: __walk.stepAt(s), t: (__walk.drawn() || []).map(d => d[0]) })""", s)
+        if q["sc"] != "chaos" and rows:
+            break
+        if q["sc"] == "chaos" and q["st"] >= last:
+            rows += 1
+            miss = [n for n in TR_NAMES if not any(str(t).startswith(n) or n in str(t) for t in q["t"])]
+            if miss:
+                bad.append(f"s {s:.2f}: no label for {', '.join(miss)}")
+        s += 0.05
+    v.cur = None
+    if not rows:
+        raise Missing("no chaos frame with every trail whole")
+    return not bad, f"{rows} chaos frames with all three trails whole, each label drawn" + ("; " + "; ".join(bad[:3]) if bad else "")
+
+ZOOM_RING = 48        # CSS px around a native layer still on screen in which no vivid pixel may sit during the pull-back
+
+
+def a_zoomrest(v):
+    """The pull-back never leaves the last station between its two forms. custos plays first, then the visitor rests at
+    points from ZOOM toward the map: two screenshots 1s apart (the first 600ms after settling, past the 300ms dissolve)
+    are identical, so nothing is frozen mid-dissolve by the scroll position; and while custos's native layer is still on
+    screen, no --v-* pixel lies within ZOOM_RING px around it (no bloom rings a figure that is still being read)."""
+    import base64
+    w = pb_view(v, "zoomrest")
+    g = w.geometry()
+    st = [x for x in g["stations"] if x[0] == "custos"]
+    if not st:
+        raise Missing("no custos station")
+    play = w.js("() => __walk.play()")
+    pb_go(w, pb_s(st[0]), "custos", "done", play["custos"]["lead"] + play["custos"]["ms"] + 2500)
+    Z, M = w.js("() => [__walk.ZOOM, __walk.MAPS]")
+    if not Z or not M:
+        raise Missing("__walk.ZOOM / MAPS")
+    cols, ground = [list(TOK_RGB[k]) for k in VIVID], list(TOK_RGB["void"])
+    bad, n, native, d = [], 0, 0, 0.004
+    while Z + d < M - 0.05 and d <= 0.2:
+        w.scroll_s(Z + d)
+        w.settle(2500)
+        w.page.wait_for_timeout(600)
+        a = w.page.screenshot()
+        w.page.wait_for_timeout(1000)
+        b = w.page.screenshot()
+        n += 1
+        if a != b:
+            bad.append(f"ZOOM+{d:.3f}: two frames 1s apart differ")
+        r = w.js("() => __walk.resolveLevel ? __walk.resolveLevel('custos') : undefined")
+        if r is None or r == "undefined":
+            raise Missing("__walk.resolveLevel() is absent")
+        if 0 < r < 1:
+            bad.append(f"ZOOM+{d:.3f}: custos rests at resolve level {r} (between its layer and its cells)")
+        lay = w.js("""() => { const L = document.querySelector('[data-native="custos"]'); if (!L || !L.checkVisibility()) return null;
+            const r = L.getBoundingClientRect(); return r.width && r.bottom > 0 && r.top < innerHeight ? [r.left, r.top, r.right, r.bottom] : null; }""")
+        if lay:
+            native += 1
+            box = [round(q * w.dpr) for q in lay]
+            k = round(ZOOM_RING * w.dpr)
+            ex = [box[0] - k, box[1] - k, box[2] + k, box[3] + k]
+            png = base64.b64encode(b).decode()
+            ring = w.js(VIVID_SHARE_JS, [png, cols, ground, 16, ex, box])["v"] - w.js(VIVID_SHARE_JS, [png, cols, ground, 16, box, box])["v"]
+            if ring > 0:
+                bad.append(f"ZOOM+{d:.3f}: {ring} vivid device px within {ZOOM_RING}px of the native layer")
+        d += 0.016
+    w.cur = None
+    return not bad, (f"{n} rests from ZOOM+0.004 toward the map: still 1s later, whole as layer or cells, and no vivid pixel within "
+                     f"{ZOOM_RING}px of custos's native layer (on screen at {native})" + ("; " + "; ".join(bad[:3]) if bad else ""))
+
 def a_places(v):
     """Through the pull-back and the map, no shown place row's text crosses a card's text (rects of text, not boxes)."""
     g = v.geometry()
@@ -2084,9 +2191,136 @@ def a_playreverse(v):
     return not bad, "wheeling back up: " + "; ".join(rows) + (" | " + "; ".join(bad) if bad else "")
 
 
+PB_VIS_OFF = 0.2      # the share of a figure's box in the art region below which its clock may not advance (the page pauses it)
+PB_JUMP = 0.25        # the most p may advance in one frame on a visit back, where the page's frames are regular
+PB_TELEPORT = 320     # ms a replay clicked away from the station waits for the jump back to land, before its 200ms reset
+
+# every frame: scrollY in screens, then per station [state, p, the figure's in-frame share, its own layer on screen]
+PB_WALK_POLL = r"""() => { const W = __walk, ids = W.stations.map(s => s[0]);
+  const root = id => document.querySelector('[data-native="' + id + '"]') || document.querySelector({ freeflow: '.ff', kronos: '.fk', custos: '.cx-fig' }[id]);
+  const on = id => { if (id === 'emergence') return 1; const e = root(id); if (!e) return 0;
+    const r = e.getBoundingClientRect(), c = getComputedStyle(e); return r.width > 0 && c.visibility === 'visible' && c.display !== 'none' && +c.opacity > 0 ? 1 : 0; };
+  __ct.pbLog = []; __ct.pbOn = true;
+  const f = () => { if (!__ct.pbOn) return; const row = [Math.round(performance.now()), +(scrollY / W.S()).toFixed(4)];
+    for (const id of ids) { const p = W.playback(id); row.push([p.state, p.p, p.vis, on(id)]); }
+    __ct.pbLog.push(row); __ct.orig.raf.call(window, f); };
+  __ct.orig.raf.call(window, f); return ids; }"""
+
+
+def pb_slope(keys):
+    """the fastest p per ms of a clock's keys"""
+    return max((b[1] - a[1]) / max(1, b[0] - a[0]) for a, b in zip(keys, keys[1:]))
+
+
+def pb_audit(ids, log, play):
+    """Per station, over a logged walk: frames on which p advanced while the figure was out of frame or its own layer was
+    not on screen, and frames on which p ran ahead of its own clock (more than its fastest key segment allows in the time
+    since the frame before, + 50ms and 0.005: a snap to the end), the p at which it first played, and how it ended. The
+    poll and the page's own frame may run in either order within a frame, so an advance counts as out of frame only when
+    this frame and the one before it were both out."""
+    out = {}
+    for i, sid in enumerate(ids):
+        k = pb_slope(play[sid]["keys"])
+        off, ahead, jump, prev, first, was_out, t0 = 0, 0, 0.0, None, None, False, None
+        for r in log:
+            state, p, vis, on = r[2 + i]
+            out_now = vis < PB_VIS_OFF or not on
+            if prev is not None and p > prev + 1e-9:
+                if out_now and was_out:
+                    off += 1
+                if p - prev > k * (r[0] - t0 + 50) + 0.005:
+                    ahead += 1
+                jump = max(jump, p - prev)
+            if first is None and state == "playing":
+                first = p
+            prev, was_out, t0 = p, out_now, r[0]
+        out[sid] = {"off": off, "ahead": ahead, "jump": jump, "first": first, "end": log[-1][2 + i][0], "p": log[-1][2 + i][1]}
+    return out
+
+
+def pb_mouse(w):
+    if w.phone:
+        w.page.mouse.move(w.vw / 2, (40 + w.band) / 2)
+    else:
+        w.page.mouse.move((576 + w.vw) / 2, w.vh / 2)
+
+
+def pb_walk(w, pause_ms, stop_s):
+    """The lens's visitor: 110px wheel notches every 120ms from the top to stop_s, never back; with pause_ms, a stop of
+    that long the first time the scroll reaches each hold's start. Returns the stations and the per-frame log."""
+    g = w.geometry()
+    w.js("() => __ct.scrollTo(0, 0)")
+    w.settle(1500)
+    pb_mouse(w)
+    ids = w.js(PB_WALK_POLL)
+    stopped = set()
+    for _ in range(800):
+        y = w.js("scrollY") / w.S
+        if y >= stop_s:
+            break
+        if pause_ms:
+            for st in g["stations"]:
+                if y >= st[1] and st[0] not in stopped:
+                    stopped.add(st[0])
+                    w.page.wait_for_timeout(pause_ms)
+        w.page.mouse.wheel(0, 110)
+        w.page.wait_for_timeout(120)
+    w.page.wait_for_timeout(300)
+    log = w.js("() => { __ct.pbOn = false; return __ct.pbLog; }")
+    w.cur = None
+    return ids, log
+
+
+def a_playwalk(v):
+    """The visitor of the lens: 110px notches every 120ms, top to the map, never back. Pausing 1.5s at each hold's start,
+    every station plays from p 0 to done at p 1, and its clock advances only while its figure is in frame (at least
+    PB_VIS_OFF of its box in the art region) with its own layer on screen. Never pausing, no clock advances out of frame
+    and none runs ahead of itself: a station passed before it finished is paused (or idle), never shown finished unwatched."""
+    rows, bad = [], []
+    for key, pause in (("pbW", 1500), ("pbC", 0)):
+        w = pb_view(v, key)
+        g = w.geometry()
+        ids, log = pb_walk(w, pause, g["MAPS"] + 0.2)
+        aud = pb_audit(ids, log, w.js("() => __walk.play()"))
+        mode = "stopping 1.5s" if pause else "never stopping"
+        parts = []
+        for sid in ids:
+            a = aud[sid]
+            why = []
+            if a["off"]:
+                why.append(f"p advanced on {a['off']} frames out of frame")
+            if a["ahead"]:
+                why.append(f"p ran ahead of its clock on {a['ahead']} frames (largest step {a['jump']:.2f})")
+            if pause:
+                if a["first"] is None or a["first"] > 0.02:
+                    why.append(f"first played at p {a['first']}")
+                if a["end"] != "done" or a["p"] != 1:
+                    why.append(f"ended {a['end']} at p {a['p']:.3f}")
+            elif a["end"] not in ("done", "paused", "idle"):
+                why.append(f"ended {a['end']}")
+            parts.append(f"{sid} {a['end']} {a['p']:.2f}")
+            if why:
+                bad.append(f"{mode}, {sid}: " + ", ".join(why))
+        rows.append(f"{mode}: " + ", ".join(parts))
+        w.cur = None
+    return not bad, "; ".join(rows) + (" | " + "; ".join(bad[:4]) if bad else "")
+
+
+PB_REPLAY_POLL = r"""async ({ id, max }) => { const W = __walk, out = [], t0 = __ct.pbT0;
+  for (;;) { await __ct.raf(); const p = W.playback(id), f = W.figure(), s = scrollY / W.S();
+    const nat = __ct.natives().filter(n => n.id === id)[0];
+    let inside = null;
+    if (f && f.art) { const a = f.art, e = nat ? nat.ext : f.cells; if (e) inside = e[0] >= a[0] - 1 && e[1] >= a[1] - 1 && e[2] <= a[2] + 1 && e[3] <= a[3] + 1; }
+    out.push([Math.round(performance.now() - t0), p.state, +p.p.toFixed(4), W.sceneId(s), f && f.id, nat ? 1 : 0, inside, p.vis]);
+    if (p.state === 'done' || performance.now() - t0 > max) return out; } }"""
+
+
 def a_playreplay(v):
-    """Each card's replay button, clicked at its hold, plays the station again from p 0 to done within 200 + ms
-    (+ PLAY_TOL) of the click, and ends on the same end state as the first arrival."""
+    """Each card's replay button plays its station again from p 0 to done within 200 + ms (+ PLAY_TOL) of the click, and
+    ends on the same end state as the first arrival. Clicked away from the station too (1, 3, 6 and 10 notches past its
+    hold, wherever the card and its button are still on screen and not under the strip or a phone's art band): the page first brings the station back, and in every
+    frame the clock advances the station is the scene, its figure is the current one, in frame, and in its own medium
+    (a native layer on screen inside the art region), never cells or off frame."""
     nat = pb_natural(v)
     w = v.cache["pbN"]
     g = w.geometry()
@@ -2119,7 +2353,40 @@ def a_playreplay(v):
         n, area = pb_diff(v, nat[sid]["end"], pb_shot(w))
         if n > PLAY_SAME * area:
             why.append(f"end state {n}px off the first arrival's")
-        rows.append(f"{sid} done {r['at']}ms, {n}px off")
+        away = []
+        for notches in (1, 3, 6, 10):
+            w.scroll_s(st[2])
+            w.settle(2500)
+            pb_mouse(w)
+            for _ in range(notches):
+                w.page.mouse.wheel(0, 100)
+                w.page.wait_for_timeout(60)
+            w.settle(2500)
+            w.page.wait_for_timeout(300)
+            box = w.js("""id => { const b = document.querySelector('#b-' + id + ' .rp'); if (!b || !__walk.playback(id).replay) return null;
+                const r = b.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+                const hit = y > 0 && y < innerHeight ? document.elementFromPoint(x, y) : null;   // on screen and not under the strip or a phone's art band
+                return hit && b.contains(hit) ? [x, y] : null; }""", sid)
+            if box is None:
+                away.append(f"+{notches} off screen")
+                continue
+            here = w.js("() => __walk.sceneId(scrollY / __walk.S())")
+            w.js("() => { __ct.pbT0 = performance.now(); }")
+            (w.page.touchscreen.tap if w.phone else w.page.mouse.click)(box[0], box[1])
+            pb_mouse(w)
+            fr = w.js(PB_REPLAY_POLL, {"id": sid, "max": PB_TELEPORT + play[sid]["ms"] + 2500})
+            moving = [x for x in fr if x[1] == "playing" and x[2] > 0]
+            wrong = [x for x in moving if x[3] != sid or x[4] != sid or x[6] is not True or x[7] < 0.5
+                     or (sid != "emergence" and not x[5])]
+            end = fr[-1]
+            lim2 = PB_TELEPORT + play[sid]["ms"] + PLAY_TOL
+            if not moving or wrong or end[1] != "done" or end[0] > lim2:
+                why.append(f"+{notches} (from {here}): {len(wrong)} of {len(moving)} playing frames not the station in frame as itself"
+                           f" {wrong[:1]}, ended {end[1]} at {end[0]}ms (<= {lim2})")
+            away.append(f"+{notches} from {here} {len(moving)} frames")
+        if not any("frames" in a for a in away):
+            why.append("the button was never on screen away from the hold")
+        rows.append(f"{sid} done {r['at']}ms, {n}px off; away: {', '.join(away)}")
         if why:
             bad.append(f"{sid}: " + ", ".join(why))
     w.cur = None
@@ -2127,34 +2394,49 @@ def a_playreplay(v):
 
 
 def a_playthrough(v):
-    """A flick from the top past the last hold, 100px wheel notches back to back, leaves every station done at p 1;
-    a visit back to each hold then shows the end state at once (never a clock) and matches the shot a full play left."""
+    """A flick from the top past the last hold, 100px notches back to back: no clock advances out of frame and none runs
+    ahead of itself to its end, so a station the flick passed before it finished is paused (or idle). A visit back to each hold resumes
+    its clock where it stopped (never from 0 once it played), runs it to done at p 1, and ends on the state a full play
+    left."""
     nat = pb_natural(v)
     w = pb_view(v, "pbT")
     g = w.geometry()
-    if w.phone:
-        w.page.mouse.move(w.vw / 2, (40 + w.band) / 2)
-    else:
-        w.page.mouse.move((576 + w.vw) / 2, w.vh / 2)
+    pb_mouse(w)
+    ids = w.js(PB_WALK_POLL)
     goal = (g["PULL"] + 0.1) * w.S
     for _ in range(int(goal // 100) + 4):
         w.page.mouse.wheel(0, 100)
     at = w.js("async () => { await __ct.raf(); await __ct.raf(); return scrollY / __walk.S(); }")
+    w.page.wait_for_timeout(400)
+    log = w.js("() => { __ct.pbOn = false; return __ct.pbLog; }")
+    play = w.js("() => __walk.play()")
+    aud = pb_audit(ids, log, play)
     after = {st[0]: w.js("id => __walk.playback(id)", st[0]) for st in g["stations"]}
     rows, bad = [], []
     for st in g["stations"]:
-        sid, a0 = st[0], after[st[0]]
+        sid, a0, au = st[0], after[st[0]], aud[st[0]]
         why = []
-        if a0["state"] != "done" or a0["p"] != 1:
-            why.append(f"{a0['state']} p {a0['p']:.3f} after the flick")
-        r = pb_go(w, pb_s(st), sid, "never", 900)
-        moving = [x for x in r["out"] if x[1] != "done" or x[2] != 1]
-        if moving:
-            why.append(f"{len(moving)} frames not done at p 1 on the visit back, e.g. {moving[0]}")
+        if au["off"]:
+            why.append(f"p advanced on {au['off']} frames out of frame during the flick")
+        if au["ahead"]:
+            why.append(f"p ran ahead of its clock on {au['ahead']} frames during the flick (largest step {au['jump']:.2f})")
+        if a0["state"] not in ("paused", "idle", "done"):
+            why.append(f"{a0['state']} after the flick")
+        r = pb_go(w, pb_s(st), sid, "done", play[sid]["lead"] + play[sid]["ms"] + 2500)
+        ps = [x[2] for x in r["out"]]
+        first = next((x[2] for x in r["out"] if x[1] == "playing"), None)
+        if a0["state"] == "paused" and (first is None or first < a0["p"] - 1e-3):
+            why.append(f"paused at p {a0['p']:.3f}, the visit back played from {first}")
+        if a0["state"] == "done" and any(x[1] != "done" for x in r["out"]):
+            why.append("finished, yet played again on the visit back")
+        if any(b2 < a2 - 1e-9 for a2, b2 in zip(ps, ps[1:])) or max((b2 - a2 for a2, b2 in zip(ps, ps[1:])), default=0) > PB_JUMP:
+            why.append("p fell or jumped on the visit back")
+        if r["pb"]["state"] != "done" or r["pb"]["p"] != 1:
+            why.append(f"{r['pb']['state']} p {r['pb']['p']} after the visit back")
         n, area = pb_diff(v, nat[sid]["end"], pb_shot(w))
         if n > PLAY_SAME * area:
             why.append(f"{n}px off the end state")
-        rows.append(f"{sid} {a0['state']}, {n}px off")
+        rows.append(f"{sid} {a0['state']} p {a0['p']:.2f} -> done, {n}px off")
         if why:
             bad.append(f"{sid}: " + ", ".join(why))
     w.cur = None
@@ -2469,6 +2751,52 @@ def a_pink(v):
     if bad:
         m += "; " + "; ".join(bad[:2])
     return not bad, m
+
+
+VIVID_SHARE_JS = r"""
+async ([png, viv, ground, tol, art, fig]) => {
+  // device pixels of a viewport screenshot: vivid-token pixels anywhere in the art region, and the figure's own ink
+  // (every pixel inside its box that is not the ground)
+  const r = await fetch('data:image/png;base64,' + png); const bm = await createImageBitmap(await r.blob());
+  const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
+  const d = x.getImageData(0, 0, bm.width, bm.height).data, W = bm.width;
+  const near = (i, q) => Math.abs(d[i] - q[0]) <= tol && Math.abs(d[i + 1] - q[1]) <= tol && Math.abs(d[i + 2] - q[2]) <= tol;
+  let v = 0, ink = 0;
+  for (let y = Math.max(0, art[1]); y < Math.min(bm.height, art[3]); y++) for (let X = Math.max(0, art[0]); X < Math.min(W, art[2]); X++) {
+    const i = (y * W + X) * 4;
+    if (viv.some(q => near(i, q))) v++;
+    if (X >= fig[0] && X < fig[2] && y >= fig[1] && y < fig[3] && !near(i, ground)) ink++;
+  }
+  return { v, ink, w: W, h: bm.height };
+}
+"""
+VIVID_CAP = 0.5       # vivid pixels at a hold, at most this share of the figure's own ink (round 5: colour serves the figure)
+
+
+def a_vivid(v):
+    """Colour serves the figure being read. At every hold sample the vivid-token pixels in the art region (all six
+    --v-* hues, the figure's own marks included) are at most half of the figure's own ink, every non-ground pixel inside
+    its box: no bloom or ring outweighs the figure. Chapter I's chaos and the map keep their colour; this reads holds."""
+    import base64
+    g = v.geometry()
+    rows, bad, worst = [], [], (0.0, None)
+    for sid, s in station_samples(g):
+        v.frame_at(s, here=True)
+        f = v.js("() => __walk.figure()")
+        if not f or not f.get("cells"):
+            bad.append(f"{sid} s {s:.2f}: no figure box")
+            continue
+        art = [round(q * v.dpr) for q in f["art"]]
+        box = [round(q * v.dpr) for q in f["cells"]]
+        png = base64.b64encode(v.page.screenshot()).decode()
+        r = v.js(VIVID_SHARE_JS, [png, [list(TOK_RGB[k]) for k in VIVID], list(TOK_RGB["void"]), 16, art, box])
+        ratio = r["v"] / max(1, r["ink"])
+        if ratio >= worst[0]:
+            worst = (ratio, f"{sid} s {s:.2f}: {r['v']} vivid / {r['ink']} ink device px")
+        if ratio > VIVID_CAP:
+            bad.append(f"{sid} s {s:.2f}: vivid {r['v']} px is {ratio:.2f}x the figure's ink {r['ink']} px")
+    return not bad, (f"vivid pixels in the art region over the figure's own ink at {len(station_samples(g))} hold samples, max "
+                     f"{worst[0]:.2f}x (<= {VIVID_CAP}x)" + (f", at {worst[1]}" if worst[1] else "") + ("; " + "; ".join(bad[:3]) if bad else ""))
 
 
 def phone_samples(g):
@@ -2790,17 +3118,20 @@ CASE_JS = r"""(need) => {
   const hex = c => { const m = c.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?/); if (!m) return null;
     if (m[4] !== undefined && +m[4] === 0) return null; if (m[4] !== undefined && +m[4] < 1) return 'alpha:' + c;
     return '#' + [m[1], m[2], m[3]].map(v => (+v).toString(16).padStart(2, '0')).join(''); };
-  const sizes = new Set(), cols = {}, props = ['color', 'background-color', 'border-top-color', 'border-bottom-color', 'border-left-color',
+  const sizes = new Set(), cols = {}, txt = {}, props = ['color', 'background-color', 'border-top-color', 'border-bottom-color', 'border-left-color',
     'border-right-color', 'outline-color', 'fill', 'stroke', 'text-decoration-color'];
   const tag = el => el.tagName.toLowerCase() + '.' + (el.getAttribute('class') || '').split(' ')[0];
   for (const el of document.querySelectorAll('body *')) {
     const cs = getComputedStyle(el); if (cs.display === 'none' || el.closest('.sr-only')) continue;
-    if ([...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) sizes.add(Math.round(parseFloat(cs.fontSize) * 100) / 100);
+    const own = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+    if (own) sizes.add(Math.round(parseFloat(cs.fontSize) * 100) / 100);
     for (const p of props) { const v = cs.getPropertyValue(p); if (!v || v === 'none') continue;
       if (p.startsWith('border') && parseFloat(cs.getPropertyValue(p.replace('color', 'width'))) === 0) continue;
       if (p === 'outline-color' && cs.outlineStyle === 'none') continue;
       if ((p === 'fill' || p === 'stroke') && !(el instanceof SVGElement)) continue;
-      const h = hex(v); if (h) (cols[h] = cols[h] || []).push(tag(el) + ':' + p); }
+      const h = hex(v); if (h) (cols[h] = cols[h] || []).push(tag(el) + ':' + p);
+      // the colour of words: CSS color on an element with its own text, or the fill of SVG text
+      if (h && own && (p === 'color' || (p === 'fill' && el instanceof SVGTextContentElement))) (txt[h] = txt[h] || []).push(tag(el) + ':' + p); }
     if (cs.boxShadow !== 'none' || (cs.backgroundImage !== 'none' && !/^url/.test(cs.backgroundImage)) || cs.filter !== 'none')
       (cols['effect'] = cols['effect'] || []).push(tag(el));
   }
@@ -2820,6 +3151,7 @@ CASE_JS = r"""(need) => {
   if (window.__emergence) checks.__emergence = !!(__emergence.check && __emergence.check.ok && __emergence.sapOk);
   const st = document.querySelector('[data-play]');
   return { sizes: [...sizes], cols: Object.fromEntries(Object.entries(cols).map(([k, v]) => [k, v.slice(0, 2)])),
+    txt: Object.fromEntries(Object.entries(txt).map(([k, v]) => [k, v.slice(0, 2)])),
     sw: document.documentElement.scrollWidth, cw: document.documentElement.clientWidth,
     dup: Object.entries(by).filter(([k, v]) => v.size > 1).map(([k, v]) => k + ' x' + v.size), arrows, small, listeners: window.__L,
     fonts: [...document.fonts].map(f => f.family.replace(/"/g, '') + ':' + f.status), state: st ? st.dataset.state : 'static', checks };
@@ -2828,7 +3160,7 @@ CASE_JS = r"""(need) => {
 
 def a_cases(v):
     """Every work/*.html: no error, no request off the origin, the two woff2 from work/assets, colours within the
-    tokens (no pink, no alpha, no effect), DOM sizes, no overflow, no wheel/touch/key listener, link names,
+    tokens (no pink on words, no alpha, no effect), DOM sizes, no overflow, no wheel/touch/key listener, link names,
     targets, the hero's end state, and every self-check the page exposes."""
     pages = sorted((v.run.root / "work").glob("*.html"))
     if not pages:
@@ -2865,7 +3197,8 @@ def a_cases(v):
             "fonts": [] if (sorted(fonts) == [("assets/jetbrains-mono.woff2", 200), ("assets/space-grotesk.woff2", 200)]
                             and all(f.endswith("loaded") for f in r["fonts"] if "Grotesk" in f or "Mono" in f)) else [str(fonts)],
             "colours": [f"{k} {r['cols'][k][0]}" for k in off],
-            "pink": [f"{k} {r['cols'][k][0]}" for k in r["cols"] if k in pink],
+            # pink is the 'contradicted' mark (a square, a strike, an outline, a dashed path), never the colour of words
+            "pink": [f"{k} {r['txt'][k][0]}" for k in r["txt"] if k in pink],
             "sizes": sorted(set(r["sizes"]) - DOM_SIZES),
             "overflow": [f"{r['sw']} > {r['cw']}"] if r["sw"] > r["cw"] else [],
             "listeners": r["listeners"][:3],
@@ -2878,6 +3211,125 @@ def a_cases(v):
         bad += [f"{page.name} {k}: {', '.join(map(str, x))[:140]}" for k, x in fails.items() if x]
     return not bad, (f"{len(pages)} pages x 12 checks ({motion} motion)" + (f", {len(bad)} failing: " + "; ".join(bad[:4]) + (" ... " + bad[-1] if len(bad) > 4 else "") if bad else ", all pass"))
 
+
+# --- the deep dives under work/*-deep.html: their steppers ----------------------------------------------------------
+# `cases` covers the rest of a deep dive's contract (errors, requests off the origin, fonts, tokens, no pink words, sizes,
+# overflow, listeners, link names, targets, and __deep.selfCheck(), which fails when a scene hid itself or has no
+# stepper). Scroll and click with evaluate only: Playwright's locator helpers add touch listeners to window. Keys go
+# through page.keyboard, which adds none.
+DEEP_SCENES_JS = """() => {
+  const figs = [...document.querySelectorAll('figure.scene')], built = new Set(__deep.scenes().map(s => s.id));
+  return { figs: figs.length, fail: figs.filter(f => f.getAttribute('data-check') === 'fail').map(f => f.id),
+    unbuilt: figs.filter(f => f.getAttribute('data-check') !== 'fail' && !built.has(f.id)).map(f => f.id || '?'),
+    nobar: [...built].filter(id => !document.querySelector('#' + id + ' .sc-bar button[aria-label="next step"]')) };
+}"""
+DEEP_ONE_JS = "(i) => __deep.scenes().find(s => s.id === i)"
+DEEP_TO_JS = "(i) => { const e = document.getElementById(i); scrollTo(0, Math.round(e.getBoundingClientRect().top + scrollY - innerHeight * 0.1)); }"
+DEEP_CLICK_JS = """([i, how, k]) => { const f = document.getElementById(i);
+  const b = how === 'prev' ? f.querySelector('.sc-bar button[aria-label="previous step"]') : how === 'next' ? f.querySelector('.sc-bar button[aria-label="next step"]') : f.querySelectorAll('.sc-pip')[k];
+  if (!b || b.disabled) return false; b.click(); return true; }"""
+
+
+DEEP_KEYS_JS = """(i) => { const f = document.getElementById(i), bar = f.querySelector('.sc-bar');
+  return [...bar.querySelectorAll('button')].filter(b => b.getClientRects().length).map(b => ({ name: b.getAttribute('aria-label') || b.textContent.trim(),
+    ok: b.tagName === 'BUTTON' && b.tabIndex >= 0 && !b.closest('[aria-hidden="true"],[inert]') && getComputedStyle(b).visibility !== 'hidden' })); }"""
+DEEP_FOCUS_JS = """([i, how, k]) => { const f = document.getElementById(i);
+  const b = how === 'next' ? f.querySelector('.sc-bar button[aria-label="next step"]') : f.querySelectorAll('.sc-pip')[k];
+  if (!b || b.disabled) return false; b.focus(); return document.activeElement === b; }"""
+
+
+def deep_keys(pg, sid, reduce):
+    """Keyboard only: Space on the first square goes to step 1, then Enter on next goes to step 2. Returns problems."""
+    bad = [f"{c['name']} is not a focusable native button" for c in pg.evaluate(DEEP_KEYS_JS, sid) if not c["ok"]]
+    if not pg.evaluate(DEEP_FOCUS_JS, [sid, "pip", 0]):
+        return bad + ["the first square does not take focus"]
+    pg.keyboard.press("Space")
+    got = pg.evaluate(DEEP_ONE_JS, sid)["step"]
+    if got != 1:
+        return bad + [f"Space on the first square gave step {got}"]
+    if not pg.evaluate(DEEP_FOCUS_JS, [sid, "next", 0]):
+        return bad + ["next does not take focus at step 1"]
+    pg.keyboard.press("Enter")
+    got, ms = pg.evaluate(DEEP_ONE_JS, sid)["step"], 0
+    while not reduce and got != 2 and ms < 15000:
+        pg.clock.run_for(500)
+        ms += 500
+        got = pg.evaluate(DEEP_ONE_JS, sid)["step"]
+    return bad + ([f"Enter on next from step 1 gave step {got}"] if got != 2 else [])
+
+
+def a_deep(v):
+    """Every work/*-deep.html: scenes built with steppers; motion: each scene autoplays to its last step on arrival and
+    the stepper moves it; reduced motion: each rests and the stepper moves it. Every stepper control is a focusable
+    native button, and Space on a square and Enter on next move the scene."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    reduce = v.name in PHONES or v.name.startswith("phone")
+    bad, n_sc, n_keys, longest = [], 0, 0, (0, "")
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce" if reduce else "no-preference", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            if not reduce:
+                pg.clock.install()
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            if not reduce:
+                pg.clock.run_for(300)
+            st = pg.evaluate(DEEP_SCENES_JS)
+            if not st["figs"]:
+                bad.append(f"{page.name}: no figure.scene")
+            for k in ("fail", "unbuilt", "nobar"):
+                if st[k]:
+                    bad.append(f"{page.name} {k}: {', '.join(st[k][:3])}")
+            for sid in pg.evaluate("() => __deep.scenes().map(s => s.id)"):
+                n_sc += 1
+                s = pg.evaluate(DEEP_ONE_JS, sid)
+                if reduce:
+                    if s["mode"] != "still":
+                        bad.append(f"{page.name} {sid}: mode {s['mode']} with reduced motion")
+                elif not (s["arrived"] and s["mode"] == "still" and s["step"] == s["of"]):   # else it played beside the one above
+                    # scrolled to, it starts on its own and moves on at least one step (or ends, for a one-step figure)
+                    seen, step0, ms = s["mode"] == "auto", s["step"], 0
+                    pg.evaluate(DEEP_TO_JS, sid)
+                    while ms < 25000:
+                        pg.clock.run_for(500)
+                        ms += 500
+                        s = pg.evaluate(DEEP_ONE_JS, sid)
+                        seen = seen or s["mode"] == "auto"
+                        if seen and (s["step"] > step0 or s["mode"] == "still"):
+                            break
+                    if not seen:
+                        bad.append(f"{page.name} {sid}: no autoplay within 25s of arriving")
+                    elif s["step"] <= step0 and s["mode"] != "still":
+                        bad.append(f"{page.name} {sid}: autoplay stuck at step {s['step']} of {s['of']}")
+                    longest = max(longest, (ms, f"{page.name} {sid}"))
+                if s["of"] > 1:
+                    # a square jumps to its step; then next (from step 1) or prev (from anywhere else) moves one step
+                    s = pg.evaluate(DEEP_ONE_JS, sid)
+                    want = 1 if s["step"] != 1 else s["of"]
+                    pg.evaluate(DEEP_CLICK_JS, [sid, "pip", want - 1])
+                    got = pg.evaluate(DEEP_ONE_JS, sid)["step"]
+                    how, want2 = ("next", 2) if got == 1 else ("prev", got - 1)
+                    ok = pg.evaluate(DEEP_CLICK_JS, [sid, how, 0])
+                    got2, ms = pg.evaluate(DEEP_ONE_JS, sid)["step"], 0
+                    while not reduce and ok and got2 != want2 and ms < 15000:           # next plays the stretch to the next step
+                        pg.clock.run_for(500)
+                        ms += 500
+                        got2 = pg.evaluate(DEEP_ONE_JS, sid)["step"]
+                    if got != want or not ok or got2 != want2:
+                        bad.append(f"{page.name} {sid}: stepper: square to {want} gave {got}, {how} gave {got2} (want {want2})")
+                    bad += [f"{page.name} {sid}: keyboard: {x}" for x in deep_keys(pg, sid, reduce)]
+                    n_keys += 1
+        finally:
+            ctx.close()
+    msg = (f"{len(pages)} deep dives, {n_sc} scenes ({'reduced motion' if reduce else 'motion, fake clock'}), "
+           f"{n_keys} steppers worked by keyboard")
+    if not reduce:
+        msg += f", slowest start {longest[0] / 1000:.1f}s ({longest[1]})"
+    return not bad, msg + (f"; {len(bad)} bad: " + "; ".join(bad[:5]) if bad else "; all play and step")
 
 # name -> (viewports, fn, what it measures)
 ASSERTIONS = [
@@ -2892,17 +3344,21 @@ ASSERTIONS = [
     ("holdzone", ("desktop", "phone"), a_holdzone, "during the lock and every hold, only the card being read (hero at the lock) shows in the reading zone; the next card is at opacity 0"),
     ("rise", ("desktop", "phone"), a_rise, "no card fades in: until the figure before it dims (hold end + 0.05) each card is below the fold, at opacity 1, with no opacity transition"),
     ("firstnotch", ("desktop", "phone"), a_firstnotch, "the first 100px notch of every hold changes at least 0.075% of the viewport's CSS px (settled screenshots)"),
+    ("trlabels", ("desktop", "phone", "phone-small"), a_trlabels, "chapter I: once every dated trail is whole and until the lock, each frame draws all three trail labels (the award included)"),
+    ("zoomrest", ("desktop", "phone"), a_zoomrest, "at rest anywhere from ZOOM toward the map, two frames 1s apart are identical, and no --v-* pixel lies within 48px of a native layer still on screen"),
     ("custos", ("desktop", "phone"), a_custos, "custos: 'contradicted' and 'blocked' each on screen >= 0.3 screen; the caption says pink only while the verdict is shown"),
     ("playarrive", ("desktop", "phone"), a_playarrive, "each station's first arrival plays it from p 0, p never falls, ends done at p 1 on its last beat; a shot a third in differs from the end"),
     ("playbudget", ("desktop", "phone"), a_playbudget, "each first arrival is done within the hook's lead + ms of the scroll that reached it, + 150ms"),
-    ("playthrough", ("desktop", "phone"), a_playthrough, "a flick from the top past the last hold leaves every station done at p 1; each hold, visited back, shows the full play's end state at once"),
+    ("playthrough", ("desktop", "phone"), a_playthrough, "a flick from the top past the last hold: no clock advances out of frame or runs ahead of itself, so a station passed unfinished is paused; each hold, visited back, resumes where it stopped and ends on the full play's end state"),
     ("playreverse", ("desktop", "phone"), a_playreverse, "wheeling back up into each played station: done at p 1 at every notch, and its hold matches the end state"),
-    ("playreplay", ("desktop", "phone"), a_playreplay, "each card's replay button plays its station again from p 0 to done within 200 + ms (+150), ending on the same end state"),
+    ("playreplay", ("desktop", "phone"), a_playreplay, "each card's replay button plays its station again from p 0 to done within 200 + ms (+150), ending on the same end state; clicked 1, 3, 6 and 10 notches past the hold, the station comes back and replays as itself, in frame, in its own medium"),
+    ("playwalk", ("desktop", "phone"), a_playwalk, "the lens's visitor (110px every 120ms): stopping 1.5s at each hold, every station plays from p 0 to done; never stopping, no clock advances out of frame or runs ahead of itself to its end"),
     ("playreduced", ("desktop", "phone"), a_playreduced, "reduced motion: done at p 1 in every frame from each arrival, never playing; replay hidden and refused"),
     ("places", PHONES + ("phone-small-1x",), a_places, "pull-back to the résumé every 0.02 screen: no shown place row's text crosses a card's text"),
     ("readable", ("desktop", "phone"), a_readable, "each chapter card first fits whole no earlier than its station's arrival - 0.05"),
     ("station", ("desktop", "phone"), a_station, "at holds, built() == the card stuck at its sticky top == sceneId, and the drawn step == stepAt(shown)"),
     ("pink", ("desktop", "phone"), a_pink, "chaos >= 95% trail-family or the ant's own vivid cells over world cells (cellTok/cellAt); at holds, no vivid ant cell; bright --trail <= 1.5% of the viewport's pixels, ant head trail included"),
+    ("vivid", ("desktop", "phone"), a_vivid, "at every hold sample the vivid-token pixels in the art region are at most half of the figure's own ink: colour serves the figure being read"),
     ("phonetext", PHONES, a_phonetext, "screenshot diffs with text made transparent: 0 DOM text pixels in the phone art band, native figure labels only inside their own box"),
     ("figclip", PHONES + LANDS, a_figclip, "every figure cell and every native layer inside the art band at every held phone frame, and the ant's whole cell with them"),
     ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
@@ -2918,17 +3374,19 @@ ASSERTIONS = [
     ("cardfit", PHONES + ("phone-se", "phone-640"), a_cardfit, "every chapter card fits the phone text band (48svh - 32) at 390x844, 360x740, 375x667 and 360x640, sticky at its top: phrase and proof shown, the note line sr-only, no inner scroll, DOM sizes only; the custos native layer inside its art box at every held sample"),
     ("swaps", PHONES, a_swaps, "phone KRONOS settled at every 0.01 screen of its hold, both ways: one whole view, the one its instruction names, no cells left under the layer"),
     ("linknames", ("desktop",), a_linknames, "no two links to different hrefs share an accessible name, and no arrow glyph is in a link's name"),
+    ("newtab", ("desktop", "phone"), a_newtab, "every off-page link on index.html (built ones included) and each work/*.html has target=_blank and rel with noopener and noreferrer; same-page anchors carry no target"),
     ("jumpfocus", ("desktop", "phone"), a_jumpfocus, "Enter on each strip jump, map place and walk link, then Tab: scrollY moves less than one screen"),
     ("tabreach", ("desktop", "phone"), a_tabreach, "forward Tab from the top reaches the NAND inputs and the KRONOS switch, and each is live over its figure once focused"),
     ("targets", ("desktop", "phone", "phone-small"), a_targets, "every link, button and input on screen is at least 24 CSS px a side with a fine pointer, 32 on touch"),
     ("pitch", ("desktop", "phone", "desktop-125"), a_pitch, "every blit and cell rect lands on whole device pixels at an integer scale, every frame"),
     ("fills", ("desktop", "phone"), a_fills, "canvas fill/stroke styles and bitmap values are packed tokens; no glow, no filter"),
-    ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: the map shows the tier 1-2 projects; each theme lights exactly its members, their lines and its box, with highlights by the binding rule and the rest behind a closed 'more'; each project lights exactly its themes; no line runs under a box it does not own; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status, box and first highlight in view with the controls still; keyboard (desktop) and taps (phone) pick; targets 24px fine, 32px touch; the arrival demo previews each theme once, in order, without moving anything, and never under reduced motion"),
+    ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: five theme blobs in order, each naming its signature projects by the binding rule (each named once, the chapters in their own themes) and counting the rest, its area following its count; at rest no list, line or chip; a pick opens every project in the theme, signatures first, all shown and sourced, the other blobs stepped down; the picked blob again rests, a tag picks its theme, a click between blobs picks nothing; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status and first project in view with the blobs still; keyboard (desktop) and taps (phone) pick; the blobs grow once on arrival without moving anything, whole at once under reduced motion"),
     ("listeners", ("desktop", "phone"), a_listeners, "no wheel, touch or key listener at all, hooked before load"),
     ("scrollto", ("desktop", "phone"), a_scrollto, "no page-initiated scroll outside a click (a resize may restore the place, see resize)"),
     ("resize", ("desktop", "phone"), a_resize, "a resize or rotation at a transit, each hold and the résumé keeps the scene, its fraction and the résumé line"),
     ("errors", ("desktop", "phone", "phone-small", "desktop-125") + LANDS, a_errors, "no page errors or console errors"),
-    ("cases", ("desktop", "phone", "phone-small"), a_cases, "each case study under work/: no error, no request off the origin, its two fonts from work/assets, tokens only (no pink, alpha or effect), DOM sizes, no overflow, no wheel/touch/key listener, link names, targets 24px fine and 32px touch, the hero done (desktop) or at rest (reduced motion), every self-check it exposes ok"),
+    ("cases", ("desktop", "phone", "phone-small"), a_cases, "each case study and deep dive under work/: no error, no request off the origin, its two fonts from work/assets, tokens only (no pink words, alpha or effect), DOM sizes, no overflow, no wheel/touch/key listener, link names, targets 24px fine and 32px touch, the hero done (desktop) or at rest (reduced motion), every self-check it exposes ok"),
+    ("deep", ("desktop", "phone"), a_deep, "each deep dive under work/: every figure.scene became a scene with a stepper (none failed its self-check); with motion each one, scrolled to, starts playing on its own and moves on a step, and a square, next and prev move it; with reduced motion each rests on a step and the stepper still moves it; every stepper control is a focusable native button, and Space on a square and Enter on next move the scene"),
     ("perf", ("phone", "desktop"), None, "p95 script time per frame <= 2.3ms at 4x CPU throttle, median of 3 runs (rAF and scroll handlers, timed in-page)"),
 ]
 # --fast: the checks a fixer breaks most often between edits, on fewer viewports, in under a minute.
@@ -2945,6 +3403,7 @@ FAST = {
     "work": ("desktop", "phone"),
     "errors": ("desktop", "phone", "phone-small"),
     "cases": ("phone",),
+    "newtab": ("desktop",),
 }
 
 

@@ -38,7 +38,7 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 | `PULL` | number | The pull-back start, which is the last hold's end. |
 | `canvas` | Element | The art canvas. Optional; it defaults to `canvas#world`. |
 | `cards()` | fn → array | `[{id, el}]`: the hero as `'hero'`, then one entry per chapter with the station's id, in page order. `el` is the sticky element the reader sees. |
-| `built()` | fn → string or null | The id of the station whose build clip has finished and which is current (not dimmed). Null in transits, chaos, pull-back and map. |
+| `built()` | fn → string or null | The id of the station whose build clip has finished and which is current (not dimmed). Null in chaos and map, in a transit until its station builds (`on0`), and in the pull-back once its zoom starts (`ZOOM`); the last station stays built through the rest before it. |
 | `figure()` | fn → object or null | Null when no station is current. Otherwise `{id, cells, art}`; `cells` is null while the current figure has drawn nothing yet (the suite then requires cells at another sample of the same hold). `cells` is the union box of every figure cell drawn in this frame, across all beats on screen, with labels excluded. `art` is the region where a cell draws at full density: inside the canvas clip, below the strip, above the caption row, and on desktop right of the dithered edge. |
 | `selfChecks()` | fn → array | `[{id, ok, got, want}]`, computed at boot and stable after it. These ids are required, and their `got` is compared with answers the suite knows independently: `'nand'` → `[1,1,1,0]` (outputs for 00, 01, 10, 11, each read from the output cell); `'em'` → `[14,7,2,0]` (mismatched blocks after EM passes 1 to 4); `'kronos-dd'` → `-17.9` (max drawdown recomputed from the 54-quarter series, in percent, which must round to −17.90); `'lock'` → the LOCK computed in the page, which the suite recomputes from the rule itself (9976 for stepF as it stands). Other ids are allowed and must be `ok`. Any control owned by a check carries `data-check="<id>"`; when that check fails, no element with that attribute may remain. |
 | `handoff()` | fn → object or null | `{el, s}`. `el` is the 8px DOM square that leads the bookend line. `s` is the scroll position, in screens, at which the canvas stops drawing the ant and the square carries it. `s` is null for the static fallback on narrow screens. |
@@ -46,19 +46,36 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 
 ## Station playback
 
-Station beats play on a clock from the station's arrival; scrolling never scrubs them. The `stations` hook's 4th
-element now lists the arrival for every beat, since beats no longer have scroll positions.
+Station beats play on a clock; scrolling never scrubs them. The `stations` hook's 4th element lists the arrival for
+every beat, since beats no longer have scroll positions.
 
 | hook | type | contract |
 |---|---|---|
-| `playback(id)` | fn → object or null | `{state, p, bi, t, ms, lead, seen, replay}`. `state` is `'idle'` (not yet reached), `'playing'`, `'done'` or `'held'` (an input took over). `p` is 0..1 across the station's beats; `bi` the beat shown; `t` ms on the clock (negative during the lead, null unless playing); `ms` the clock's length and `lead` the build clip it waits for, so a playback finishes within `lead + ms` of the arrival. `seen` turns true once it has finished or been taken over; `replay` is whether the replay button shows. |
-| `replay(id)` | fn → bool | The one hook that acts: what the station's replay button does. False under reduced motion. |
-| `play()` | fn → object | The per-station table, `{id: {keys, ms, lead, hold, live}}`. `keys` are `[ms, p]` pairs, piecewise linear; `hold` is the hold's length in screens; `live` the `p` window per layout (`desk`, `phone`) in which the station's input is live. |
+| `playback(id)` | fn → object or null | `{state, p, bi, t, ms, lead, seen, replay, live, vis}`. `state` is `'idle'` (never yet seen), `'playing'`, `'paused'` (it left the frame unfinished), `'done'` or `'held'` (an input took over). `p` is 0..1 across the station's beats; `bi` the beat shown; `t` ms on the clock (negative during the lead; the elapsed ms while paused; null otherwise); `ms` the clock's length and `lead` the build clip it waits for, so a playback finishes within `lead + ms` of the arrival. `seen` turns true once it has finished or been taken over; `replay` is whether the replay button shows. `live` is whether the clock may run this frame, `vis` the share of the figure's box inside the art region at the shown scroll position. |
+| `replay(id)` | fn → bool | The one hook that acts: what the station's replay button does. False under reduced motion. Away from the station it scrolls (it is a click), so call it only where a click could. |
+| `play()` | fn → object | The per-station table, `{id: {keys, ms, lead, hold, live, on0, vis}}`. `keys` are `[ms, p]` pairs, piecewise linear; `hold` is the hold's length in screens; `live` the `p` window per layout (`desk`, `phone`) in which the station's input is live; `on0` the scroll position, in screens, where the station builds; `vis` the in-frame share that starts its clock. |
+| `figVis(id, s)` | fn → number | The share of station `id`'s figure box inside the art region at scroll position `s`, by the projection the frame draws with; 0 unless the camera is at the station pitch. |
+| `ZOOM` | number | Where the pull-back's zoom starts: from `PULL` to here the camera rests on the last station while its card leaves. |
+| `resolveLevel(id)` | fn → number or null | A native station's resolve level as last drawn: 1 its native layer, 0 its cells; between only while a clip runs (build, unbuild, or the 300ms pull-back dissolve that starts as the camera crosses `ZOOM` and reverses on the way back). Null for a cell figure. |
 
-Rules the page keeps: the first arrival from either side plays; leaving mid-play (above the arrival or past the hold)
-snaps to the end state; any later arrival shows the end state. Touching or focusing an input stops the clock at the end
-of its `live` window (`held`). Reduced motion shows the end state at once and hides replay. The loop stops once no
-clock runs.
+Rules the page keeps:
+
+- A station builds once half of its figure box is inside the art region on the way in (`on0`, at most its arrival `A`, never
+  before the station ahead of it has dimmed), so a visitor who stops just short of the card's sticky top already has it.
+- Its clock runs only while the visitor can see it play: at least half of the figure's box in the art region to start or
+  resume, a fifth to keep running, at the station pitch, and in its own medium (a native station's layer on screen; it
+  shows from 416 ms into the build clip, so a native station's `lead` is 420 ms).
+- The first time that holds, the clock starts from `p` 0. When it stops holding (the camera moves on, a later station
+  takes the native layer, the pull-back shrinks it) the clock pauses; it resumes where it stopped on the way back.
+  Nothing snaps to the end: a station is never shown finished unless its clock ran its full length in frame. A finished
+  station shows its end state on any later visit.
+- Replay always plays the real figure: clicked away from the station, the page first brings it back to where its card
+  sits at its sticky top (one instant scroll inside the click), then the clock starts.
+- Touching or focusing an input stops the clock at the end of its `live` window (`held`). Reduced motion shows the end
+  state at once and hides replay. The loop stops once no clock runs.
+- The last station stays current (built, undimmed and native) through the pull-back's rest, until `ZOOM`; there its
+  layer dissolves into its cells on a 300ms clock (never scrubbed by scroll, reversed on the way back), and the map's
+  blooms wait until it is all cells and the pitch has begun to drop.
 
 ## Cells
 
@@ -132,17 +149,16 @@ Chromium to read the native figure layers' labels.
 
 ## All the work (markup the suite reads)
 
-`contract.py work` drives the section through its own buttons and reads only this markup, so it is a contract too. The known answers (taxonomy B, the tiers, each chapter's primary theme, the cap of 3 highlights) are restated in the suite, never read from the page:
+`contract.py work` drives the section through its own buttons and reads only this markup, so it is a contract too. The
+known answers (taxonomy B without IMC Prosperity 4, the tiers, each chapter's primary theme, the signature rule) are
+restated in the suite, never read from the page:
 
 | element | contract |
 |---|---|
-| `#work .k-chip.k-all`, `#work .k-chip[data-k]` | native `<button aria-pressed aria-controls="k-panel">`: all, then one per theme (`llm verify systems data play`), in the tab order. |
-| `#work .k-map .k-hub[data-k]` | the theme boxes on the map: pointer-only duplicates of the chips (`tabindex="-1"`, `aria-hidden`). A lit box has `.on`. |
-| `#work .k-map .k-node[data-p]` | one native `<button>` per tier 1-2 project on the map, in the tab order. A lit node has `.on`. |
-| `#work .k-svg line[data-p][data-k]` | one membership line per (project on the map, theme); a lit line has `.on`. |
-| `#work .k-pane[data-pane]` | `rest`, one per theme key, and `p:<id>` per project on the map; the shown pane has `.cur`. A theme pane holds `.k-hi .k-card[data-p]` (the highlights) and `details.k-more .k-mrow[data-p]` (the rest, closed). |
-| `#work .k-msg`, `#work .k-ask` | the status line, and the prompt (`.k-a1` pointer, `.k-a2` touch, `.k-a3` while the demo runs). |
-| `window.__workDemo.state()` | `{picked, shown, demoing, done}`: read-only; the arrival demo's state. |
+| `#work .k-field .k-blob[data-k]` | one native `<button aria-pressed aria-controls="k-panel">` per theme (`llm verify systems data play`), in the tab order. Its `.k-bs` SVG holds the blob's cells as `<path>` stages (`.k-hid` while hidden), its `.k-bn` lines name the theme's signature projects, and `.k-bm b` counts the rest. Only the cells take the pointer. A picked theme's blob is `aria-pressed="true"`; the others carry `.off`. |
+| `#work .k-pane[data-pane]` | `rest` (a key, no projects), and one per theme key; the shown pane has `.cur`. A theme pane holds `.k-hi .k-card[data-p]` (its signatures) and `.k-rest .k-mrow[data-p]` (every other member, shown). |
+| `#work .k-msg`, `#work .k-ask` | the status line (hidden at rest), and the prompt (`.k-a1` pointer, `.k-a2` touch). |
+| `window.__workGrow.state()` | `{picked, grown, growing, mode}`: read-only; the blobs grow once, the first time the field is in view. |
 
 ## Résumé viewer (markup the suite reads)
 
@@ -152,6 +168,6 @@ sr-only copy in `#resume .rv-text`, derived from `pdftotext` and holding the `.c
 | element | contract |
 |---|---|
 | `window.__resumeViewer` | read-only. `state()` → `'idle'`, `'play'` or `'done'`; `plays()` → how many times the intro has started (at most 1 per load); `ready()` → the page image has decoded; `reduced` → reduced motion is on (the page shows at once); `timeline()`; `box()` → the page box rect; `grid()`; `hues()` → the theme hue of each block; `zoom()` → `[zoomed, originX, originY]`; `size()` → the page box size in CSS px. |
-| `#resume .rv-ctl` | `download pdf` and `open pdf ↗` links to `resume.pdf`, a native `<button class="rv-zbtn" aria-pressed>` for zoom, and `replay` (hidden under reduced motion). |
+| `#resume .rv-ctl` | `download pdf` and `open pdf →` links to `resume.pdf`, a native `<button class="rv-zbtn" aria-pressed>` for zoom, and `replay` (hidden under reduced motion). |
 | `#resume .rv-hot` | the PDF's own links (email, LinkedIn, GitHub) as focusable hotspots over the page image. |
 

@@ -11,9 +11,11 @@ Checks, in order of how much they cost when wrong:
   0. every relative href/src resolves to a file in the checkout, every #fragment
      to an id in its target, and every self-site URL (canonical, og:url,
      og:image) to a file -- those are never fetched: before a deploy a new
-     page's canonical 404s. Coverage: every work/*.html is linked from
-     index.html, every work/ link there has a page, and the sitemap's work/
-     entries are exactly the pages
+     page's canonical 404s. Every page has its own link-preview card (Open
+     Graph and X tags, alt text, og:url = canonical). Coverage: every work/*.html is linked from
+     index.html, every work/ link there has a page, the sitemap's work/
+     entries are exactly the pages, and each deep dive and its case study link
+     each other
   1. every other https link returns < 400 (a 5xx is retried once, serially)
   2. every Olivesz repo LINKED here is actually public
   3. no repo named in the copy is public-but-unlinked (a soft warning: a named
@@ -57,10 +59,35 @@ def ids_of(path, cache={}):
     return cache[path]
 
 
+PREVIEW = ("og:title", "og:description", "og:url", "og:image", "og:image:alt", "twitter:card", "twitter:image", "twitter:image:alt")
+
+
+def preview_problems(where, text):
+    """A link preview on every page: its own card image (a self-site JPEG, resolved by the check above), named the
+    same for Open Graph and X, with alt text, and og:url equal to the canonical."""
+    meta = {}
+    for prop, val in re.findall(r'<meta (?:property|name)="((?:og|twitter):[\w:]+)" content="([^"]*)"', text):
+        meta.setdefault(prop, []).append(unescape(val))
+    bad = [f"{where}: preview has {len(meta.get(k, []))} {k}" for k in PREVIEW if len(meta.get(k, [])) != 1]
+    if bad:
+        return bad
+    g = lambda k: meta[k][0]
+    canon = re.search(r'<link rel="canonical" href="([^"]+)"', text)
+    if not g("og:image").startswith(SITE) or not g("og:image").endswith(".jpg"):
+        bad.append(f"{where}: og:image {g('og:image')} is not a self-site .jpg")
+    if g("twitter:image") != g("og:image") or g("twitter:image:alt") != g("og:image:alt"):
+        bad.append(f"{where}: twitter:image or its alt differs from og:image")
+    if g("twitter:card") != "summary_large_image":
+        bad.append(f"{where}: twitter:card is {g('twitter:card')!r}")
+    if not canon or canon.group(1) != g("og:url"):
+        bad.append(f"{where}: og:url {g('og:url')} is not the canonical")
+    return bad
+
+
 def site_problems():
     """Relative links, fragments and self-site URLs on every page; case-study
     coverage from index.html and sitemap.xml. Returns (problems, https links, counts)."""
-    bad, ext, n_rel, n_self = [], set(), 0, 0
+    bad, ext, n_rel, n_self, cards = [], set(), 0, 0, {}
     for p in pages():
         text = re.sub(r"<script\b[^>]*>.*?</script>", "", p.read_text(encoding="utf-8"), flags=re.S)
         for attr, u in ATTR.findall(text):
@@ -87,12 +114,26 @@ def site_problems():
                 bad.append(f"{where}: {u} resolves to no file")
             elif frag and t.suffix == ".html" and frag not in ids_of(t):
                 bad.append(f"{where}: {u} has no id={frag!r} in {t.name}")
+        bad += preview_problems(p.relative_to(ROOT), text)
+        for img in re.findall(r'<meta property="og:image" content="([^"]*)"', text):
+            cards.setdefault(img, []).append(str(p.relative_to(ROOT)))
+    bad += [f"preview: {' and '.join(w)} share the card {img}" for img, w in cards.items() if len(w) > 1]
     work = {f"work/{q.name}" for q in (ROOT / "work").glob("*.html")}
     linked = set(re.findall(r'href="(work/[\w.-]+\.html)"', INDEX.read_text(encoding="utf-8")))
     for w in sorted(work - linked):
         bad.append(f"coverage: {w} is not linked from index.html")
     for w in sorted(linked - work):
         bad.append(f"coverage: index.html links {w}, which does not exist")
+    # each deep dive pairs with its case study: the case study opens it, and it links back
+    for d in sorted((ROOT / "work").glob("*-deep.html")):
+        case = d.with_name(d.name[:-len("-deep.html")] + ".html")
+        if not case.is_file():
+            bad.append(f"coverage: {d.name} has no case study {case.name}")
+            continue
+        if f'href="{d.name}"' not in case.read_text(encoding="utf-8"):
+            bad.append(f"coverage: {case.name} does not link its deep dive {d.name}")
+        if f'href="{case.name}"' not in d.read_text(encoding="utf-8"):
+            bad.append(f"coverage: {d.name} does not link back to {case.name}")
     sm = ROOT / "sitemap.xml"
     locs = re.findall(r"<loc>([^<]+)</loc>", sm.read_text(encoding="utf-8")) if sm.is_file() else []
     inmap = {u[len(SITE):] for u in locs if u.startswith(SITE + "work/")}

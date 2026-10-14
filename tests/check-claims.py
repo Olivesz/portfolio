@@ -14,6 +14,7 @@ private source could not be read.
 To retire a phrasing, add its pattern with a note naming the governing source,
 here if the pattern is safe to publish, in the private file if it is not.
 """
+import fnmatch
 import json
 import pathlib
 import re
@@ -22,8 +23,11 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
-# (pattern, note). Matched case-insensitively against every tracked file except this one.
+# (pattern, note) or (pattern, note, globs). Matched case-insensitively against every tracked file except this one,
+# or, when globs are given, only against the tracked files they match: a figure retired for one project can be a right
+# figure in another (freeflow's three passes take 1.05 s).
 # Only patterns safe to publish live here; see PRIVATE_RETIRED for the rest.
+KRONOS_FILES = ("index.html", "work/kronos*.html", "README.md")
 RETIRED = [
     (r"sharpe 0\.94|0\.94.{0,24}net sharpe|net sharpe.{0,24}0\.94",
      "KRONOS: the Sharpe is README.md's shipped run, 1.07 at -17.9%. FINDINGS.md labels "
@@ -61,9 +65,9 @@ RETIRED = [
      "Instruction lines say what to watch; they do not narrate the art."),
     (r"(?<![\d.])1\.05(?!\d)",
      "KRONOS: the page states one Sharpe, 1.07, from the run behind the results table. "
-     "A second Sharpe beside it reads as two answers to one question."),
+     "A second Sharpe beside it reads as two answers to one question.", KRONOS_FILES),
     (r"[−\-–]\s?16\.5\s?%",
-     "KRONOS: the page states one drawdown, -17.9%, from the same run as the table."),
+     "KRONOS: the page states one drawdown, -17.9%, from the same run as the table.", KRONOS_FILES),
     (r"best\s+paper",
      "IARIA GREEN 2023: list the paper as a coauthored publication with no award. The "
      "conference's own page governs."),
@@ -173,7 +177,10 @@ def main():
         except OSError:
             continue
         checked += 1
-        for pattern, reason in RETIRED:
+        rel = path.relative_to(ROOT).as_posix()
+        for pattern, reason, *globs in RETIRED:
+            if globs and not any(fnmatch.fnmatchcase(rel, g) for g in globs[0]):
+                continue
             for m in re.finditer(pattern, text, re.I):
                 line = text.count("\n", 0, m.start()) + 1
                 failures.append((path.relative_to(ROOT), line, m.group(0), reason))

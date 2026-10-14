@@ -13,6 +13,8 @@ What it reads from index.html, as text:
             instruction lines (script strings under `instruction:`), and labels
             (script strings under `label:` / `labels:` / `short:` / `phoneLabel(s):` /
             `caption(s):`, which carry the map, trail and figure labels)
+and from every work/*-deep.html beside it, as text: each data-src element in <main> and
+every figure in its prose (furniture skipped), held to a per-page ratchet, DEEP_KNOWN
 and, by rendering the page in headless Chromium:
   native    the labels of the native figure layers (tests/HOOKS.md), collected at
             several points of every station's hold on a desktop and a phone viewport
@@ -639,6 +641,88 @@ def team_meta(html, resume_lines):
     return out
 
 
+# ---------------------------------------------------------------- the deep dives, work/*-deep.html
+# The same rules over each deep dive's <main>, minus its navigation and furniture (contents rail, kickers and figure
+# numbers, the stepper, the sources list, the case-nav, the facts' labels). Two differences from the index: a step's
+# `.sc-keys li` carries data-at as the step's tick (deep.js), not as the source's spelling of a value, so data-at is
+# ignored on any element that also has data-key; and a figure is covered by an enclosing data-src, data-derived (a
+# value the page computes from cited inputs) or data-live (this visitor's random draw) element.
+# Read as text only: labels a scene draws as it steps are not scanned here.
+DEEP_SKIP_CLS = {"dd-toc", "dd-rail", "ch-k", "st-k", "kick", "n", "sc-bar", "sc-in", "srcs-d", "srcs", "dd-src", "case-nav",
+                 "strip", "colo", "skip", "sr-only", "back-to", "sc-n"}
+DEEP_SKIP_IDS = {"ch-sources"}
+DEEP_COVER = ("data-src", "data-derived", "data-live")
+# A ratchet, not a pass: the deep dives shipped with citations that point near their figure but not at its line (custos
+# fig 'cites README.md#L138, the figure is in docs/RESEARCH.md#L32'), and with prose figures that carry no data-src
+# (mostly cross-references and worked values). These are the counts they shipped with, per page: (figures not in their
+# cited line, uncovered prose figures). A page that goes over its count FAILS; one that comes in under is told to lower
+# it; a deep dive missing here must be clean.
+DEEP_KNOWN = {
+    "emergence-deep.html": (2, 85),
+    "freeflow-deep.html": (31, 16),
+    "kronos-deep.html": (32, 44),
+    "custos-code-deep.html": (73, 6),
+    "inf-mem-deep.html": (29, 16),
+}
+
+
+class DeepPage(Page):
+    def __init__(self):
+        super().__init__()
+        self.uncovered = []
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if "data-key" in a and "data-at" in a:
+            attrs = [(k, v) for k, v in attrs if k != "data-at"]
+        super().handle_starttag(tag, attrs)
+        if tag not in self.VOID and self.stack:
+            e = self.stack[-1]
+            e["skip"] = bool(set((a.get("class") or "").split()) & DEEP_SKIP_CLS) or a.get("id") in DEEP_SKIP_IDS
+            if tag == "main":
+                e["region"] = "deep"
+            e["cover"] = next((a[k] for k in DEEP_COVER if a.get(k)), None)
+
+    def handle_data(self, d):
+        super().handle_data(d)
+        if not self.stack or self.stack[-1]["tag"] in ("script", "style") or not d.strip():
+            return
+        if not any(e.get("region") == "deep" for e in self.stack):
+            return
+        if any(e.get("skip") or e.get("cover") or e["tag"] == "dt" for e in self.stack):
+            return
+        for f in figures(d):
+            self.uncovered.append((self.getpos()[0], f, " ".join(d.split())[:60]))
+
+
+def deep_dives(srcs, work):
+    """(problems, one summary line per page). Problems are a page with nothing cited, or a count over its DEEP_KNOWN."""
+    bad, lines = [], []
+    for path in sorted(work.glob("*-deep.html")):
+        p = DeepPage()
+        p.feed(path.read_text(encoding="utf-8"))
+        p.close()
+        miss, seen = [], set()
+        for e in p.srcs:
+            if (e["src"], e["text"]) in seen:
+                continue
+            seen.add((e["src"], e["text"]))
+            miss += check_element(srcs, e, f"{path.name}:{e['line']}")[0]
+        known = DEEP_KNOWN.get(path.name, (0, 0))
+        lines.append(f"  {path.name}: {len(seen)} cited elements, {len(miss)} not in their line (known {known[0]}), "
+                     f"{len(p.uncovered)} uncovered prose figures (known {known[1]})")
+        if not seen:
+            bad.append(f"{path.name}: no data-src element in <main>; the deep-dive scan walked nothing")
+        if len(miss) > known[0]:
+            bad += [f"{path.name}: {len(miss)} figures not in their cited line, over the {known[0]} it shipped with"] + miss[:8]
+        if len(p.uncovered) > known[1]:
+            bad += [f"{path.name}: {len(p.uncovered)} uncovered prose figures, over the {known[1]} it shipped with"] + \
+                   [f"{path.name}:{ln} undeclared figure {f!r} in {t!r}" for ln, f, t in p.uncovered[:8]]
+        if (len(miss), len(p.uncovered)) < known and len(miss) <= known[0] and len(p.uncovered) <= known[1]:
+            lines.append(f"    fewer than known: lower DEEP_KNOWN[{path.name!r}] to ({len(miss)}, {len(p.uncovered)})")
+    return bad, lines
+
+
 def main():
     ap = argparse.ArgumentParser(description="every figure is the figure in its source line")
     ap.add_argument("--index", default=str(ROOT / "index.html"))
@@ -762,15 +846,22 @@ def main():
                     bad.append(f"{index.name}:{line} [{kind}] figure {f!r} in {s[:60]!r} has no FACTS entry "
                                f"with that v and a ctx word found in the string")
 
+    deep_bad, deep_lines = deep_dives(srcs, index.parent / "work")
+    bad += deep_bad
+
     nat = (f"{len(native['chunks'])} native label texts and {len(native['srcs'])} native data-src elements from "
            f"{native['samples']} held samples" if not a.static else "native figure labels NOT scanned (--static)")
     print(f"panel guard: {len(facts)} FACTS, {len(p.srcs)} data-src elements, {p.cards} cards, {p.rows} work rows, "
           f"{len(strs['instruction'])} instruction lines, {len(strs['label'])} labels, {nat}; figures seen "
           f"{seen['hero']} hero / {seen['card']} card / {seen['work']} work / {seen['resume']} résumé / {seen['instruction']} instruction / {seen['label']} label / "
           f"{seen['native']} native; citations {', '.join(f'{n} {k}' for k, n in sorted(kinds.items()))}; "
-          f"sources {srcs.fetched} fetched, {srcs.hits} cached; computed in the page: {', '.join(sorted(set(computed))) or 'none'}\n")
+          f"sources {srcs.fetched} fetched, {srcs.hits} cached; computed in the page: {', '.join(sorted(set(computed))) or 'none'}")
+    print(f"deep dives ({len(deep_lines)} lines, read as text):\n" + "\n".join(deep_lines) + "\n")
     if not bad:
-        print("PASS - every figure is in the line it cites." + (" (static: native labels not scanned)" if a.static else ""))
+        debt = [sum(DEEP_KNOWN.get(q.name, (0, 0))[i] for q in (index.parent / "work").glob("*-deep.html")) for i in (0, 1)]
+        print("PASS - every figure on the index is in the line it cites" + (" (static: native labels not scanned)" if a.static else "")
+              + (f"; the deep dives are within their known counts, still {debt[0]} figures not in their cited line "
+                 f"and {debt[1]} uncovered prose figures to fix." if any(debt) else "; so is every figure in the deep dives."))
         return 0
     for b in bad:
         print("FAIL " + b)
