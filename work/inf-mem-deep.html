@@ -116,14 +116,14 @@
     <h1>inf-mem, in depth</h1>
     <div class="head-grid">
       <div>
-        <p class="lede"><span data-src="Olivesz/inf-mem@2f86999:README.md#L15-L27">How a prompt picks up memories before it is sent, and how the reply turns into new ones.</span> <span data-src="Olivesz/inf-mem@2f86999:README.md#L5">Storage and search run on the machine; extraction and compression call Groq.</span></p>
+        <p class="lede"><span data-src="Olivesz/inf-mem@c6579f9:README.md#L14-L22">How a prompt picks up memories before it is sent, and how the reply turns into new ones.</span> <span data-src="Olivesz/inf-mem@c6579f9:README.md#L53-L60">Storage and search run on the machine; extraction and compression call Groq.</span></p>
         <p class="lede lede-2">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
       </div>
       <dl class="facts">
         <div><dt>short</dt><dd><a href="inf-mem.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>stack</dt><dd data-src="Olivesz/inf-mem@2f86999:README.md#L52-L73">Python <span class="dot">·</span> FastAPI <span class="dot">·</span> SQLite <span class="dot">·</span> ONNX <span class="dot">·</span> Chrome extension</dd></div>
-        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/inf-mem/tree/2f86999b1dd2aa13af2ab4599c2e961999ccf414" target="_blank" rel="noopener noreferrer">github.com/Olivesz/inf-mem</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>read</dt><dd data-derived="the page’s words at 250 a minute">about 11 minutes</dd></div>
+        <div><dt>stack</dt><dd data-src="Olivesz/inf-mem@c6579f9:README.md#L89-L105">Python <span class="dot">·</span> FastAPI <span class="dot">·</span> SQLite <span class="dot">·</span> ONNX <span class="dot">·</span> Chrome extension</dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/inf-mem/tree/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8" target="_blank" rel="noopener noreferrer">github.com/Olivesz/inf-mem</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>read</dt><dd data-derived="the page’s words at 250 a minute">about 13 minutes</dd></div>
       </dl>
     </div>
     <figure class="scene ig" id="s-idea" aria-labelledby="s-idea-cap">
@@ -180,7 +180,7 @@
       <section class="ch" id="ch-situation" aria-labelledby="h-situation">
         <p class="ch-k">01 <span class="sep">·</span> the situation</p>
         <h2 id="h-situation">Every thread starts blank</h2>
-        <p class="np" data-src="Olivesz/inf-mem@2f86999:README.md#L11">A chat model keeps nothing once a conversation ends.</p>
+        <p class="np">A chat model keeps nothing once a conversation ends.</p>
         <p>Projects, preferences and background get typed again in every new thread, and nothing typed on one site reaches the other.</p>
         <p>Fixing that from outside is hard in two ways. inf-mem has to cut into two sites it does not own, and picking the right few lines out of many needs meaning, not keywords.</p>
 
@@ -193,21 +193,21 @@
             <li data-key="t4" data-at="30">On claude.ai the thread is empty too: a third time.</li>
             <li data-key="t5" data-at="36">Every thread pays the same cost before the real question.</li>
           </ol>
-          <figcaption class="sc-cap" id="s-blank-cap"><span class="n">fig 2</span>each new thread starts blank, on either site. the three lines are the readme’s own example memories. <span class="verb">click</span> to open another thread.</figcaption>
+          <figcaption class="sc-cap" id="s-blank-cap"><span class="n">fig 2</span>each new thread starts blank, on either site. the three lines are <span data-src="Olivesz/inf-mem@c6579f9:docs/make_popup_screenshot.py#L23-L28">memories of the repo’s invented demo user</span>. <span class="verb">click</span> to open another thread.</figcaption>
         </figure>
 
         <p>The fix needs one way to say which stored line is relevant to a new prompt.</p>
-        <p data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L46-L59">The search here works by meaning, not by matching words. A small model turns each text into 384 numbers. Texts about the same thing end up pointing the same way, and the cosine of the angle between them is the score: 1 for the same direction, 0 for unrelated.</p>
+        <p data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L76-L99">The search here works by meaning, not by matching words. A small model turns each text into 384 numbers. Texts about the same thing end up pointing the same way, and the cosine of the angle between them is the score: 1 for the same direction, 0 for unrelated.</p>
 
         <figure class="scene ig" id="s-angle" aria-labelledby="s-angle-cap">
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="vec" data-at="8">The PREFERENCE line becomes <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L108-L109">384</span> numbers: one direction, an arrow.</li>
+            <li data-key="vec" data-at="8">The PREFERENCE line becomes <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> numbers: one direction, an arrow.</li>
             <li data-key="near" data-at="14">The example prompt points almost the same way: cosine <span data-ex>near 1</span>.</li>
             <li data-key="far" data-at="20">The EPISODE line is near a right angle: cosine <span data-ex>near 0</span>.</li>
-            <li data-key="scale" data-at="26">The cosine is the score: <span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L140-L147">1 same, 0 unrelated, −1 opposite</span>.</li>
+            <li data-key="scale" data-at="26">The cosine is the score: <span data-src="Olivesz/inf-mem@c6579f9:tests/test_backend.py#L139-L146">1 same, 0 unrelated, −1 opposite</span>.</li>
           </ol>
-          <figcaption class="sc-cap" id="s-angle-cap"><span class="n">fig 3</span>schematic: <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L108-L109">384</span> dimensions drawn as two. closeness is the cosine of the angle between two texts. drag the slider to turn the prompt.</figcaption>
+          <figcaption class="sc-cap" id="s-angle-cap"><span class="n">fig 3</span>schematic: <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> dimensions drawn as two. closeness is the cosine of the angle between two texts. drag the slider to turn the prompt.</figcaption>
         </figure>
       </section>
 
@@ -215,7 +215,7 @@
       <section class="ch" id="ch-idea" aria-labelledby="h-idea">
         <p class="ch-k">02 <span class="sep">·</span> the idea</p>
         <h2 id="h-idea">Two moments around every message</h2>
-        <p class="np" data-src="Olivesz/inf-mem@2f86999:README.md#L15-L27">The idea is one memory store on the machine, outside every conversation, placed in the path of each message twice.</p>
+        <p class="np" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">The idea is one memory store on the machine, outside every conversation, placed in the path of each message twice.</p>
         <p>Before the prompt leaves, the store offers what is relevant. After the reply arrives, it keeps what is new, with help from Groq, a hosted API that runs open models. The same store serves both sites. The first scene, at the top, plays the whole round trip.</p>
 
 
@@ -232,8 +232,8 @@
         <div class="st" id="st-hold">
           <p class="st-k">step 01 <span class="sep">·</span> holding the prompt</p>
           <h3>Stand in the way of the send</h3>
-          <p data-src="Olivesz/inf-mem@2f86999:extension/manifest.json#L19-L45">On chatgpt.com, chat.openai.com and claude.ai, a content script listens on the input box.</p>
-          <p><span data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L94-L105">Enter (without Shift)</span> and <span data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L134-L145">the send button</span> are cancelled, and the text is read out. <span data-src="Olivesz/inf-mem@2f86999:extension/background.js#L7-L8">The page’s script cannot reach localhost itself, so the extension’s service worker posts it</span> to the backend on <span data-src="Olivesz/inf-mem@2f86999:extension/background.js#L16">port 7842</span>. If the worker answers with an error, the script puts the text back and presses Enter itself, so the site sends it unchanged: no memory, and no lost message.</p>
+          <p data-src="Olivesz/inf-mem@c6579f9:extension/manifest.json#L23-L48">On chatgpt.com, chat.openai.com and claude.ai, a content script listens on the input box.</p>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L250-L255">Enter (without Shift)</span> and <span data-src="Olivesz/inf-mem@c6579f9:extension/content/chatgpt.js#L15">the send button</span> are cancelled, and the text is read out. <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L7-L8">The page’s script cannot reach localhost itself, so the extension’s service worker posts it</span> to the backend on <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L18">port 7842</span>. <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L195-L198">If the worker answers with an error, or no memory passes the gate, the script puts the text back and sends it itself</span>, so the site gets it as typed: no memory, and no lost message.</p>
           <figure class="scene ig" id="s-hold" aria-labelledby="s-hold-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
@@ -241,9 +241,9 @@
               <li data-key="shift" data-at="6">Shift + Enter adds a new line. The site handles it.</li>
               <li data-key="enter" data-at="12">Enter is cancelled, and the text is read out.</li>
               <li data-key="worker" data-at="18">The page cannot call localhost, so the text goes to the worker.</li>
-              <li data-key="post" data-at="24">The worker posts it to <span data-src="Olivesz/inf-mem@2f86999:extension/background.js#L77-L93">localhost:7842/retrieve</span>, on this machine.</li>
+              <li data-key="post" data-at="24">The worker posts it to <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L18">localhost:7842</span>/retrieve, on this machine.</li>
               <li data-key="off" data-at="30">Backend stopped: the post fails, and the worker returns an error.</li>
-              <li data-key="resend" data-at="42">The script re-inserts the text and presses Enter; the site sends it.</li>
+              <li data-key="resend" data-at="42">The script puts the text back and sends it; the site gets it as typed.</li>
             </ol>
             <figcaption class="sc-cap" id="s-hold-cap"><span class="n">fig 4</span>enter is held; shift + enter still makes a new line. with the backend stopped, the site sends the prompt as typed.</figcaption>
           </figure>
@@ -251,67 +251,68 @@
 
         <div class="st" id="st-store">
           <p class="st-k">step 02 <span class="sep">·</span> the store</p>
-          <h3><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L108-L109">384</span> numbers per memory</h3>
-          <p><span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L24-L43">The backend embeds text with BAAI/bge-small-en-v1.5 through fastembed, which runs on ONNX Runtime</span>, so there is no PyTorch and no GPU. <span data-src="Olivesz/inf-mem@2f86999:README.md#L98">The model downloads once, about 130 MB.</span></p>
-          <p data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L46-L51">Each memory then lives in three files: a SQLite row for its text, type, importance and counters, a row of 384 numbers in a NumPy matrix, and its ID in a list kept in matrix order.</p>
+          <h3><span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L28">384</span> numbers per memory</h3>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L34-L47">The backend embeds text with BAAI/bge-small-en-v1.5 through fastembed, which runs on ONNX Runtime</span>, so there is no PyTorch and no GPU. <span data-src="Olivesz/inf-mem@c6579f9:README.md#L73">The model downloads once, about 130 MB.</span></p>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L107-L109">Each memory is then one row of a single SQLite file, memories.db: its text, type, importance, counters and its 384 numbers.</span> <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L33-L37">On start the vectors are loaded into a matrix held in memory for search, with the IDs kept in matrix order.</span> <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L178-L181">A write touches only its own row.</span></p>
           <p>A prompt goes through the same model, but only to be compared. It is never stored.</p>
           <figure class="scene ig" id="s-store" aria-labelledby="s-store-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="model" data-at="6">Memory and prompt both go through the model, on this machine.</li>
-              <li data-key="vec" data-at="12">Each comes out as <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L46-L59">384</span> numbers. The prompt’s are only compared.</li>
-              <li data-key="files" data-at="18">Three files: a table, an <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L57">N × 384</span> matrix, the IDs.</li>
+              <li data-key="vec" data-at="12">Each comes out as <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> numbers. The prompt’s are only compared.</li>
+              <li data-key="files" data-at="18">On disk, one SQLite file. In memory, an <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L144">N × 384</span> matrix and the IDs.</li>
               <li data-key="align" data-at="24">Matrix row i goes with the ID in row i: a lookup.</li>
-              <li data-key="add" data-at="30">Only the memory is stored: a row, a vector, an ID.</li>
+              <li data-key="add" data-at="30">Only the memory is stored: one row, with its vector inside.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-store-cap"><span class="n">fig 5</span>schematic values. a prompt is embedded and compared, never stored; a memory is embedded and stored. <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L239-L250">ids are uuid4 strings</span>, shortened here. what broke, below, is what happened when the id file could not be read back.</figcaption>
+            <figcaption class="sc-cap" id="s-store-cap"><span class="n">fig 5</span>schematic values. a prompt is embedded and compared, never stored; a memory is embedded and stored. <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L211-L212">ids are uuid4 strings</span>, shortened here. the first version kept vectors and ids in two numpy files; what broke, below, happened there.</figcaption>
           </figure>
         </div>
 
         <div class="st" id="st-gate1">
           <p class="st-k">step 03 <span class="sep">·</span> the first gate</p>
-          <h3>Under <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L93">0.35</span>, never offered</h3>
-          <p data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L136-L140">The prompt’s vector is compared with every stored row by cosine. Anything under <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L93">0.35</span> is dropped here, before its importance is even looked at.</p>
+          <h3>Under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, never offered</h3>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L66-L73">The prompt is embedded with the model’s query instruction</span>, then <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L410-L412">compared with every stored row by cosine, in one pass</span>. Anything under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> is dropped here, before its importance is even looked at.</p>
+          <p>The gate used to be <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">0.35</span>, picked by hand. On held-out questions from LoCoMo, a public long-conversation benchmark, that let memories into <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span> of off-topic prompts. <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, chosen on the other half of the benchmark, cuts that to <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span>, while <span data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5</span> stays at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span> against <span data-src="Olivesz/inf-mem@c6579f9:README.md#L33">0.575</span> with no gate.</p>
           <figure class="scene ig" id="s-gate1" aria-labelledby="s-gate1-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
-              <li data-key="cards" data-at="0">The gate at <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L93">0.35</span>, and four stored memories, one per type.</li>
+              <li data-key="cards" data-at="0">The gate at <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, and four stored memories, one per type.</li>
               <li data-key="bars" data-at="8">Each memory’s cosine with the prompt. The values are examples.</li>
-              <li data-key="gate" data-at="14">Two fall under <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L93">0.35</span> and are never offered.</li>
+              <li data-key="gate" data-at="14">Two fall under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> and are never offered.</li>
               <li data-key="pass" data-at="20">Two survive. Only now does importance count.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-gate1-cap"><span class="n">fig 6</span>example similarities. a memory under <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L93">0.35</span> is never offered, however important it is. drag the gate to move it.</figcaption>
+            <figcaption class="sc-cap" id="s-gate1-cap"><span class="n">fig 6</span>example similarities. a memory under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> is never offered, however important it is. drag the gate to move it.</figcaption>
           </figure>
         </div>
 
         <div class="st" id="st-rank">
           <p class="st-k">step 04 <span class="sep">·</span> ranking</p>
-          <h3 data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L151-L153">similarity × (1 + importance / 10)</h3>
-          <p data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L146-L154">Closeness alone does not set the order. Each surviving memory’s similarity is multiplied by one plus a tenth of its importance, so importance can nearly double a score.</p>
-          <p><span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L92">The five best</span> go back to the browser, and <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L163-L168">each one returned counts one more access</span>.</p>
+          <h3 data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L157">similarity × (1 + importance / 10)</h3>
+          <p data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L134-L135">Closeness alone does not set the order. Each surviving memory’s similarity is multiplied by one plus a tenth of its importance, so importance can nearly double a score.</p>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L124">The five best</span> go back to the browser, and <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L161">each one returned counts one more access</span>.</p>
           <figure class="scene ig" id="s-rank" aria-labelledby="s-rank-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="claim" data-at="0">B ranks above A, though A is closer. Here is why.</li>
-              <li data-key="sim" data-at="6">By similarity alone, A (<span data-ex>0.90</span>) ranks above B (<span data-ex>0.50</span>).</li>
-              <li data-key="imp" data-at="12">Importance <span data-ex>1</span> and <span data-ex>10</span> make multipliers <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L151-L153">×1.1 and ×2.0</span>.</li>
-              <li data-key="swap" data-at="20">Scores <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L152-L153">0.99 and 1.00</span>: B moves above A.</li>
-              <li data-key="cut" data-at="26">Only the <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L92">top 5</span> go back.</li>
+              <li data-key="sim" data-at="6">By similarity alone, A (<span data-ex>0.90</span>) ranks above B (<span data-ex>0.62</span>).</li>
+              <li data-key="imp" data-at="12">Importance <span data-ex>1</span> and <span data-ex>10</span> make multipliers <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L134-L135">×1.1 and ×2.0</span>.</li>
+              <li data-key="swap" data-at="20">Scores <span data-derived="similarity × (1 + importance / 10), retriever.py#L157">0.99 and 1.24</span>: B moves above A.</li>
+              <li data-key="cut" data-at="26">Only the <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L124">top 5</span> go back.</li>
               <li data-key="count" data-at="32">Each returned memory’s access count goes up by one.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-rank-cap"><span class="n">fig 7</span>the rule is the code’s; the cards are set to show it. <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L152-L153">at 0.50 and importance 10 a memory scores 1.00, just above one at 0.90 and importance 1 (0.99)</span>. drag the sliders to re-rank.</figcaption>
+            <figcaption class="sc-cap" id="s-rank-cap"><span class="n">fig 7</span>the rule is the code’s; the cards are set to show it. <span data-derived="similarity × (1 + importance / 10), retriever.py#L157">at 0.62 and importance 10 a memory scores 1.24, above one at 0.90 and importance 1 (0.99)</span>. drag the sliders to re-rank.</figcaption>
           </figure>
         </div>
 
         <div class="st" id="st-panel">
           <p class="st-k">step 05 <span class="sep">·</span> the review panel</p>
           <h3>Nothing reaches the chat site without a click</h3>
-          <p data-src="Olivesz/inf-mem@2f86999:extension/content/shared.js#L111-L144">Before anything reaches the chat site, a panel slides in with the memories that would go with the prompt. Sending with memory, skipping, or compressing is one click; closing the panel sends nothing.</p>
-          <p><span data-src="Olivesz/inf-mem@2f86999:extension/background.js#L14">Compression is off by default.</span> When it is on, Groq rewrites the prompt shorter before the panel opens, and the panel previews <span data-src="Olivesz/inf-mem@2f86999:extension/content/shared.js#L101-L109">the first 150 characters</span>.</p>
+          <p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L95-L130">Before anything reaches the chat site, a panel slides in with the memories that would go with the prompt. Sending with memory, skipping, or compressing is one click; closing the panel sends nothing.</p>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L11">Compression is off by default.</span> When it is on, Groq rewrites the prompt shorter before the panel opens, and the panel previews <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L91">the first 150 characters</span>.</p>
           <figure class="scene ig" id="s-panel" aria-labelledby="s-panel-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
-              <li data-key="slide" data-at="6">The panel slides in, <span data-src="Olivesz/inf-mem@2f86999:extension/panel/panel.css#L9-L32">320 px wide, over 0.3 s</span>.</li>
+              <li data-key="slide" data-at="6">The panel slides in, <span data-src="Olivesz/inf-mem@c6579f9:extension/panel/panel.css#L9-L32">320 px wide, over 0.3 s</span>.</li>
               <li data-key="items" data-at="12">It lists the memories in rank order, each with its type.</li>
               <li data-key="buttons" data-at="16">Two buttons: send with memory, or skip it.</li>
               <li data-key="out" data-at="22">Beside it, what that button sends: context block, then prompt.</li>
@@ -323,16 +324,16 @@
         <div class="st" id="st-inject">
           <p class="st-k">step 06 <span class="sep">·</span> injection</p>
           <h3>A plain-text block above the prompt</h3>
-          <p data-src="Olivesz/inf-mem@2f86999:extension/content/shared.js#L50-L66">Approved memories become a plain-text block above the prompt, one line per memory, each marked with its type.</p>
-          <p data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L236-L302">The content script clears the site’s input box, inserts the full text the way typing would, waits <span data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L248-L249">50 ms</span> for the page to catch up, and presses Enter on the site’s behalf. From here the memories are part of the prompt, and the chat site receives them like any other text.</p>
+          <p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L46-L52">Approved memories become a plain-text block above the prompt, one line per memory, each marked with its type.</p>
+          <p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L219-L238">The content script clears the site’s input box, inserts the full text the way typing would, waits <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L227">50 ms</span> for the page to catch up, and clicks the site’s send button, or presses Enter when there is none. From here the memories are part of the prompt, and the chat site receives them like any other text.</p>
           <figure class="scene ig" id="s-inject" aria-labelledby="s-inject-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="lines" data-at="6">Each approved memory becomes one line: bullet, type, text.</li>
               <li data-key="block" data-at="12">Markers wrap the lines; then a blank line and the prompt.</li>
               <li data-key="insert" data-at="18">The input box is emptied and refilled, with an input event.</li>
-              <li data-key="wait" data-at="22">A <span data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L248-L249">50 ms</span> wait, so the page catches up.</li>
-              <li data-key="enter" data-at="28">Enter down and up are dispatched; the site sends the text.</li>
+              <li data-key="wait" data-at="22">A <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L227">50 ms</span> wait, so the page catches up.</li>
+              <li data-key="enter" data-at="28">The site’s send button is clicked, or Enter pressed; the site sends the text.</li>
             </ol>
             <figcaption class="sc-cap" id="s-inject-cap"><span class="n">fig 9</span>the literal block, type names as the code writes them. memories approved in the panel travel to the chat site as part of the prompt.</figcaption>
           </figure>
@@ -341,60 +342,62 @@
         <div class="st" id="st-extract">
           <p class="st-k">step 07 <span class="sep">·</span> learning from the reply</p>
           <h3>The Groq call that is always on</h3>
-          <p data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L309-L341">Each time the last reply on the page changes, the content script passes the prompt and that reply’s text to the worker, which <span data-src="Olivesz/inf-mem@2f86999:extension/background.js#L110-L123">posts them to the backend without waiting</span>.</p>
-          <p data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L28-L47">The backend sends both to Groq’s <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L151">llama-3.1-8b-instant</span> with fixed instructions: pick out facts, projects, preferences and episodes worth keeping, score each from 1 to 10, and answer with a JSON list, or an empty one. This is the Groq call that is always on; compression is the other, and it is off by default. <span data-src="Olivesz/inf-mem@2f86999:backend/main.py#L175-L179">Without a Groq key the backend refuses it</span>, and nothing new is learned, while <span data-src="Olivesz/inf-mem@2f86999:backend/main.py#L115-L153">retrieval keeps working</span>.</p>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L263-L283">Once the reply has finished streaming and its text has stayed the same</span> for <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L20">600 ms</span>, the content script passes the prompt and that reply to the worker, once, and the worker <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L110-L123">posts them to /extract without waiting</span>.</p>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L85">CI checks that on copies of both sites’ pages: one extraction per finished reply.</span> On the live sites, <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">ChatGPT’s composer was checked on 2026-10-13</span>; its reply markup, and claude.ai, are not checked yet.</p>
+          <p data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L28-L47">The backend sends both to Groq’s <span data-src="Olivesz/inf-mem@c6579f9:backend/config.py#L19">llama-3.1-8b-instant</span> with fixed instructions: pick out facts, projects, preferences and episodes worth keeping, score each from 1 to 10, and answer with a JSON list, or an empty one. This is the Groq call that is always on; compression is the other, and it is off by default. <span data-src="Olivesz/inf-mem@c6579f9:backend/main.py#L82-L85">Without a Groq key the backend refuses it</span>, and nothing new is learned, while <span data-src="Olivesz/inf-mem@c6579f9:backend/main.py#L122-L133">/retrieve keeps working</span>.</p>
           <figure class="scene ig" id="s-extract" aria-labelledby="s-extract-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
-              <li data-key="reply" data-at="6">The reply grows. Each change to the last message triggers a post.</li>
-              <li data-key="post" data-at="12">Each post carries the prompt and the reply so far. No waiting.</li>
+              <li data-key="reply" data-at="6">The reply streams in. Nothing is sent while it grows.</li>
+              <li data-key="post" data-at="12">Finished and still for <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L20">600 ms</span>: one post, prompt and reply. No waiting.</li>
               <li data-key="groq" data-at="18">The backend sends both to Groq, with fixed instructions.</li>
               <li data-key="list" data-at="24">Groq answers with a JSON list: text, type, keywords, importance.</li>
-              <li data-key="check" data-at="30">Not JSON, or <span data-src="Olivesz/inf-mem@2f86999:backend/models.py#L71">importance outside 1-10</span>: dropped. The rest are candidates.</li>
+              <li data-key="check" data-at="30">Not a JSON list: refused. <span data-src="Olivesz/inf-mem@c6579f9:backend/models.py#L79">Importance outside 1-10</span>: skipped. The rest are candidates.</li>
               <li data-key="wait" data-at="36">The candidates wait at the second gate.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-extract-cap"><span class="n">fig 10</span>cyan crosses the machine boundary: the prompt and the reply go to groq, once per change to the reply; the store does not. what comes back is a json list, checked before anything is kept.</figcaption>
+            <figcaption class="sc-cap" id="s-extract-cap"><span class="n">fig 10</span>cyan crosses the machine boundary: the prompt and the finished reply go to groq, once per reply; the store does not. what comes back is a json list, checked before anything is kept.</figcaption>
           </figure>
         </div>
 
         <div class="st" id="st-gate2">
           <p class="st-k">step 08 <span class="sep">·</span> the second gate</p>
-          <h3>Above <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L210">0.85</span>, the same memory</h3>
-          <p data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L194-L253">Each candidate is embedded on the machine and checked against the stored memories, newest first. The first one above <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L210">0.85</span> is treated as the same memory: the candidate replaces it if it is more important or longer, and is dropped otherwise. With no match it is added under a new ID, which means a SQLite row, a matrix row and an ID, saved together.</p>
+          <h3>At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above, the same memory</h3>
+          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L154-L161">Each candidate is embedded on the machine and scored against every stored memory in one pass. Only the closest counts.</span> At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above it is the same memory: <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L196-L209">the candidate replaces it if its importance is higher or its text longer, and is skipped otherwise</span>. <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L211-L220">Anything else is stored as a new memory, under a new ID.</span></p>
+          <p>The gate used to be <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">0.85</span>. On <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">180</span> hand-labelled pairs, no cosine threshold that merged anything was right <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">90%</span> of the time, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">39%</span> of the merges the old gate made joined two different facts. A paraphrase and a different fact score alike, so only near-verbatim restatements merge now.</p>
           <figure class="scene ig" id="s-gate2" aria-labelledby="s-gate2-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="embed" data-at="6">A candidate, embedded on this machine like everything else.</li>
-              <li data-key="sweep" data-at="14">Compared newest first; the sweep stops at the first over <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L210">0.85</span>.</li>
-              <li data-key="update" data-at="20">UPDATE: more important (<span data-ex>7 over 5</span>), so replaced in place, same ID.</li>
+              <li data-key="sweep" data-at="14">Scored against every stored memory at once; only the closest counts.</li>
+              <li data-key="update" data-at="20">UPDATE: the closest is more important (<span data-ex>7 over 5</span>), so replaced in place.</li>
               <li data-key="noop" data-at="26">NOOP: neither more important nor longer, so dropped as already kept.</li>
-              <li data-key="add" data-at="32">ADD: nothing over <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L210">0.85</span>, so a new row, vector and ID.</li>
-              <li data-key="axis" data-at="38">Two gates, one scale: <span data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L93">0.35</span> offers, <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L210">0.85</span> means the same memory.</li>
+              <li data-key="add" data-at="32">ADD: closest under <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span>, so a new row with its vector, and a new ID.</li>
+              <li data-key="axis" data-at="38">Two gates, one scale: <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> offers, <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> means the same memory.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-gate2-cap"><span class="n">fig 11</span>above <span data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L210">0.85</span> a candidate counts as a memory already kept: it replaces it only if more important or longer. otherwise it is added under a new id. the similarities are examples.</figcaption>
+            <figcaption class="sc-cap" id="s-gate2-cap"><span class="n">fig 11</span>at <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above a candidate counts as a memory already kept: it replaces it only if more important or longer. otherwise it is added under a new id. the similarities are examples.</figcaption>
           </figure>
         </div>
 
         <div class="st" id="st-ledger">
           <p class="st-k">step 09 <span class="sep">·</span> what crosses</p>
           <h3>What stays, what leaves</h3>
-          <p>Put together, a message makes three kinds of trip off the machine. The chat site was always going to get the prompt; it now also gets the memories approved in the panel. Groq gets the prompt and the reply for extraction, and the prompt alone for compression when that is on.</p>
-          <p>Storage, embedding, both gates and the ranking run on the machine. <span data-src="Olivesz/inf-mem@2f86999:extension/background.js#L211-L216">The extension’s own settings are three values in Chrome’s synced storage</span>, which Chrome copies to the user’s Google account when sync is on.</p>
+          <p>Put together, a message makes three kinds of trip off the machine. The chat site was always going to get the prompt; it now also gets the memories approved in the panel. Groq gets the prompt and the finished reply for extraction, once per reply, and the prompt alone for compression when that is on.</p>
+          <p>Storage, embedding, both gates and the ranking run on the machine. <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L282-L288">The extension’s own settings live in Chrome’s synced storage</span>, which Chrome copies to the user’s Google account when sync is on.</p>
           <figure class="scene ig wide" id="s-ledger" aria-labelledby="s-ledger-cap">
             <div class="sc-stage"><div class="sc-art"></div>
               <div class="ldg tbl">
                 <table class="pt">
                   <thead><tr><th scope="col">step</th><th scope="col">runs in</th><th scope="col">crosses to</th><th scope="col">what</th></tr></thead>
                   <tbody>
-                    <tr data-from="intercept"><th scope="row" data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L94-L105">intercept</th><td>this browser</td><td>nothing</td><td>key or click is held</td></tr>
-                    <tr data-from="retrieve"><th scope="row" data-src="Olivesz/inf-mem@2f86999:extension/background.js#L82-L86">retrieve</th><td>browser → this machine</td><td data-src="Olivesz/inf-mem@2f86999:extension/background.js#L16">localhost:7842</td><td>the prompt</td></tr>
-                    <tr data-from="rank"><th scope="row" data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L117-L170">embed · gate · rank</th><td>this machine</td><td>nothing</td><td data-src="Olivesz/inf-mem@2f86999:backend/retriever.py#L117-L170">384 numbers, cosine, score</td></tr>
-                    <tr data-from="compress"><th scope="row" data-src="Olivesz/inf-mem@2f86999:backend/compressor.py#L70-L84">compress</th><td>this machine → Groq</td><td>api.groq.com</td><td id="ldg-comp" data-src="Olivesz/inf-mem@2f86999:extension/background.js#L14">off by default</td></tr>
-                    <tr data-from="panel"><th scope="row" data-src="Olivesz/inf-mem@2f86999:extension/content/shared.js#L79-L168">review panel</th><td>this browser</td><td>nothing</td><td>list and buttons</td></tr>
-                    <tr data-from="send"><th scope="row" data-src="Olivesz/inf-mem@2f86999:extension/content/chatgpt.js#L236-L302">send</th><td>browser → chat site</td><td>the chat site</td><td id="ldg-send">the prompt and the approved memories</td></tr>
-                    <tr data-from="extract"><th scope="row" data-src="Olivesz/inf-mem@2f86999:backend/extractor.py#L129-L164">extract</th><td>this machine → Groq</td><td>api.groq.com</td><td>the prompt and the reply</td></tr>
-                    <tr data-from="write"><th scope="row" data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L46-L51">dedupe · write</th><td>this machine</td><td>nothing</td><td>rows in ~/.inf_mem</td></tr>
-                    <tr data-from="write"><th scope="row" data-src="Olivesz/inf-mem@2f86999:README.md#L98">model</th><td>arrives once</td><td>from the model host</td><td data-src="Olivesz/inf-mem@2f86999:README.md#L73">~130 MB</td></tr>
+                    <tr data-from="intercept"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L250-L261">intercept</th><td>this browser</td><td>nothing</td><td>key or click is held</td></tr>
+                    <tr data-from="retrieve"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L82-L86">retrieve</th><td>browser → this machine</td><td data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L18">localhost:7842</td><td>the prompt</td></tr>
+                    <tr data-from="rank"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L148-L162">embed · gate · rank</th><td>this machine</td><td>nothing</td><td data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L50-L63">384 numbers, cosine, score</td></tr>
+                    <tr data-from="compress"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:backend/compressor.py#L42">compress</th><td>this machine → Groq</td><td>api.groq.com</td><td id="ldg-comp" data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L11">off by default</td></tr>
+                    <tr data-from="panel"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L72-L131">review panel</th><td>this browser</td><td>nothing</td><td>list and buttons</td></tr>
+                    <tr data-from="send"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L219-L238">send</th><td>browser → chat site</td><td>the chat site</td><td id="ldg-send">the prompt and the approved memories</td></tr>
+                    <tr data-from="extract"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L225">extract</th><td>this machine → Groq</td><td>api.groq.com</td><td>the prompt and the finished reply</td></tr>
+                    <tr data-from="write"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L178">dedupe · write</th><td>this machine</td><td>nothing</td><td>a row in ~/.inf_mem/memories.db</td></tr>
+                    <tr data-from="write"><th scope="row" data-src="Olivesz/inf-mem@c6579f9:README.md#L73">model</th><td>arrives once</td><td>from the model host</td><td data-src="Olivesz/inf-mem@c6579f9:README.md#L73">~130 MB</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -406,10 +409,10 @@
               <li data-key="compress" data-at="20">Compression, if on: the prompt goes to Groq before the panel.</li>
               <li data-key="panel" data-at="24">The panel, in the browser. Nothing crosses.</li>
               <li data-key="send" data-at="30">Send: the prompt and the approved memories go to the chat site.</li>
-              <li data-key="extract" data-at="38">Extract: prompt and reply go to Groq, once per reply change.</li>
-              <li data-key="write" data-at="42">Dedupe and write: files, scores and unapproved memories stay home.</li>
+              <li data-key="extract" data-at="38">Extract: prompt and finished reply go to Groq, once per reply.</li>
+              <li data-key="write" data-at="42">Dedupe and write: the store, scores and unapproved memories stay home.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-ledger-cap"><span class="n">fig 12</span>every crossing for one message. the chat site gets the prompt and what was approved; groq gets the prompt (when compression is on) and the reply as it changes; the store’s files stay in ~/.inf_mem.</figcaption>
+            <figcaption class="sc-cap" id="s-ledger-cap"><span class="n">fig 12</span>every crossing for one message. the chat site gets the prompt and what was approved; groq gets the prompt (when compression is on) and the finished reply, once; the store stays in ~/.inf_mem.</figcaption>
           </figure>
         </div>
       </section>
@@ -418,8 +421,8 @@
       <section class="ch" id="ch-broke" aria-labelledby="h-broke">
         <p class="ch-k">04 <span class="sep">·</span> what broke</p>
         <h2 id="h-broke">The ID file</h2>
-        <p class="np">The bug lived between two runs.</p>
-        <p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L35">Vectors and IDs are saved as two NumPy files that must line up row for row.</span> <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L343-L347">Before the fix, the ID list was saved as a pickled object array.</span> Pickle is Python’s format for arbitrary objects, which NumPy refuses to load unless allowed, because loading it can run code. <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L56-L60">The store loads both files with pickle turned off</span>, so the ID file could not come back.</p>
+        <p class="np">The bug lived between two runs, in the store’s first version.</p>
+        <p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L35">Vectors and IDs were saved as two NumPy files that must line up row for row.</span> <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L343-L347">Before the fix, the ID list was saved as a pickled object array.</span> Pickle is Python’s format for arbitrary objects, which NumPy refuses to load unless allowed, because loading it can run code. <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L56-L60">The store loads both files with pickle turned off</span>, so the ID file could not come back.</p>
         <p>During a session the IDs sit in memory, so every add and search inside one run worked. On the next start <span data-src="Olivesz/inf-mem@2f86999:backend/main.py#L62-L81">the backend builds the store, the load fails, and the error stops the backend</span>; the extension then sends every prompt without memory.</p>
 
         <figure class="scene ig" id="s-idfile" aria-labelledby="s-idfile-cap">
@@ -436,121 +439,139 @@
           <figcaption class="sc-cap" id="s-idfile-cap"><span class="n">fig 13</span>the ids were written in a form the loader is set to refuse. nothing failed until the next start, so the test now opens the store twice.</figcaption>
         </figure>
 
-        <p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L342-L350">IDs now save as plain strings, with pickle off on both sides.</span> The lesson is in the test. A store that is only opened once can never show this bug, so <span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L126-L133">the test writes a memory, opens a second store on the same folder, and checks that the memory and a 1 × 384 matrix come back</span>.</p>
+        <p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L342-L350">The fix saved the IDs as plain strings, with pickle off on both sides.</span> The lesson is in the test. A store that is only opened once can never show this bug, so <span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L126-L133">the test writes a memory, opens a second store on the same folder, and checks that the memory and a 1 × 384 matrix come back</span>.</p>
+        <p>The store has since moved to SQLite, with each vector in its memory’s row, and <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L44-L46">an old pair of .npy files is migrated into the database once</span>. <span data-src="Olivesz/inf-mem@c6579f9:tests/test_backend.py#L125-L132">The test that opens the store twice is still there.</span></p>
         <p class="pull">A bug that only shows on the second start needs a test that starts twice.</p>
       </section>
 
       <!-- 05 -->
       <section class="ch" id="ch-results" aria-labelledby="h-results">
         <p class="ch-k">05 <span class="sep">·</span> results</p>
-        <h2 id="h-results">What is checked</h2>
-        <p class="np">There is no measurement of how good the offered memories are, or how fast they arrive.</p>
-        <p>What exists is an offline suite: importance bounds, the store’s round trips including a second open, retrieval’s top match and limit, and compression’s fallback.</p>
+        <h2 id="h-results">What is measured, and what is checked</h2>
+        <p class="np">Retrieval is measured on held-out data, speed on two machines, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">every push runs all five test tiers</span>.</p>
+        <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L29">On LoCoMo the gate was chosen on five conversations and measured on the other five, 776 questions.</span> <span data-src="Olivesz/inf-mem@c6579f9:README.md#L31">Recall@5</span> is <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span>, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span> of off-topic prompts still pull in a memory, against <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span> at the old gate.</p>
+        <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L39">Through the full HTTP stack, with the real model and store and Groq stubbed out</span>, /retrieve at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> memories takes <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5 ms</span> at the median and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">7 ms</span> at p95 on an Apple M5, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">15</span> / <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">19 ms</span> on the CI runner. /extract stays flat as the store grows: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L44">8 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L44">1,000</span> memories and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">9 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> on the M5. <span data-src="Olivesz/inf-mem@c6579f9:README.md#L84">CI fails if /extract at 10k takes more than twice as long as at 1k</span>; <a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">on the run for c6579f9</a> it took <span data-derived="20.88 ms / 17.86 ms, /extract p50 at 10k and 1k in that run’s scaling check">1.17</span> times as long.</p>
 
         <figure class="scene" id="s-results" aria-labelledby="s-results-cap">
           <div class="sc-stage"><div class="sc-art">
-            <ol class="tg" id="tg" aria-label="tests at 2f86999, on python 3.11 and 3.12"></ol>
-            <p class="tg-out" id="tg-out" aria-live="polite"><span class="k">pick a test to see what it checks</span></p>
+            <ol class="tg" id="tg" aria-label="ci jobs at c6579f9"></ol>
+            <p class="tg-out" id="tg-out" aria-live="polite"><span class="k">pick a tier to see what it checks</span></p>
             <ul class="stats" data-from="stats">
-              <li><span class="v" data-src="https://github.com/Olivesz/inf-mem/actions/runs/38284602893">18</span><span class="k">tests, all passed</span><span class="b">on <span data-src="Olivesz/inf-mem@2f86999:.github/workflows/ci.yml#L14">Python 3.11 and 3.12</span> · <span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L1-L5">offline</span> · at <span data-src="https://github.com/Olivesz/inf-mem/actions/runs/38284602893">2f86999</span></span></li>
+              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5, held out</span><span class="b" data-src="Olivesz/inf-mem@c6579f9:README.md#L29">776 questions the gate never saw</span></li>
+              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span><span class="k">off-topic prompts still inject</span><span class="b">the old <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">0.35</span> gate: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span></span></li>
+              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5 / 7 ms</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">/retrieve p50 / p95, 10,000 memories</span><span class="b">Apple M5; <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">15 / 19 ms</span> on the CI runner</span></li>
             </ul>
           </div></div>
           <ol class="sc-keys">
-            <li data-key="grid" data-at="0"><span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L49-L221">Eighteen tests in four groups</span>, two Python versions, ruff above.</li>
-            <li data-key="pass" data-at="10"><span data-src="https://github.com/Olivesz/inf-mem/actions/runs/38284602893">At 2f86999 every cell passes, on 3.11 and on 3.12.</span></li>
-            <li data-key="stats" data-at="12">The model and Groq are stand-ins, so it runs offline.</li>
+            <li data-key="grid" data-at="0"><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">Five test tiers on every push</span>, after a lint pass; unit + API on two Pythons.</li>
+            <li data-key="pass" data-at="10"><a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">At c6579f9 every job passes.</a></li>
+            <li data-key="stats" data-at="12">Held-out recall, off-topic rate and speed, from the README’s own tables.</li>
           </ol>
-          <figcaption class="sc-cap" id="s-results-cap"><span class="n">fig 14</span><span data-src="https://github.com/Olivesz/inf-mem/actions/runs/38284602893">ci at 2f86999: 18 tests on python 3.11 and 3.12</span>, offline, with the model and groq replaced by stand-ins. the repository holds no recall or latency measurement. <span class="verb">click</span> a group to open it, and a test to see what it checks.</figcaption>
+          <figcaption class="sc-cap" id="s-results-cap"><span class="n">fig 14</span><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">ci at c6579f9: lint, then five tiers, from mocked endpoints to the extension in chromium</span>. <span class="verb">click</span> a tier to open it, and a line to see what it checks.</figcaption>
         </figure>
-        <p class="sc-note" data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L18-L21">not covered by tests: extraction, the api routes, the extension.</p>
+        <p class="sc-note" data-src="Olivesz/inf-mem@c6579f9:README.md#L81-L85">not covered by tests: the live Groq model. every tier mocks or fakes it.</p>
 
         <details class="srcs-d" id="s-src">
-          <summary>sources · 84 lines pinned to inf-mem@2f86999</summary>
+          <summary>sources · 90 lines pinned to inf-mem@c6579f9, and 7 to 2f86999 for the id-file bug</summary>
           <ol class="srcs" id="srcs">
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/.github/workflows/ci.yml#L14" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · .github/workflows/ci.yml#L14</a> Python 3.11 and 3.12</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/.github/workflows/ci.yml#L29-L30" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · .github/workflows/ci.yml#L29-L30</a> ruff · real-bug rules</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L5" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L5</a> Storage and search run on the machine; extraction and compression call…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L11" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L11</a> A chat model keeps nothing once a conversation ends.</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L15-L27" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L15-L27</a> How a prompt picks up memories before it is sent, and how the reply tur…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L52-L73" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L52-L73</a> Python · FastAPI · SQLite · ONNX · Chrome extension</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L73" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L73</a> ~130 MB</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/README.md#L98" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · README.md#L98</a> The model downloads once, about 130 MB.</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/compressor.py#L70-L84" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/compressor.py#L70-L84</a> compress</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L28-L47" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L28-L47</a> The backend sends both to Groq’s llama-3.1-8b-instant with fixed instru…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L129-L164" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L129-L164</a> extract</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L150-L164" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L150-L164</a> temperature 0.3</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L151" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L151</a> llama-3.1-8b-instant</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L194-L253" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L194-L253</a> Each candidate is embedded on the machine and checked against the store…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L210" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L210</a> 0.85</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L239-L250" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L239-L250</a> 3f2a…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/extractor.py#L245-L253" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/extractor.py#L245-L253</a> unknown type: dropped here</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/.github/workflows/ci.yml#L16-L17" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · .github/workflows/ci.yml#L16-L17</a> lint · ruff</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/.github/workflows/ci.yml#L43-L44" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · .github/workflows/ci.yml#L43-L44</a> coverage gate</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L5" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L5</a> The idea is one memory store on the machine, outside every conversation…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L14-L22" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L14-L22</a> How a prompt picks up memories before it is sent, and how the reply tur…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L29" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L29</a> On LoCoMo the gate was chosen on five conversations and measured on the…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L31" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L31</a> recall@5</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L33" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L33</a> 0.575</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L34" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L34</a> 0.35</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L35" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L35</a> 4.4%</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L37" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L37</a> 0.85</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L39" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L39</a> Through the full HTTP stack, with the real model and store and Groq stu…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L44" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L44</a> 8 ms</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L45" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L45</a> 10,000</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L48" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L48</a> 15</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L53-L60" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L53-L60</a> Storage and search run on the machine; extraction and compression call…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L62" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L62</a> CORS: extension origins only</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L73" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L73</a> The model downloads once, about 130 MB.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L79-L87" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L79-L87</a> Five test tiers on every push</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L81" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81</a> unit + API · 4</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L81-L85" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81-L85</a> not covered by tests: the live Groq model. every tier mocks or fakes it.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L82" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L82</a> real model · 1</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L83" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L83</a> eval check · 1</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L84" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L84</a> CI fails if /extract at 10k takes more than twice as long as at 1k</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L85" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L85</a> CI checks that on copies of both sites’ pages: one extraction per finis…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L87" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L87</a> ChatGPT’s composer was checked on 2026-10-13</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L89-L105" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L89-L105</a> Python · FastAPI · SQLite · ONNX · Chrome extension</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L107-L109" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L107-L109</a> Each memory is then one row of a single SQLite file, memories.db: its t…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/compressor.py#L42" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/compressor.py#L42</a> compress</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/config.py#L19" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/config.py#L19</a> llama-3.1-8b-instant</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L28-L47" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L28-L47</a> The backend sends both to Groq’s llama-3.1-8b-instant with fixed instru…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L51" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L51</a> 0.98</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L115" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L115</a> temperature 0.3</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L116" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L116</a> up to 1024 tokens</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L154-L161" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L154-L161</a> Each candidate is embedded on the machine and scored against every stor…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L178" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L178</a> dedupe · write</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L185-L191" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L185-L191</a> bad type or importance: skipped</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L196-L209" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L196-L209</a> the candidate replaces it if its importance is higher or its text longe…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L211-L212" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L211-L212</a> 3f2a…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L211-L220" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L211-L220</a> Anything else is stored as a new memory, under a new ID.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/extractor.py#L225" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/extractor.py#L225</a> extract</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/main.py#L82-L85" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/main.py#L82-L85</a> Without a Groq key the backend refuses it</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/main.py#L122-L133" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/main.py#L122-L133</a> /retrieve keeps working</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/main.py#L149-L150" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/main.py#L149-L150</a> not a JSON list: refused, nothing stored</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/main.py#L188" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/main.py#L188</a> 127.0.0.1:7842</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L28" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L28</a> 384</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L33-L35" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L33-L35</a> SQLite · on disk</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L33-L37" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L33-L37</a> On start the vectors are loaded into a matrix held in memory for search…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L44-L46" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L44-L46</a> an old pair of .npy files is migrated into the database once</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L144" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L144</a> N × 384</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L178-L181" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L178-L181</a> A write touches only its own row.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L410-L412" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L410-L412</a> compared with every stored row by cosine, in one pass</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/models.py#L66" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/models.py#L66</a> a request may set its own gate; left out, it is the calibrated default.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/models.py#L79" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/models.py#L79</a> Importance outside 1-10</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L31" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L31</a> 0.61</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L34-L47" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L34-L47</a> The backend embeds text with BAAI/bge-small-en-v1.5 through fastembed,…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L50-L63" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L50-L63</a> 384 numbers, cosine, score</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L52" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L52</a> 384 numbers · schematic</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L57-L63" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L57-L63</a> float32, shape (384,)</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L66-L73" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L66-L73</a> The prompt is embedded with the model’s query instruction</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L76-L99" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L76-L99</a> The search here works by meaning, not by matching words. A small model…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L124" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L124</a> The five best</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L134-L135" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L134-L135</a> Closeness alone does not set the order. Each surviving memory’s similar…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L148-L162" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L148-L162</a> embed · gate · rank</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L157" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L157</a> similarity × (1 + importance / 10)</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L161" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L161</a> each one returned counts one more access</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/docs/make_popup_screenshot.py#L23-L28" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · docs/make_popup_screenshot.py#L23-L28</a> memories of the repo’s invented demo user</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L7-L8" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L7-L8</a> The page’s script cannot reach localhost itself, so the extension’s ser…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L11" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L11</a> Compression is off by default.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L16" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L16</a> off</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L18" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L18</a> port 7842</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L82-L86" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L82-L86</a> retrieve</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L110-L123" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L110-L123</a> posts them to /extract without waiting</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L282-L288" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L282-L288</a> The extension’s own settings live in Chrome’s synced storage</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/chatgpt.js#L15" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/chatgpt.js#L15</a> the send button</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L20" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L20</a> 600 ms</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L46-L52" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L46-L52</a> Approved memories become a plain-text block above the prompt, one line…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L72-L131" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L72-L131</a> review panel</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L91" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L91</a> the first 150 characters</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L95-L130" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L95-L130</a> Before anything reaches the chat site, a panel slides in with the memor…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L102" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L102</a> Injected Memories (2)</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L195-L198" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L195-L198</a> If the worker answers with an error, or no memory passes the gate, the…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L219-L238" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L219-L238</a> The content script clears the site’s input box, inserts the full text t…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L227" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L227</a> 50 ms</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L250-L255" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L250-L255</a> Enter (without Shift)</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L250-L261" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L250-L261</a> intercept</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/content/shared.js#L263-L283" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/content/shared.js#L263-L283</a> Once the reply has finished streaming and its text has stayed the same</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/manifest.json#L23-L48" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/manifest.json#L23-L48</a> On chatgpt.com, chat.openai.com and claude.ai, a content script listens…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/panel/panel.css#L9-L32" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/panel/panel.css#L9-L32</a> 320 px wide, over 0.3 s</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/tests/test_backend.py#L125-L132" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · tests/test_backend.py#L125-L132</a> The test that opens the store twice is still there.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/tests/test_backend.py#L139-L146" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · tests/test_backend.py#L139-L146</a> 1 same, 0 unrelated, −1 opposite</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L62-L81" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/main.py#L62-L81</a> the backend builds the store, the load fails, and the error stops the b…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L115-L153" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/main.py#L115-L153</a> retrieval keeps working</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L175-L179" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/main.py#L175-L179</a> Without a Groq key the backend refuses it</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/main.py#L292-L296" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/main.py#L292-L296</a> 127.0.0.1:7842</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L35" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L35</a> Vectors and IDs are saved as two NumPy files that must line up row for…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L46-L51" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L46-L51</a> Each memory then lives in three files: a SQLite row for its text, type,…</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L35" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L35</a> Vectors and IDs were saved as two NumPy files that must line up row for…</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L56-L60" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L56-L60</a> The store loads both files with pickle turned off</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L57" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L57</a> N × 384</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L108-L109" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L108-L109</a> 384 numbers · schematic</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L342-L350" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L342-L350</a> IDs now save as plain strings, with pickle off on both sides.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L342-L350" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L342-L350</a> The fix saved the IDs as plain strings, with pickle off on both sides.</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/memory_store.py#L343-L347" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/memory_store.py#L343-L347</a> Before the fix, the ID list was saved as a pickled object array.</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/models.py#L56-L58" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/models.py#L56-L58</a> a request may set it; the default is 0.35.</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/models.py#L71" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/models.py#L71</a> importance outside 1-10</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L24-L43" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L24-L43</a> The backend embeds text with BAAI/bge-small-en-v1.5 through fastembed,…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L46-L59" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L46-L59</a> The search here works by meaning, not by matching words. A small model…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L92" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L92</a> The five best</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L93" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L93</a> 0.35</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L117-L170" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L117-L170</a> embed · gate · rank</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L136-L140" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L136-L140</a> The prompt’s vector is compared with every stored row by cosine. Anythi…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L146-L154" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L146-L154</a> Closeness alone does not set the order. Each surviving memory’s similar…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L151-L153" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L151-L153</a> similarity × (1 + importance / 10)</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L152-L153" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L152-L153</a> 0.99 and 1.00</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/backend/retriever.py#L163-L168" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · backend/retriever.py#L163-L168</a> each one returned counts one more access</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L7-L8" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L7-L8</a> The page’s script cannot reach localhost itself, so the extension’s ser…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L14" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L14</a> Compression is off by default.</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L16" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L16</a> port 7842</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L77-L93" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L77-L93</a> localhost:7842/retrieve</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L82-L86" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L82-L86</a> retrieve</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L110-L123" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L110-L123</a> posts them to the backend without waiting</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/background.js#L211-L216" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/background.js#L211-L216</a> The extension’s own settings are three values in Chrome’s synced storage</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L94-L105" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/chatgpt.js#L94-L105</a> Enter (without Shift)</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L134-L145" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/chatgpt.js#L134-L145</a> the send button</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L236-L302" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/chatgpt.js#L236-L302</a> The content script clears the site’s input box, inserts the full text t…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L248-L249" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/chatgpt.js#L248-L249</a> 50 ms</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/chatgpt.js#L309-L341" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/chatgpt.js#L309-L341</a> Each time the last reply on the page changes, the content script passes…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L50-L66" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/shared.js#L50-L66</a> Approved memories become a plain-text block above the prompt, one line…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L79-L168" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/shared.js#L79-L168</a> review panel</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L101-L109" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/shared.js#L101-L109</a> the first 150 characters</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L111-L144" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/shared.js#L111-L144</a> Before anything reaches the chat site, a panel slides in with the memor…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/content/shared.js#L121" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/content/shared.js#L121</a> Injected Memories (2)</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/manifest.json#L19-L45" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/manifest.json#L19-L45</a> On chatgpt.com, chat.openai.com and claude.ai, a content script listens…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/extension/panel/panel.css#L9-L32" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · extension/panel/panel.css#L9-L32</a> 320 px wide, over 0.3 s</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L1-L5" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L1-L5</a> offline</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L18-L21" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L18-L21</a> not covered by tests: extraction, the api routes, the extension.</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L49-L221" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L49-L221</a> models · 3</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L49" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L49</a> importance bounds enforced</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L58" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L58</a> threshold bounds</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L65" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L65</a> memory type round trip</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L73" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L73</a> add and get by id</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L82" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L82</a> rejects a bad vector shape</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L87" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L87</a> lists and scopes by user</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L95" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L95</a> update changes text and vector</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L104" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L104</a> delete removes row and vector</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L112" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L112</a> counts an access</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L119" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L119</a> missing id raises</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L126-L133" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L126-L133</a> the test writes a memory, opens a second store on the same folder, and…</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L126" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L126</a> persists across instances</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L133" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L133</a> 4 the matrix is 1 × 384</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L140-L147" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L140-L147</a> 1 same, 0 unrelated, −1 opposite</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L140" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L140</a> cosine cases</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L150" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L150</a> returns the relevant memory</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L164" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L164</a> respects the limit</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L174" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L174</a> empty store returns nothing</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L183" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L183</a> token estimate grows</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L208" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L208</a> compress, happy path</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/2f86999b1dd2aa13af2ab4599c2e961999ccf414/tests/test_backend.py#L216" target="_blank" rel="noopener noreferrer">inf-mem@2f86999 · tests/test_backend.py#L216</a> falls back on an API error</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/actions/runs/38284602893" target="_blank" rel="noopener noreferrer">inf-mem · CI run 38284602893</a> 18</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">inf-mem · CI run 38488383502</a> every job passes at c6579f9; /extract at 10k took 1.17 times its 1k time</li>
           </ol>
         </details>
       </section>
@@ -573,14 +594,14 @@
   "use strict";
   var NS = "http://www.w3.org/2000/svg";
   var EX = {
-    proj: "Working on a comic OCR pipeline in Python",
-    pref: "Prefers concise answers, no bullet points",
-    epi: "Had a long debug session on ChromaDB embeddings",
-    fact: "Personal facts about the user (name, job, location, background, relationships)",
-    prompt: "Rewrite this paragraph so it reads better."
+    proj: "User is writing a compiler in Rust",
+    pref: "User prefers concise answers without bullet points",
+    epi: "User spent a week debugging SQLite locking errors",
+    fact: "User plays the cello in a community orchestra",
+    prompt: "Make this Rust error message shorter."
   };
   var CH = 7.04;                                                   // mono 11 advance with .04em tracking, px
-  var PIN = "Olivesz/inf-mem@2f86999:";
+  var PIN = "Olivesz/inf-mem@c6579f9:", OLD = "Olivesz/inf-mem@2f86999:";
   var checks = {};
 
   /* ---------- svg helpers ---------- */
@@ -591,7 +612,7 @@
     o = o || {};
     var e = el("text", { x: x, y: y, "class": cls || "lb", "text-anchor": o.a || null }, p);
     e.textContent = o.w ? (o.flat ? fitFlat(s, o.w) : fit(s, o.w)) : s;
-    if (o.src) e.setAttribute("data-src", PIN + o.src);
+    if (o.src) e.setAttribute("data-src", o.src.indexOf("@") >= 0 ? o.src : PIN + o.src);
     return e;
   }
   function bx(p, x, y, w, h, cls) { return el("rect", { x: x + 0.5, y: y + 0.5, width: w - 1, height: h - 1, "class": cls || "bx" }, p); }
@@ -709,7 +730,7 @@
     if (!L.n) ZN.forEach(function (z, i) { Z[z[0]] = { x: wide[i][0], y: wide[i][1], w: wide[i][2], h: wide[i][3] }; });
     else { var y = 0; (order || "bmsg").split("").forEach(function (c) { var i = "bmsg".indexOf(c); Z[c] = { x: 0, y: y, w: 328, h: tall[i] }; y += tall[i] + 16; }); }
     ZN.forEach(function (z) { var r = Z[z[0]]; bx(p, r.x, r.y, r.w, r.h, ZC[z[0]]); tx(p, r.x + 8, r.y + 16, z[1], "lb"); });
-    tx(p, Z.m.x + 8, Z.m.y + 32, "127.0.0.1:7842", "lb", { src: "backend/main.py#L292-L296" });
+    tx(p, Z.m.x + 8, Z.m.y + 32, "127.0.0.1:7842", "lb", { src: "backend/main.py#L188" });
     return Z;
   }
 
@@ -768,7 +789,7 @@
     var n = L.n, O = n ? [104, 292] : [296, 168], R = n ? 96 : 136, GY = n ? 24 : 120;
     // the 384 numbers, 24 by 16, schematic; blue, computed on this machine, as in scene 5
     var G = g(p), cells = [], seed = 7;
-    tx(p, 0, GY - 8, "384 numbers · schematic", "lb", { src: "backend/memory_store.py#L108-L109" });
+    tx(p, 0, GY - 8, "384 numbers · schematic", "lb", { src: "backend/retriever.py#L52" });
     for (var i = 0; i < 384; i++) { seed = (seed * 1103515245 + 12345) & 0x7fffffff; var c = fl(G, (i % 24) * 6, GY + ((i / 24) | 0) * 6, 5, 5, (seed >> 8) % 3 ? "f-res" : "f-blue"); c.style.opacity = "0"; cells.push(c); }
     L.fx.push(function (t) { var k = Math.round(384 * frac(t, 0, 7)); cells.forEach(function (c, j) { c.style.opacity = j < k ? "1" : "0"; c.classList.toggle("settled", t >= 8); }); });
     var k1 = kg(p, "from", "vec");
@@ -882,7 +903,7 @@
 
   /* ============ scene 4 · holding the prompt ============ */
   var s4on = true, s4user = false, s4;
-  s4 = make("s-hold", "The content script cancels Enter and the send button, reads the text, and hands it to the service worker, which posts it to the backend. Shift and Enter still makes a new line. With the backend stopped, the worker returns an error, and the script puts the text back and presses Enter, so the site sends it unchanged.", function (L, p) {
+  s4 = make("s-hold", "The content script cancels Enter and the send button, reads the text, and hands it to the service worker, which posts it to the backend. Shift and Enter still makes a new line. With the backend stopped, the worker returns an error, and the script puts the text back and sends it, so the site gets it as typed.", function (L, p) {
     var n = L.n, B, M, S;
     if (!n) { B = { x: 0, y: 0, w: 456, h: 248 }; M = { x: 472, y: 0, w: 232, h: 112 }; S = { x: 472, y: 128, w: 232, h: 120 }; }
     else { B = { x: 0, y: 0, w: 328, h: 296 }; M = { x: 0, y: 312, w: 160, h: 88 }; S = { x: 168, y: 312, w: 160, h: 88 }; }
@@ -951,7 +972,7 @@
   });
 
   /* ============ scene 5 · 384 numbers per memory ============ */
-  make("s-store", "Schematic. A memory and a prompt both go through the embedding model on this machine and come out as 384 numbers; the prompt's are only compared, never stored. The store keeps three files: a SQLite table, an N by 384 matrix, and the IDs in matrix order, drawn as shortened uuid4 strings. Adding a memory adds to all three.", function (L, p) {
+  make("s-store", "Schematic. A memory and a prompt both go through the embedding model on this machine and come out as 384 numbers; the prompt's are only compared, never stored. The store is one SQLite file on disk, each row holding a memory and its vector; in memory, an N by 384 matrix and the IDs in matrix order, drawn as shortened uuid4 strings. Adding a memory writes one row.", function (L, p) {
     var n = L.n, Mo, Gd, D, E, I, H, LW = n ? 328 : 296;
     if (!n) { Mo = { x: 0, y: 80, w: 296, h: 40 }; Gd = { x: 0, y: 152 }; D = { x: 312, y: 0, w: 392, h: 120 }; E = { x: 312, y: 136, w: 248, h: 112 }; I = { x: 576, y: 136, w: 128, h: 112 }; H = 288; }
     else { Mo = { x: 0, y: 80, w: 328, h: 40 }; Gd = { x: 0, y: 152 }; D = { x: 0, y: 240, w: 328, h: 136 }; E = { x: 0, y: 392, w: 208, h: 112 }; I = { x: 216, y: 392, w: 112, h: 112 }; H = 544; }
@@ -959,27 +980,27 @@
     tx(p, 0, 48, "a prompt · embedded, compared, not stored", "lb"); tx(p, 0, 64, EX.prompt, "lb-i", { w: LW });
     bx(p, Mo.x, Mo.y, Mo.w, Mo.h, "s-blue"); tx(p, Mo.x + 12, Mo.y + 24, "bge-small-en-v1.5 · ONNX Runtime", "lb-i", { w: Mo.w - 20 });
     var dl = kg(p, "from", "model");
-    tx(dl, 0, Mo.y + Mo.h + 16, "downloaded once · ~130 MB", "lb", { src: "README.md#L98" });
+    tx(dl, 0, Mo.y + Mo.h + 16, "downloaded once · ~130 MB", "lb", { src: "README.md#L73" });
     pk(L, p, "f-ink", [[12, 34], [12, Mo.y + 4]], 0.5, 6);
     pk(L, p, "f-mut", [[28, 70], [28, Mo.y + 4]], 0.5, 6);
     // 384 cells, schematic
     var cells = [], seed = 11;
     for (var i = 0; i < 384; i++) { seed = (seed * 1103515245 + 12345) & 0x7fffffff; var c = fl(p, Gd.x + (i % 24) * 4, Gd.y + ((i / 24) | 0) * 4, 3, 3, (seed >> 8) % 3 ? "f-res" : "f-blue"); c.style.opacity = "0"; cells.push(c); }
     L.fx.push(function (t) { var k = Math.round(384 * frac(t, 6.5, 11.5)); cells.forEach(function (c, j) { c.style.opacity = j < k ? "1" : "0"; }); });
-    var gl = kg(p, "from", "vec"); tx(gl, Gd.x + 104, Gd.y + 20, "384 numbers each", "lb-i", { src: "backend/retriever.py#L46-L59" }); tx(gl, Gd.x + 104, Gd.y + 36, "float32, shape (384,)", "lb", { src: "backend/retriever.py#L46-L59" });
+    var gl = kg(p, "from", "vec"); tx(gl, Gd.x + 104, Gd.y + 20, "384 numbers each", "lb-i", { src: "backend/retriever.py#L52" }); tx(gl, Gd.x + 104, Gd.y + 36, "float32, shape (384,)", "lb", { src: "backend/retriever.py#L57-L63" });
     tx(gl, Gd.x + 104, Gd.y + 52, "the prompt’s: compared only", "lb", { w: (n ? 328 : 296) - 104 });
-    // the three files, on this machine
+    // one file on disk, a matrix and the ids in memory
     var fz = kg(p, "from", "files");
-    bx(fz, D.x, D.y, D.w, D.h, "s-blue"); tx(fz, D.x + 8, D.y + 16, "memories.db", "lb-i"); tx(fz, D.x + D.w - 8, D.y + 16, "SQLite", "lb", { a: "end" });
-    if (!n) { tx(fz, D.x + 8, D.y + 36, "id · user_id · text · type · keywords", "lb"); tx(fz, D.x + 8, D.y + 52, "importance · created_at · updated_at · access_count", "lb"); }
-    else { tx(fz, D.x + 8, D.y + 36, "id · user_id · text · type", "lb"); tx(fz, D.x + 8, D.y + 52, "keywords · importance · created_at", "lb"); tx(fz, D.x + 8, D.y + 68, "updated_at · access_count", "lb"); }
+    bx(fz, D.x, D.y, D.w, D.h, "s-blue"); tx(fz, D.x + 8, D.y + 16, "memories.db", "lb-i"); tx(fz, D.x + D.w - 8, D.y + 16, "SQLite · on disk", "lb", { a: "end", src: "backend/memory_store.py#L33-L35" });
+    if (!n) { tx(fz, D.x + 8, D.y + 36, "id · user_id · text · type · keywords · importance", "lb"); tx(fz, D.x + 8, D.y + 52, "created_at · updated_at · access_count · embedding", "lb"); }
+    else { tx(fz, D.x + 8, D.y + 36, "id · user_id · text · type · keywords", "lb"); tx(fz, D.x + 8, D.y + 52, "importance · created_at · updated_at", "lb"); tx(fz, D.x + 8, D.y + 68, "access_count · embedding", "lb"); }
     var r0 = D.y + (n ? 80 : 64);
     for (var j = 0; j < 3; j++) fl(fz, D.x + 8, r0 + j * 12, D.w - 16, 8, "f-res");
-    bx(fz, E.x, E.y, E.w, E.h, "s-blue"); tx(fz, E.x + 8, E.y + 16, "embeddings.npy", "lb-i"); tx(fz, E.x + E.w - 8, E.y + 16, "N × 384", "lb", { a: "end", src: "backend/memory_store.py#L57" });
+    bx(fz, E.x, E.y, E.w, E.h, "s-blue"); tx(fz, E.x + 8, E.y + 16, "matrix · in memory", "lb-i", { w: E.w - 72 }); tx(fz, E.x + E.w - 8, E.y + 16, "N × 384", "lb", { a: "end", src: "backend/memory_store.py#L144" });
     for (j = 0; j < 3; j++) { fl(fz, E.x + 8, E.y + 32 + j * 12, E.w - 16, 8, "f-res"); for (var u = 0; u < (E.w - 16) / 8; u += 3) fl(fz, E.x + 8 + u * 8 + ((u * 7 + j * 5) % 3) * 2, E.y + 34 + j * 12, 2, 4, "f-cop"); }
-    bx(fz, I.x, I.y, I.w, I.h, "s-blue"); tx(fz, I.x + 8, I.y + 16, "memory_ids.npy", "lb-i", { w: I.w - 16 });
+    bx(fz, I.x, I.y, I.w, I.h, "s-blue"); tx(fz, I.x + 8, I.y + 16, "ids · in memory", "lb-i", { w: I.w - 16 });
     var UID = ["3f2a…", "9c1e…", "07b4…"];
-    for (j = 0; j < 3; j++) tx(fz, I.x + 8, I.y + 40 + j * 12, UID[j], "lb", { src: "backend/extractor.py#L239-L250" });
+    for (j = 0; j < 3; j++) tx(fz, I.x + 8, I.y + 40 + j * 12, UID[j], "lb", { src: "backend/extractor.py#L211-L212" });
     // alignment: row 1 in all three
     var al = kg(p, "from", "align");
     bx(al, D.x + 4, r0 + 12 - 3, D.w - 8, 14, "s-ink"); bx(al, E.x + 4, E.y + 44 - 3, E.w - 8, 14, "s-ink"); bx(al, I.x + 4, I.y + 41, I.w - 8, 14, "s-ink");
@@ -987,17 +1008,17 @@
     // an add: the memory, never the prompt
     var ad = kg(p, "from", "add");
     fl(ad, D.x + 8, r0 + 36, D.w - 16, 8, "f-green"); fl(ad, E.x + 8, E.y + 68, E.w - 16, 8, "f-green"); tx(ad, I.x + 8, I.y + 76, "e81d…", "lb f-green");
-    check(ad, E.x + E.w - 18, E.y + 92); tx(ad, E.x + E.w - 24, E.y + 100, "saved", "lb f-green", { a: "end" });
-    check(ad, I.x + I.w - 18, I.y + 92); tx(ad, I.x + I.w - 24, I.y + 100, "saved", "lb f-green", { a: "end" });
+    
+    tx(ad, E.x + E.w - 8, E.y + 100, "appended", "lb f-green", { a: "end" }); tx(ad, I.x + I.w - 8, I.y + 100, "appended", "lb f-green", { a: "end" });
     return H;
   }, { ticks: 30, rest: "align" });
 
   /* ============ scene 6 · the first gate ============ */
-  var G1 = [["FACT", EX.fact, 0.18], ["PROJECT", EX.proj, 0.41], ["PREFERENCE", EX.pref, 0.62], ["EPISODE", EX.epi, 0.22]];
-  var g1gate = 0.35, g1manual = false, s6, g1rg, g1cnt;
+  var GATE = 0.61, G1 = [["FACT", EX.fact, 0.43], ["PROJECT", EX.proj, 0.64], ["PREFERENCE", EX.pref, 0.72], ["EPISODE", EX.epi, 0.47]];
+  var g1gate = GATE, g1manual = false, s6, g1rg, g1cnt;
   function g1pass(gt) { return G1.filter(function (c) { return c[2] >= gt; }).map(function (c) { return c[0]; }); }
-  checks["s-gate1"] = g1pass(0.35).join() === "PROJECT,PREFERENCE";
-  s6 = make("s-gate1", "Four stored memories, each with an example cosine against the prompt. The gate at 0.35 drops the two below it before importance is considered.", function (L, p) {
+  checks["s-gate1"] = g1pass(GATE).join() === "PROJECT,PREFERENCE" && g1pass(0.35).length === 4;
+  s6 = make("s-gate1", "Four stored memories, each with an example cosine against the prompt. The gate at 0.61 drops the two below it before importance is considered.", function (L, p) {
     var n = L.n, X0 = n ? 0 : 352, BW = n ? 328 : 352, rows = [];
     tx(p, n ? 328 : 704, 12, "example values", "lb", { a: "end" });
     if (!n) { tx(p, X0, 12, "0", "lb"); }
@@ -1014,11 +1035,11 @@
     var gl = g(p); var gline = fl(gl, 0, top, 2, bot - top, "f-amber"); var glab = tx(gl, 0, top - 4, "", "lb f-amber", { a: "middle" });
     if (n) glab.setAttribute("y", bot + 16);
     L.fx.push(function (t) {
-      var gt = g1manual ? g1gate : 0.35, gx = Math.round(X0 + BW * gt);
+      var gt = g1manual ? g1gate : GATE, gx = Math.round(X0 + BW * gt);
       var shown = true;
       gline.style.opacity = shown ? "1" : "0"; glab.style.opacity = shown ? "1" : "0";
       gline.setAttribute("x", Math.min(X0 + BW - 1, gx)); glab.setAttribute("x", Math.min(X0 + BW - 16, Math.max(X0 + 16, gx)));
-      glab.textContent = (g1manual ? gt : 0.35).toFixed(2);
+      glab.textContent = (g1manual ? gt : GATE).toFixed(2);
       var settled = g1manual || t >= 14;
       rows.forEach(function (R) {
         var w = Math.round(BW * R.c[2] * ease(frac(t, 0.5, 7.5)));
@@ -1036,30 +1057,30 @@
   }, {
     ticks: 20, rest: "pass",
     draw: function (api) {
-      if (api.mode === "auto" && g1manual) { g1manual = false; g1gate = 0.35; if (g1rg) g1rg.set(0.35); }
-      if (g1cnt) g1cnt.textContent = g1pass(g1manual ? g1gate : 0.35).length + " of 4 pass";
+      if (api.mode === "auto" && g1manual) { g1manual = false; g1gate = GATE; if (g1rg) g1rg.set(GATE); }
+      if (g1cnt) g1cnt.textContent = g1pass(g1manual ? g1gate : GATE).length + " of 4 pass";
     }
   });
   if (s6) {
     var r6 = row("s-gate1");
-    g1rg = range(r6, "gate", 0, 1, 0.01, 0.35, function (v) { return v.toFixed(2); }, function (v) { g1gate = v; g1manual = true; hold(s6, "pass"); });
+    g1rg = range(r6, "gate", 0, 1, 0.01, GATE, function (v) { return v.toFixed(2); }, function (v) { g1gate = v; g1manual = true; hold(s6, "pass"); });
     g1cnt = document.createElement("span"); g1cnt.className = "sc-rg"; g1cnt.textContent = "2 of 4 pass"; r6.appendChild(g1cnt);
-    var n6 = document.createElement("p"); n6.className = "sc-note"; n6.setAttribute("data-src", "Olivesz/inf-mem@2f86999:backend/models.py#L56-L58");
-    n6.textContent = "a request may set it; the default is 0.35."; r6.parentNode.insertBefore(n6, r6.nextSibling);
+    var n6 = document.createElement("p"); n6.className = "sc-note"; n6.setAttribute("data-src", PIN + "backend/models.py#L66");
+    n6.textContent = "a request may set its own gate; left out, it is the calibrated default."; r6.parentNode.insertBefore(n6, r6.nextSibling);
   }
 
   /* ============ scene 7 · ranking ============ */
   function score(sim, imp) { return sim * (1 + imp / 10); }
   function r3(v) { return Math.round(v * 1000) / 1000; }
-  checks["s-rank"] = r3(score(0.5, 10)) === 1 && r3(score(0.9, 1)) === 0.99 && r3(score(0.35, 1)) === 0.385 && r3(score(1, 10)) === 2;
-  var RK = { A: { t: "PREFERENCE", s: 0.9, i: 1 }, B: { t: "PROJECT", s: 0.5, i: 10 } }, rkManual = false, s7, rkR = {};
-  function rkVals() { return rkManual ? RK : { A: { t: "PREFERENCE", s: 0.9, i: 1 }, B: { t: "PROJECT", s: 0.5, i: 10 } }; }
-  s7 = make("s-rank", "Two memories ranked by similarity times one plus a tenth of importance. A at 0.90 and importance 1 scores 0.99; B at 0.50 and importance 10 scores 1.00, so B moves above A. The top five are returned.", function (L, p) {
+  checks["s-rank"] = r3(score(0.62, 10)) === 1.24 && r3(score(0.9, 1)) === 0.99 && r3(score(GATE, 1)) === 0.671 && r3(score(1, 10)) === 2;
+  var RK = { A: { t: "PREFERENCE", s: 0.9, i: 1 }, B: { t: "PROJECT", s: 0.62, i: 10 } }, rkManual = false, s7, rkR = {};
+  function rkVals() { return rkManual ? RK : { A: { t: "PREFERENCE", s: 0.9, i: 1 }, B: { t: "PROJECT", s: 0.62, i: 10 } }; }
+  s7 = make("s-rank", "Two memories ranked by similarity times one plus a tenth of importance. A at 0.90 and importance 1 scores 0.99; B at 0.62 and importance 10 scores 1.24, so B moves above A. The top five are returned.", function (L, p) {
     var n = L.n, CW = n ? 328 : 432, SH = 48, BX = 8, BW = CW - 16, cards = {};
     for (var s = 2; s < 5; s++) { bx(p, 0, 8 + s * SH, CW, 40, "bx"); tx(p, 8, 8 + s * SH + 24, "rank " + (s + 1), "lb"); }
     // the top-5 cut is a limit, so amber like the two gates
     var cut = kg(p, "from", "cut"); var cy = 8 + 5 * SH + 4;
-    ln(cut, "M0 " + (cy + 0.5) + "H" + CW, "l-amber"); tx(cut, 0, cy + 16, "top 5 return", "lb f-amber", { src: "backend/retriever.py#L92" }); tx(cut, CW, cy + 16, "rank 6 and below: not returned", "lb", { a: "end" });
+    ln(cut, "M0 " + (cy + 0.5) + "H" + CW, "l-amber"); tx(cut, 0, cy + 16, "top 5 return", "lb f-amber", { src: "backend/retriever.py#L124" }); tx(cut, CW, cy + 16, "rank 6 and below: not returned", "lb", { a: "end" });
     ["A", "B"].forEach(function (k) {
       var c = g(p), o = { g: c };
       bx(c, 0, 0, CW, 40, "bx"); chip(c, 8, 6, k + " · " + RK[k].t);
@@ -1072,12 +1093,12 @@
     // the chart: score against similarity, for importance 1, 5 and 10
     var C = n ? { x: 24, y: 312, w: 288, h: 152 } : { x: 480, y: 16, w: 208, h: 192 };
     var ch = kg(p, "from", "imp");
-    function cx(v) { return C.x + (v - 0.35) / 0.65 * C.w; } function cyv(v) { return C.y + C.h - v / 2 * C.h; }
+    function cx(v) { return C.x + (v - GATE) / (1 - GATE) * C.w; } function cyv(v) { return C.y + C.h - v / 2 * C.h; }
     ln(ch, "M" + (C.x + 0.5) + " " + C.y + "V" + (C.y + C.h + 0.5) + "H" + (C.x + C.w), "l-mut");
     tx(ch, C.x - 4, cyv(2) + 4, "2.0", "lb", { a: "end" }); tx(ch, C.x - 4, cyv(0) + 4, "0", "lb", { a: "end" });
-    tx(ch, C.x, C.y + C.h + 16, "0.35", "lb"); tx(ch, C.x + C.w, C.y + C.h + 16, "1.0", "lb", { a: "end" }); tx(ch, C.x + C.w / 2, C.y + C.h + 16, "similarity", "lb", { a: "middle" });
+    tx(ch, C.x, C.y + C.h + 16, GATE.toFixed(2), "lb"); tx(ch, C.x + C.w, C.y + C.h + 16, "1.0", "lb", { a: "end" }); tx(ch, C.x + C.w / 2, C.y + C.h + 16, "similarity", "lb", { a: "middle" });
     tx(ch, C.x + 4, C.y - 4, "score", "lb");
-    [[10, "l-ink"], [5, "l-body"], [1, "l-mut"]].forEach(function (q) { var m = 1 + q[0] / 10; el("path", { d: "M" + cx(0.35) + " " + cyv(0.35 * m) + "L" + cx(1) + " " + cyv(m), "class": q[1] + " aa" }, ch); });
+    [[10, "l-ink"], [5, "l-body"], [1, "l-mut"]].forEach(function (q) { var m = 1 + q[0] / 10; el("path", { d: "M" + cx(GATE) + " " + cyv(GATE * m) + "L" + cx(1) + " " + cyv(m), "class": q[1] + " aa" }, ch); });
     tx(ch, C.x + C.w, C.y - 4, "importance 10", "lb-i", { a: "end" }); tx(ch, C.x + C.w - 4, cyv(1.5) + 14, "5", "lb", { a: "end" }); tx(ch, C.x + C.w - 4, cyv(1.1) + 14, "1", "lb", { a: "end" });
     var dA = fl(ch, 0, 0, 6, 6, "f-ink"), dB = fl(ch, 0, 0, 6, 6, "f-ink"), lA = tx(ch, 0, 0, "A", "lb-i"), lB = tx(ch, 0, 0, "B", "lb-i");
     L.fx.push(function (t) {
@@ -1101,11 +1122,11 @@
     return n ? 496 : 296;
   }, {
     ticks: 32, rest: "swap",
-    draw: function (api) { if (api.mode === "auto" && rkManual) { rkManual = false; RK.A.s = 0.9; RK.A.i = 1; RK.B.s = 0.5; RK.B.i = 10; for (var k in rkR) rkR[k].set(k[1] === "s" ? RK[k[0]].s : RK[k[0]].i); } }
+    draw: function (api) { if (api.mode === "auto" && rkManual) { rkManual = false; RK.A.s = 0.9; RK.A.i = 1; RK.B.s = 0.62; RK.B.i = 10; for (var k in rkR) rkR[k].set(k[1] === "s" ? RK[k[0]].s : RK[k[0]].i); } }
   });
   if (s7) {
     var r7 = row("s-rank");
-    [["As", "A similarity", 0.35, 1, 0.01], ["Ai", "A importance", 1, 10, 1], ["Bs", "B similarity", 0.35, 1, 0.01], ["Bi", "B importance", 1, 10, 1]].forEach(function (q) {
+    [["As", "A similarity", GATE, 1, 0.01], ["Ai", "A importance", 1, 10, 1], ["Bs", "B similarity", GATE, 1, 0.01], ["Bi", "B importance", 1, 10, 1]].forEach(function (q) {
       var k = q[0][0], f = q[0][1];
       rkR[q[0]] = range(r7, q[1], q[2], q[3], q[4], f === "s" ? RK[k].s : RK[k].i, function (v) { return f === "s" ? v.toFixed(2) : String(v); }, function (v) {
         if (!rkManual) { rkManual = true; }
@@ -1133,7 +1154,7 @@
     tx(pg, PX + 16, PY + 26, "Memory Review", "rd"); tx(pg, PX + PW - 16, PY + 26, "×", "rd", { a: "end" });
     ln(pg, "M" + PX + " " + (PY + 40.5) + "H" + (PX + PW), "ln");
     var it = kg(pg, "from", "items");
-    tx(it, PX + 16, PY + 60, "Injected Memories (2)", "lb", { src: "extension/content/shared.js#L121" });
+    tx(it, PX + 16, PY + 60, "Injected Memories (2)", "lb", { src: "extension/content/shared.js#L102" });
     chip(it, PX + 16, PY + 70, "PREFERENCE"); tx(it, PX + 16, PY + 108, EX.pref, "lt", { w: PW - 32, flat: true });     // untracked, so each line fits whole
     chip(it, PX + 16, PY + 120, "PROJECT"); tx(it, PX + 16, PY + 158, EX.proj, "lt", { w: PW - 32, flat: true });
     var cpv = g(pg); tx(cpv, PX + 16, PY + 184, "Compressed Prompt", "lb"); fl(cpv, PX + 16, PY + 192, PW - 32, 12, "f-res");
@@ -1173,7 +1194,7 @@
   syncCS();
 
   /* ============ scene 9 · injection ============ */
-  make("s-inject", "The approved memories become one line each inside [Memory Context — inf-mem] and [End Memory Context], then a blank line and the prompt. The text is inserted into the site's input box, and after 50 ms an Enter is dispatched.", function (L, p) {
+  make("s-inject", "The approved memories become one line each inside [Memory Context — inf-mem] and [End Memory Context], then a blank line and the prompt. The text is inserted into the site's input box, and after 50 ms the site's send button is clicked, or Enter pressed when there is none.", function (L, p) {
     var n = L.n, BW = n ? 328 : 424, lines = ["• PREFERENCE: " + EX.pref, "• PROJECT: " + EX.proj], I = n ? { x: 0, y: 256, w: 328, h: 88 } : { x: 456, y: 48, w: 248, h: 104 };
     var a1 = chip(p, 0, 0, "PREFERENCE"); tx(p, a1 + 8, 14, EX.pref, "lb", { w: BW - a1 - 8 });
     var a2 = chip(p, 0, 26, "PROJECT"); tx(p, a2 + 8, 40, EX.proj, "lb", { w: BW - a2 - 8 });
@@ -1189,10 +1210,10 @@
     ["[Memory Context — inf-mem]", lines[0], lines[1], "[End Memory Context]", "", EX.prompt].forEach(function (s, i) { if (s) tx(ins, I.x + 8, I.y + 16 + i * 13, s, i === 5 ? "lb-i" : "lb", { w: I.w - 16 }); });
     var cy = I.y + I.h + 12, cx = I.x;
     var ev = kg(p, "only", "insert"); chip(ev, cx, cy, "input", "s-ink");
-    var ev2 = kg(p, "from", "wait"); var w1 = chip(ev2, cx, cy, "input"); var w2 = chip(ev2, cx + w1 + 8, cy, "50 ms", "s-ink"); ev2.lastChild.setAttribute("data-src", PIN + "extension/content/chatgpt.js#L248-L249");
+    var ev2 = kg(p, "from", "wait"); var w1 = chip(ev2, cx, cy, "input"); var w2 = chip(ev2, cx + w1 + 8, cy, "50 ms", "s-ink"); ev2.lastChild.setAttribute("data-src", PIN + "extension/content/shared.js#L227");
     ev2.setAttribute("data-until", "wait");
-    var ev3 = kg(p, "from", "enter"); var e1 = chip(ev3, cx, cy, "input"); var e2 = chip(ev3, cx + e1 + 8, cy, "50 ms"); var e3 = chip(ev3, cx + e1 + e2 + 16, cy, "keydown Enter", "s-ink");
-    chip(ev3, n ? cx : cx, cy + 28, "keyup Enter", "s-ink");
+    var ev3 = kg(p, "from", "enter"); var e1 = chip(ev3, cx, cy, "input"); var e2 = chip(ev3, cx + e1 + 8, cy, "50 ms"); var e3 = chip(ev3, cx + e1 + e2 + 16, cy, "click send", "s-ink");
+    chip(ev3, n ? cx : cx, cy + 28, "no button: Enter", "bx");
     var S = n ? { x: 0, y: cy + 72, w: 328, h: 32 } : { x: I.x, y: cy + 72, w: I.w, h: 32 };
     bx(p, S.x, S.y, S.w, S.h, "s-violet"); tx(p, S.x + 8, S.y + 20, "chat site", "lb");
     pk(L, p, "f-violet", [[S.x + S.w - 24, cy + 52], [S.x + S.w - 24, S.y + 16]], 22.5, 28, { stay: true });
@@ -1201,7 +1222,7 @@
 
   /* ============ scene 10 · learning from the reply ============ */
   var s10key = true, s10;
-  s10 = make("s-extract", "When the reply appears, the prompt and the reply go to the backend, which sends them to Groq with fixed instructions. Groq answers with a JSON list, which is checked before anything becomes a candidate.", function (L, p) {
+  s10 = make("s-extract", "When the reply has finished and stayed unchanged for 600 ms, the prompt and the reply go to the backend once, which sends them to Groq with fixed instructions. Groq answers with a JSON list, which is checked before anything becomes a candidate.", function (L, p) {
     var n = L.n;
     var Z = zones(L, p, [[0, 0, 168, 200], [184, 0, 216, 200], [600, 0, 104, 200], [416, 0, 168, 200]], [104, 136, 40, 104], "bmgs");
     var b = Z.b, m = Z.m, s = Z.s, q = Z.g, on = function () { return s10key; }, off = function () { return !s10key; };
@@ -1209,16 +1230,16 @@
     var bars = [];
     for (var i = 0; i < (n ? 2 : 3); i++) bars.push(fl(p, b.x + 16, b.y + 52 + i * 12, 0, 6, "f-ink"));
     L.fx.push(function (t) { bars.forEach(function (r, j) { r.setAttribute("width", Math.round((b.w - 32) * (j === bars.length - 1 ? 0.6 : 1) * frac(t, 0.5 + j * 3.5, 3.5 + j * 3.5))); }); });
-    var wt = kg(p, "from", "reply"); tx(wt, b.x + 8, b.y + (n ? 88 : 120), n ? "watcher: last reply changed" : "watcher: last assistant", "lb-i"); if (!n) tx(wt, b.x + 8, b.y + 136, "message changed", "lb-i");
+    var wt = kg(p, "from", "reply"); tx(wt, b.x + 8, b.y + (n ? 88 : 120), n ? "finished, then 600 ms still" : "waits: reply finished,", "lb-i", { src: "extension/content/shared.js#L20" }); if (!n) tx(wt, b.x + 8, b.y + 136, "then 600 ms unchanged", "lb-i");
     var pp = kg(p, "from", "post"); tx(pp, n ? b.x + 200 : b.x + 8, n ? b.y + 88 : b.y + 168, n ? "" : "posted, no wait", "lb");
     if (n) tx(pp, 300, m.y + 16, "/extract · no wait", "lb", { a: "end" }); else tx(pp, m.x + 8, m.y + 56, "/extract · no wait", "lb");
     var jn = kg(p, "from", "groq"), jy = m.y + (n ? 48 : 72);
     ["prompt", "", "AI Response:", "reply"].forEach(function (s2, j) { if (s2) tx(jn, m.x + 16 + (n ? 0 : 0), jy + j * 14, s2, "lb-i"); });
     jn.style.display = "";
-    var e503 = g(p); cross(e503, m.x + m.w - 24, m.y + 50); tx(e503, m.x + 8, m.y + (n ? 116 : 136), "503 · Groq API not configured", "lb f-red", { w: m.w - 16, src: "backend/main.py#L175-L179" }); tx(e503, m.x + 8, m.y + (n ? 130 : 152), "retrieval still works", "lb");
+    var e503 = g(p); cross(e503, m.x + m.w - 24, m.y + 50); tx(e503, m.x + 8, m.y + (n ? 116 : 136), "503 · Groq API key not configured", "lb f-red", { w: m.w - 16, src: "backend/main.py#L82-L85" }); tx(e503, m.x + 8, m.y + (n ? 130 : 152), "retrieval still works", "lb");
     win(L, e503, 9, 1e9, off);
     tx(p, q.x + 8, q.y + 36, "llama-3.1-8b-instant", "lb-i", { w: q.w - 16 });
-    var gp = kg(p, "from", "list"); tx(gp, q.x + 8, q.y + 52, "temperature 0.3", "lb", { src: "backend/extractor.py#L150-L164" }); tx(gp, q.x + 8, q.y + 68, "up to 1024 tokens", "lb", { src: "backend/extractor.py#L150-L164" });
+    var gp = kg(p, "from", "list"); tx(gp, q.x + 8, q.y + 52, "temperature 0.3", "lb", { src: "backend/extractor.py#L115" }); tx(gp, q.x + 8, q.y + 68, "up to 1024 tokens", "lb", { src: "backend/extractor.py#L116" });
     var lsy = n ? q.y + 52 : q.y + 104;
     var ls = kg(p, "from", "list"); if (n) ls.setAttribute("transform", "translate(144,-16)");
     tx(ls, q.x + 8, lsy + (n ? 16 : 0), "[ { text · type ·", "lb f-cyan");
@@ -1233,27 +1254,21 @@
       if (n) chip(ins, 0, cy + j * 26, c[0], "s-cyan"); else { var w = Math.round(c[0].length * CH) + 16; if (cx + w > 704) { cx = 184; cy += 26; } chip(ins, cx, cy, c[0], "s-cyan"); cx += w + 8; }
     });
     var ck = kg(p, "from", "check"); var ky = R.y + 14;
-    cross(ck, R.x, ky - 8); tx(ck, R.x + 16, ky, "not JSON: dropped, nothing stored", "lb-i");
-    cross(ck, R.x, ky + 10); tx(ck, R.x + 16, ky + 18, "importance outside 1-10: dropped", "lb-i");
+    cross(ck, R.x, ky - 8); tx(ck, R.x + 16, ky, "not a JSON list: refused, nothing stored", "lb-i", { src: "backend/main.py#L149-L150" });
+    cross(ck, R.x, ky + 10); tx(ck, R.x + 16, ky + 18, "bad type or importance: skipped", "lb-i", { src: "backend/extractor.py#L185-L191" });
     check(ck, R.x, ky + 28); tx(ck, R.x + 16, ky + 36, "valid: a candidate", "lb f-green");
     var cd = kg(p, "from", "check"); chip(cd, m.x + 8, m.y + (n ? 104 : 128), "candidate", "s-green"); chip(cd, m.x + 100, m.y + (n ? 104 : 128), "candidate", "s-green");
     var wq = kg(p, "from", "wait"); tx(wq, m.x + 8, m.y + (n ? 98 : 168), n ? "" : "→ the second gate", "lb-i");
     if (n) tx(wq, 16, R.y + 72, "→ the second gate", "lb-i");          // under "valid: a candidate", where the eye already is
     if (!n) {
       ar(pp, [[b.x + b.w - 8, 188.5], [m.x + 64, 188.5]], "l-blue", "f-blue");
-      [0, 1, 2].forEach(function (j) {                                 // one post each time the last reply changes
-        var a = 3.5 + j * 3.5;
-        pk(L, p, "f-blue", [[b.x + b.w - 16, 184], [m.x + 72, 184]], a, a + 2.5);
-        pk(L, p, "f-cyan", [[m.x + m.w - 8, 188], [q.x + 40, 188], [q.x + 40, q.y + 120]], a + 2.5, a + 5.5, { trail: j === 2 ? 18.5 : 0, when: on });
-      });
+      pk(L, p, "f-blue", [[b.x + b.w - 16, 184], [m.x + 72, 184]], 11, 13.5);   // one post, once the reply has finished
+      pk(L, p, "f-cyan", [[m.x + m.w - 8, 188], [q.x + 40, 188], [q.x + 40, q.y + 120]], 13.5, 16.5, { trail: 18.5, when: on });
       pk(L, p, "f-cyan", [[q.x + 24, q.y + 120], [q.x + 24, 180], [m.x + m.w - 24, 180]], 18.5, 24, { trail: 24.5, when: on });
     } else {
       ar(pp, [[312.5, b.y + b.h - 8], [312.5, m.y + 24]], "l-blue", "f-blue");
-      [0, 1].forEach(function (j) {
-        var a = 3.5 + j * 3.5;
-        pk(L, p, "f-blue", [[300, b.y + b.h - 16], [300, m.y + 24]], a, a + 2.5);
-        pk(L, p, "f-cyan", [[300, m.y + m.h - 8], [300, q.y + 48]], a + 2.5, a + 5.5, { trail: j === 1 ? 18.5 : 0, when: on });
-      });
+      pk(L, p, "f-blue", [[300, b.y + b.h - 16], [300, m.y + 24]], 11, 13.5);
+      pk(L, p, "f-cyan", [[300, m.y + m.h - 8], [300, q.y + 48]], 13.5, 16.5, { trail: 18.5, when: on });
       pk(L, p, "f-cyan", [[312, q.y + 48], [312, m.y + m.h - 8]], 18.5, 24, { trail: 24.5, when: on });
     }
     L.r.after = [gp, ls, ck, cd, wq, jn];
@@ -1266,39 +1281,40 @@
   });
 
   /* ============ scene 11 · the second gate ============ */
-  function dedupe(sim, ni, si, longer) { return sim > 0.85 ? ((ni > si || longer) ? "UPDATE" : "NOOP") : "ADD"; }
-  checks["s-gate2"] = dedupe(0.89, 7, 5, false) === "UPDATE" && dedupe(0.89, 5, 5, false) === "NOOP" && dedupe(0.89, 5, 5, true) === "UPDATE" && dedupe(0.85, 10, 1, true) === "ADD" && dedupe(0.31, 10, 1, true) === "ADD";
-  var D2 = { sim: 0.89, ni: 7, si: 5, lg: false }, d2Manual = false, s11, d2out;
-  s11 = make("s-gate2", "A candidate is embedded and compared with stored memories, newest first. The first over 0.85 is the same memory: UPDATE if the candidate is more important or longer, NOOP otherwise. With no match, ADD under a new ID.", function (L, p) {
+  var DEDUPE = 0.98;
+  function dedupe(sim, ni, si, longer) { return sim >= DEDUPE ? ((ni > si || longer) ? "UPDATE" : "NOOP") : "ADD"; }
+  checks["s-gate2"] = dedupe(0.99, 7, 5, false) === "UPDATE" && dedupe(0.99, 5, 5, false) === "NOOP" && dedupe(0.99, 5, 5, true) === "UPDATE" && dedupe(0.98, 5, 5, false) === "NOOP" && dedupe(0.97, 10, 1, true) === "ADD" && dedupe(0.89, 10, 1, true) === "ADD";
+  var D2 = { sim: 0.99, ni: 7, si: 5, lg: false }, d2Manual = false, s11, d2out;
+  s11 = make("s-gate2", "A candidate is embedded and scored against every stored memory at once. Only the closest counts: at 0.98 or above it is the same memory, UPDATE if the candidate is more important or longer, NOOP otherwise. Below that, ADD under a new ID.", function (L, p) {
     var n = L.n, C = n ? { x: 0, y: 0 } : { x: 0, y: 16 }, S = n ? { x: 0, y: 112, w: 328 } : { x: 232, y: 16, w: 216 }, Bx = n ? { x: 0, y: 248, w: 328 } : { x: 480, y: 16, w: 224 };
     chip(p, C.x, C.y, "PREFERENCE · candidate"); tx(p, C.x, C.y + 36, "importance 7 · example", "lb");
     var mb = kg(p, "from", "embed"); bx(mb, C.x, C.y + 48, n ? 200 : 208, 32, "s-blue"); tx(mb, C.x + 8, C.y + 68, "embedded on this machine", "lb-i");
-    tx(p, S.x, S.y - (n ? 4 : 4) + (n ? 0 : 0), "stored, newest first", "lb");
-    var sims = ["0.31", "0.89", "—"], cards = [];
-    for (var i = 0; i < 3; i++) { var y = S.y + 8 + i * 36; var c = { b: bx(p, S.x, y, S.w, 28, "bx") }; tx(p, S.x + 8, y + 18, i === 1 ? "importance 5" : i ? "older" : "newest", "lb"); c.r = tx(p, S.x + S.w - 8, y + 18, sims[i], "lb-i", { a: "end" }); c.r.style.opacity = "0"; cards.push(c); }
-    var stp = kg(p, "from", "sweep"); tx(stp, S.x + S.w - 48, S.y + 62, "stop", "lb-i", { a: "end" });
+    tx(p, S.x, S.y - 4, "stored · scored all at once", "lb");
+    var sims = ["0.84", "0.99", "0.62"], cards = [];
+    for (var i = 0; i < 3; i++) { var y = S.y + 8 + i * 36; var c = { b: bx(p, S.x, y, S.w, 28, "bx") }; tx(p, S.x + 8, y + 18, i === 1 ? "importance 5" : "stored", "lb"); c.r = tx(p, S.x + S.w - 8, y + 18, sims[i], "lb-i", { a: "end" }); c.r.style.opacity = "0"; cards.push(c); }
+    var stp = kg(p, "from", "sweep"); tx(stp, S.x + S.w - 48, S.y + 62, "closest", "lb-i", { a: "end" });
     var sweep = bx(p, S.x - 2, S.y + 6, S.w + 4, 32, "s-ink"); sweep.style.opacity = "0";
     // the branches
     var bU = { y: Bx.y }, bN = { y: Bx.y + 64 }, bA = { y: Bx.y + 112 };
     var gU = g(p), gN = g(p), gA = g(p);
     var rU = bx(gU, Bx.x, bU.y, Bx.w, 56, "bx"); tx(gU, Bx.x + 8, bU.y + 18, "UPDATE", "lb-i"); tx(gU, Bx.x + 8, bU.y + 34, "more important or longer", "lb", { w: Bx.w - 16 }); var uL = tx(gU, Bx.x + 8, bU.y + 50, "replaced in place", "lb f-green");
     var rN = bx(gN, Bx.x, bN.y, Bx.w, 40, "bx"); tx(gN, Bx.x + 8, bN.y + 18, "NOOP", "lb-i"); tx(gN, Bx.x + 8, bN.y + 34, "neither: already kept", "lb");
-    var rA = bx(gA, Bx.x, bA.y, Bx.w, 112, "bx"); tx(gA, Bx.x + 8, bA.y + 18, "ADD · no match over 0.85", "lb-i", { w: Bx.w - 16 }); tx(gA, Bx.x + 8, bA.y + 34, "new id · uuid4, 36 characters", "lb", { w: Bx.w - 16, src: "backend/extractor.py#L239-L250" });
+    var rA = bx(gA, Bx.x, bA.y, Bx.w, 112, "bx"); tx(gA, Bx.x + 8, bA.y + 18, "ADD · closest under 0.98", "lb-i", { w: Bx.w - 16 }); tx(gA, Bx.x + 8, bA.y + 34, "new id · uuid4, 36 characters", "lb", { w: Bx.w - 16, src: "backend/extractor.py#L211-L212" });
     for (i = 0; i < 36; i++) fl(gA, Bx.x + 8 + i * 5, bA.y + 42, 4, 8, [8, 13, 18, 23].indexOf(i) >= 0 ? "f-res" : "f-cop");
-    var fA = g(gA); tx(fA, Bx.x + 8, bA.y + 70, "+1 row · +1 vector · +1 id", "lb f-green", { w: Bx.w - 16 }); tx(fA, Bx.x + 8, bA.y + 86, "both .npy files saved", "lb f-green");
-    tx(gA, Bx.x + 8, bA.y + 102, "unknown type: dropped here", "lb", { w: Bx.w - 16, src: "backend/extractor.py#L245-L253" });
+    var fA = g(gA); tx(fA, Bx.x + 8, bA.y + 70, "+1 row, its vector inside", "lb f-green", { w: Bx.w - 16 }); tx(fA, Bx.x + 8, bA.y + 86, "one SQLite insert", "lb f-green");
+    tx(gA, Bx.x + 8, bA.y + 102, "unknown type: skipped before", "lb", { w: Bx.w - 16, src: "backend/extractor.py#L185-L191" });
     var AX = n ? { x: 8, y: Bx.y + 264, w: 312 } : { x: 0, y: 280, w: 704 };
     var ax = kg(p, "from", "axis"); function axx(v) { return Math.round(AX.x + v * AX.w); }
     ln(ax, "M" + AX.x + " " + (AX.y + 0.5) + "H" + (AX.x + AX.w), "l-mut"); tx(ax, AX.x, AX.y + 16, "0", "lb"); tx(ax, AX.x + AX.w, AX.y + 16, "1", "lb", { a: "end" });
-    fl(ax, axx(0.35), AX.y - 16, 1, 24, "f-amber"); fl(ax, axx(0.85), AX.y - 16, 1, 24, "f-amber");
-    if (!n) { tx(ax, axx(0.35) + 4, AX.y - 6, "0.35 offered to the prompt", "lb f-amber", { src: "backend/retriever.py#L93" }); tx(ax, axx(0.85) - 4, AX.y + 20, "0.85 same memory", "lb f-amber", { a: "end", src: "backend/extractor.py#L210" }); }
-    else { tx(ax, AX.x, AX.y + 36, "0.35 offered to the prompt", "lb f-amber", { src: "backend/retriever.py#L93" }); tx(ax, AX.x + AX.w, AX.y + 52, "0.85 same memory", "lb f-amber", { a: "end", src: "backend/extractor.py#L210" }); }
+    fl(ax, axx(GATE), AX.y - 16, 1, 24, "f-amber"); fl(ax, axx(DEDUPE), AX.y - 16, 1, 24, "f-amber");
+    if (!n) { tx(ax, axx(GATE) - 4, AX.y - 6, "0.61 offered to the prompt", "lb f-amber", { a: "end", src: "backend/retriever.py#L31" }); tx(ax, axx(DEDUPE) - 4, AX.y - 6, "0.98 same memory", "lb f-amber", { a: "end", src: "backend/extractor.py#L51" }); }
+    else { tx(ax, AX.x, AX.y + 36, "0.61 offered to the prompt", "lb f-amber", { src: "backend/retriever.py#L31" }); tx(ax, AX.x + AX.w, AX.y + 52, "0.98 same memory", "lb f-amber", { a: "end", src: "backend/extractor.py#L51" }); }
     L.fx.push(function (t) {
-      var sw = frac(t, 6.5, 13), idx = Math.min(1, Math.floor(sw * 2)), live = d2Manual;
-      sweep.style.opacity = (t > 6.5 && t < 38) && !live ? "1" : "0";
-      sweep.setAttribute("y", S.y + 6 + idx * 36 + 0.5);
-      cards.forEach(function (c, j) { c.r.style.opacity = (t > 6.5 + j * 3.2 && j < 2) || live ? "1" : "0"; });
-      if (live) cards[1].r.textContent = D2.sim.toFixed(2); else cards[1].r.textContent = "0.89";
+      var live = d2Manual;
+      sweep.style.opacity = (t > 10 && t < 38) && !live ? "1" : "0";              // all scored at once, then the closest
+      sweep.setAttribute("y", S.y + 6 + 36 + 0.5);
+      cards.forEach(function (c) { c.r.style.opacity = t > 7 || live ? "1" : "0"; });
+      if (live) cards[1].r.textContent = D2.sim.toFixed(2); else cards[1].r.textContent = "0.99";
       var out = live || t >= 38 ? dedupe(D2.sim, D2.ni, D2.si, D2.lg) : (t >= 32 ? "ADD" : t >= 26 ? "NOOP" : t >= 20 ? "UPDATE" : "");
       rU.setAttribute("class", out === "UPDATE" ? "s-green" : "bx"); rN.setAttribute("class", out === "NOOP" ? "s-mut" : "bx"); rA.setAttribute("class", out === "ADD" ? "s-green" : "bx");
       gU.classList.toggle("dim", !!out && out !== "UPDATE"); gN.classList.toggle("dim", !!out && out !== "NOOP"); gA.classList.toggle("dim", !!out && out !== "ADD");
@@ -1314,7 +1330,7 @@
   });
   if (s11) {
     var r11 = row("s-gate2"), set11 = function () { d2Manual = true; hold(s11, "add"); };
-    range(r11, "similarity", 0, 1, 0.01, 0.89, function (v) { return v.toFixed(2); }, function (v) { D2.sim = v; set11(); });
+    range(r11, "closest similarity", 0.8, 1, 0.01, 0.99, function (v) { return v.toFixed(2); }, function (v) { D2.sim = v; set11(); });
     range(r11, "new importance", 1, 10, 1, 7, String, function (v) { D2.ni = v; set11(); });
     range(r11, "stored importance", 1, 10, 1, 5, String, function (v) { D2.si = v; set11(); });
     var lb = document.createElement("label"); lb.className = "sc-rg"; var cb = document.createElement("input"); cb.type = "checkbox"; cb.style.accentColor = "var(--accent)";
@@ -1343,14 +1359,14 @@
     function down(k, i, l0, l1, cls, hd, dx) { var e = kg(p, "from", k), x = cx(i) + (dx || 0) + 0.5; ar(e, [[x, cyv(l0)], [x, end(l0, l1)]], cls, hd); return e; }
     dot("intercept", 0, BR); down("retrieve", 1, BR, MA, "l-blue", "f-blue"); dot("rank", 2, MA); dot("panel", 4, BR);
     var c1 = down("compress", 3, MA, GR, "l-cyan", "f-cyan", -4), c2 = down("compress", 3, GR, MA, "l-cyan", "f-cyan", 4);
-    var cOff = kg(p, "from", "compress"); tx(cOff, cx(3), cyv(GR) + 4, "off", "lb", { a: "middle", src: "extension/background.js#L14" });
+    var cOff = kg(p, "from", "compress"); tx(cOff, cx(3), cyv(GR) + 4, "off", "lb", { a: "middle", src: "extension/background.js#L16" });
     down("send", 5, BR, CS, "l-violet", "f-violet");
     down("extract", 6, BR, MA, "l-blue", "f-blue", -6); down("extract", 6, MA, GR, "l-cyan", "f-cyan", 0); down("extract", 6, GR, MA, "l-cyan", "f-cyan", 6);
     dot("write", 7, MA, "f-green");
     L.r.comp = [c1, c2]; L.r.off = cOff;
     // what crosses, in words, under the active column
     var cap = tx(p, n ? 0 : LX, ly[3] + LH + 24, "", "lb-i", { w: n ? 328 : LW });
-    var words = ["nothing crosses", "the prompt → localhost:7842", "nothing crosses", "", "nothing crosses", "", "prompt + reply → Groq, per reply change", "nothing crosses · rows in ~/.inf_mem"];
+    var words = ["nothing crosses", "the prompt → localhost:7842", "nothing crosses", "", "nothing crosses", "", "prompt + finished reply → Groq, once", "nothing crosses · one row in memories.db"];
     L.fx.push(function (t) {
       L.r.comp.forEach(function (e) { e.style.visibility = lgComp ? "" : "hidden"; }); L.r.off.style.visibility = lgComp ? "hidden" : "";
       var k = 0, at = [4, 10, 14, 20, 24, 30, 38, 42]; for (var j = 0; j < 8; j++) if (t >= at[j]) k = j;
@@ -1413,7 +1429,7 @@
     check(fx, RX + 8, RY + 100); tx(fx, RX + 24, RY + 108, "the backend comes up with memory", "lb f-green", { w: RW - 32 });
     bx(fx, RX, RY + 144, RW, 112); tx(fx, RX + 8, RY + 160, "the test", "lb");
     tx(fx, RX + 8, RY + 180, "1  write a memory", "lb-i"); tx(fx, RX + 8, RY + 198, "2  open a second store, same folder", "lb-i", { w: RW - 16 });
-    tx(fx, RX + 8, RY + 216, "3  the memory comes back", "lb-i"); tx(fx, RX + 8, RY + 234, "4  the matrix is 1 × 384", "lb-i", { src: "tests/test_backend.py#L133" });
+    tx(fx, RX + 8, RY + 216, "3  the memory comes back", "lb-i"); tx(fx, RX + 8, RY + 234, "4  the matrix is 1 × 384", "lb-i", { src: OLD + "tests/test_backend.py#L133" });
     check(fx, RX + RW - 24, RY + 228);
     L.fx.push(function () { vis(ob, !idFix); vis(sb, idFix); vis(lx, !idFix); vis(lok, idFix); vis(dn, !idFix); vis(up, idFix); });
     return n ? RY + 264 : 280;
@@ -1425,44 +1441,58 @@
   });
 
   /* ============ scene 14 · what is checked ============ */
-  var TESTS = [
-    ["models", [["importance bounds enforced", 49, "importance 0 or 11 is refused; 10 is accepted"], ["threshold bounds", 58, "a threshold of 1.5 is refused; the defaults are 5 and a value in 0 to 1"], ["memory type round trip", 65, "the name PREFERENCE turns back into the PREFERENCE type"]]],
-    ["store", [["add and get by id", 73, "a memory added can be read back by its id"], ["rejects a bad vector shape", 82, "a vector that is not 384 long is refused"], ["lists and scopes by user", 87, "listing returns one user’s memories and nobody else’s"], ["update changes text and vector", 95, "an update replaces the text, the importance and the vector"], ["delete removes row and vector", 104, "a delete removes the table row and the matrix row"], ["counts an access", 112, "one access bumps access_count to 1"], ["missing id raises", 119, "update, delete or count on a missing id is an error"], ["persists across instances", 126, "opens a second store on the same folder; the memory and a 1 × 384 matrix come back"]]],
-    ["retriever", [["cosine cases", 140, "same direction 1, right angle 0, opposite −1, zero vector 0"], ["returns the relevant memory", 150, "a query equal to a stored vector returns that memory first"], ["respects the limit", 164, "with a limit of 2, at most 2 come back"], ["empty store returns nothing", 174, "an empty store returns an empty list"]]],
-    ["compressor", [["token estimate grows", 183, "the token estimate is at least 1 and grows with the text"], ["compress, happy path", 208, "a stand-in Groq returns a rewrite, and it is used"], ["falls back on an API error", 216, "when the call fails, the original prompt comes back, ratio 1.0"]]]
+  // the CI jobs at c6579f9: lint, then the five tiers; [name, runs on 3.11, runs on 3.12, source, what it checks, lines]
+  var TIERS = [
+    ["lint · ruff", false, true, ".github/workflows/ci.yml#L16-L17", "ruff over the whole repository, before any test"],
+    ["unit + API", true, true, "README.md#L81", "", [
+      ["every endpoint, Groq mocked at the HTTP layer", "README.md#L81", "each route through FastAPI’s TestClient, with Groq answered at the HTTP boundary of the real client"],
+      ["CORS: extension origins only", "README.md#L62", "a web page’s origin gets no answer; a chrome-extension:// origin does"],
+      ["coverage gate", ".github/workflows/ci.yml#L43-L44", "the job fails if the tests cover less than 85% of the backend"],
+      ["the store, opened twice", "tests/test_backend.py#L125-L132", "a memory written by one store comes back in a second one on the same folder"]]],
+    ["real model", false, true, "README.md#L82", "", [
+      ["the calibrated gates", "README.md#L82", "both gates on the real embedding model, against fixed probe cases"]]],
+    ["eval check", false, true, "README.md#L83", "", [
+      ["calibration, recomputed", "README.md#L83", "the LoCoMo calibration is rerun from scratch and compared with the committed results"]]],
+    ["latency", false, true, "README.md#L84", "", [
+      ["p95 against the baseline", "README.md#L84", "/retrieve and /extract at 100, 1k and 10k memories; fails if p95 doubles"],
+      ["/extract stays flat", "README.md#L84", "fails if /extract at 10k takes more than twice as long as at 1k"]]],
+    ["extension E2E", false, true, "README.md#L85", "", [
+      ["one send per prompt", "README.md#L85", "the unpacked extension in Chromium, a real backend and a fake Groq server, on copies of both sites"],
+      ["one extraction per finished reply", "README.md#L85", "with the right prompt, after the reply has finished"],
+      ["the popup", "README.md#L85", "lists, deletes and clears the stored memories"],
+      ["no manifest warnings", "README.md#L85", "Chrome raises no warning when it loads the extension"]]]
   ];
-  var nTests = TESTS.reduce(function (a, q) { return a + q[1].length; }, 0);
-  checks["s-results"] = nTests === 18 && TESTS[0][1].length === 3 && TESTS[1][1].length === 8 && TESTS[2][1].length === 4 && TESTS[3][1].length === 3;
-  var tg = document.getElementById("tg"), tgOut = document.getElementById("tg-out"), cellsC = [[], []], tBtns = [];
+  var nTiers = TIERS.filter(function (q) { return q[5]; }).length, nCells = TIERS.reduce(function (a, q) { return a + (q[1] ? 1 : 0) + (q[2] ? 1 : 0); }, 0);
+  checks["s-results"] = nTiers === 5 && TIERS.length === 6 && nCells === 7;
+  var tg = document.getElementById("tg"), tgOut = document.getElementById("tg-out"), cellsC = [], tBtns = [];
   function say(name, purpose) { tgOut.textContent = ""; var k = document.createElement("span"); k.className = "k"; k.textContent = name; tgOut.appendChild(k); tgOut.appendChild(document.createTextNode(purpose)); }
-  function cellsFor(b) { for (var c = 0; c < 2; c++) { var d = document.createElement("span"); d.className = "cl"; b.appendChild(d); cellsC[c].push(d); } }
+  function cellsFor(b, on) { on.forEach(function (x) { var d = document.createElement("span"); if (x) { d.className = "cl"; cellsC.push(d); } b.appendChild(d); }); }
   if (tg) {
     var hd = document.createElement("li"); hd.className = "hd";
-    ["test", "3.11", "3.12"].forEach(function (s, i) { var e = document.createElement("span"); e.textContent = s; if (i) e.style.justifySelf = "center"; hd.appendChild(e); });
+    ["CI job", "3.11", "3.12"].forEach(function (s, i) { var e = document.createElement("span"); e.textContent = s; if (i) e.style.justifySelf = "center"; hd.appendChild(e); });
     tg.appendChild(hd);
-    function row14(name, src, purpose, sub) {
+    TIERS.forEach(function (q, gi) {
+      var name = q[0], purpose = q[4], sub = q[5];
       var li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.className = "grp";
-      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name; if (src) nm.setAttribute("data-src", src); b.appendChild(nm);
-      cellsFor(b); li.appendChild(b); tg.appendChild(li);
+      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = sub ? name + " · " + sub.length : name; nm.setAttribute("data-src", PIN + q[3]); b.appendChild(nm);
+      cellsFor(b, [q[1], q[2]]); li.appendChild(b); tg.appendChild(li);
       if (!sub) { b.classList.add("ruff"); b.setAttribute("aria-pressed", "false"); b.addEventListener("click", function () { tBtns.forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); say(name, purpose); }); tBtns.push(b); return; }
-      var ol = document.createElement("ol"); ol.className = "sub"; ol.id = "tg-" + name.split(" ")[0]; b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", ol.id);
+      var ol = document.createElement("ol"); ol.className = "sub"; ol.id = "tg-" + gi; b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", ol.id);
       sub.forEach(function (t) {
         var tli = document.createElement("li"), tb = document.createElement("button"); tb.type = "button"; tb.setAttribute("aria-pressed", "false");
-        var tn = document.createElement("span"); tn.className = "nm"; tn.textContent = t[0]; tn.setAttribute("data-src", "Olivesz/inf-mem@2f86999:tests/test_backend.py#L" + t[1]); tb.appendChild(tn);
+        var tn = document.createElement("span"); tn.className = "nm"; tn.textContent = t[0]; tn.setAttribute("data-src", PIN + t[1]); tb.appendChild(tn);
         tb.addEventListener("click", function () { tBtns.forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); tb.setAttribute("aria-pressed", "true"); say(t[0], t[2]); });
         tBtns.push(tb); tli.appendChild(tb); ol.appendChild(tli);
       });
       li.appendChild(ol);
-      b.addEventListener("click", function () { var o = b.getAttribute("aria-expanded") !== "true"; b.setAttribute("aria-expanded", o ? "true" : "false"); ol.classList.toggle("open", o); say(name, o ? "pick a test to see what it checks" : ""); });
-    }
-    row14("ruff · real-bug rules", "Olivesz/inf-mem@2f86999:.github/workflows/ci.yml#L29-L30", "lint for real bugs only: syntax errors, bad comparisons, undefined names");
-    TESTS.forEach(function (grp) { row14(grp[0] + " · " + grp[1].length, "Olivesz/inf-mem@2f86999:tests/test_backend.py#L49-L221", "", grp[1]); });
+      b.addEventListener("click", function () { var o = b.getAttribute("aria-expanded") !== "true"; b.setAttribute("aria-expanded", o ? "true" : "false"); ol.classList.toggle("open", o); say(name, o ? "pick a line to see what it checks" : ""); });
+    });
   }
   var s14 = Deep.scene("s-results", {
     ticks: 12, tps: 8, pause: 2500, read: 250, rest: "stats",
     check: function () { return checks["s-results"]; },
     draw: function (api, tick) {
-      var all = cellsC[0].concat(cellsC[1]), k = Math.min(all.length, Math.round(tick * all.length / 10));
+      var all = cellsC, k = Math.min(all.length, Math.round(tick * all.length / 10));
       all.forEach(function (c, i) { c.classList.toggle("ok", i < k); });
     }
   });

@@ -133,7 +133,7 @@ a{color:inherit}
   /* KRONOS on a phone rests on its results table: the self-audit is the chart beat's caption, and the case study's */
   .card .kp-b{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
   .card .ki{margin-top:8px} .card .ki .kx{display:none}
-  .card .kp .pt th,.card .kp .pt td{line-height:20px} .card .kp .cv{font-size:11px;line-height:16px;letter-spacing:.04em} }
+  .card .kp .pt th,.card .kp .pt td{line-height:20px} .card .kp .cv{font-size:11px;line-height:16px;letter-spacing:.04em} .card .kp .cv .kd{display:none} }
 
 /* map places: a click teleports, never flies */
 #places{position:fixed;z-index:3;left:0;top:0;width:100%;height:100lvh;pointer-events:none;opacity:0;transition:opacity 200ms var(--ease-enter)}
@@ -482,7 +482,7 @@ a{color:inherit}
       <p class="date">chapter ii</p>
       <h2>emergence</h2>
       <p class="np">a truth table. every rung verified, up to the CPU.</p>
-      <p class="pf"><span data-src="Olivesz/emergence@ad96d38:README.md#L3">Eight</span> cellular-automaton acts end in a SAP-1 CPU: <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L31">1,446 NAND gates and 175 D flip-flops</span>, simulated at gate level. Its two cells, the NAND and the D flip-flop, are verified in raw Wireworld. <span data-src="Olivesz/emergence@ad96d38:cpu/README.md#L27">Five test programs</span> run against expected outputs.</p>
+      <p class="pf"><span data-src="Olivesz/emergence@910b296:README.md#L5">Eight</span> cellular-automaton acts end in a SAP-1 CPU: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates and 175 flip-flops</span>, run as a gate-level netlist on <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five test programs</span>. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">In raw Wireworld, a full adder, a 4-bit counter and a D flip-flop match the netlist on every clock; the whole CPU is not compiled yet.</span></p>
       <p class="sr-only">A NAND cell in raw Wireworld fills its truth table, inputs A and B as buttons; then the SAP-1 CPU runs Fibonacci on the bus.</p>
       <p class="lk"><a class="rm" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a class="rm dd" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
@@ -493,9 +493,9 @@ a{color:inherit}
     <article class="stick card" id="freeflow" tabindex="-1">
       <p class="date">chapter iii</p>
       <h2>freeflow</h2>
-      <p class="np" data-src="Olivesz/freeflow@6d541e6:README.md#L88">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
-      <p class="pf" data-src="Olivesz/freeflow@6d541e6:README.md#L6-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
-      <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Scripted, no microphone.</p>
+      <p class="np" data-src="Olivesz/freeflow@19c0217:README.md#L49">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
+      <p class="pf" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
+      <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log, whisper.cpp on the JFK sample.</p>
       <p class="lk"><a class="rm" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a class="rm dd" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
   </div>
@@ -505,18 +505,19 @@ a{color:inherit}
       <p class="date">chapter iv</p>
       <h2>KRONOS</h2>
       <p class="np">a planted answer. no estimator touches a real price until it finds one.</p>
-      <p class="pf ki" data-src="Olivesz/kronos-quant@9932fa8:README.md#L4-L5">A regime-aware quant platform<span class="kx">, every model hand-implemented in Python</span>.</p>
+      <p class="pf ki" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">A regime-aware quant platform<span class="kx">, every model hand-implemented in Python</span>.</p>
       <div class="kp"><div class="kp-a">
       <table class="pt">
-        <thead><tr><th></th> <th>net Sharpe</th> <th>vol</th> <th>max drawdown</th> <th>CAGR</th></tr></thead>
+        <thead><tr><th></th> <th>Sharpe</th> <th>excess</th> <th>max DD</th> <th>CAGR</th></tr></thead>
         <tbody>
-          <tr data-src="Olivesz/kronos-quant@9932fa8:README.md#L134"><th>KRONOS</th> <td>1.07</td> <td>11.0%</td> <td>−17.9%</td> <td>11.8%</td></tr>
-          <tr data-src="Olivesz/kronos-quant@9932fa8:README.md#L138"><th>SPY</th> <td>0.91</td> <td>16.8%</td> <td>−33.7%</td> <td>15.0%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151"><th>KRONOS</th> <td>1.12</td> <td>0.97</td> <td>−18.7%</td> <td>13.6%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154"><th>equal weight</th> <td>1.10</td> <td>0.98</td> <td>−29.5%</td> <td>16.6%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155"><th>SPY</th> <td>0.91</td> <td>0.81</td> <td>−33.7%</td> <td>15.0%</td></tr>
         </tbody>
       </table>
-      <p class="cv">higher Sharpe at about half SPY’s drawdown · <span class="nw">in-sample</span> · after costs · <span data-src="Olivesz/kronos-quant@9932fa8:README.md#L127">up to 1.5× leverage</span></p>
+      <p class="cv"><span class="kd" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">about equal weight’s Sharpe at 64% of its drawdown · </span><span class="nw">in-sample</span> · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">Sharpe at rf=0, excess over cash</span><span class="kd"> · after costs · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span></span></p>
       </div>
-      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@9932fa8:README.md#L100-L104">A self-audit found a sign bug the 30 gates of the time had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate;</span> there are <span data-src="Olivesz/kronos-quant@9932fa8:README.md#L41">41</span> now.</p></div>
+      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">A self-audit found a sign bug the 30 gates of the time had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate;</span> there are <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span> now, all run in CI on real prices.</p></div>
       <p class="sr-only">A regime switch planted in synthetic returns; the fit locks onto it, and a slider moves it. Then the gates, then the run against SPY.</p>
       <p class="lk"><a class="rm" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a class="rm dd" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
@@ -563,7 +564,7 @@ a{color:inherit}
         <p class="k-msg"><span class="k-mk" aria-hidden="true"></span><span class="k-mt"></span></p>
         <p class="sr-only k-live" aria-live="polite"></p>
         <div class="k-pane" data-pane="rest"><p class="k-key">Each blob is a theme, as large as the number of projects in it.</p></div>
-        <div class="k-pane" data-pane="llm"><ol class="k-hi"><li class="k-card" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-yr" data-from="Olivesz/custos-code commit history (GET /repos/Olivesz/custos-code/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#custos" data-walk="custos" aria-label="custos-code, chapter v of the walk">chapter v <span aria-hidden="true">↑</span></a><a class="k-case" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-card" data-p="inf-mem"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">inf-mem</h3><span class="k-yr" data-from="public_resume.tex#L88">2025–26</span><span class="k-st"><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer" aria-label="inf-mem repository">repo <span aria-hidden="true">→</span></a></span><a class="k-case" href="work/inf-mem.html" target="_blank" rel="noopener noreferrer" aria-label="inf-mem case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/inf-mem@2f86999:README.md#L5">memory for ChatGPT and Claude, local store, Groq extraction</p><p class="k-ac"></p><span class="sr-only"> Themes: agents &amp; LLMs.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-llm">3</span> more in agents &amp; LLMs</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="verify"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/emergence@ad96d38:README.md#L3-L13">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="verify" data-src="Olivesz/emergence@ad96d38:README.md#L13-L15">every rung from signal to processor is verified</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="systems">systems</button><button type="button" class="k-tag" data-k="play">interactive</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-verify">4</span> more in verification</p><ul class="k-rest"><li class="k-mrow" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-st"><a href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-mrow" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-st"><a href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/freeflow@6d541e6:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-mrow" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-st"><a href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/kronos-quant@2e983e4:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ul></div><div class="k-pane" data-pane="systems"><ol class="k-hi"><li class="k-card" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-yr" data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#freeflow" data-walk="freeflow" aria-label="freeflow, chapter iii of the walk">chapter iii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/freeflow@6d541e6:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><p class="k-why" data-k="systems" data-src="Olivesz/freeflow@6d541e6:README.md#L97-L99">trims committed audio so cost stays flat however long the speech</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-card" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-yr" data-from="public_resume.tex#L121">2023</span><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span><a class="k-walk" href="#b-hero" data-walk="ipccc" aria-label="IEEE IPCCC, chapter i of the walk">chapter i <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><p class="k-why" data-k="systems" data-src="public_resume.tex#L124">power profiled across CPU and GPU</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button></p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-systems">5</span> more in systems</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@ad96d38:README.md#L3-L13">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="carbon-hack"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">Carbon Hack</h3><span class="k-st"><a href="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement" target="_blank" rel="noopener noreferrer" aria-label="Carbon Hack winners">winners <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement">energy and carbon of Zoom conferences, Best Under 18, team member</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li><li class="k-mrow" data-p="matmul"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">matrix multiplication</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L115">nine variants in C, naive to cache-blocked, recursive, SIMD and multithreaded</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="x86-compiler"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">x86-64 compiler</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L106">optimizing compiler in C for a statically typed language</p><span class="sr-only"> Themes: systems.</span></div></li></ul></div><div class="k-pane" data-pane="data"><ol class="k-hi"><li class="k-card" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-yr" data-from="Olivesz/kronos-quant commit history (GET /repos/Olivesz/kronos-quant/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#kronos" data-walk="kronos" aria-label="KRONOS, chapter iv of the walk">chapter iv <span aria-hidden="true">↑</span></a><a class="k-case" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/kronos-quant@2e983e4:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-data">3</span> more in markets &amp; data</p><ul class="k-rest"><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li><li class="k-mrow" data-p="comic-extractor"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-extractor</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-extractor" target="_blank" rel="noopener noreferrer" aria-label="comic-extractor repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-extractor@f6156ac:README.md#L40">comic pages to JSON, one entry per speech bubble</p><span class="sr-only"> Themes: markets &amp; data.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="play"><ol class="k-hi"><li class="k-card" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-yr" data-from="Olivesz/ai-capabilities commit history (GET /repos/Olivesz/ai-capabilities/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><p class="k-why" data-k="play" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L9">five browser games, each a single HTML file</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-play">3</span> more in interactive</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@ad96d38:README.md#L3-L13">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="care"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">C.A.R.E.</h3></div><p class="k-ln" data-src="Olivesz/portfolio@fdf45a5:index.html#L730">chatbot for U.S. citizenship-test practice in seven languages</p><span class="sr-only"> Themes: interactive.</span></div></li><li class="k-mrow" data-p="comic-reader"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-reader</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-reader" target="_blank" rel="noopener noreferrer" aria-label="comic-reader repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-reader@2deae8e:README.md#L5">reads a dragged screen region aloud on macOS</p><span class="sr-only"> Themes: interactive.</span></div></li></ul></div>
+        <div class="k-pane" data-pane="llm"><ol class="k-hi"><li class="k-card" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-yr" data-from="Olivesz/custos-code commit history (GET /repos/Olivesz/custos-code/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#custos" data-walk="custos" aria-label="custos-code, chapter v of the walk">chapter v <span aria-hidden="true">↑</span></a><a class="k-case" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-card" data-p="inf-mem"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">inf-mem</h3><span class="k-yr" data-from="public_resume.tex#L88">2025–26</span><span class="k-st"><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer" aria-label="inf-mem repository">repo <span aria-hidden="true">→</span></a></span><a class="k-case" href="work/inf-mem.html" target="_blank" rel="noopener noreferrer" aria-label="inf-mem case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">memory for ChatGPT and Claude, local store, Groq extraction</p><p class="k-ac"></p><span class="sr-only"> Themes: agents &amp; LLMs.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-llm">3</span> more in agents &amp; LLMs</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="verify"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="verify" data-src="Olivesz/emergence@910b296:README.md#L32-L34">every rung from signal to processor is verified</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="systems">systems</button><button type="button" class="k-tag" data-k="play">interactive</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-verify">4</span> more in verification</p><ul class="k-rest"><li class="k-mrow" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-st"><a href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-mrow" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-st"><a href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-mrow" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-st"><a href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ul></div><div class="k-pane" data-pane="systems"><ol class="k-hi"><li class="k-card" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-yr" data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#freeflow" data-walk="freeflow" aria-label="freeflow, chapter iii of the walk">chapter iii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><p class="k-why" data-k="systems" data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">trims committed audio so cost stays flat however long the speech</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-card" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-yr" data-from="public_resume.tex#L121">2023</span><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span><a class="k-walk" href="#b-hero" data-walk="ipccc" aria-label="IEEE IPCCC, chapter i of the walk">chapter i <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><p class="k-why" data-k="systems" data-src="public_resume.tex#L124">power profiled across CPU and GPU</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button></p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-systems">5</span> more in systems</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="carbon-hack"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">Carbon Hack</h3><span class="k-st"><a href="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement" target="_blank" rel="noopener noreferrer" aria-label="Carbon Hack winners">winners <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement">energy and carbon of Zoom conferences, Best Under 18, team member</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li><li class="k-mrow" data-p="matmul"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">matrix multiplication</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L115">nine variants in C, naive to cache-blocked, recursive, SIMD and multithreaded</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="x86-compiler"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">x86-64 compiler</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L106">optimizing compiler in C for a statically typed language</p><span class="sr-only"> Themes: systems.</span></div></li></ul></div><div class="k-pane" data-pane="data"><ol class="k-hi"><li class="k-card" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-yr" data-from="Olivesz/kronos-quant commit history (GET /repos/Olivesz/kronos-quant/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#kronos" data-walk="kronos" aria-label="KRONOS, chapter iv of the walk">chapter iv <span aria-hidden="true">↑</span></a><a class="k-case" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-data">3</span> more in markets &amp; data</p><ul class="k-rest"><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li><li class="k-mrow" data-p="comic-extractor"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-extractor</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-extractor" target="_blank" rel="noopener noreferrer" aria-label="comic-extractor repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-extractor@f6156ac:README.md#L40">comic pages to JSON, one entry per speech bubble</p><span class="sr-only"> Themes: markets &amp; data.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="play"><ol class="k-hi"><li class="k-card" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-yr" data-from="Olivesz/ai-capabilities commit history (GET /repos/Olivesz/ai-capabilities/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><p class="k-why" data-k="play" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L9">five browser games, each a single HTML file</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-play">3</span> more in interactive</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="care"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">C.A.R.E.</h3></div><p class="k-ln" data-src="Olivesz/portfolio@fdf45a5:index.html#L730">chatbot for U.S. citizenship-test practice in seven languages</p><span class="sr-only"> Themes: interactive.</span></div></li><li class="k-mrow" data-p="comic-reader"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-reader</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-reader" target="_blank" rel="noopener noreferrer" aria-label="comic-reader repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-reader@2deae8e:README.md#L5">reads a dragged screen region aloud on macOS</p><span class="sr-only"> Themes: interactive.</span></div></li></ul></div>
       </div>
     </div>
     <script type="application/json" id="k-data">{"order":["llm","verify","systems","data","play"],"short":{"llm":"agents & LLMs","verify":"verification","systems":"systems","data":"markets & data","play":"interactive"},"blurb":{"llm":"software built on, around or against language models","verify":"checked against a log, a known answer or a second pass","systems":"compilers, SIMD, streaming audio and measured watts","data":"prices, order books, filings, traces and datasets","play":"things that run, move or answer when touched"},"member":{"custos-code":["llm","verify"],"kronos":["verify","data"],"freeflow":["verify","systems"],"emergence":["verify","systems","play"],"charity-screening":["llm","data"],"comic-reader":["play"],"x86-compiler":["systems"],"matmul":["systems"],"comic-extractor":["data"],"ai-capabilities":["llm","verify","play"],"inf-mem":["llm"],"care":["play"],"ieee-ipccc":["llm","systems"],"iaria-green":["systems","data"],"carbon-hack":["systems"]},"members":{"llm":["custos-code","charity-screening","ai-capabilities","inf-mem","ieee-ipccc"],"verify":["custos-code","kronos","freeflow","emergence","ai-capabilities"],"systems":["freeflow","emergence","x86-compiler","matmul","ieee-ipccc","iaria-green","carbon-hack"],"data":["kronos","charity-screening","comic-extractor","iaria-green"],"play":["emergence","comic-reader","ai-capabilities","care"]},"names":{"custos-code":"custos-code","kronos":"KRONOS","freeflow":"freeflow","emergence":"emergence","charity-screening":"charity screening","comic-reader":"comic-reader","x86-compiler":"x86-64 compiler","matmul":"matrix multiplication","comic-extractor":"comic-extractor","ai-capabilities":"ai-capabilities","inf-mem":"inf-mem","care":"C.A.R.E.","ieee-ipccc":"IEEE IPCCC","iaria-green":"IARIA GREEN","carbon-hack":"Carbon Hack"},"hi":{"llm":["custos-code","inf-mem"],"verify":["emergence"],"systems":["freeflow","ieee-ipccc"],"data":["kronos"],"play":["ai-capabilities"]},"more":{"llm":["ai-capabilities","ieee-ipccc","charity-screening"],"verify":["custos-code","freeflow","kronos","ai-capabilities"],"systems":["emergence","carbon-hack","iaria-green","matmul","x86-compiler"],"data":["charity-screening","comic-extractor","iaria-green"],"play":["emergence","care","comic-reader"]},"tier":{"custos-code":1,"kronos":1,"freeflow":1,"emergence":1,"inf-mem":2,"ai-capabilities":2,"ieee-ipccc":2,"charity-screening":3,"comic-reader":3,"x86-compiler":3,"matmul":3,"comic-extractor":3,"care":3,"iaria-green":3,"carbon-hack":3},"sig":{"llm":["custos-code","inf-mem"],"verify":["emergence"],"systems":["freeflow","ieee-ipccc"],"data":["kronos"],"play":["ai-capabilities"]}}</script>
@@ -1023,24 +1024,25 @@ a{color:inherit}
 "lock": {"v": "9,976", "src": "page:lock", "ctx": "step", "note": "computed at boot from the ant's rule; selfChecks 'lock'"},
 "period": {"v": "104", "src": "page:period", "ctx": "cycle", "note": "the highway's period, checked with the lock"},
 "end": {"v": "25,992", "src": "page:end", "ctx": "step", "note": "last station + 80 periods; selfChecks 'end'"},
-"nand_gates": {"v": "1,446", "src": "Olivesz/emergence@ad96d38:cpu/README.md#L31", "ctx": "NAND"},
-"dffs": {"v": "175", "src": "Olivesz/emergence@ad96d38:cpu/README.md#L31", "ctx": "flip-flops"},
-"nand_truth": {"v": "1,1,1,0", "src": "page:nand", "ctx": "out", "note": "read from the output cell of the Wireworld run; rule at Olivesz/emergence@ad96d38:cpu/ww_cells.py#L231; selfChecks 'nand'"},
-"fib_tape": {"v": "144", "src": "Olivesz/emergence@ad96d38:cpu/run_cpu.py#L103", "ctx": "OUT", "note": "the OUT tape is printed by the page's interpreter; selfChecks 'sap' compares it with this line"},
+"nand_gates": {"v": "1,446", "src": "Olivesz/emergence@910b296:cpu/README.md#L28", "ctx": "NAND"},
+"dffs": {"v": "175", "src": "Olivesz/emergence@910b296:cpu/README.md#L28", "ctx": "flip-flops"},
+"nand_truth": {"v": "1,1,1,0", "src": "page:nand", "ctx": "out", "note": "read from the output cell of the Wireworld run; rule at Olivesz/emergence@910b296:cpu/ww_cells.py#L233; selfChecks 'nand'"},
+"fib_tape": {"v": "144", "src": "Olivesz/emergence@910b296:cpu/run_cpu.py#L103", "ctx": "OUT", "note": "the OUT tape is printed by the page's interpreter; selfChecks 'sap' compares it with this line"},
 "sap_instr": {"v": "115", "src": "page:sap", "ctx": "instruction", "note": "Fibonacci halts after 115 instructions including HLT"},
-"pass_ms": {"v": "350 ms", "src": "Olivesz/freeflow@6d541e6:README.md#L88", "ctx": "audio"},
-"sharpe": {"v": "1.07", "src": "Olivesz/kronos-quant@9932fa8:README.md#L134", "ctx": "Sharpe"},
-"maxdd": {"v": "−17.9%", "src": "Olivesz/kronos-quant@9932fa8:README.md#L134", "ctx": "drawdown"},
-"cagr": {"v": "11.8%", "src": "Olivesz/kronos-quant@9932fa8:README.md#L134", "ctx": "CAGR"},
-"spy_sharpe": {"v": "0.91", "src": "Olivesz/kronos-quant@9932fa8:README.md#L138", "ctx": "SPY"},
-"spy_maxdd": {"v": "−33.7%", "src": "Olivesz/kronos-quant@9932fa8:README.md#L138", "ctx": "SPY"},
-"spy_cagr": {"v": "15.0%", "src": "Olivesz/kronos-quant@9932fa8:README.md#L138", "ctx": "SPY"},
-"leverage": {"v": "1.5×", "src": "Olivesz/kronos-quant@9932fa8:README.md#L127", "ctx": "leverage"},
-"gates": {"v": "41", "src": "Olivesz/kronos-quant@9932fa8:README.md#L41", "ctx": "gates"},
-"gates_syn": {"v": "39", "src": "Olivesz/kronos-quant@9932fa8:README.md#L82-L84", "ctx": "synthetic"},
-"gates_real": {"v": "2", "src": "Olivesz/kronos-quant@9932fa8:README.md#L84-L85", "ctx": "real-market"},
-"gates_then": {"v": "30", "src": "Olivesz/kronos-quant@9932fa8:README.md#L100-L102", "ctx": "gates"},
-"quarters": {"v": "−17.9%", "src": "Olivesz/kronos-quant@9932fa8:README.md#L134", "ctx": "drawdown", "note": "beat 3 draws 54 quarters from the output of the run this line reports (last NAV and worst drawdown per calendar quarter); the per-quarter values are not in the repo; the page recomputes max drawdown from them, selfChecks 'kronos-dd'"},
+"pass_ms": {"v": "350 ms", "src": "Olivesz/freeflow@19c0217:README.md#L49", "ctx": "audio"},
+"sharpe": {"v": "1.12", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "Sharpe", "note": "rf=0; the same row states 0.97 in excess of cash"},
+"sharpe_x": {"v": "0.97", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "excess"},
+"maxdd": {"v": "−18.7%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "drawdown"},
+"cagr": {"v": "13.6%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "CAGR"},
+"ew_sharpe": {"v": "1.10", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L154", "ctx": "equal"},
+"ew_maxdd": {"v": "−29.5%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L154", "ctx": "equal"},
+"spy_sharpe": {"v": "0.91", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L155", "ctx": "SPY"},
+"spy_maxdd": {"v": "−33.7%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L155", "ctx": "SPY"},
+"spy_cagr": {"v": "15.0%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L155", "ctx": "SPY"},
+"leverage": {"v": "1.5×", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L144", "ctx": "leverage"},
+"gates": {"v": "47", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L44-L46", "ctx": "gates", "note": "every gate runs in CI on the committed real prices, a skip fails the build (README L99-L100); counted from GATES in tests/run_all.py#L11-L73"},
+"gates_then": {"v": "30", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L115-L117", "ctx": "gates"},
+"quarters": {"v": "−18.7%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "drawdown", "note": "beat 3 draws the 54 quarter-ends of research/momtilt.json's committed daily NAV (README L162-L164): last NAV and worst running drawdown per calendar quarter; the page recomputes max drawdown from them, selfChecks 'kronos-dd'"},
 "em_fit": {"v": "14, 7, 2, 0", "src": "page:em", "ctx": "pass", "note": "EM on a seeded synthetic series fitted in the page; selfChecks 'em'"},
 "trap_tally": {"v": "7 passed, 2 failed", "src": "Olivesz/custos-code@4cb05fa:README.md#L15", "ctx": "passed"},
 "verdicts": {"v": "contradicted", "src": "page:custos", "ctx": "rule", "note": "both fixtures replayed by rule in the page; selfChecks 'custos'"}
@@ -1054,8 +1056,8 @@ a{color:inherit}
 
 // colours: spec token table only
 var TOK = { void: "#0a0b14", ink: "#e8e6f0", signal: "#8fe6ff", "signal-2": "#2f6f86", copper: "#3a3550", residue: "#1f1d2c", muted: "#8a87a0" };
-var REPO = "emergence@ad96d386b39922c9431df59fbee84c7d9676256b:cpu/ww_cells.py";
-var SRC = { cell: REPO + "#L168", rule: REPO + "#L39", verify: REPO + "#L202" };
+var REPO = "emergence@910b29644c404df843e3e7b0fd60ecfd8df50c16:cpu/ww_cells.py";
+var SRC = { cell: REPO + "#L170", rule: REPO + "#L41", verify: REPO + "#L204" };
 
 /* ---------- the cell: build_nand() and pack() from ww_cells.py, same coordinates ---------- */
 var CW = 10, CHT = 6, TAPX = 5, JX = 24, JY = 12, LW = 10;
@@ -1686,94 +1688,128 @@ root.FigCustos = api;
 </script>
 <script>
 /* freeflow station: the focused app filling in as someone talks, the key and pill that start it, and below a rule
-   the two latest recognition passes over the audio they re-read. One scripted utterance; the commit and trim rules
-   are a port of WhisperStreamer.swift. Every visual is a pure function of (u, box, r); the cell footprint the engine
+   the two latest recognition passes over the audio they re-read. Every pass is read from a real pass log: the shipped
+   streamer, whisper.cpp base.en, on the public JFK sample. Every visual is a pure function of (u, box, r); the cell footprint the engine
    stamps comes from the same layout, so the Bayer handoff swaps cell for cell. */
 (function (root) {
 "use strict";
 
-var PIN = "Olivesz/freeflow@6d541e6:";
+var PIN = "Olivesz/freeflow@19c0217:";
 var SRC = {
-  tick: PIN + "README.md#L88",                                        // facts: freeflow.tick
-  stack: PIN + "README.md#L60-L63",                                   // facts: freeflow.stack
-  agree: PIN + "README.md#L94-L96",                                   // facts: freeflow.localagreement
-  trim: PIN + "README.md#L97-L99",                                    // facts: freeflow.trim
-  minWin: PIN + "mac/Sources/Freeflow/Dictation.swift#L95",           // facts: freeflow.min_window
-  keys: PIN + "mac/Sources/Freeflow/Settings.swift#L10-L19",
-  hud: PIN + "mac/Sources/Freeflow/HUDView.swift#L16-L47",
-  script: "page:scripted"                                            // a figure of the scripted utterance; check-panels lists page: sources
+  tick: PIN + "README.md#L49",                                        // facts: freeflow.tick
+  stack: PIN + "bench/README.md#L4",                                  // facts: freeflow.stack
+  agree: PIN + "README.md#L79",                                       // facts: freeflow.localagreement
+  trim: PIN + "README.md#L80-L82",                                    // facts: freeflow.trim
+  minWin: PIN + "mac/Sources/FreeflowCore/Session.swift#L24",         // facts: freeflow.min_window
+  keys: PIN + "mac/Sources/Freeflow/Settings.swift#L11-L20",
+  hud: PIN + "mac/Sources/Freeflow/HUDView.swift#L18",
+  log: PIN + "bench/results/9832030/timing/logs/jfk.jsonl#L1-L33",
+  script: "page:passlog"                                             // a figure read from the pass log; check-panels lists page: sources
 };
 var TOKS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule"];
 
-/* ---------- the script: one utterance with word times (s), and what an early pass mishears ---------- */
-// scripted, not recorded: no dictation log exists in the repo
-var WORDS = [["Send", .30, .52], ["the", .55, .64], ["draft", .66, .98], ["to", 1.02, 1.12], ["the", 1.14, 1.22],
-  ["team", 1.25, 1.55], ["by", 1.62, 1.78], ["Friday,", 1.82, 2.30], ["and", 2.55, 2.68], ["ask", 2.72, 2.95],
-  ["them", 2.98, 3.15], ["to", 3.18, 3.27], ["check", 3.30, 3.58], ["the", 3.61, 3.70], ["budget.", 3.74, 4.20]];
-var MISHEARD = { 2: ["drafts", .45], 5: ["tea", .2], 6: ["buy", .2], 7: ["Fry", .35], 10: ["the", .2], 12: ["chuck", .25] };
-var HEARD = 0.12;                  // a word enters a pass once this much of it is in the window
-var TICK = 0.35;                   // Dictation.swift L34 tickMs = 350
-var MIN_WIN = 0.5;                 // Dictation.swift L95: no pass on under 8,000 samples (0.5 s at 16 kHz)
-var TRIM_AFTER = 3.0, CONTEXT = 1.5;   // WhisperStreamer.swift L28-L29
-var SILENCE = 1.5;                 // Settings.swift silenceMs 1,500: toggle mode stops on silence
-var T_STOP = WORDS[WORDS.length - 1][2] + SILENCE;
-// the scrub: key tap, recording from U_REC; the speech runs to U_SIL, the silence to U_DONE, then the stopped state
+/* ---------- the run: every pass of a real pass log, whisper.cpp base.en on the JFK sample ---------- */
+// bench/results/9832030/timing/logs/jfk.jsonl at freeflow@19c0217, one row per pass:
+// [audio_end, window_start, decode ms, hypothesis [[word, start, end]...], committed [[word, start, end]...]]
+// the last row is the final pass when the audio ends; empty-string tokens are dropped
+var LOG = [
+  [70,0,30,[],[]],
+  [105,0,182,[["\"And",6,68],["so",68,91],["am",91,104],["I!\"",104,200]],[]],
+  [140,0,160,[["And",32,42],["so,",42,102],["my",102,137],["fe-",137,170]],[]],
+  [175,0,169,[["And",28,33],["so",33,43],["my",43,69],["fellow",69,112],["Americans",112,194]],[["And",28,33]]],
+  [210,0,225,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans.",117,200]],[["so",33,45],["my",45,68],["fellow",68,117]]],
+  [245,0,214,[["and",10,33],["soul",33,68],["my",68,74],["fellow",74,123],["Americans.",123,250]],[["Americans.",123,245]]],
+  [280,0,240,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans!",117,278]],[]],
+  [315,0,98,[["And",10,33],["so,",33,68],["my",68,73],["fellow",73,122],["Americans!",122,300]],[]],
+  [350,0,109,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans!",117,300]],[]],
+  [385,0,122,[["And",31,33],["so",33,68],["my",68,73],["fellow",73,137],["Americans",137,328],["ask",328,400]],[]],
+  [420,0,241,[["And",32,38],["so",38,69],["my",69,88],["fellow",88,164],["Americans",164,278],["ask",278,329],["not",329,355],["to...",355,500]],[["ask",278,329]]],
+  [455,128,107,[["fellow",137,198],["americans",198,328],["ask",328,403],["not",403,428]],[["not",403,428]]],
+  [490,128,86,[["fellow",137,207],["Americans.",207,361],["Ask",361,403],["not.",403,428]],[]],
+  [525,128,86,[["fellow",137,207],["Americans.",207,361],["Ask",361,403],["not.",403,428]],[]],
+  [560,128,186,[["fellow",137,328],["Americans",328,403],["ask",403,419],["not",419,470],["watch",470,552],["the",552,553],["video.",553,558]],[]],
+  [595,128,141,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538]],[]],
+  [630,128,96,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538]],[]],
+  [665,128,108,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538],["watch",538,565],["your",565,597],["country",597,626],["can",626,658]],[]],
+  [700,128,105,[["fellow",137,207],["Americans",207,329],["ask",329,402],["not",402,428],["what",428,490],["your",490,541],["country",541,639],["can",639,663],["do",663,680],["for",680,682],["you.",682,688]],[]],
+  [735,128,110,[["fellow",137,207],["Americans",207,329],["ask",329,402],["not",402,428],["what",428,490],["your",490,541],["country",541,639],["can",639,662],["do",662,692],["for",692,704],["you.",704,728]],[["what",428,490],["your",490,541],["country",541,639],["can",639,662],["do",662,692],["for",692,704],["you.",704,728]]],
+  [770,554,179,[["your",554,582],["country",582,632],["can",632,653],["do",653,667],["for",667,688],["you.",688,734]],[]],
+  [805,554,186,[["your",554,622],["country",622,736],["can",736,784],["do",784,805],["for",805,805],["you.",805,924]],[]],
+  [840,554,255,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,832]],[]],
+  [875,554,94,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,866]],[]],
+  [910,554,100,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,864],["Ask",864,864],["what",864,891],["you...",891,904]],[]],
+  [945,554,108,[["What",554,597],["your",597,630],["country",630,701],["can",701,726],["do",726,745],["for",745,771],["you,",771,819],["ask",819,836],["what",836,864],["you",864,891],["can",891,909],["do.",909,946]],[["ask",819,836],["what",836,864]]],
+  [980,686,280,[["ask",686,728],["what",728,819],["you",819,827],["can",827,869],["do",869,897],["for",897,944],["you.",944,1000]],[["you",819,827],["can",827,869]]],
+  [1015,686,128,[["for",686,719],["you,",719,774],["ask",774,819],["what",819,864],["you",864,891],["can",891,917],["do",917,944],["for",944,976],["your",976,1009],["country.",1009,1014]],[["do",917,944],["for",944,976]]],
+  [1050,686,145,[["for",686,715],["you,",715,760],["ask",760,819],["what",819,827],["you",827,863],["can",863,891],["do",891,902],["for",902,930],["your",930,972],["country.",972,1042]],[["your",930,972],["country.",972,1042]]],
+  [1085,822,301,[["Ask",822,846],["what",846,891],["you",891,903],["can",903,927],["do",927,944],["for",944,973],["your",973,999],["country.",999,1086]],[]],
+  [1100,822,200,[["Ask",822,844],["what",844,874],["you",874,896],["can",896,918],["do",918,933],["for",933,955],["your",955,985],["country.",985,1066]],[]]
+].map(function (p) {          // times are kept in hundredths of a second, as integers
+  function w(q) { return [q[0], q[1] / 100, q[2] / 100]; }
+  return [p[0] / 100, p[1] / 100, p[2], p[3].map(w), p[4].map(w)];
+});
+var STREAMED = "And so my fellow Americans. ask not what your country can do for you. ask what you can do for your country.";
+var TICK = 0.35;                   // Dictation.swift tickMs = 350
+var MIN_WIN = 0.5;                 // Session.swift minWindowSamples 8000: no pass on under 0.5 s of window
+var WORDS = [];                    // what was typed, in order, with the times the pass that typed it gave
+LOG.forEach(function (p) { p[4].forEach(function (w) { WORDS.push(w); }); });
+var T_STOP = LOG[LOG.length - 1][0];
+// the scrub: key tap, recording from U_REC; the speech runs to U_SIL, the tail to U_DONE, then the stopped state
 var U_KEY = 0.01, U_REC = 0.03, U_SIL = 0.84, U_DONE = 0.97;
 
 function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
-function norm(s) { return s.trim().toLowerCase(); }
-function hyp(t, off) {
-  var out = [];
-  for (var i = 0; i < WORDS.length; i++) {
-    var w = WORDS[i];
-    if (t < w[1] + HEARD || w[1] < off - 0.05) continue;
-    var m = MISHEARD[i];
-    out.push({ i: i, w: m && t - w[1] < m[1] ? m[0] : w[0], s: w[1], e: w[2] });
+function norm(s) { return String(s).toLowerCase().replace(/[^a-z0-9']/g, ""); }
+// each hypothesis word gets the slot of the typed word it stands for: the best in-order match of the words
+// (ties go to the closer time), and a word no typed word matches takes a free slot between its matched neighbours
+function slots(hyp) {
+  var n = hyp.length, m = WORDS.length, D = [], i, j;
+  for (i = 0; i <= n; i++) { D.push([]); for (j = 0; j <= m; j++) D[i].push(0); }
+  function sc(a, b) { return norm(hyp[a][0]) && norm(hyp[a][0]) === norm(WORDS[b][0]) ? 1 - Math.min(3, Math.abs(hyp[a][1] - WORDS[b][1])) / 10 : -1; }
+  for (i = n - 1; i >= 0; i--) for (j = m - 1; j >= 0; j--) D[i][j] = Math.max(D[i + 1][j], D[i][j + 1], sc(i, j) > 0 ? sc(i, j) + D[i + 1][j + 1] : -1);
+  var at = new Array(n), used = {};
+  for (i = 0, j = 0; i < n && j < m;) {
+    if (sc(i, j) > 0 && Math.abs(D[i][j] - (sc(i, j) + D[i + 1][j + 1])) < 1e-9) { at[i] = j; used[j] = 1; i++; j++; }
+    else if (D[i][j] === D[i + 1][j]) i++; else j++;
   }
-  return out;
+  for (i = 0; i < n; i++) {
+    if (at[i] != null) continue;
+    var lo = -1, hi = m;
+    for (j = i - 1; j >= 0; j--) if (at[j] != null) { lo = at[j]; break; }
+    for (j = i + 1; j < n; j++) if (at[j] != null) { hi = at[j]; break; }
+    for (j = lo + 1; j < hi; j++) if (!used[j]) { at[i] = j; used[j] = 1; break; }
+    if (at[i] == null) at[i] = Math.max(0, Math.min(m - 1, lo + 1)) + 0.5;   // no free slot: sits between, never matches a typed word
+  }
+  return hyp.map(function (w, k) { return { i: at[k], w: w[0], s: w[1], e: w[2] }; });
 }
 
-/* ---------- LocalAgreement-2 with committed-word stripping and buffer trimming, as WhisperStreamer.swift does it ---------- */
 var SIM = (function () {
-  var committed = [], buffer = [], lastTime = 0, offset = 0, ticks = [], n = 0;
-  function strip(ws) {
-    var r = ws.filter(function (w) { return w.s > lastTime - 0.1; });
-    if (committed.length && r.length) {
-      var tail = committed.slice(-6).map(function (w) { return norm(w.w); }), head = r.slice(0, 6).map(function (w) { return norm(w.w); });
-      for (var k = Math.min(tail.length, head.length); k >= 1; k--) if (tail.slice(-k).join("|") === head.slice(0, k).join("|")) { r = r.slice(k); break; }
-    }
-    return r;
-  }
-  function snap(o) { o.text = committed.map(function (w) { return w.w; }); o.idx = committed.map(function (w) { return w.i; }); o.lastTime = lastTime; o.offset = offset; return o; }
-  for (var k = 1; TICK * k <= T_STOP + 1e-9; k++) {
-    var t = Math.round(TICK * k * 1000) / 1000;
-    if (t - offset < MIN_WIN) { ticks.push(snap({ k: k, t: t, n: 0, skip: true, full: [], got: [], trimmed: false })); continue; }
-    var full = hyp(t, offset), ws = strip(full), i = 0, got = [];
-    while (i < ws.length && i < buffer.length && norm(ws[i].w) === norm(buffer[i].w)) { got.push(ws[i]); lastTime = ws[i].e; i++; }
-    committed = committed.concat(got); buffer = ws.slice(i);
-    var trimmed = false;
-    if (lastTime - offset > TRIM_AFTER) { offset = Math.max(offset, lastTime - CONTEXT); trimmed = true; }
-    ticks.push(snap({ k: k, t: t, n: ++n, skip: false, full: full, got: got.map(function (w) { return w.i; }), trimmed: trimmed }));
-  }
-  var last = hyp(T_STOP, offset), rest = strip(last);              // the final pass on stop commits whatever is left
-  if (rest.length) { lastTime = rest[rest.length - 1].e; committed = committed.concat(rest); }
-  var fin = snap({ k: "stop", t: T_STOP, n: "on stop", skip: false, full: last, got: rest.map(function (w) { return w.i; }), trimmed: false });
+  var ticks = [], typed = 0, lastTime = 0, prevOff = 0;
+  for (var k = 1; TICK * k < LOG[0][0] - 1e-9; k++) ticks.push({ k: k, t: Math.round(TICK * k * 1000) / 1000, n: 0, skip: true, full: [], got: [], trimmed: false, text: [], idx: [], lastTime: 0, offset: 0 });
+  LOG.forEach(function (p, j) {
+    var got = p[4].map(function (w, q) { return typed + q; });
+    typed += p[4].length;
+    if (p[4].length) lastTime = p[4][p[4].length - 1][2];
+    var o = { k: ticks.length + 1, t: p[0], n: j + 1, skip: false, full: slots(p[3]), got: got, trimmed: p[1] > prevOff, ms: p[2],
+      text: WORDS.slice(0, typed).map(function (w) { return w[0]; }), idx: WORDS.slice(0, typed).map(function (w, q) { return q; }), lastTime: lastTime, offset: p[1] };
+    prevOff = p[1];
+    if (j === LOG.length - 1) { o.k = "stop"; o.n = "on stop"; }
+    ticks.push(o);
+  });
+  var fin = ticks.pop();
   var tA = 0;
   ticks.forEach(function (p) { if (p.got.length) tA = p.t; });
   return { ticks: ticks, fin: fin, tA: Math.min(T_STOP, tA + 0.1) };   // tA: just after the last pass that types a word
 })();
-// each word a pass heard one way and the next pass overturned, with what was finally typed in its slot
+// each word some pass heard one way and that was typed another, with what was typed in its slot, in slot order
 var OVERTURNED = (function () {
-  var out = [], seen = {}, q = null;
-  SIM.ticks.forEach(function (p) {
-    if (p.skip) return;
-    if (q) q.full.forEach(function (w) {
-      var m = p.full.filter(function (x) { return x.i === w.i; })[0];
-      if (m && m.w !== w.w && !seen[w.i]) { seen[w.i] = 1; out.push({ i: w.i, heard: w.w, typed: SIM.fin.text[SIM.fin.idx.indexOf(w.i)] }); }
+  var out = [], seen = {};
+  SIM.ticks.concat([SIM.fin]).forEach(function (p) {
+    p.full.forEach(function (w) {
+      if (w.i % 1 || !norm(w.w) || norm(w.w) === norm(WORDS[w.i][0]) || seen[w.i + "|" + norm(w.w)]) return;
+      seen[w.i + "|" + norm(w.w)] = 1; out.push({ i: w.i, heard: w.w, typed: WORDS[w.i][0], t: p.t });
     });
-    q = p;
   });
-  return out.sort(function (a, b) { return a.i - b.i; });
+  return out.sort(function (a, b) { return a.i - b.i || a.t - b.t; });
 })();
 
 function env(t) {                  // speech loudness 0..1 at t, deterministic
@@ -1849,15 +1885,21 @@ function scene(u, L) {
   var bs = "backspaces ", bx = Math.round(L.W - L.pad - lbW(bs) - textW("0", 13, "mono")), by = (L.head - 16) >> 1;
   run(bx, by, bs + '<span class="ro" data-src="' + SRC.script + '">0</span>', "lb");
   bars.push({ x: bx + Math.round(lbW(bs)), y: by, w: Math.ceil(textW("0", 13, "mono")), lh: 16, row: true, tok: "ink", a: anchor(bx, by, 16, c) });
-  var F = L.fld, x = 0, line = 0, sp = sgW(" ", F.fs), words = S.text;
-  for (var i = 0; i < words.length; i++) {
+  var F = L.fld, x = 0, line = 0, sp = sgW(" ", F.fs), words = S.text, at = [];
+  for (var i = 0; i < words.length; i++) {          // lay out every line, then show the last F.lines, as an editor scrolls
     var ww = sgW(words[i], F.fs);
     if (x > 0 && x + ww > F.mw) { x = 0; line++; }
-    var wx = F.x + Math.round(x), wy = F.y + line * F.lh;
-    run(wx, wy, words[i], "fw", null, F.lh);
-    bars.push({ x: wx, y: wy, w: Math.ceil(ww), lh: F.lh, tok: "ink", a: anchor(wx, wy, F.lh, c) });
+    at.push([x, line, ww]);
     x += ww + sp;
   }
+  var top = Math.max(0, line - F.lines + 1);
+  for (i = 0; i < words.length; i++) {
+    if (at[i][1] < top) continue;
+    var wx = F.x + Math.round(at[i][0]), wy = F.y + (at[i][1] - top) * F.lh;
+    run(wx, wy, words[i], "fw", null, F.lh);
+    bars.push({ x: wx, y: wy, w: Math.ceil(at[i][2]), lh: F.lh, tok: "ink", a: anchor(wx, wy, F.lh, c) });
+  }
+  line -= top;
   var cx = F.x + Math.round(words.length ? x - sp : 0) + 1, cy = F.y + line * F.lh;
   rects.push({ k: "caret", x: cx, y: cy + (L.phone ? 4 : 3), w: 2, h: F.lh - (L.phone ? 8 : 6), tok: "signal", cell: [cx, cy, F.lh] });
   // the key that starts it, and the pill that stays on screen
@@ -2128,12 +2170,12 @@ function draw(u, box, ctx) {
 function selfCheck() {
   var d = {}, ok = true;
   function need(name, cond, got) { d[name] = { ok: !!cond, got: got }; if (!cond) ok = false; }
-  var fin = SIM.fin.text.join(" "), want = WORDS.map(function (w) { return w[0]; }).join(" ");
-  need("final text is the script", fin === want, fin);
+  var fin = SIM.fin.text.join(" ");
+  need("final text is the log's streamed text", fin === STREAMED.replace(/\s+/g, " ").trim(), fin);
   [false, true].forEach(function (ph) {
-    var L = layoutFor(ph), F = L.fld, x = 0, lines = 1, sp = sgW(" ", F.fs);
-    SIM.fin.text.forEach(function (w) { var ww = sgW(w, F.fs); if (x > 0 && x + ww > F.mw) { x = 0; lines++; } x += ww + sp; });
-    need((ph ? "phone" : "desktop") + " field holds the text", lines <= F.lines && F.y + lines * F.lh <= L.panel - 6, lines);
+    var L = layoutFor(ph), F = L.fld;
+    need((ph ? "phone" : "desktop") + " field shows its last lines inside the panel", F.y + F.lines * F.lh <= L.panel - 6 &&
+      SIM.fin.text.every(function (w) { return sgW(w, F.fs) <= F.mw; }), F.lines);
   });
   // append-only: each tick's typed words extend the last tick's, so the backspace count shown is the true count
   var back = 0, prevT = [];
@@ -2157,12 +2199,11 @@ function selfCheck() {
     });
   });
   need("typed only when two passes agree", agreed, agreed);
-  var trims = SIM.ticks.filter(function (p) { return p.trimmed; });
-  need("trim keeps 1.5 s behind the last typed word", trims.length > 0 && trims.every(function (p) { return Math.abs(p.lastTime - p.offset - CONTEXT) < 1e-9 || p.offset > p.lastTime - CONTEXT; }), trims.map(function (p) { return [p.t, +p.offset.toFixed(2)]; }));
-  var overturned = [];
-  SIM.ticks.forEach(function (p, i) { var q = SIM.ticks[i - 1]; if (!q || q.skip || p.skip) return; q.full.forEach(function (w) { var m = p.full.filter(function (x) { return x.i === w.i; })[0]; if (m && m.w !== w.w) overturned.push(w.w + "→" + m.w); }); });
-  need("misheard words are overturned before they are typed", overturned.length >= 3 && SIM.fin.text.every(function (w, i) { return w === WORDS[i][0]; }), overturned);
-  need("the end state shows each overturned word over the word typed in its place", OVERTURNED.length === overturned.length && OVERTURNED.every(function (e) { return e.typed === WORDS[e.i][0] && e.heard !== e.typed; }), OVERTURNED.map(function (e) { return e.heard + "→" + e.typed; }));
+  var trims = SIM.ticks.filter(function (p) { return p.trimmed; }), mono = true;
+  SIM.ticks.concat([SIM.fin]).forEach(function (p, i, a) { if (i && p.offset < a[i - 1].offset) mono = false; });
+  need("the window start moves forward only, and it moves", trims.length > 0 && mono, trims.map(function (p) { return [p.t, p.offset]; }));
+  need("misheard words are overturned before they are typed", OVERTURNED.length >= 3 && OVERTURNED.every(function (e) {
+    return SIM.fin.text[e.i] === e.typed && norm(e.heard) !== norm(e.typed); }), OVERTURNED.map(function (e) { return e.heard + "→" + e.typed; }));
   // reversibility and footprint registration: the same u gives the same scene and the same cells, whatever came before
   var a1 = JSON.stringify(footprint(0.55, false)), z = footprint(1, false); footprint(0.1, true);
   need("footprint is a pure function of u", a1 === JSON.stringify(footprint(0.55, false)) && z.length > 0, z.length);
@@ -2175,7 +2216,7 @@ function beat(res, instruction) {
   return { len: 0.75, w: SIZE.desk.w, h: SIZE.desk.h, pw: SIZE.phone.w, ph: SIZE.phone.h,
     build: function (F, u) { var q = res(false); cells(u, q.r, q.org, false).forEach(function (k) { F(k[0], k[1], k[2]); }); },
     phoneBuild: function (F, u) { var q = res(true); cells(u, q.r, q.org, true).forEach(function (k) { F(k[0], k[1], k[2]); }); },
-    instruction: instruction || "scripted, no microphone. typed once two passes agree.", input: null, selfCheck: "freeflow" };
+    instruction: instruction || "a real pass log, JFK sample. typed once two passes agree.", input: null, selfCheck: "freeflow" };
 }
 
 /* ---------- the station facade the three native figures share ---------- */
@@ -2199,7 +2240,7 @@ var station = {
   hide: function () { if (M) M.el.style.visibility = "hidden"; },
   unmount: unmount,
   selfCheck: selfCheck,
-  instruction: function () { return "scripted, no microphone. typed once two passes agree."; },
+  instruction: function () { return "a real pass log, JFK sample. typed once two passes agree."; },
   rest: function () { return 1; },
   len: 0.75,
   version: function () { return "ff1"; }
@@ -2217,7 +2258,7 @@ root.FigFreeflow = {
 </script>
 <script>
 /* KRONOS station, native layer: one canvas for marks, one SVG for text, one range input for the planted switch.
-   Rows, top to bottom: planted answer, estimate, 41 gates, real prices. Desktop adds rows; phone swaps one view at a time.
+   Rows, top to bottom: planted answer, estimate, 47 gates, real prices. Desktop adds rows; phone swaps one view at a time.
    draw(u, box, ctx) is a pure function of u, the box, the switch position and ctx.r, the station's resolve level. Cells and
    native marks trade places by the 4x4 Bayer rank of each cell in the engine bitmap (ctx.org is the phase of the box's first
    cell); a text item switches whole at the rank of the cell under its first glyph. cells(u, box, ctx, F) hands the engine the
@@ -2226,18 +2267,18 @@ root.FigFreeflow = {
 "use strict";
 
 var TOKN = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule", "v-amber"];
-var PIN = "Olivesz/kronos-quant@9932fa8:";
+var PIN = "Olivesz/kronos-quant@c19c5ca:";
 var SRC = {
   em: "page:em-fit (seeded synthetic series, fitted in this page)",
-  gates: PIN + "README.md#L41",
-  gatesList: PIN + "tests/run_all.py#L11-L61",
-  synthetic: PIN + "README.md#L82-L84",
-  realData: PIN + "README.md#L84-L85",
-  run: PIN + "README.md#L134",
-  spy: PIN + "README.md#L138",
+  gates: PIN + "README.md#L44-L46",
+  gatesList: PIN + "tests/run_all.py#L11-L73",
+  ciReal: PIN + "README.md#L44-L46",
+  noSkip: PIN + "README.md#L99-L100",
+  run: PIN + "README.md#L151",
+  spy: PIN + "README.md#L155",
   risk: PIN + "tests/test_risk.py#L1-L8",
-  caption: PIN + "README.md#L100-L104",
-  quarters: "page:quarters (the 54 quarters of the shipped run, carried in this page)"
+  caption: PIN + "README.md#L115-L119",
+  quarters: "page:quarters (the 54 quarter-ends of research/momtilt.json's daily NAV, carried in this page)"
 };
 var COPY = {
   b1: "shaded days are planted. drag the switch; the estimate re-locks.",
@@ -2259,24 +2300,25 @@ var GATE_LINES = [
   [35, "test_robustness.py"], [37, "test_robustness2.py"], [39, "test_critical.py"], [41, "test_reflex.py"],
   [43, "test_constants.py"], [45, "test_trade.py"], [47, "test_transfer.py"], [49, "test_crypto.py"],
   [51, "test_risk.py"], [53, "test_lever.py"], [54, "test_regime_engine.py"], [56, "test_harvest.py"],
-  [58, "test_live.py"], [60, "test_momtilt.py"]
+  [58, "test_live.py"], [60, "test_momtilt.py"], [62, "test_ewbar.py"], [64, "test_pinned.py"],
+  [66, "test_headline.py"], [68, "test_live_pnl.py"], [70, "test_overlay_warmup.py"], [72, "test_shipped_stream.py"]
 ];
 var GATE_LIST = [];
 GATE_LINES.forEach(function (r) { for (var i = 1; i < r.length; i++) GATE_LIST.push({ f: r[i], line: r[0] }); });
-var GATES = { count: 41, synthetic: 39, realData: 2, missing: "test_risk.py" };
+var GATES = { count: 47, missing: "test_risk.py" };
 
-/* ---------- the shipped run (net Sharpe 1.07), one row per calendar quarter ---------- */
-// the run's own output, not a repo file: its sourced figure is the README headline it reproduces (README L134)
-// nav is the last nav_net value in the quarter; dd the minimum of the drawdown series inside it; spy the same from nav_spy / dd_spy
+/* ---------- the shipped run (Sharpe 1.12 at rf=0), one row per calendar quarter ---------- */
+// research/momtilt.json commits the run's daily NAV (README L162-L164); these are its quarter-ends, resampled here
+// nav is the last daily NAV in the quarter; dd the minimum of the running drawdown inside it; spy and spyDd the same from the spy row
 var Q0 = {
   q: ["2013Q1","2013Q2","2013Q3","2013Q4","2014Q1","2014Q2","2014Q3","2014Q4","2015Q1","2015Q2","2015Q3","2015Q4","2016Q1","2016Q2","2016Q3","2016Q4","2017Q1","2017Q2","2017Q3","2017Q4","2018Q1","2018Q2","2018Q3","2018Q4","2019Q1","2019Q2","2019Q3","2019Q4","2020Q1","2020Q2","2020Q3","2020Q4","2021Q1","2021Q2","2021Q3","2021Q4","2022Q1","2022Q2","2022Q3","2022Q4","2023Q1","2023Q2","2023Q3","2023Q4","2024Q1","2024Q2","2024Q3","2024Q4","2025Q1","2025Q2","2025Q3","2025Q4","2026Q1","2026Q2"],
-  nav: [1.0645,1.0756,1.099,1.2191,1.2242,1.2878,1.2901,1.367,1.3392,1.325,1.2533,1.3747,1.4397,1.5103,1.563,1.5839,1.6835,1.7877,1.889,2.1006,2.0329,2.0647,2.199,1.9715,2.1957,2.3594,2.4584,2.5526,2.4323,2.4851,2.6551,2.7472,2.7276,2.973,3.0344,3.2816,3.1603,2.8732,2.7189,2.9327,2.9219,2.9706,2.8006,3.0538,3.3414,3.3638,3.6295,3.5175,3.6691,3.6798,4.0074,4.0369,4.1528,4.4425],
-  dd: [-0.0143,-0.0683,-0.0633,-0.051,-0.047,-0.0346,-0.042,-0.0514,-0.0458,-0.0465,-0.1115,-0.09,-0.0803,-0.0265,-0.0426,-0.0582,-0.0212,-0.018,-0.0235,-0.0076,-0.1087,-0.105,-0.0693,-0.1466,-0.1259,-0.0338,-0.0351,-0.0236,-0.1196,-0.1156,-0.0792,-0.0434,-0.0416,-0.0319,-0.0517,-0.0538,-0.0875,-0.1439,-0.1777,-0.1781,-0.1602,-0.1468,-0.153,-0.1788,-0.0936,-0.057,-0.0668,-0.0661,-0.077,-0.099,-0.0219,-0.0429,-0.0617,-0.0417],
-  spy: [1.0667,1.1014,1.1592,1.2812,1.303,1.3682,1.3894,1.4536,1.4794,1.4695,1.3491,1.4971,1.4746,1.482,1.5855,1.6481,1.7498,1.7993,1.87,2.0059,1.9667,2.0535,2.2074,1.9001,2.1514,2.2651,2.3048,2.5059,2.054,2.3659,2.6312,2.9724,3.1612,3.4208,3.4451,3.8264,3.7068,3.0618,2.9108,3.0837,3.3644,3.6138,3.5386,3.9504,4.3609,4.5519,4.8137,4.9336,4.7231,5.2072,5.6357,5.8077,5.397,6.4656],
+  nav: [1.1066,1.1441,1.1907,1.3503,1.3655,1.4538,1.4583,1.5062,1.5093,1.5228,1.4302,1.5378,1.6086,1.6317,1.6785,1.8047,1.9594,2.0748,2.2399,2.5392,2.5042,2.5725,2.8299,2.5092,2.7438,2.847,2.8277,3.0677,2.8001,2.8779,2.9827,3.0574,3.1219,3.2765,3.2668,3.5255,3.3325,2.9675,2.9283,2.9995,3.0893,3.2757,3.1307,3.5269,3.9062,3.9539,4.1831,4.1779,4.1276,4.2582,4.6249,4.6751,4.8698,5.4655],
+  dd: [-0.0374,-0.0654,-0.0547,-0.0594,-0.0542,-0.0405,-0.054,-0.0692,-0.0624,-0.0479,-0.1205,-0.1029,-0.0932,-0.0505,-0.0393,-0.0386,-0.0217,-0.026,-0.026,-0.0114,-0.1309,-0.1255,-0.093,-0.1393,-0.1264,-0.0682,-0.0656,-0.0719,-0.1476,-0.1442,-0.1172,-0.1017,-0.07,-0.0367,-0.0579,-0.0577,-0.1087,-0.1793,-0.1874,-0.1869,-0.172,-0.1539,-0.1313,-0.1585,-0.044,-0.0628,-0.0749,-0.0769,-0.0939,-0.1525,-0.0632,-0.046,-0.0547,-0.0356],
+  spy: [1.07,1.1014,1.1592,1.2812,1.303,1.3702,1.3857,1.4536,1.4665,1.4695,1.3751,1.4716,1.4912,1.5278,1.5855,1.6481,1.7457,1.7993,1.8788,2.0059,1.9859,2.0565,2.2138,1.9142,2.1732,2.2651,2.3048,2.5119,2.0234,2.4314,2.6511,2.9724,3.1612,3.4255,3.4451,3.8264,3.6498,3.0618,2.9108,3.1309,3.3644,3.6565,3.5386,3.9504,4.3609,4.5519,4.8137,4.9336,4.7231,5.2321,5.657,5.8077,5.5539,6.4656],
   spyDd: [-0.0277,-0.0555,-0.0446,-0.0391,-0.057,-0.039,-0.0384,-0.0727,-0.0465,-0.0332,-0.1191,-0.0915,-0.1302,-0.0552,-0.0271,-0.0433,-0.0215,-0.0261,-0.0208,-0.0103,-0.101,-0.098,-0.0467,-0.1935,-0.1595,-0.0662,-0.0602,-0.0418,-0.3372,-0.2682,-0.0944,-0.0835,-0.0406,-0.0396,-0.05,-0.0511,-0.1287,-0.2301,-0.2437,-0.245,-0.193,-0.1365,-0.084,-0.1167,-0.0197,-0.0535,-0.0841,-0.0357,-0.1004,-0.1876,-0.0241,-0.0507,-0.0888,-0.0553]
 };
-var MAXDD_RUN = -0.1788339799249995;          // research/momtilt.json max_dd of the same run
-var TABLE = { maxdd: "−17.9%", spyMaxdd: "−33.7%", trough: "2023Q4", spyTrough: "2020Q1" };
+var MAXDD_RUN = -0.18735028217902572;         // research/momtilt.json rows.shipped_tilted.max_dd, the same run
+var TABLE = { maxdd: "−18.7%", spyMaxdd: "−33.7%", trough: "2022Q3", spyTrough: "2020Q1" };
 var MULTS = [1, 2, 4];                         // log-scale gridlines, as multiples of the starting value
 var DDMAX = 0.34;                              // depth of the drawdown band: SPY's worst quarter fits
 
@@ -2440,7 +2482,7 @@ function geo(W, H, c, phone) {
   g.qp = Math.max(3, Math.min(12, Math.floor((W - g.LG - (g.wide ? 64 : 30)) / 54)));
   g.RX = g.wide ? g.LG + 54 * g.qp : W;                    // right edge of header readouts
   g.PA = g.LG + 54 * g.qp;                                  // the right edge every plot shares
-  g.gp = Math.max(4, Math.floor((g.PA + 3) / (phone ? 21 : 41))); g.gs = g.gp - (g.gp >= 10 ? 3 : 2);
+  g.gp = Math.max(4, Math.floor((g.PA + 3) / (phone ? Math.ceil(GATES.count / 2) : GATES.count))); g.gs = g.gp - (g.gp >= 10 ? 3 : 2);
   var hA = phone ? 80 : g.wide ? 56 : 48, hB = phone ? 40 : 36, hE = phone ? 96 : g.wide ? 100 : 88, dd = 48, y;
   g.A = { hdr: 14, trk: 24, top: 32, h: hA };
   y = 32 + hA;
@@ -2510,7 +2552,7 @@ function paintEstimate(P, g, m, k) {
 }
 function gateXY(g, i) {
   if (g.C.rows === 1) return [i * g.gp, g.C.sq];
-  var per = 21, r = Math.floor(i / per);
+  var per = Math.ceil(GATES.count / 2), r = Math.floor(i / per);
   return [(i % per) * g.gp, g.C.sq + r * g.gp];
 }
 function tickGate(s) { return s.testing >= 0 ? s.testing : s.passed === GATES.count ? GATE_LIST.map(function (q) { return q.f; }).indexOf(GATES.missing) : -1; }
@@ -2559,7 +2601,7 @@ function textPlanted(g, m, s) {
 }
 function textGates(g, s) {
   var out = [], C = g.C, all = s.passed === GATES.count, tone = all ? "ink" : "signal", dot = [" · ", 11, "muted"];
-  var n = ["41 gates", 11, "muted", SRC.gates], a = ["39 synthetic, planted answer", 11, "muted", SRC.synthetic], b = ["2 real-market calibration", 11, "muted", SRC.realData];
+  var n = ["47 gates", 11, "muted", SRC.gates], a = ["all run in CI on real prices", 11, "muted", SRC.ciReal], b = ["a skip fails the build", 11, "muted", SRC.noSkip];
   var ro = [[s.passed + " of ", 13, tone, "page:gate-replay"], [String(GATES.count), 13, tone, SRC.gates]];
   var one = [n, dot, a, dot, b];
   if (C.sp.length === 1 && tw(one) + tw(ro) + 16 <= g.RX) out.push(T_(0, C.hdr, one));
@@ -2612,10 +2654,10 @@ function derive(data) {
   d.b3.ok = contiguous && consistent && Math.abs(q.dd[tk] - MAXDD_RUN) <= 1e-4 && d.b3.maxddPct === TABLE.maxdd && d.b3.spyMaxddPct === TABLE.spyMaxdd &&
             d.b3.trough === TABLE.trough && d.b3.spyTrough === TABLE.spyTrough && d.b3.mults === MULTS.length;
   var files = GATE_LIST.map(function (g) { return g.f; }), uniq = files.filter(function (f, j) { return files.indexOf(f) === j; }).length;
-  d.b2 = { count: GATES.count, synthetic: GATES.synthetic, realData: GATES.realData, laidOut: GATE_LIST.length, unique: uniq,
+  d.b2 = { count: GATES.count, laidOut: GATE_LIST.length, unique: uniq,
            first: files[0], missingAt: files.indexOf(GATES.missing), firstLine: GATE_LIST[0].line, lastLine: GATE_LIST[GATE_LIST.length - 1].line };
-  d.b2.ok = GATES.synthetic + GATES.realData === GATES.count && GATE_LIST.length === GATES.count && uniq === GATES.count &&
-            d.b2.first === "test_regime.py" && d.b2.missingAt === 35 && d.b2.firstLine >= 11 && d.b2.lastLine <= 61;
+  d.b2.ok = GATE_LIST.length === GATES.count && uniq === GATES.count &&
+            d.b2.first === "test_regime.py" && d.b2.missingAt === 35 && d.b2.firstLine >= 11 && d.b2.lastLine <= 73;
   var m = fitFor(SW0), L = m.pend - 1, rangeOk = true;
   for (i = SW_MIN; i <= SW_MAX; i++) if (!fitFor(i).pass) rangeOk = false;
   d.b1 = { ok: m.mism[L] === 0 && m.lock[L] >= m.day && m.pass, rangeOk: rangeOk, mismatches: m.mism.slice(0, m.pend), passes: m.pend,
@@ -2628,7 +2670,7 @@ function allowedNumbers() {
   var set = {}, k, i;
   function add(s) { (String(s).match(/[−-]?\d[\d.,]*%?/g) || []).forEach(function (t) { set[t] = 1; }); }
   for (k = SW_MIN; k <= SW_MAX; k++) { var m = fitFor(k); add(m.day); for (i = 0; i < m.pend; i++) { add(lockText(m, i)); add(lockText(m, i, 1)); add(accText(m, i)); add((i + 1) + " of " + m.pend); } }
-  add("0.9"); add("41 gates"); add("39 synthetic"); add("2 real-market");
+  add("0.9"); add("47 gates");
   for (i = 0; i <= GATES.count; i++) add(i + " of " + GATES.count);
   GATE_LIST.forEach(function (g) { add(g.f); });
   for (i = 0; i < NQ; i++) add(qLabel(Q.q[i]));
@@ -5497,8 +5539,8 @@ function selfChecks() {
     { id: "custos", ok: cc.ok, got: cv.trap ? [cv.trap.claims.map(function (c) { return c && c[1]; }), cv.trap.stop, cv.control.claims.map(function (c) { return c && c[1]; }), cv.control.stop] : null,
       want: [["contradicted"], "blocked", ["unwitnessed", "confirmed"], "not blocked"] },
     { id: "em", ok: kc.b1.ok, got: kc.b1.mismatches.slice(0, 4), want: [14, 7, 2, 0] },
-    { id: "kronos-gates", ok: kc.b2.ok, got: [kc.b2.synthetic, kc.b2.realData, kc.b2.laidOut], want: [39, 2, 41] },
-    { id: "kronos-dd", ok: kc.b3.ok, got: Math.round(kc.b3.maxdd * 1000) / 10, want: -17.9 },
+    { id: "kronos-gates", ok: kc.b2.ok, got: [kc.b2.laidOut, kc.b2.unique, kc.b2.missingAt], want: [47, 47, 35] },
+    { id: "kronos-dd", ok: kc.b3.ok, got: Math.round(kc.b3.maxdd * 1000) / 10, want: -18.7 },
     { id: "freeflow", ok: FigFreeflow.station.selfCheck().ok, got: null, want: null },
     { id: "custos-native", ok: FigCustosNative.station.selfCheck().ok, got: FigCustosNative.selfCheck().details.why, want: "" },
     { id: "nand", ok: nc.ok, got: nc.table.split("").map(Number), want: [1, 1, 1, 0] },

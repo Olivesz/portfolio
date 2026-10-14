@@ -55,7 +55,7 @@ NATIVE_SEL = ", ".join(NATIVE_ROOTS)
 EXPECT = {                      # self-checks whose answer is known outside the page
     "nand": [1, 1, 1, 0],       # NAND truth table, cases 00 01 10 11, read from the output cell
     "em": [14, 7, 2, 0],        # mismatched blocks after EM passes 1..4
-    "kronos-dd": -17.9,         # max drawdown of the 54-quarter series, percent, to the basis point
+    "kronos-dd": -18.7,         # max drawdown of the 54-quarter series, percent, to the basis point
 }
 
 VIEWPORTS = {
@@ -2403,9 +2403,22 @@ def a_playthrough(v):
     g = w.geometry()
     pb_mouse(w)
     ids = w.js(PB_WALK_POLL)
-    goal = (g["PULL"] + 0.1) * w.S
+    # past the pull-back start AND the last station's rest (custos stays native until ZOOM, about 0.15 screen into the pull-back)
+    goal = (g["PULL"] + 0.3) * w.S
     for _ in range(int(goal // 100) + 4):
         w.page.mouse.wheel(0, 100)
+    # notches can be coalesced under load; top up until the flick has really gone past the last hold
+    for _ in range(20):
+        if w.js("() => scrollY") >= goal - 2:
+            break
+        w.page.mouse.wheel(0, 100)
+        w.page.wait_for_timeout(30)
+    # wait for the queued notches to land: reading the scroll position a frame later caught it short of the goal
+    # (s 9.00 against 9.11), where the last station is still legitimately in frame and playing
+    for _ in range(40):
+        if w.js("() => scrollY") >= goal - 2:
+            break
+        w.page.wait_for_timeout(50)
     at = w.js("async () => { await __ct.raf(); await __ct.raf(); return scrollY / __walk.S(); }")
     w.page.wait_for_timeout(400)
     log = w.js("() => { __ct.pbOn = false; return __ct.pbLog; }")

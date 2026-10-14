@@ -99,7 +99,7 @@
     var P = pack(g.c, [[2, 0], [1, 0], [JX - 1, JY - 1], [JX + 1 + LW, JY - 1], [JX - 1 - LW, JY + 1], [JX + 6, JY + 1], [JX, JY]]);
     return P;   // ports: seed head, seed tail, NW port, A launch, B launch, output probe, J
   }
-  /* the loop memory cell: build_reg(), cpu/ww_cells.py#L250-L272 */
+  /* the loop register: build_reg(), cpu/ww_cells.py#L252-L274 */
   var RW = 20, RH = 14, KK = 7, CLW = 8;
   function buildReg() {
     var g = Gc();
@@ -804,7 +804,7 @@
         api.dot(RX, 3 + w, w === s.MAR ? "v-violet" : "residue");
         for (var b3 = 0; b3 < 8; b3++) api.dot(RX + 1 + (7 - b3), 3 + w, (s.ram[w] >> b3) & 1 ? "v-amber" : "copper");
       }
-      var pr = lbl(api, "pR", "ram 16×8", RX + 1, 1, { dy: -4 }); pr.setAttribute("data-src", "Olivesz/emergence@ad96d38:cpu/sap1.py#L12");
+      var pr = lbl(api, "pR", "ram 16×8", RX + 1, 1, { dy: -4 }); pr.setAttribute("data-src", "Olivesz/emergence@910b296:cpu/sap1.py#L12");
     }
     // the output tape: a 13 px readout, or (o.big, fig 15) the figure's payoff in the 30 px display size; the newest
     // number is green, the colour this page gives an output that just fired
