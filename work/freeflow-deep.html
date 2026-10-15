@@ -38,11 +38,21 @@
 .sc-l .k-a{color:var(--v-amber)}
 .sc-l .k-lost{color:var(--v-red);text-decoration:line-through}
 .sc-l .k-i{color:var(--ink)}
+.sc-l .k-v{color:var(--v-violet)}
+#sc-twice .sc-l,#sc-tests .sc-l,#sc-times .sc-l{background:var(--void)}   /* labels sit over a figure’s threshold line, not under it */
 .sc-l .cap{display:inline-block;margin-left:1px;padding:0 4px;outline:1px solid var(--muted);color:var(--muted)}
 .sc-l .cap.on{color:var(--void);background:var(--ink);outline-color:var(--ink)}
 .sc-l .caret{display:inline-block;width:1px;height:14px;margin-left:1px;vertical-align:-2px;background:var(--ink)}
 .sc-l{line-height:16px}
 .sc-pips{flex-wrap:wrap;max-width:100%}
+/* the results row: a value never breaks across lines; on a phone each value sits over its words */
+#ch-results .stats .v{white-space:nowrap}
+/* the loop map beside each build step: stages passed in muted, this one in the accent */
+.st-map{display:inline-flex;gap:4px;margin-left:16px;vertical-align:1px}
+.st-map i{display:block;width:8px;height:4px;background:var(--rule)}
+.st-map i.d{background:var(--muted)}
+.st-map i.on{background:var(--accent)}
+@media (max-width:767px){ #ch-results .stats li{display:block} #ch-results .stats .k{padding-top:4px} }
 </style>
 </head>
 <body>
@@ -67,7 +77,7 @@
         <div><dt>short</dt><dd><a href="freeflow.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
         <div><dt>stack</dt><dd><span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L1">Swift</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L6-L7">whisper.cpp</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">base.en</span></dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer">github.com/Olivesz/freeflow</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>read</dt><dd data-derived="the page’s words at 250 a minute">about 14 minutes</dd></div>
+        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 15 minutes</dd></div>
       </dl>
     </div>
   </header>
@@ -115,7 +125,7 @@
             <li data-key="end" data-at="224">The clip ends at <span data-src="Olivesz/freeflow@19c0217:README.md#L15">11</span> s. A final pass reads the tail and finds nothing left to type.</li>
             <li data-key="rest" data-at="232"><span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">22 of 22</span> words typed, <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">0</span> errors, and nothing deleted.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-dictate-cap"><span class="n">fig 1</span>a real pass log · the JFK sample through the shipped streamer, <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">31</span> passes. green ticks are passes that typed something; the bars are the words, placed by their logged times.</figcaption>
+          <figcaption class="sc-cap" id="sc-dictate-cap"><span class="n">fig 1</span>a real pass log · the JFK sample through the shipped streamer, <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">31</span> passes. top: each word where the log times it, violet once heard, blue once typed. bottom: each burst of typing, as tall as the words it carried. a line ties the latest burst to its words.</figcaption>
         </figure>
 
         <p>The words should show up while you talk, not after you stop. That is where it gets hard. Whisper only transcribes finished clips. To get words while you talk, the app runs it again every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms on <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L36">everything captured so far</span>. Each run is a pass, and a later pass often changes words an earlier one got wrong.</p>
@@ -131,7 +141,7 @@
             <li data-key="p420" data-at="10">By <span data-src="page:passlog">4.20</span> s retyping has sent <span data-src="page:passlog">122</span> backspaces and shown <span data-src="page:passlog">5</span> wrong words. Append-only: none of either.</li>
             <li data-key="rest" data-at="11">Same passes, same model. The only difference is when a word is allowed onto the screen.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-mind-cap"><span class="n">fig 2</span>the log’s first <span data-src="page:passlog">11</span> passes, typed two ways. top: retype each guess. bottom: type a word once two passes agree.</figcaption>
+          <figcaption class="sc-cap" id="sc-mind-cap"><span class="n">fig 2</span>the log’s first <span data-src="page:passlog">11</span> passes, typed two ways. top: retype each guess. bottom: type a word once two passes agree. under each, the backspaces it sends into the app.</figcaption>
         </figure>
 
         <p>Text already typed into another app can’t be quietly edited. Retyping gets the sentence right in the end, but wrong words flash on screen first, and every correction is a burst of backspaces sent into someone else’s app.</p>
@@ -199,7 +209,7 @@
           <p class="st-k">step 02 <span class="sep">·</span> the tick</p>
           <h3>Gates before every pass</h3>
           <p>A loop wakes every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, copies the buffer <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L38-L40">from the window’s start</span>, and decides whether the model should see it at all.</p>
-          <p>The gates come first, because Whisper doesn’t return nothing on silence. It <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L16-L18">fills silence with phrases like “thank you”</span>.</p>
+          <p>The gates come first, because Whisper does not stay quiet on silence. It <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L16-L18">fills silence with phrases like “thank you”</span>.</p>
           <figure class="scene" id="sc-gates" aria-labelledby="sc-gates-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
@@ -247,7 +257,7 @@
               <li data-key="p245" data-at="4">At <span data-src="page:passlog">2.45</span> s the pass starts “and soul my fellow”: a re-hearing of typed words, cut first. “Americans.” then matches and is typed.</li>
               <li data-key="rest" data-at="5">Typed by <span data-src="page:passlog">2.45</span> s: “And so my fellow Americans.” Every guess on the way was overturned before it reached the screen.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-agree-cap"><span class="n">fig 8</span>a word is typed once two passes in a row agree on it, counting from the front: the first passes of the JFK log. <span class="verb">click</span> to be the next pass.</figcaption>
+            <figcaption class="sc-cap" id="sc-agree-cap"><span class="n">fig 8</span>a word is typed once two passes in a row agree on it, counting from the front: the first passes of the JFK log. last step: filled, typed by that pass; outlined, waiting; struck, already typed and cut. <span class="verb">click</span> to be the next pass.</figcaption>
           </figure>
         </div>
 
@@ -255,7 +265,7 @@
           <p class="st-k">step 05 <span class="sep">·</span> no repeats</p>
           <h3>Never type a word twice</h3>
           <p>Every pass re-reads audio whose words are already typed, so those words come back, and whisper.cpp <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">re-times words by up to a second</span> from one pass to the next. So the cut between typed and new words is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L121-L127">found by text</span>: the longest run of the last <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L162">four</span> typed words that the pass repeats, taking the one nearest in time.</p>
-          <p>Only when the pass repeats none of them does a time rule apply: keep words that start after the last typed word ends, less <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L131">0.1</span> s. Before <span data-src="Olivesz/freeflow@19c0217:README.md#L62-L63">262c910</span>, that time rule was the only one.</p>
+          <p>Only when the pass repeats none of them does a time rule apply: keep words that start after the last typed word ends, less <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L131">0.1</span> s. Until the fix that added the text cut (commit <span data-src="Olivesz/freeflow@19c0217:README.md#L62-L63">262c910</span>), that time rule was the only one.</p>
           <figure class="scene" id="sc-twice" aria-labelledby="sc-twice-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
@@ -307,7 +317,7 @@
         <div class="st" id="st-stop">
           <p class="st-k">step 08 <span class="sep">·</span> stopping</p>
           <h3>Stopping cleanly</h3>
-          <p>Silence ends it in either mode. After a <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L45">400</span> ms grace, every quiet <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L47-L55">tick adds its length to a silence clock</span>, and speech resets it. At <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L29">1,500</span> ms it stops, so the fifth quiet tick in a row ends it. In hold mode, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AppDelegate.swift#L100-L102">letting go of the key in hold mode</span> ends it sooner.</p>
+          <p>Silence ends it in either mode. After a <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L45">400</span> ms grace, every quiet <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L47-L55">tick adds its length to a silence clock</span>, and speech resets it. At <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L29">1,500</span> ms it stops, so the fifth quiet tick in a row ends it. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AppDelegate.swift#L100-L102">In hold mode, letting go of the key</span> ends it sooner.</p>
           <p>Either way, the stop only <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L87-L88">signals the loop to finish</span>. The loop finishes its turn, cuts the quiet off the tail, and runs <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L123">a final flush</span> that types whatever was <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L83">left in the tail</span>.</p>
           <figure class="scene" id="sc-stop" aria-labelledby="sc-stop-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
@@ -336,7 +346,7 @@
             <li data-key="jfk" data-at="0">Before the fix the streamer dropped <span data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/summary.csv#L2">6</span> of JFK’s <span data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/summary.csv#L2">22</span> words, struck through in red.</li>
             <li data-key="held" data-at="1">On the held-out speakers it got <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span> of words wrong, against <span data-src="Olivesz/freeflow@19c0217:README.md#L59">5.4%</span> offline on the same audio: <span data-src="Olivesz/freeflow@19c0217:README.md#L59">78 of 523</span> dropped.</li>
             <li data-key="window" data-at="2">A smaller window made it worse: <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71-L72">19.7%</span> at <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71">3 / 1.5 s</span> against <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71-L72">15.5%</span> at <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L72">8 / 2 s</span>. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L77-L78">Even with no trimming it lost words</span>, which pointed at the commit rule.</li>
-            <li data-key="after" data-at="3">The fix, <span data-src="Olivesz/freeflow@19c0217:README.md#L62-L63">262c910</span>, finds the cut by text and clamps times to the window. JFK now loses <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">0</span>.</li>
+            <li data-key="after" data-at="3">The fix finds the cut by text and clamps times to the window. JFK now loses <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">0</span>.</li>
             <li data-key="all" data-at="4">Held out: <span data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span> against <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> offline, <span data-src="Olivesz/freeflow@19c0217:README.md#L60">3 of 523</span> dropped. All <span data-src="Olivesz/freeflow@19c0217:README.md#L51">41</span> clips: <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">5.8%</span> against <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">4.4%</span>.</li>
             <li data-key="rest" data-at="5">Once the commit rule is fixed, the windows tried land <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L107-L108">within about 1.5 points of each other</span> on the held-out speakers.</li>
           </ol>
@@ -351,9 +361,9 @@
         <p class="ch-k">05 <span class="sep">·</span> results</p>
         <h2 id="h-results">What is tested, and what CI checks</h2>
         <p class="np">The streaming rules live in FreeflowCore, a Swift library with <span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L16">no model and no UI</span>, so they can be tested anywhere.</p>
-        <p><span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778">55</span> Swift tests and <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778">36</span> Python tests passed on CI at the pinned commit. Both suites <span data-src="Olivesz/freeflow@19c0217:README.md#L98-L99">run the same fixtures</span>, each a sequence of decoder passes and the words that must be typed after each, and <span data-src="Olivesz/freeflow@19c0217:README.md#L99-L100">two are taken from real pass logs</span>. CI also <span data-src="Olivesz/freeflow@19c0217:README.md#L100-L101">builds the release app and replays the benchmark’s gate clips</span> with the real model, and fails if streaming loses more than <span data-src="Olivesz/freeflow@19c0217:README.md#L102">2</span> points of word error against offline. <span data-src="Olivesz/freeflow@19c0217:README.md#L102-L103">A control run with a broken window has to fail too</span>, and it does.</p>
+        <p><span data-derived="CI run 38482789778, swift job: Executed 55 tests, with 0 failures (32 + 14 + 5 + 4)">55</span> Swift tests and <span data-derived="CI run 38482789778, python job: 36 passed">36</span> Python tests passed on CI at the pinned commit. Both suites <span data-src="Olivesz/freeflow@19c0217:README.md#L98-L99">run the same fixtures</span>, each a sequence of decoder passes and the words that must be typed after each, and <span data-src="Olivesz/freeflow@19c0217:README.md#L99-L100">two are taken from real pass logs</span>. CI also <span data-src="Olivesz/freeflow@19c0217:README.md#L100-L101">builds the release app and replays the benchmark’s gate clips</span> with the real model, and fails if streaming loses more than <span data-src="Olivesz/freeflow@19c0217:README.md#L102">2</span> points of word error against offline. <span data-src="Olivesz/freeflow@19c0217:README.md#L102-L103">A control run with a broken window has to fail too</span>, and it does.</p>
         <ul class="stats">
-          <li><span class="v" data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span><span class="k">streamed word error, held out</span><span class="b">against <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> offline · was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span></span></li>
+          <li><span class="v" data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span><span class="k">streamed word error, held out</span><span class="b">offline <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> · was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span></span></li>
           <li><span class="v" data-src="Olivesz/freeflow@19c0217:README.md#L60">3 of 523</span><span class="k">words dropped, held out</span><span class="b">was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">78</span></span></li>
           <li><span class="v" data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">787 ms</span><span class="k">median commit lag</span><span class="b">p95 <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">1,557</span> ms, with other work running</span></li>
         </ul>
@@ -362,9 +372,9 @@
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="swift" data-at="0">The Swift tests fill in file by file: text processing, stream fixtures, session and endpointer, scoring.</li>
-            <li data-key="python" data-at="20">Then the Python reference’s <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778">36</span>, on the same stream fixtures.</li>
-            <li data-key="gate" data-at="30">The gate: the release build replays <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L38">JFK and every fifth speaker</span> through the real model, and fails if streaming WER exceeds offline by more than <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L39">2</span> points. It passed.</li>
-            <li data-key="control" data-at="38">The control runs the same gate with a <span data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L49">0.5/0.2</span> s window, which must fail. It did: <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778">14.3%</span>, with JFK dropping <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778">2</span> words.</li>
+            <li data-key="python" data-at="20">Then the Python reference’s <span data-derived="CI run 38482789778, python job: 36 passed">36</span>, on the same stream fixtures.</li>
+            <li data-key="gate" data-at="30">The gate: the release build replays <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L38">JFK and every fifth speaker</span> through the real model, and fails if streamed word error exceeds offline by more than <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L39">2</span> points. It passed: <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">4.6%</span> against <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">3.8%</span>. The subset was picked after the dev runs, so it is <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L40-L41">a regression check, not a result</span>.</li>
+            <li data-key="control" data-at="38">The control runs the same gate with a <span data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L49">0.5/0.2</span> s window, which must fail. It did: <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; jfk dropped 2 words">14.3%</span>, with JFK dropping <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; jfk dropped 2 words">2</span> words.</li>
             <li data-key="rest" data-at="46">A gate that cannot fail measures nothing; the control shows this one can.</li>
           </ol>
           <figcaption class="sc-cap" id="sc-tests-cap"><span class="n">fig 14</span>the Swift and Python tests, the benchmark gate and its control, from one CI run. greedy decoding is pinned by its own test.</figcaption>

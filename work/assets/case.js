@@ -21,3 +21,34 @@
   var stages = document.querySelectorAll("[data-play]");
   for (var i = 0; i < stages.length; i++) setup(stages[i]);
 })();
+
+/* arrival builds: a figure marked [data-build] draws its marks (.bld grow from their start, .bld-o fade in, staggered
+   by --i) the first time a sixth of it is on screen. Without IntersectionObserver, under reduced motion or with no
+   script it is simply drawn whole. */
+(function () {
+  "use strict";
+  var figs = document.querySelectorAll("[data-build]");
+  if (!figs.length || !("IntersectionObserver" in window) || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  var io = new IntersectionObserver(function (es) {
+    for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) { io.unobserve(es[i].target); es[i].target.setAttribute("data-build", "go"); }
+  }, { threshold: 0.15 });
+  for (var i = 0; i < figs.length; i++) { figs[i].setAttribute("data-build", "pre"); io.observe(figs[i]); }
+})();
+
+/* inline figures marked data-reveal: armed while still below the fold, drawn once when 40% of the figure is on screen.
+   Reduced motion or no IntersectionObserver: nothing is armed, so every part rests in its final state. */
+(function () {
+  "use strict";
+  var figs = document.querySelectorAll(".ig[data-reveal]");
+  if (!figs.length || !("IntersectionObserver" in window) || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  var io = new IntersectionObserver(function (es) {
+    for (var i = 0; i < es.length; i++) {
+      var e = es[i], r = e.intersectionRect;
+      if (e.isIntersecting && (e.intersectionRatio >= 0.4 || r.height >= innerHeight * 0.4)) { e.target.classList.add("on"); io.unobserve(e.target); }
+    }
+  }, { threshold: [0, 0.2, 0.4, 0.6] });
+  for (var i = 0; i < figs.length; i++) {
+    if (figs[i].getBoundingClientRect().top < innerHeight) continue;   // already in view at load: leave it whole
+    figs[i].classList.add("armed"); io.observe(figs[i]);
+  }
+})();

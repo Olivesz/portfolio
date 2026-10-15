@@ -1,7 +1,7 @@
 /* deep.js: the Scene component for the deep dives, plus the contents rail's "you are here".
 
    A scene is a timeline of whole ticks with named steps on it. It plays once on a clock when it arrives in the top 65%
-   of the screen, one figure at a time, pausing at each step so its words can be read; a stepper (prev, step n of m, next, one square per step) walks it at
+   of the screen, one figure at a time, holding each step until its words can be read (see holdAt); a stepper (prev, step n of m, next, one square per step) walks it at
    the reader's pace; replay plays it again. Optional inputs switch it to a live mode. With reduced motion it shows its
    key frame and keeps the stepper. Native buttons only: no wheel, touch or key listeners.
 
@@ -13,6 +13,7 @@
   "use strict";
   var mm = function (q) { return !!(root.matchMedia && root.matchMedia(q).matches); };
   var REDUCE = mm("(prefers-reduced-motion: reduce)"), COARSE = mm("(pointer: coarse)");
+  var READ_MS = 261, LOOK_MS = 300, PROSE_WPM = 230;                  // reading pace: 230 words a minute, and a look
   var TOKENS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body",
                 "muted", "rule", "v-red", "v-amber", "v-green", "v-cyan", "v-blue", "v-violet", "accent"];
 
@@ -50,11 +51,13 @@
     S.keys.sort(function (a, b) { return a.at - b.at; });
     S.T = Math.max(spec.ticks || 0, S.keys[S.keys.length - 1].at);
     S.tps = spec.tps || 8;
-    S.pause = spec.pause !== undefined ? spec.pause : 1400;           // ms held at each step during the autoplay
-    S.read = spec.read || 0;                                          // opt-in: ms per word, so a step is held until its words can be read
+    S.pause = spec.pause !== undefined ? spec.pause : 1400;           // the least a step is held during the autoplay, in ms
+    /* every step is held until its words can be read at 230 a minute (261 ms a word, plus 300 ms to look from the
+       frame to the words), less the time the frames take to reach the next step, so no step leaves the screen before
+       it can be read. One rule for every deep dive; an ambient loop (a hero) keeps its own pause. */
     S.holdAt = function (i) {
-      var k = S.keys[i], nx = S.keys[i + 1], travel = nx ? (nx.at - k.at) / S.tps * 1000 : 0;
-      return Math.max(S.pause, S.read ? k.words * S.read - travel : 0);
+      var k = S.keys[i];
+      return S.ambient ? S.pause : Math.max(S.pause, (k.words ? LOOK_MS + k.words * READ_MS : 0) - S.travelMs(i));
     };
     S.restKey = spec.rest !== undefined ? S.idx(spec.rest) : S.keys.length - 1;
 
@@ -78,6 +81,21 @@
     S.observe();
   }
   var SP = Scene.prototype;
+
+  /* the clock's time from tick a to tick b during the autoplay; a scene marked quick runs stretches with no step within
+     4 ticks at 3x (its page supplies that advance) */
+  SP.span = function (a, b) {
+    var g = b - a, S = this;
+    return S.quick && g > 4 ? ((g - 4) / (3 * S.tps) + 4 / S.tps) * 1000 : g / S.tps * 1000;
+  };
+  SP.travelMs = function (i) { var nx = this.keys[i + 1]; return nx ? this.span(this.keys[i].at, nx.at) : 0; };
+  /* one whole autoplay, in ms: the frames' travel, each step's hold, and the last step's words */
+  SP.playMs = function () {
+    var S = this, n = S.keys.length, last = S.keys[n - 1];
+    var ms = S.span(0, S.keys[0].at) + S.span(last.at, S.T) + (last.words ? LOOK_MS + last.words * READ_MS : 0);
+    for (var i = 0; i < n - 1; i++) ms += S.holdAt(i) + S.travelMs(i);
+    return ms;
+  };
 
   SP.idx = function (name) {
     if (typeof name === "number") return name;
@@ -344,8 +362,8 @@
      still playing, the newcomer shows its first frame and waits, then starts a beat after that one ends or leaves the
      screen; the highest waiting figure goes first. A figure that has left the reading band while it plays does not hold
      up one that is in it: it pauses where it is and carries on when it comes back into the band. A figure with a hidden
-     stepper (an ambient loop, like a hero) never makes another wait. Off screen a figure pauses, and carries on when it
-     returns. */
+     stepper (an ambient loop, like a hero) never makes another wait. Off screen a figure pauses (see away): it carries on
+     when it is back in the band and its turn comes, or, if it never got past its first step, it starts over. */
   var BEAT = 600, kickT = 0;
   function blocking(S) { return S.mode === "auto" && S.visible && !S.ambient; }
   // where a stage sits against the reading band (the top 65% of the screen), measured now rather than at the last
@@ -373,6 +391,18 @@
       if (S.paused) { S.paused = false; S.mode = "auto"; S.target = S.T; S.render(true); S.run(); } else S.play();
     }, BEAT);
   }
+  /* a figure that leaves the screen while it plays. Left on its clock, it would carry on at its first pixel back, below
+     the reading band and beside whatever else is playing, so a reader coming back from the bottom of the page met every
+     figure part-way through. Instead: seen no further than its first step (the reader skimmed past), it forgets that it
+     arrived and plays from the start at its next arrival; further along, it pauses where it is and waits its turn in the
+     reading band to carry on. A hero loop (ambient) never holds the floor, so it keeps its clock. */
+  SP.away = function () {
+    var S = this; if (S.ambient) return;
+    S.mode = "still";
+    if (S.k === 0) { S.t = 0; S.arrived = false; S.played = false; S.queued = false; S.paused = false; S.holdLeft = 0; }
+    else { S.paused = true; S.queued = true; }
+    S.render(true);
+  };
   SP.arrive = function () {
     var S = this; S.arrived = true;
     if (REDUCE) { S.render(true); return; }
@@ -388,7 +418,7 @@
       es.forEach(function (e) {
         var was = S.visible; S.visible = e.isIntersecting;
         if (S.visible && (S.mode === "auto" || S.mode === "seg" || (S.mode === "live" && S.liveBudget > 0))) S.run();
-        else if (!S.visible) { S.stop(); if (was && S.mode === "auto") kick(); }
+        else if (!S.visible) { S.stop(); if (was && S.mode === "auto") { S.away(); kick(); } }
       });
     }, { threshold: [0] }).observe(S.stage);
     // in the reading band, the top 65% of the screen: the figure arrives, or starts if it is waiting
@@ -440,8 +470,25 @@
 
   if (COARSE) [].forEach.call(document.querySelectorAll(".verb"), function (v) { v.textContent = "tap"; });
 
+  /* the read time in the head (dd[data-read]): the prose at 230 words a minute, plus each figure's autoplay, whose
+     steps are paced to be read (their words are counted there, not twice). Same rule on every deep dive. */
+  var SKIP = ".dd-rail, .sc-keys, .sc-bar, .sc-in, .sc-art, .srcs-d, .case-nav, .colo, .strip, .skip, .facts, .sr-only, title";
+  function readTime() {
+    var figMs = 0, words = 0, main = document.getElementById("main") || document.querySelector("main");
+    scenes.forEach(function (S) { if (!S.ambient) figMs += S.playMs(); });
+    if (main) (function walk(e) {
+      for (var c = e.firstChild; c; c = c.nextSibling) {
+        if (c.nodeType === 3) words += (c.nodeValue.match(/\S+/g) || []).length;
+        else if (c.nodeType === 1 && !c.matches(SKIP)) walk(c);
+      }
+    })(main);
+    var min = Math.round(words / PROSE_WPM + figMs / 60000), dd = document.querySelector("[data-read]");
+    if (dd && min > 0) dd.textContent = "about " + min + " minutes";
+    return { min: min, words: words, figMs: Math.round(figMs) };
+  }
+
   var Deep = {
-    tokens: tokens, reduce: REDUCE, coarse: COARSE, scenes: scenes,
+    tokens: tokens, reduce: REDUCE, coarse: COARSE, scenes: scenes, readTime: readTime,
     scene: function (id, spec) {
       var fig = typeof id === "string" ? document.getElementById(id) : id;
       if (!fig) return null;
@@ -458,6 +505,7 @@
   root.__deep = {
     scenes: function () { return scenes.map(function (s) { return { id: s.id, mode: s.mode, tick: Math.floor(s.t), key: s.keys[s.k].name, step: s.k + 1, of: s.keys.length, pitch: s.pitch, arrived: s.arrived, queued: !!s.queued, paused: !!s.paused, played: !!s.played, inZone: !!s.inZone }; }); },
     toc: function () { var a = document.querySelector(".dd-toc a.on[aria-current]"); return a ? a.getAttribute("href") : null; },
+    readTime: readTime,
     /* ok only when every figure.scene on the page passed its own check() and became a Scene with a stepper, so the
        site's case-study contract (which runs every selfCheck it finds) fails a deep dive that hides a figure */
     selfCheck: function () {
@@ -470,5 +518,7 @@
                failed: failed, unbuilt: unbuilt, nobar: nobar };
     }
   };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", spy); else spy();
+  /* the page scripts that build the scenes run before DOMContentLoaded */
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { spy(); readTime(); });
+  else { spy(); readTime(); }
 })(window);

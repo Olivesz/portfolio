@@ -72,7 +72,7 @@ import urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OWNER = "Olivesz"
-CACHE = ROOT / "scratchpad" / "redesign" / "build" / "srccache"   # gitignored working dir
+CACHE = ROOT / ".srccache"   # gitignored
 VENV_PY = ROOT / ".venv" / "bin" / "python"
 
 SRC = re.compile(r"^(?:(?P<owner>[\w.-]+)/)?(?P<repo>[\w.-]+)@(?P<sha>[0-9a-f]{7,40}):(?P<path>[^#\s]+)#L(?P<a>\d+)(?:-L?(?P<b>\d+))?$")
@@ -106,7 +106,7 @@ NOT_A_CLAIM = re.compile(
     rf"\b{MONTH}\s+\d{{4}}(?:\s*[\u2013-]\s*(?:{MONTH}\s+\d{{4}}|now|present))?"   # aug 2026, jul 2026 – now
     r"|\b(?:19|20)\d{2}(?:\s*[\u2013-]\s*(?:(?:19|20)?\d{2}|now|present))?\b"      # 2023, 2025–26
     r"|[\u2019']\d{2}\b"                                                            # ’28
-    r"|IMC Prosperity \d+|SAP-\d+|x86-64|IEEE \w+|Llama [\d.]+ \d+B", re.I)
+    r"|SAP-\d+|x86-64|IEEE \w+|Llama [\d.]+ \d+B", re.I)
 STOP = set("with from that this into their there which when what each only over about than then them they your "
            "have been were also more most such very just like onto upon course project page line lines "
            "the and for its per not but are was all any can has had how out own via yet you".split())
@@ -584,7 +584,7 @@ def render_native(index):
 
 MONTHS = (r"\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|"
           r"Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\b")
-TEAM_CARD = "custos"      # the card whose meta line states a team size and a role (ruled: the résumé governs both)
+TEAM_CARD = "custos"      # the card whose meta line states a team size and a role (the résumé governs both)
 
 
 def team_meta(html, resume_lines):
@@ -607,7 +607,7 @@ def team_meta(html, resume_lines):
         return [f"team/role: no <article id=\"{TEAM_CARD}\"> card"]
     m = re.search(r'<p\b[^>]*class="[^"]*\bmeta\b[^"]*"[^>]*>(.*?)</p>', card.group(1), re.S)
     if not m:
-        return [f"team/role: the {TEAM_CARD} card carries no meta line (ruled: team size and role)"]
+        return [f"team/role: the {TEAM_CARD} card carries no meta line (it must state team size and role)"]
     meta = " ".join(re.sub(r"<[^>]+>", "", m.group(1)).split())
     n = re.search(r"\bteam of (\d+)\b", meta)
     if not n:
@@ -619,7 +619,7 @@ def team_meta(html, resume_lines):
         claims.append(("role 'designed the core engine'", r"^(?:• )?Designed the core engine\b"))
     for bad_word in ("Coded", "Owned"):
         if re.search(rf"\b{bad_word}\b", meta):
-            out.append(f"team/role: the {TEAM_CARD} meta says {bad_word!r}, which the ruling forbids")
+            out.append(f"team/role: the {TEAM_CARD} meta says {bad_word!r}, which the résumé does not support")
     sheet = None
     if resume_lines is not None:
         # the custos entry: from its title line to the next entry's title (a line with no bullet)
@@ -652,17 +652,15 @@ DEEP_SKIP_CLS = {"dd-toc", "dd-rail", "ch-k", "st-k", "kick", "n", "sc-bar", "sc
                  "strip", "colo", "skip", "sr-only", "back-to", "sc-n"}
 DEEP_SKIP_IDS = {"ch-sources"}
 DEEP_COVER = ("data-src", "data-derived", "data-live")
-# A ratchet, not a pass: the deep dives shipped with citations that point near their figure but not at its line (custos
-# fig 'cites README.md#L138, the figure is in docs/RESEARCH.md#L32'), and with prose figures that carry no data-src
-# (mostly cross-references and worked values). These are the counts they shipped with, per page: (figures not in their
-# cited line, uncovered prose figures). A page that goes over its count FAILS; one that comes in under is told to lower
-# it; a deep dive missing here must be clean.
+# A ratchet held at zero: per page, (figures not in their cited line, uncovered prose figures). Every deep dive is clean,
+# so any figure that points near its line instead of at it, or a prose figure with no data-src, data-derived or data-live,
+# FAILS. A deep dive missing here must be clean too.
 DEEP_KNOWN = {
-    "emergence-deep.html": (2, 85),
-    "freeflow-deep.html": (31, 16),
-    "kronos-deep.html": (32, 44),
-    "custos-code-deep.html": (73, 6),
-    "inf-mem-deep.html": (29, 16),
+    "emergence-deep.html": (0, 0),
+    "freeflow-deep.html": (0, 0),
+    "kronos-deep.html": (0, 0),
+    "custos-code-deep.html": (0, 0),
+    "inf-mem-deep.html": (0, 0),
 }
 
 

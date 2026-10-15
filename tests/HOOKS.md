@@ -105,8 +105,7 @@ SVG or a second canvas over the station's cell box, placed with `cellRect`.
 
 ## What the suite measures without asking
 
-These are fixed by the spec, not by a hook. Builders should know the suite
-reads them directly:
+These are fixed by the spec, not by a hook. The suite reads them directly:
 
 - **Reading zone:** desktop y 96 to h−40; phone from 52svh to h. A card or the hero must overlap it by at least 24px (one line) at every scroll position from 0 to `PULL`. The pull-back and the map hold are exempt.
 - **The card being read during a hold** is the one stuck at its sticky top (its computed `top`: 96 on desktop, the phone band's top + 16 on a phone), not the one with the most overlap. A card that scrolls natively, because it is too tall for the phone text band, is never stuck; for it the overlap rule decides.
@@ -145,12 +144,12 @@ Chromium to read the native figure layers' labels.
    - map, trail and figure labels: string literals that are the value of a `label:`, `labels:`, `short:`, `phoneLabel(s):` or `caption(s):` key (a string or an array of strings)
    - native figure labels: the text inside every native layer, read at eight points of each station's hold on a desktop and a phone viewport. `--static` skips the render and says so.
 
-   Years, month-year dates, `’28`, and digits inside names (SAP-1, x86-64, IMC Prosperity 4) are not figures. Number words from three up are figures. One and two are not, since they usually describe a mechanism ('two passes agree').
+   Years, month-year dates, `’28`, and digits inside names (SAP-1, x86-64) are not figures. Number words from three up are figures. One and two are not, since they usually describe a mechanism ('two passes agree').
 
 ## All the work (markup the suite reads)
 
 `contract.py work` drives the section through its own buttons and reads only this markup, so it is a contract too. The
-known answers (taxonomy B without IMC Prosperity 4, the tiers, each chapter's primary theme, the signature rule) are
+known answers (taxonomy B, the tiers, each chapter's primary theme, the signature rule) are
 restated in the suite, never read from the page:
 
 | element | contract |

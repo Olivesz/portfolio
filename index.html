@@ -121,6 +121,8 @@ a{color:inherit}
 .card .lk a.dd{color:var(--accent,var(--ink));text-decoration-color:var(--accent,var(--muted))}
 .card .lk a.dd:hover,.card .lk a.dd:focus-visible{text-decoration-color:var(--ink)}
 .card .rp,.card .rt{display:inline-block;box-sizing:border-box;height:24px;margin:0 0 0 12px;padding:0 8px;border:1px solid var(--copper);border-radius:0;background:none;font:400 11px/22px var(--mono);letter-spacing:.04em;color:var(--ink);vertical-align:top;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.arm-h{position:fixed;z-index:3;left:0;top:0;padding:0 4px;background:var(--void);font:400 11px/16px var(--mono);letter-spacing:.04em;white-space:nowrap;pointer-events:none}
+button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset:2px}
 .card .rp:hover,.card .rp:focus-visible,.card .rt:hover,.card .rt:focus-visible{border-color:var(--ink)}.card .rp:focus,.card .rt:focus{outline:none}.card .rp:focus-visible,.card .rt:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
 @media (pointer:coarse){ .card .rp,.card .rt{height:32px;line-height:30px;margin:-4px 0 -4px 8px} }
 /* a phone card has no room for a second button in its link row: try it is a desktop control */
@@ -203,6 +205,28 @@ a{color:inherit}
 @supports (margin-left:round(down,1px,8px)){ #colophon{margin-left:max(0px,round(down,(100% - 896px) / 2,8px));margin-right:0} }
 #colophon a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
 #colophon a:hover,#colophon a:focus-visible{text-decoration-color:var(--ink)}
+/* ---------- hidden ants: three lone cells after chapter I, on the map, after all the work and at the very end. Each is a
+   native button; it plants one ant in its own hue, which runs a fixed number of steps inside its own box and comes home ---------- */
+.egg{position:absolute;z-index:1;left:0;top:0;width:24px;height:24px;margin:0;padding:0;border:0;border-radius:0;background:none;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+@media (pointer:coarse){ .egg{width:32px;height:32px} }
+.egg i{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:var(--eh)}
+.egg::before{content:"";position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;box-sizing:border-box;border:1px solid var(--ink);visibility:hidden}
+.egg:focus{outline:none}
+.egg-h{position:absolute;top:50%;left:100%;transform:translateY(-50%);padding:0 4px;background:var(--void);font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);white-space:nowrap;visibility:hidden;pointer-events:none}
+.egg.l .egg-h{left:auto;right:100%}
+@media (hover:hover){ .egg:not([aria-disabled=true]):hover::before,.egg:not([aria-disabled=true]):hover .egg-h{visibility:visible} }
+.egg:focus-visible::before,.egg:not([aria-disabled=true]):focus-visible .egg-h{visibility:visible}   /* a found ant keeps its focus ring */
+.egg[aria-disabled=true]{cursor:default}
+.egg[aria-disabled=true] i{visibility:hidden}
+.egg-cv{position:absolute;left:0;top:0;pointer-events:none}
+#places.park .egg{pointer-events:none}
+.egg-end{height:128px}
+/* the map's tally: three cells, hollow until that ant is found, then in its hue */
+.egg-tally{position:absolute;left:var(--gut);bottom:12px;margin:0;display:flex;align-items:center;gap:8px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);white-space:nowrap;pointer-events:none}
+.egg-tally .egg-tm{display:flex;gap:4px}
+.egg-tally .egg-tm i{display:block;width:8px;height:8px;box-sizing:border-box;border:1px solid var(--muted)}
+.egg-tally .egg-tm i.on{border:0;background:var(--eh)}
+@media (max-width:1023px){ .egg-tally{left:16px;bottom:auto;top:var(--egg-row,0);line-height:32px} }
 #colophon{margin-top:48px}
 .colo{margin:0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 /* hit targets: 24 CSS px a side with a fine pointer, 32 on touch; margins take the padding back, so no text moves */
@@ -243,7 +267,7 @@ a{color:inherit}
   --t-llm:var(--v-violet,#b77ff2); --t-verify:var(--v-green,#61d46a); --t-systems:var(--v-blue,#5696ff);
   --t-data:var(--v-amber,#fab72a); --t-play:var(--v-red,#ff6557);
   position:relative;z-index:25;display:block;background:var(--void);color:var(--body);
-  width:896px;margin:0 auto 96px;padding:0;font:400 15px/24px var(--sg);
+  width:896px;margin:0 auto 128px;padding:0;font:400 15px/24px var(--sg);
   scroll-margin-top:calc(var(--strip) + 16px);
 }
 @supports (margin-left:round(down,1px,8px)){ #work{margin-left:max(0px,round(down,(100% - 896px) / 2,8px));margin-right:0} }
@@ -323,7 +347,7 @@ a{color:inherit}
 #work .k-ac{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 #work .k-ac:empty{display:none}
 /* a narrow card: the title row keeps the name and year; the links get one row of their own under the text, always in
-   the same order (read more, repo, chapter) */
+   the same order (case study, repo, chapter) */
 @media (max-width:599px){
   #work .k-card .k-tx{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:16px}
   #work .k-card .k-top{display:contents}
@@ -353,7 +377,7 @@ a{color:inherit}
 }
 @media (max-width:1023px){
   #end{width:auto;margin:0 16px}
-  #work{width:auto;margin:0 16px 64px}
+  #work{width:auto;margin:0 16px 128px}
   #work h2{font-size:30px;line-height:32px}
   #work .k-stage{grid-template-columns:1fr;row-gap:16px}
 }
@@ -469,7 +493,7 @@ a{color:inherit}
   <div class="blk" id="b-hero">
     <div class="stick hero" tabindex="-1">
       <h1>Oliver <em>Zhang</em></h1>
-      <p class="rec"><span class="f">CS at UT&nbsp;Austin, Turing Scholars ’28</span><span class="sep"> · </span><span class="f">SWE intern at tradeInsight.ai (fall&nbsp;2026) and&nbsp;IBM&nbsp;(summer&nbsp;2026)</span></p>
+      <p class="rec"><span class="f" data-src="public_resume.tex#L34-L35">CS at UT&nbsp;Austin, Turing Scholars ’28</span><span class="sep"> · </span><span class="f" data-src="public_resume.tex#L41-L51">SWE intern at tradeInsight.ai (fall&nbsp;2026) and&nbsp;IBM&nbsp;(summer&nbsp;2026)</span></p>
       <p class="hl"><a href="https://github.com/Olivesz" target="_blank" rel="noopener noreferrer">github</a> · <a href="https://www.linkedin.com/in/oliver-zhang1" target="_blank" rel="noopener noreferrer">linkedin</a> · <a href="mailto:oliver.zhang@utexas.edu" target="_blank" rel="noopener noreferrer">email</a> · <a href="resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a></p>
       <p class="date" id="ch1">chapter i · 2023 to 2024</p>
       <p class="sr-only">One Langton’s ant walks the grid as the page scrolls: right on a dark cell, left on a lit one. Scrolling up runs it backward.</p>
@@ -482,9 +506,9 @@ a{color:inherit}
       <p class="date">chapter ii</p>
       <h2>emergence</h2>
       <p class="np">a truth table. every rung verified, up to the CPU.</p>
-      <p class="pf"><span data-src="Olivesz/emergence@910b296:README.md#L5">Eight</span> cellular-automaton acts end in a SAP-1 CPU: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates and 175 flip-flops</span>, run as a gate-level netlist on <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five test programs</span>. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">In raw Wireworld, a full adder, a 4-bit counter and a D flip-flop match the netlist on every clock; the whole CPU is not compiled yet.</span></p>
-      <p class="sr-only">A NAND cell in raw Wireworld fills its truth table, inputs A and B as buttons; then the SAP-1 CPU runs Fibonacci on the bus.</p>
-      <p class="lk"><a class="rm" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a class="rm dd" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="pf"><span data-src="Olivesz/emergence@910b296:README.md#L5">Eight</span> cellular-automaton acts end in a SAP-1 CPU: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates and 175 flip-flops</span>, run as a gate-level netlist on <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five test programs</span>. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">In raw Wireworld, a full adder, a 4-bit counter and a D flip-flop match the netlist on every clock.</span></p>
+      <p class="sr-only">A NAND cell in raw Wireworld fills its truth table, inputs A and B as buttons; then the SAP-1’s recorded gate-level run replays Fibonacci, clock by clock, from PC and RAM over the bus to OUT.</p>
+      <p class="lk"><a class="rm dd" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
     <div class="ctl" id="ctl-emergence" role="group" aria-label="NAND cell inputs"></div>
   </div>
@@ -496,7 +520,7 @@ a{color:inherit}
       <p class="np" data-src="Olivesz/freeflow@19c0217:README.md#L49">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
       <p class="pf" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
       <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log, whisper.cpp on the JFK sample.</p>
-      <p class="lk"><a class="rm" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a class="rm dd" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="lk"><a class="rm dd" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
   </div>
 
@@ -515,11 +539,11 @@ a{color:inherit}
           <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155"><th>SPY</th> <td>0.91</td> <td>0.81</td> <td>−33.7%</td> <td>15.0%</td></tr>
         </tbody>
       </table>
-      <p class="cv"><span class="kd" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">about equal weight’s Sharpe at 64% of its drawdown · </span><span class="nw">in-sample</span> · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">Sharpe at rf=0, excess over cash</span><span class="kd"> · after costs · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span></span></p>
+      <p class="cv"><span class="sr-only" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">about equal weight’s Sharpe at 64% of its drawdown · </span><span class="nw" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample on today’s large caps</span><span class="kd"> · after costs · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span></span><span class="sr-only"> · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">Sharpe at rf=0, excess over cash</span></span></p>
       </div>
-      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">A self-audit found a sign bug the 30 gates of the time had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate;</span> there are <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span> now, all run in CI on real prices.</p></div>
+      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">A self-audit found a sign bug all 30 gates then in CI had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate.</span> There are <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span> gates now, all run in CI on real prices.</p></div>
       <p class="sr-only">A regime switch planted in synthetic returns; the fit locks onto it, and a slider moves it. Then the gates, then the run against SPY.</p>
-      <p class="lk"><a class="rm" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a class="rm dd" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="lk"><a class="rm dd" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
     <div class="ctl" id="ctl-kronos" role="group" aria-label="KRONOS planted regime switch"></div>
   </div>
@@ -532,7 +556,7 @@ a{color:inherit}
       <p class="pf"><span data-src="Olivesz/custos-code@4cb05fa:README.md#L3">Checks a coding agent’s final report against its own log, claim by claim.</span> In <span data-src="Olivesz/custos-code@4cb05fa:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with a nudge.</p>
       <p class="meta" data-src="public_resume.tex#L79-L82">2026 hackathon. Led a team of 3, designed the core engine.</p>
       <p class="sr-only">The agent says the suite is green; its log shows failing tests: the claim is marked contradicted and the stop blocked. A passing run stops.</p>
-      <p class="lk"><a class="rm" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">read more <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a class="rm dd" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="lk"><a class="rm dd" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
   </div>
   <section class="sr-only" aria-label="the map">
@@ -545,17 +569,17 @@ a{color:inherit}
   <div id="end">
     <div class="cv-bookend" id="bookend">
       <div class="cv-top"><h2 class="cv-rule" id="bookend-line"><span class="cv-ant" id="bookend-ant" aria-hidden="true"></span>right on dark, left on lit</h2><p class="cv-end"><span id="bookend-end" data-src="page:end">25,992</span> steps</p></div>
-      <p class="cv-contact"><a href="mailto:oliver.zhang@utexas.edu" target="_blank" rel="noopener noreferrer">oliver.zhang@utexas.edu</a><span class="sep"> · </span><a href="https://github.com/Olivesz" target="_blank" rel="noopener noreferrer">github.com/Olivesz</a><span class="sep"> · </span><a href="https://www.linkedin.com/in/oliver-zhang1" target="_blank" rel="noopener noreferrer">linkedin.com/in/oliver-zhang1</a><span class="sep"> · </span><a href="resume.pdf" target="_blank" rel="noopener noreferrer">resume.pdf</a></p>
+      <p class="cv-contact"><a href="mailto:oliver.zhang@utexas.edu" target="_blank" rel="noopener noreferrer">oliver.zhang@utexas.edu</a><span class="sep"> · </span><a href="https://github.com/Olivesz" target="_blank" rel="noopener noreferrer">github.com/Olivesz</a><span class="sep"> · </span><a href="https://www.linkedin.com/in/oliver-zhang1" target="_blank" rel="noopener noreferrer">linkedin.com/in/oliver-zhang1</a><span class="sep"> · </span><a href="resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a></p>
     </div>
   </div>
   <section id="work" aria-labelledby="w-title" tabindex="-1">
     <header class="k-head">
       <p class="k-kick">2023 to 2026</p>
       <h2 id="w-title">all the work</h2>
-      <p class="k-lede"><b data-src="page:work-total">15</b> projects and papers in <b data-src="page:work-themes">5</b> themes. The names are the place to start.</p>
+      <p class="k-lede"><b data-src="page:work-total">15</b> projects and papers in <b data-src="page:work-themes">5</b> themes.</p>
     </header>
     <p class="sr-only"><span data-src="page:work-themes">Five</span> theme buttons follow. Each names the projects to start with and counts the rest; picking one shows every project in that theme, with its links.</p>
-    <p class="k-ask" aria-hidden="true"><span class="k-a1">pick a theme to open all of its projects</span><span class="k-a2">tap a theme to open all of its projects</span> <span class="k-arr">↓</span></p>
+    <p class="k-ask" aria-hidden="true"><span class="k-a1">pick a theme</span><span class="k-a2">tap a theme</span> <span class="k-arr">↓</span> · the names inside are its best</p>
     <div class="k-stage">
       <div class="k-field" role="group" aria-label="themes">
         <button type="button" class="k-blob" data-k="llm" aria-pressed="false" aria-controls="k-panel" aria-label="agents &amp; LLMs, 5 projects: custos-code, inf-mem and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">agents &amp; LLMs</span><span class="k-bn">custos-code</span><span class="k-bn">inf-mem</span><span class="k-bm">+<b data-src="page:work-more-llm">3</b> more</span></span></button><button type="button" class="k-blob" data-k="verify" aria-pressed="false" aria-controls="k-panel" aria-label="verification, 5 projects: emergence and 4 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">verification</span><span class="k-bn">emergence</span><span class="k-bm">+<b data-src="page:work-more-verify">4</b> more</span></span></button><button type="button" class="k-blob" data-k="systems" aria-pressed="false" aria-controls="k-panel" aria-label="systems, 7 projects: freeflow, IEEE IPCCC and 5 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">systems</span><span class="k-bn">freeflow</span><span class="k-bn">IEEE IPCCC</span><span class="k-bm">+<b data-src="page:work-more-systems">5</b> more</span></span></button><button type="button" class="k-blob" data-k="data" aria-pressed="false" aria-controls="k-panel" aria-label="markets &amp; data, 4 projects: KRONOS and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">markets &amp; data</span><span class="k-bn">KRONOS</span><span class="k-bm">+<b data-src="page:work-more-data">3</b> more</span></span></button><button type="button" class="k-blob" data-k="play" aria-pressed="false" aria-controls="k-panel" aria-label="interactive, 4 projects: ai-capabilities and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">interactive</span><span class="k-bn">ai-capabilities</span><span class="k-bm">+<b data-src="page:work-more-play">3</b> more</span></span></button>
@@ -563,8 +587,8 @@ a{color:inherit}
       <div class="k-panel" id="k-panel">
         <p class="k-msg"><span class="k-mk" aria-hidden="true"></span><span class="k-mt"></span></p>
         <p class="sr-only k-live" aria-live="polite"></p>
-        <div class="k-pane" data-pane="rest"><p class="k-key">Each blob is a theme, as large as the number of projects in it.</p></div>
-        <div class="k-pane" data-pane="llm"><ol class="k-hi"><li class="k-card" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-yr" data-from="Olivesz/custos-code commit history (GET /repos/Olivesz/custos-code/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#custos" data-walk="custos" aria-label="custos-code, chapter v of the walk">chapter v <span aria-hidden="true">↑</span></a><a class="k-case" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-card" data-p="inf-mem"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">inf-mem</h3><span class="k-yr" data-from="public_resume.tex#L88">2025–26</span><span class="k-st"><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer" aria-label="inf-mem repository">repo <span aria-hidden="true">→</span></a></span><a class="k-case" href="work/inf-mem.html" target="_blank" rel="noopener noreferrer" aria-label="inf-mem case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">memory for ChatGPT and Claude, local store, Groq extraction</p><p class="k-ac"></p><span class="sr-only"> Themes: agents &amp; LLMs.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-llm">3</span> more in agents &amp; LLMs</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="verify"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="verify" data-src="Olivesz/emergence@910b296:README.md#L32-L34">every rung from signal to processor is verified</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="systems">systems</button><button type="button" class="k-tag" data-k="play">interactive</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-verify">4</span> more in verification</p><ul class="k-rest"><li class="k-mrow" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-st"><a href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-mrow" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-st"><a href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-mrow" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-st"><a href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ul></div><div class="k-pane" data-pane="systems"><ol class="k-hi"><li class="k-card" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-yr" data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#freeflow" data-walk="freeflow" aria-label="freeflow, chapter iii of the walk">chapter iii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><p class="k-why" data-k="systems" data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">trims committed audio so cost stays flat however long the speech</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-card" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-yr" data-from="public_resume.tex#L121">2023</span><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span><a class="k-walk" href="#b-hero" data-walk="ipccc" aria-label="IEEE IPCCC, chapter i of the walk">chapter i <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><p class="k-why" data-k="systems" data-src="public_resume.tex#L124">power profiled across CPU and GPU</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button></p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-systems">5</span> more in systems</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="carbon-hack"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">Carbon Hack</h3><span class="k-st"><a href="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement" target="_blank" rel="noopener noreferrer" aria-label="Carbon Hack winners">winners <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement">energy and carbon of Zoom conferences, Best Under 18, team member</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li><li class="k-mrow" data-p="matmul"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">matrix multiplication</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L115">nine variants in C, naive to cache-blocked, recursive, SIMD and multithreaded</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="x86-compiler"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">x86-64 compiler</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L106">optimizing compiler in C for a statically typed language</p><span class="sr-only"> Themes: systems.</span></div></li></ul></div><div class="k-pane" data-pane="data"><ol class="k-hi"><li class="k-card" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-yr" data-from="Olivesz/kronos-quant commit history (GET /repos/Olivesz/kronos-quant/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#kronos" data-walk="kronos" aria-label="KRONOS, chapter iv of the walk">chapter iv <span aria-hidden="true">↑</span></a><a class="k-case" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">read more <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-data">3</span> more in markets &amp; data</p><ul class="k-rest"><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li><li class="k-mrow" data-p="comic-extractor"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-extractor</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-extractor" target="_blank" rel="noopener noreferrer" aria-label="comic-extractor repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-extractor@f6156ac:README.md#L40">comic pages to JSON, one entry per speech bubble</p><span class="sr-only"> Themes: markets &amp; data.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="play"><ol class="k-hi"><li class="k-card" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-yr" data-from="Olivesz/ai-capabilities commit history (GET /repos/Olivesz/ai-capabilities/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><p class="k-why" data-k="play" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L9">five browser games, each a single HTML file</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-play">3</span> more in interactive</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">read more <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="care"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">C.A.R.E.</h3></div><p class="k-ln" data-src="Olivesz/portfolio@fdf45a5:index.html#L730">chatbot for U.S. citizenship-test practice in seven languages</p><span class="sr-only"> Themes: interactive.</span></div></li><li class="k-mrow" data-p="comic-reader"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-reader</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-reader" target="_blank" rel="noopener noreferrer" aria-label="comic-reader repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-reader@2deae8e:README.md#L5">reads a dragged screen region aloud on macOS</p><span class="sr-only"> Themes: interactive.</span></div></li></ul></div>
+        <div class="k-pane" data-pane="rest"></div>
+        <div class="k-pane" data-pane="llm"><ol class="k-hi"><li class="k-card" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-yr" data-from="Olivesz/custos-code commit history (GET /repos/Olivesz/custos-code/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#custos" data-walk="custos" aria-label="custos-code, chapter v of the walk">chapter v <span aria-hidden="true">↑</span></a><a class="k-case" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">how it works <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-card" data-p="inf-mem"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">inf-mem</h3><span class="k-yr" data-from="public_resume.tex#L88">2025–26</span><span class="k-st"><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer" aria-label="inf-mem repository">repo <span aria-hidden="true">→</span></a></span><a class="k-case" href="work/inf-mem.html" target="_blank" rel="noopener noreferrer" aria-label="inf-mem case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth">how it works <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">memory for ChatGPT and Claude, local store, Groq extraction</p><p class="k-ac"></p><span class="sr-only"> Themes: agents &amp; LLMs.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-llm">3</span> more in agents &amp; LLMs</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="verify"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">how it works <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="verify" data-src="Olivesz/emergence@910b296:README.md#L32-L34">every rung from signal to processor is verified</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="systems">systems</button><button type="button" class="k-tag" data-k="play">interactive</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-verify">4</span> more in verification</p><ul class="k-rest"><li class="k-mrow" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-st"><a href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-mrow" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-st"><a href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-mrow" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-st"><a href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ul></div><div class="k-pane" data-pane="systems"><ol class="k-hi"><li class="k-card" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-yr" data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#freeflow" data-walk="freeflow" aria-label="freeflow, chapter iii of the walk">chapter iii <span aria-hidden="true">↑</span></a><a class="k-case" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">how it works <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><p class="k-why" data-k="systems" data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">trims committed audio so cost stays flat however long the speech</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-card" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-yr" data-from="public_resume.tex#L121">2023</span><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper</a></span><a class="k-walk" href="#b-hero" data-walk="ipccc" aria-label="IEEE IPCCC, chapter i of the walk">chapter i <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><p class="k-why" data-k="systems" data-src="public_resume.tex#L124">power profiled across CPU and GPU</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button></p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-systems">5</span> more in systems</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="carbon-hack"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">Carbon Hack</h3><span class="k-st"><a href="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement" target="_blank" rel="noopener noreferrer" aria-label="Carbon Hack winners">winners <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement">energy and carbon of Zoom conferences, Best Under 18, team member</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li><li class="k-mrow" data-p="matmul"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">matrix multiplication</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L115">nine variants in C, naive to cache-blocked, recursive, SIMD and multithreaded</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="x86-compiler"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">x86-64 compiler</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L106">optimizing compiler in C for a statically typed language</p><span class="sr-only"> Themes: systems.</span></div></li></ul></div><div class="k-pane" data-pane="data"><ol class="k-hi"><li class="k-card" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-yr" data-from="Olivesz/kronos-quant commit history (GET /repos/Olivesz/kronos-quant/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#kronos" data-walk="kronos" aria-label="KRONOS, chapter iv of the walk">chapter iv <span aria-hidden="true">↑</span></a><a class="k-case" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">how it works <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-data">3</span> more in markets &amp; data</p><ul class="k-rest"><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li><li class="k-mrow" data-p="comic-extractor"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-extractor</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-extractor" target="_blank" rel="noopener noreferrer" aria-label="comic-extractor repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-extractor@f6156ac:README.md#L40">comic pages to JSON, one entry per speech bubble</p><span class="sr-only"> Themes: markets &amp; data.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper</a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="play"><ol class="k-hi"><li class="k-card" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-yr" data-from="Olivesz/ai-capabilities commit history (GET /repos/Olivesz/ai-capabilities/commits)">2026</span><span class="k-st"><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities repository">repo <span aria-hidden="true">→</span></a></span><a class="k-case" href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><p class="k-why" data-k="play" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L9">five browser games, each a single HTML file</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-play">3</span> more in interactive</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="care"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">C.A.R.E.</h3></div><p class="k-ln" data-src="Olivesz/portfolio@fdf45a5:index.html#L730">chatbot for U.S. citizenship-test practice in seven languages</p><span class="sr-only"> Themes: interactive.</span></div></li><li class="k-mrow" data-p="comic-reader"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-reader</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-reader" target="_blank" rel="noopener noreferrer" aria-label="comic-reader repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-reader@2deae8e:README.md#L5">reads a dragged screen region aloud on macOS</p><span class="sr-only"> Themes: interactive.</span></div></li></ul></div>
       </div>
     </div>
     <script type="application/json" id="k-data">{"order":["llm","verify","systems","data","play"],"short":{"llm":"agents & LLMs","verify":"verification","systems":"systems","data":"markets & data","play":"interactive"},"blurb":{"llm":"software built on, around or against language models","verify":"checked against a log, a known answer or a second pass","systems":"compilers, SIMD, streaming audio and measured watts","data":"prices, order books, filings, traces and datasets","play":"things that run, move or answer when touched"},"member":{"custos-code":["llm","verify"],"kronos":["verify","data"],"freeflow":["verify","systems"],"emergence":["verify","systems","play"],"charity-screening":["llm","data"],"comic-reader":["play"],"x86-compiler":["systems"],"matmul":["systems"],"comic-extractor":["data"],"ai-capabilities":["llm","verify","play"],"inf-mem":["llm"],"care":["play"],"ieee-ipccc":["llm","systems"],"iaria-green":["systems","data"],"carbon-hack":["systems"]},"members":{"llm":["custos-code","charity-screening","ai-capabilities","inf-mem","ieee-ipccc"],"verify":["custos-code","kronos","freeflow","emergence","ai-capabilities"],"systems":["freeflow","emergence","x86-compiler","matmul","ieee-ipccc","iaria-green","carbon-hack"],"data":["kronos","charity-screening","comic-extractor","iaria-green"],"play":["emergence","comic-reader","ai-capabilities","care"]},"names":{"custos-code":"custos-code","kronos":"KRONOS","freeflow":"freeflow","emergence":"emergence","charity-screening":"charity screening","comic-reader":"comic-reader","x86-compiler":"x86-64 compiler","matmul":"matrix multiplication","comic-extractor":"comic-extractor","ai-capabilities":"ai-capabilities","inf-mem":"inf-mem","care":"C.A.R.E.","ieee-ipccc":"IEEE IPCCC","iaria-green":"IARIA GREEN","carbon-hack":"Carbon Hack"},"hi":{"llm":["custos-code","inf-mem"],"verify":["emergence"],"systems":["freeflow","ieee-ipccc"],"data":["kronos"],"play":["ai-capabilities"]},"more":{"llm":["ai-capabilities","ieee-ipccc","charity-screening"],"verify":["custos-code","freeflow","kronos","ai-capabilities"],"systems":["emergence","carbon-hack","iaria-green","matmul","x86-compiler"],"data":["charity-screening","comic-extractor","iaria-green"],"play":["emergence","care","comic-reader"]},"tier":{"custos-code":1,"kronos":1,"freeflow":1,"emergence":1,"inf-mem":2,"ai-capabilities":2,"ieee-ipccc":2,"charity-screening":3,"comic-reader":3,"x86-compiler":3,"matmul":3,"comic-extractor":3,"care":3,"iaria-green":3,"carbon-hack":3},"sig":{"llm":["custos-code","inf-mem"],"verify":["emergence"],"systems":["freeflow","ieee-ipccc"],"data":["kronos"],"play":["ai-capabilities"]}}</script>
@@ -572,7 +596,7 @@ a{color:inherit}
   <section id="resume" class="rv" aria-labelledby="cv-title" tabindex="-1">
     <header class="rv-head">
       <h2 id="cv-title">résumé</h2>
-      <p class="rv-ctl"><a href="resume.pdf" target="_blank" rel="noopener noreferrer" download="oliver-zhang-resume.pdf">download pdf</a><a href="resume.pdf" target="_blank" rel="noopener noreferrer" aria-label="open the résumé pdf in a new tab">open pdf <span aria-hidden="true">→</span></a><button type="button" class="rv-zbtn" aria-pressed="false">zoom</button><button type="button" class="rv-replay">replay</button></p>
+      <p class="rv-ctl"><a href="resume.pdf" target="_blank" rel="noopener noreferrer" download="oliver-zhang-resume.pdf">résumé pdf</a><button type="button" class="rv-zbtn" aria-pressed="false">zoom</button><button type="button" class="rv-replay">replay</button></p>
       <p class="rv-hint" aria-hidden="true"><span class="rv-hint-f">click the page to zoom, move to pan</span><span class="rv-hint-c">tap to zoom, drag to pan</span></p>
     </header>
     <div class="rv-fig" role="group" aria-label="résumé page, full text follows">
@@ -1027,8 +1051,8 @@ a{color:inherit}
 "nand_gates": {"v": "1,446", "src": "Olivesz/emergence@910b296:cpu/README.md#L28", "ctx": "NAND"},
 "dffs": {"v": "175", "src": "Olivesz/emergence@910b296:cpu/README.md#L28", "ctx": "flip-flops"},
 "nand_truth": {"v": "1,1,1,0", "src": "page:nand", "ctx": "out", "note": "read from the output cell of the Wireworld run; rule at Olivesz/emergence@910b296:cpu/ww_cells.py#L233; selfChecks 'nand'"},
-"fib_tape": {"v": "144", "src": "Olivesz/emergence@910b296:cpu/run_cpu.py#L103", "ctx": "OUT", "note": "the OUT tape is printed by the page's interpreter; selfChecks 'sap' compares it with this line"},
-"sap_instr": {"v": "115", "src": "page:sap", "ctx": "instruction", "note": "Fibonacci halts after 115 instructions including HLT"},
+"fib_tape": {"v": "144", "src": "Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1", "at": "144]}", "ctx": "OUT", "note": "the OUT tape is replayed from the recorded gate-level netlist trace (out_load rows); at: the last value of the header's out_tape, which selfChecks 'sap' compares the replay with"},
+"sap_instr": {"v": "115", "src": "page:sap", "ctx": "instruction", "note": "the trace's 688 clocks hold 115 instruction fetches (T1 rows), HLT included; selfChecks 'sap'"},
 "pass_ms": {"v": "350 ms", "src": "Olivesz/freeflow@19c0217:README.md#L49", "ctx": "audio"},
 "sharpe": {"v": "1.12", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "Sharpe", "note": "rf=0; the same row states 0.97 in excess of cash"},
 "sharpe_x": {"v": "0.97", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "excess"},
@@ -1706,7 +1730,7 @@ var SRC = {
   log: PIN + "bench/results/9832030/timing/logs/jfk.jsonl#L1-L33",
   script: "page:passlog"                                             // a figure read from the pass log; check-panels lists page: sources
 };
-var TOKS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule"];
+var TOKS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule", "v-blue"];
 
 /* ---------- the run: every pass of a real pass log, whisper.cpp base.en on the JFK sample ---------- */
 // bench/results/9832030/timing/logs/jfk.jsonl at freeflow@19c0217, one row per pass:
@@ -1927,19 +1951,32 @@ function scene(u, L) {
   if (S.cur && S.cur.skip) rowP = [null, S.cur];
   if (S.done) rowP = [];               // once stopped, the rows keep what the run caught instead (below)
   if (S.done) {                        // every word a pass misheard, over what was typed in its place: none was typed wrong
-    var lw = OVERTURNED.map(function (e) { return Math.max(e.heard.length, e.typed.length); }), from = 0;
-    var span = function (f) { var n = -1; for (var q = f; q < lw.length; q++) n += lw[q] + 1; return n * mono; };
-    while (from < lw.length - 1 && span(from) > avail) from++;
-    [["heard", "heard", "wo"], ["typed", "typed", "wa"]].forEach(function (R, r) {
-      var y = L.rows[r], cx2 = 0;
-      run(0, y, R[0], "lb l24", null, 24);
-      for (var q = from; q < OVERTURNED.length; q++) {
-        var s = OVERTURNED[q][R[1]], wx = L.lab + Math.round(cx2 * mono);
-        run(wx, y, s, R[2], SRC.script, 24);
-        bars.push({ x: wx, y: y, w: Math.ceil(s.length * mono), lh: 24, row: true, tok: R[2] === "wa" ? "ink" : "copper", a: anchor(wx, y, 24, c) });
-        cx2 += lw[q] + 1;
-      }
+    // one column per guess; a typed word is drawn once, under every guess it overturned, with one rule spanning them
+    var groups = [];
+    OVERTURNED.forEach(function (e) { var gp = groups[groups.length - 1]; if (gp && gp.i === e.i) gp.heard.push(e.heard); else groups.push({ i: e.i, typed: e.typed, heard: [e.heard] }); });
+    groups.forEach(function (gp) {      // a group's width: its guesses side by side, at least as wide as its typed word
+      gp.cols = gp.heard.map(function (h) { return h.length; });
+      var wsum = gp.cols.reduce(function (a, b) { return a + b + 1; }, -1);
+      if (wsum < gp.typed.length) gp.cols[gp.cols.length - 1] += gp.typed.length - wsum;
+      gp.w = Math.max(wsum, gp.typed.length);
     });
+    var from = 0, span = function (f) { var n = -1; for (var q = f; q < groups.length; q++) n += groups[q].w + 1; return n * mono; };
+    while (from < groups.length - 1 && span(from) > avail) from++;
+    run(0, L.rows[0], "guess", "lb l24", null, 24);
+    run(0, L.rows[1], "typed", "lb l24", null, 24);
+    for (var q = from, cx2 = 0; q < groups.length; q++) {
+      var gp = groups[q], gx = L.lab + Math.round(cx2 * mono), hx = cx2;
+      gp.heard.forEach(function (h, k) {     // a pass’s guess, struck once overturned (the legend’s words)
+        var wx = L.lab + Math.round(hx * mono);
+        run(wx, L.rows[0], h, "wo", SRC.script, 24);
+        bars.push({ x: wx, y: L.rows[0], w: Math.ceil(h.length * mono), lh: 24, row: true, tok: "copper", a: anchor(wx, L.rows[0], 24, c) });
+        hx += gp.cols[k] + 1;
+      });
+      run(gx, L.rows[1], gp.typed, "wa", SRC.script, 24);
+      bars.push({ x: gx, y: L.rows[1], w: Math.ceil(gp.typed.length * mono), lh: 24, row: true, tok: "ink", a: anchor(gx, L.rows[1], 24, c) });
+      if (gp.heard.length > 1) rects.push({ k: "span", x: gx, y: L.rows[1] + 20, w: Math.round(gp.w * mono), tok: "v-blue" });
+      cx2 += gp.w + 1;
+    }
   }
   var before = {}, got = {};
   if (S.cur) { (S.cur.idx || []).forEach(function (j) { before[j] = 1; }); (S.cur.got || []).forEach(function (j) { got[j] = 1; delete before[j]; }); }
@@ -2035,7 +2072,7 @@ function footprintOf(u, phone, sc0) {
 // the cells still shown as cells at resolve level r: the complement of the native mask
 function cells(u, r, org, phone) {
   var lv = lev(r), o = org || [0, 0];
-  if (lv >= 16) return [];
+  if (r > 0) return [];                // the native layer stands whole from its first frame: no footprint beside it
   return footprint(u, phone).filter(function (q) { return q.length > 3 ? bay(o[0] + q[3], o[1] + q[4]) >= lv : bay(o[0] + q[0], o[1] + q[1]) >= lv; });
 }
 
@@ -2063,10 +2100,17 @@ var CSS = [
   ".ff.dim .lb .ro,.ff.dim .kd,.ff.dim .fw{color:var(--body)}",
   ".ff.dim .kc,.ff.dim .pl{color:var(--muted)}",
   ".ff.dim .wa{color:var(--body);text-decoration-color:var(--body)}",
-  ".ff.dim .wg{color:var(--signal-2)}"
+  ".ff.dim .wg{color:var(--signal-2)}",
+  // building in: two tokens down (ink -> muted, signal -> signal-2), then one, then whole
+  ".ff.dim2 .lb .ro,.ff.dim2 .kd,.ff.dim2 .fw,.ff.dim2 .kc,.ff.dim2 .pl{color:var(--muted)}",
+  ".ff.dim2 .wa{color:var(--muted);text-decoration-color:var(--muted)}",
+  ".ff.dim2 .wg{color:var(--signal-2)}"
 ].join("\n");
 // a dimmed layer's marks take the token one step down; muted, signal-2, trail-3 and the chrome tokens are floors
-var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3" };
+var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3", "v-blue": "body" };
+function down(t, n) { while (n-- > 0 && DOWN[t]) t = DOWN[t]; return t; }
+// a layer building in (resolve level r from 0 to 1) steps its colours up the ramp: two tokens down, one, then whole
+function ramp(r) { return r >= 2 / 3 ? 0 : r >= 1 / 3 ? 1 : 2; }
 
 var M = null;                       // the mounted instance
 function tokens() {
@@ -2116,15 +2160,17 @@ function sig(sc) {
 function draw(u, box, ctx) {
   if (!M) return;
   ctx = ctx || {};
-  var L = M.L, c = L.c, r = ctx.r == null ? 1 : ctx.r, lv = lev(r), org = ctx.org || [0, 0], dpr = ctx.dpr > 0 ? ctx.dpr : 1, pp = Math.max(1, Math.round(c * dpr)), dn = !!ctx.dim;
+  var L = M.L, c = L.c, r = ctx.r == null ? 1 : ctx.r, org = ctx.org || [0, 0], dpr = ctx.dpr > 0 ? ctx.dpr : 1, pp = Math.max(1, Math.round(c * dpr));
+  var dn = Math.min(2, (ctx.dim ? 1 : 0) + ramp(r));      // tokens down: dimmed is one, a layer building in steps up from two
   var bw = box[2] - box[0], bh = box[3] - box[1], s = bw / L.W;
   // the box is the footprint at this pitch; the native layer is laid out at the station pitch and only placed here
-  var pos = [box[0], box[1], L.W, L.H].join(), vis = lv > 0 && Math.abs(s - 1) < 0.01 && Math.abs(bh / L.H - 1) < 0.01 ? "visible" : "hidden";
+  var pos = [box[0], box[1], L.W, L.H].join(), vis = r > 0 && Math.abs(s - 1) < 0.01 && Math.abs(bh / L.H - 1) < 0.01 ? "visible" : "hidden";
   if (pos !== M.pos) { M.pos = pos; M.el.style.left = box[0] + "px"; M.el.style.top = box[1] + "px"; M.el.style.width = L.W + "px"; M.el.style.height = L.H + "px"; }
   if (M.el.style.visibility !== vis) M.el.style.visibility = vis;
   // the scene's marks and runs, not u, key the redraw: a frame that moves u without moving a mark draws nothing
-  if (M.el.classList.contains("dim") !== dn) M.el.classList.toggle("dim", dn);
-  var sc = scene(u, L), T = M.tok, cv = M.cv, g, key = [lv, org[0] & 3, org[1] & 3, dpr, L.W, dn, sig(sc)].join("|");
+  if (M.el.classList.contains("dim") !== (dn === 1)) M.el.classList.toggle("dim", dn === 1);
+  if (M.el.classList.contains("dim2") !== (dn === 2)) M.el.classList.toggle("dim2", dn === 2);
+  var sc = scene(u, L), T = M.tok, cv = M.cv, g, key = [org[0] & 3, org[1] & 3, dpr, L.W, dn, sig(sc)].join("|");
   if (key === M.key) return sc;
   M.key = key;
   var CW = L.W / c * pp, CH = L.H / c * pp;
@@ -2132,7 +2178,7 @@ function draw(u, box, ctx) {
   g = cv.getContext("2d");
   g.clearRect(0, 0, cv.width, cv.height);
   var k = pp / c;                      // device px per CSS px on this grid (dpr, unless the pitch rounds)
-  function fr(x, y, w, h, t) { var X = Math.round(x * k), Y = Math.round(y * k); g.fillStyle = T[dn && DOWN[t] || t]; g.fillRect(X, Y, Math.max(1, Math.round((x + w) * k) - X), Math.max(1, Math.round((y + h) * k) - Y)); }
+  function fr(x, y, w, h, t) { var X = Math.round(x * k), Y = Math.round(y * k); g.fillStyle = T[down(t, dn)]; g.fillRect(X, Y, Math.max(1, Math.round((x + w) * k) - X), Math.max(1, Math.round((y + h) * k) - Y)); }
   sc.rects.forEach(function (q) {
     if (q.k === "frame" || q.k === "key" || q.k === "keyDown" || q.k === "pill") {
       if (q.fill) fr(q.x, q.y, q.w, q.h, q.fill);
@@ -2142,6 +2188,7 @@ function draw(u, box, ctx) {
     } else if (q.k === "hline") fr(q.x, q.y, q.w, 1, q.tok);
     else if (q.k === "caret" || q.k === "dot") fr(q.x, q.y, q.w, q.h, q.tok);
     else if (q.k === "bracket") { fr(q.x, q.y, q.w, 1, q.tok); fr(q.x, q.y, 1, 5, q.tok); }
+    else if (q.k === "span") { fr(q.x, q.y, q.w, 1, q.tok); fr(q.x + q.w - 1, q.y - 4, 1, 5, q.tok); }    // a typed word's rule under every guess it overturned
     else if (q.k === "vline") fr(q.x, q.y, 1, q.h, q.tok);
     else if (q.k === "copy") {           // two offset squares, the copy glyph
       var a = q.s;
@@ -2153,13 +2200,10 @@ function draw(u, box, ctx) {
     var t = q.mask != null && bay(org[0] + q.x / c, org[1] + q.y / c) >= q.mask ? q.alt : q.tok;
     fr(q.x, q.y, c, c, t);
   });
-  // the handoff: every cell whose Bayer rank has not yet passed is still the engine's cell, so the native layer is clear there
-  if (lv < 16) clearRanks(g, L.W / c, L.H / c, pp, org[0], org[1], lv, T.ink);
-  // text runs switch whole, each at the rank of the cell under its first glyph
+  // every run is on from the first frame: the layer builds in by colour, never by dither
   var html = "";
   sc.runs.forEach(function (q) {
-    var a = anchor(q.x, q.y, q.lh, c), on = bay(org[0] + a[0], org[1] + a[1]) < lv;
-    if (!on) return;
+    var a = anchor(q.x, q.y, q.lh, c);
     html += '<p class="r ' + q.cls + '" data-run data-a="' + a[0] + "," + a[1] + '" style="left:' + q.x + "px;top:" + q.y + 'px"' + (q.src ? ' data-src="' + q.src + '"' : "") + ">" + q.t + "</p>";
   });
   if (html !== M.html) { M.html = html; M.tx.innerHTML = html; }
@@ -2227,7 +2271,7 @@ var station = {
   id: "freeflow",
   size: function (ctx) { var z = compact(ctx) ? SIZE.phone : SIZE.desk; return { w: z.w, h: z.h }; },
   cells: function (u, ctx) { ctx = ctx || {}; return cells(u, ctx.r || 0, ctx.org, compact(ctx)).map(function (q) { return [q[0], q[1], q[2]]; }); },
-  cellsKey: function (u, ctx) { return lev((ctx || {}).r || 0) >= 16 ? "none" : null; },
+  cellsKey: function (u, ctx) { return ((ctx || {}).r || 0) > 0 ? "none" : null; },
   footprint: function (u, ctx) { return footprint(u, compact(ctx)); },
   mount: function (host, opts) { return mount(host, opts || {}); },
   draw: function (u, box, ctx) {
@@ -2454,18 +2498,27 @@ function swapK() {
 function lev(r) { return Math.min(16, Math.floor(clamp01(r) * 16 + 1e-9)); }   // ranks below this are native
 // a region's handoff: k in 0..48. k < 16 native(out) -> cells(out); 16..32 cells(out) -> cells(in); 32..48 cells(in) -> native(in)
 // the station's resolve level r caps every region at 32 + lev(r): arrival and leaving are the engine's clips, never u
+// While the layer shows (r > 0) every region is native whole (k = 48) and comes in by colour, never by dither: st is
+// how many tokens down it is drawn (2, then 1, then whole), from the station's arrival and from its own beat's start
 function regions(u, g, r, pv) {
-  var R = [], lk = 32 + lev(r);
+  var R = [], nat = r > 0, lk = nat ? 48 : 32, rs = nat ? ramp(r) : 0;
+  function stIn(a, b) { return Math.max(rs, 2 - lv(u, a, b, 3)); }
   if (!g.phone) {
     // the rows stack: each beat comes in below the last, and the blocks above it step their colours down one token
     var yC = Math.floor((g.B.foot + 12) / g.c) * g.c;
-    R.push({ y0: 0, y1: yC, out: "top", inn: "top", k: lk, dim: u >= TL.b2 });
-    if (u >= TL.b2) R.push({ y0: yC, y1: g.yR, out: null, inn: "top", k: Math.min(lk, 16 + lv(u, TL.b2, TL.x2, 32)), dim: u >= TL.b3 });
-    if (u >= TL.b3) R.push({ y0: g.yR, y1: g.H, out: null, inn: "real", k: Math.min(lk, 16 + lv(u, TL.b3, TL.x3, 32)) });
+    R.push({ y0: 0, y1: yC, out: "top", inn: "top", k: lk, st: rs, dim: u >= TL.b2 });
+    if (u >= TL.b2) R.push({ y0: yC, y1: g.yR, out: null, inn: "top", k: nat ? 48 : Math.min(lk, 16 + lv(u, TL.b2, TL.x2, 32)), st: nat ? stIn(TL.b2, TL.x2) : 0, dim: u >= TL.b3 });
+    if (u >= TL.b3) R.push({ y0: g.yR, y1: g.H, out: null, inn: "real", k: nat ? 48 : Math.min(lk, 16 + lv(u, TL.b3, TL.x3, 32)), st: nat ? stIn(TL.b3, TL.x3) : 0 });
   } else {
-    var q = { y0: 0, y1: g.H }, V = ["planted", "gates", "real"];
+    var q = { y0: 0, y1: g.H, st: rs }, V = ["planted", "gates", "real"];
     pv = pv || { view: viewFor(u, -1), from: -1 };              // without the live state (hooks, footprints): the settled view
     if (pv.from < 0) { q.out = q.inn = V[pv.view]; q.k = 48; }
+    else if (nat) {                                              // a swap: the old view steps down and out, the new one steps up
+      var t = nowMs() - PV.t0;
+      if (t < SWAP_OUT) { q.out = q.inn = V[pv.from]; q.st = Math.max(rs, t < SWAP_OUT / 2 ? 1 : 2); }
+      else { q.out = q.inn = V[pv.view]; q.st = Math.max(rs, 2 - Math.min(2, Math.floor(3 * (t - SWAP_OUT) / (SWAP_MS - SWAP_OUT)))); }
+      q.k = 48;
+    }
     else { q.out = V[pv.from]; q.inn = V[pv.view]; q.k = swapK(); }
     if (q.k >= 32 || q.out === q.inn) q.k = Math.min(q.k, lk);
     R.push(q);
@@ -2684,7 +2737,9 @@ var BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], ORG = [0, 0]
 function rank(cx, cy) { return BAYER[(((cy + ORG[1]) & 3) << 2) | ((cx + ORG[0]) & 3)]; }
 var PRI = ["ink", "signal", "trail", "muted", "copper", "residue"];
 // a dimmed block paints every mark and word one token down; muted, signal-2, trail-3 and the chrome tokens are floors
-var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3" }; var DN = false;
+var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3" }; var DN = 0;
+function down(t, n) { while (n-- > 0 && DOWN[t]) t = DOWN[t]; return t; }
+function ramp(r) { return r >= 2 / 3 ? 0 : r >= 1 / 3 ? 1 : 2; }       // building in: two tokens down, one, then whole
 
 /* ---------- runtime ---------- */
 var doc = null, wrap = null, cv = null, c2 = null, svg = null, inp = null, TOK = {}, RGB = {}, onChange = [], ver = 0, sw = SW0;
@@ -2703,7 +2758,7 @@ function painter(ctx2, scale, X0, Y0) {
   return { rect: function (x, y, w, h, tok) {
     if (w <= 0 || h <= 0) return;
     var a = Math.round(x * scale), b = Math.round(y * scale), a2 = Math.round((x + w) * scale), b2 = Math.round((y + h) * scale);
-    ctx2.fillStyle = TOK[DN && DOWN[tok] || tok]; ctx2.fillRect(a - X0, b - Y0, Math.max(1, a2 - a), Math.max(1, b2 - b));
+    ctx2.fillStyle = TOK[down(tok, DN)]; ctx2.fillRect(a - X0, b - Y0, Math.max(1, a2 - a), Math.max(1, b2 - b));
   } };
 }
 function offscreen(w, h) { var c = doc.createElement("canvas"); c.width = Math.max(1, w); c.height = Math.max(1, h); return c; }
@@ -2720,7 +2775,7 @@ function blit(dst, L, cw) { if (cw === undefined) dst.drawImage(L.c, L.X0, L.Y0)
 
 // one view's native marks into a device-px context; no ground: cells() never emits a cell where the native layer shows
 function paintView(dst, view, g, m, s, dpr) {
-  var gk = geoKey + (DN ? "|dn" : "");
+  var gk = geoKey + (DN ? "|dn" + DN : "");
   if (view === "planted" || view === "top") {
     blit(dst, layer(gk + "|A|" + m.sw, 0, 0, g.W, g.B.top + g.B.h + 1, dpr, function (P) { paintPlanted(P, g, m, s); }));
     if (s.pass >= 0) {
@@ -2934,7 +2989,7 @@ function draw(u, box, ctx) {
   if (b.dim) R.forEach(function (r) { r.dim = true; });        // the station is behind you: every block dims
   phoneNow = b.phone;
   // the pixels are a function of the discrete state and the regions' dither levels, not of u itself: redraw only when those move
-  var key = [sw, geoKey, b.x, b.y, ORG, s.pass, s.sweep >= 1 ? -1 : sweepX(g, s), s.passed, s.testing, s.nq, s.beat].concat(R.map(function (r) { return r.out + r.inn + r.k + (r.dim ? "d" : ""); })).join("|");
+  var key = [sw, geoKey, b.x, b.y, ORG, s.pass, s.sweep >= 1 ? -1 : sweepX(g, s), s.passed, s.testing, s.nq, s.beat].concat(R.map(function (r) { return r.out + r.inn + r.k + (r.dim ? "d" : "") + (r.st || 0); })).join("|");
   if (wrap.style.display) wrap.style.display = "";
   if (key === last) return s;
   last = key;
@@ -2946,13 +3001,13 @@ function draw(u, box, ctx) {
     svg.setAttribute("width", b.w); svg.setAttribute("height", b.h); svg.setAttribute("viewBox", "0 0 " + b.w + " " + b.h);
   }
   c2.clearRect(0, 0, DW, DH);
-  var tkey = [geoKey, sw, s.pass, s.gatesOn, s.passed, s.testing, s.nq, ORG].concat(R.map(function (r) { return r.inn + r.k + (r.dim ? "d" : ""); })).join("|");
+  var tkey = [geoKey, sw, s.pass, s.gatesOn, s.passed, s.testing, s.nq, ORG].concat(R.map(function (r) { return r.inn + r.k + (r.dim ? "d" : "") + (r.st || 0); })).join("|");
   for (var i = 0; i < R.length; i++) {
     var r = R[i];
-    DN = !!r.dim;                                              // dimmed: one token down, every cell kept
+    DN = Math.min(2, (r.dim ? 1 : 0) + (r.st || 0));           // dimmed: one token down, every cell kept; building in: up to two
     if (r.k < 16 && r.out) masked(r.out, g, m, s, b.dpr, b.pp, r, r.k, true);
     if (r.k >= 32) masked(r.inn, g, m, s, b.dpr, b.pp, r, r.k - 32, false);
-    DN = false;
+    DN = 0;
   }
   if (tkey !== textKey) {                                      // each item switches whole at its anchor's rank
     var items = [];
@@ -2962,7 +3017,8 @@ function draw(u, box, ctx) {
       viewText(view, g, m, s).forEach(function (t) {
         var a = anchorOf(t, g.c), ra = rank(a[0], a[1]);
         if (a[1] * g.c < r.y0 || a[1] * g.c >= r.y1) return;      // each item belongs to the region its anchor sits in
-        if (r.k >= 32 ? ra < r.k - 32 : ra >= r.k) items.push(r.dim ? { x: t.x, y: t.y, a: t.a, p: t.p.map(function (q) { return [q[0], q[1], DOWN[q[2]] || q[2], q[3]]; }) } : t);
+        var dn = Math.min(2, (r.dim ? 1 : 0) + (r.st || 0));
+        if (r.k >= 32 ? ra < r.k - 32 : ra >= r.k) items.push(dn ? { x: t.x, y: t.y, a: t.a, p: t.p.map(function (q) { return [q[0], q[1], down(q[2], dn), q[3]]; }) } : t);
       });
     });
     svg.innerHTML = svgText(items, g.c); textKey = tkey;
@@ -3344,7 +3400,9 @@ var CSS = [
   ".cx .r{position:absolute;left:0;top:0;margin:0;white-space:pre}",
   ".cx .lab{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}",
   ".cx .lab .ro{font:400 13px/16px var(--mono);letter-spacing:0;color:var(--ink)}",
-  ".cx .sent{font:400 30px/32px var(--sg);letter-spacing:-.02em;color:var(--ink)}",
+  // the report reads as context in muted; the claim the extractor returned stands in ink, so the strike spans all of it
+  ".cx .sent{font:400 30px/32px var(--sg);letter-spacing:-.02em;color:var(--muted)}",
+  ".cx .sent .cl{color:var(--ink)}",
   ".cx .mono{font:400 13px/24px var(--mono);font-variant-numeric:tabular-nums;color:var(--body)}",
   ".cx.ph .mono{line-height:20px}",
   ".cx .ink{color:var(--ink)}",
@@ -3355,11 +3413,15 @@ var CSS = [
   ".cx .vcol{display:inline-block}",
   ".cx .bl{display:inline-block;width:0;height:0;vertical-align:baseline}",
   // dimmed (the station is behind you): every colour one token down, ink -> body -> muted
-  ".cx.dim .sent,.cx.dim .lab .ro,.cx.dim .ink,.cx.dim .chip{color:var(--body)}",
-  ".cx.dim .mono{color:var(--muted)}"
+  ".cx.dim .sent .cl,.cx.dim .lab .ro,.cx.dim .ink,.cx.dim .chip{color:var(--body)}",
+  ".cx.dim .mono{color:var(--muted)}",
+  // building in: two tokens down (ink -> muted, signal -> signal-2), then one, then whole
+  ".cx.dim2 .sent .cl,.cx.dim2 .lab .ro,.cx.dim2 .lab .ro.vv,.cx.dim2 .ink,.cx.dim2 .chip,.cx.dim2 .mono{color:var(--muted)}"
 ].join("\n");
 // a dimmed layer's marks take the token one step down; muted, signal-2, trail-3 and the chrome tokens are floors
 var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3" };
+function down(t, n) { while (n-- > 0 && DOWN[t]) t = DOWN[t]; return t; }
+function ramp(r) { return r >= 2 / 3 ? 0 : r >= 1 / 3 ? 1 : 2; }       // building in: two tokens down, one, then whole
 
 function el(tag, cls, text, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; if (parent) parent.appendChild(e); return e; }
 
@@ -3501,15 +3563,16 @@ function draw(u, box, ctx) {
   u = clamp01(+u || 0); ctx = ctx || {};
   var name = layoutFor(ctx), L = LAYOUTS[name];
   ensure(name);
-  var B = M.B, P = B.parts, G = M.G, ok = DATA && DATA.ok, r = ctx.r == null ? 1 : clamp01(+ctx.r), lv = lev(r), dn = !!ctx.dim;
+  var B = M.B, P = B.parts, G = M.G, ok = DATA && DATA.ok, r = ctx.r == null ? 1 : clamp01(+ctx.r), dn = Math.min(2, (ctx.dim ? 1 : 0) + ramp(r));
   var org = ctx.org || ctx.phase || [0, 0], ox = org[0] & 3, oy = org[1] & 3;
   var dpr = ctx.dpr > 0 ? ctx.dpr : 1, c = L.cell, pp = Math.max(1, Math.round(c * dpr)), k = pp / c;
   var pos = [box.x, box.y, L.w * L.cell, L.h * L.cell].join();      // the root occupies the station box, the layer's own box
   if (pos !== M.pos) { M.pos = pos; M.el.style.left = box.x + "px"; M.el.style.top = box.y + "px"; M.el.style.width = L.w * L.cell + "px"; M.el.style.height = L.h * L.cell + "px"; }
-  if (lv <= 0) { M.el.style.display = "none"; M.dkey = ""; return null; }
+  if (r <= 0) { M.el.style.display = "none"; M.dkey = ""; return null; }
   if (M.el.style.display) M.el.style.display = "";
   if (M.el.style.visibility !== "visible") M.el.style.visibility = "visible";
-  if (M.el.classList.contains("dim") !== dn) M.el.classList.toggle("dim", dn);
+  if (M.el.classList.contains("dim") !== (dn === 1)) M.el.classList.toggle("dim", dn === 1);
+  if (M.el.classList.contains("dim2") !== (dn === 2)) M.el.classList.toggle("dim2", dn === 2);
   // what this frame shows, from u: the scan's box, the stroke's length, the verdict, the chip and the runs that are on.
   // The pixels are a function of these alone, so a frame that moves u without moving them draws nothing.
   var T = L.T, sc = null;
@@ -3521,15 +3584,15 @@ function draw(u, box, ctx) {
   // the stroke travels in signal as far as the claim's margin; its last leg, the strike, is drawn whole at the verdict
   var done = ok && u >= T.verdict, chip = ok && u >= T.chip, wire = G.total - G.route[G.route.length - 1].len;
   var len = !ok ? 0 : done ? G.total : Math.round(smoother(seg(u, T.travel)) * wire);
-  var runsOn = B.runs.map(function (q) { return u >= q.at && bay(ox + q.a[0], oy + q.a[1]) < lv ? 1 : 0; });
-  var dkey = [sc ? sc.join(",") : "", len, done, chip, ok && u >= T.scan3[0], runsOn.join(""), lv, ox, oy, pp, dpr, name, ok, dn].join("|");
+  var runsOn = B.runs.map(function (q) { return u >= q.at ? 1 : 0; });      // the layer builds in by colour, never by dither
+  var dkey = [sc ? sc.join(",") : "", len, done, chip, ok && u >= T.scan3[0], runsOn.join(""), ox, oy, pp, dpr, name, ok, dn].join("|");
   if (dkey === M.dkey) return M.drawn;
   M.dkey = dkey;
   var cv = M.cv, W = L.w * pp, H = L.h * pp;
   if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; cv.style.width = W / dpr + "px"; cv.style.height = H / dpr + "px"; }
   var g = cv.getContext("2d"), TK = M.tok || (M.tok = tokens()), drawn = { scan: null, segs: [], strike: null, tally: { fail: 0, pass: 0 }, chip: false };
   g.clearRect(0, 0, W, H);
-  function fr(x, y, w, h, t) { var X = Math.round(x * k), Y = Math.round(y * k); g.fillStyle = TK[dn && DOWN[t] || t]; g.fillRect(X, Y, Math.max(1, Math.round((x + w) * k) - X), Math.max(1, Math.round((y + h) * k) - Y)); }
+  function fr(x, y, w, h, t) { var X = Math.round(x * k), Y = Math.round(y * k); g.fillStyle = TK[down(t, dn)]; g.fillRect(X, Y, Math.max(1, Math.round((x + w) * k) - X), Math.max(1, Math.round((y + h) * k) - Y)); }
   // the rule reads the log: newest runner call, then its result, then narrows to the failing count
   if (sc) { fr(sc[0], sc[1], sc[2], 2, "signal"); drawn.scan = sc; }
   P.fail.className = ok && u >= T.scan3[0] ? "ink" : "";
@@ -3551,9 +3614,7 @@ function draw(u, box, ctx) {
     else { fr(x, y, qd, qd, "ink"); drawn.tally.pass++; }
   });
   if (chip) { fr(L.sx + CHIP_DX, L.y.stop, CHIP_W, 24, "copper"); drawn.chip = true; }
-  // the handoff: every cell whose rank has not passed is still the engine's cell, so the canvas is clear there
-  if (lv < 16) clearRanks(g, L.w, L.h, pp, ox, oy, lv, TK.ink);
-  // text runs switch whole, each at the rank of the cell under its first glyph
+  // text runs switch whole, each as its moment comes
   B.runs.forEach(function (q, n) {
     var e = P.runs[q.id], vis = runsOn[n] ? "visible" : "hidden";
     if (e && e.style.visibility !== vis) e.style.visibility = vis;
@@ -3623,7 +3684,7 @@ function selfCheck(opts) {
 function remaining(name, u, r, org) {
   if (!DATA) DATA = derive(engineOf());
   var lv = lev(r == null ? 0 : r), o = org || [0, 0];
-  if (lv >= 16) return [];
+  if (r > 0) return [];                // the native layer stands whole from its first frame: no footprint beside it
   return footprint(name, clamp01(u == null ? 1 : u)).filter(function (q) { return q.length > 3 ? bay(o[0] + q[3], o[1] + q[4]) >= lv : bay(o[0] + q[0], o[1] + q[1]) >= lv; });
 }
 // the old engine adapter: build(F, u) stamps the whole footprint (r = 0), integer codes in TOKENS order
@@ -3639,7 +3700,7 @@ var station = {
   id: "custos",
   size: function (ctx) { var L = LAYOUTS[layoutFor(ctx || {})]; return { w: L.w, h: L.h }; },
   cells: function (u, ctx) { ctx = ctx || {}; return remaining(layoutFor(ctx), u, ctx.r || 0, ctx.org).map(function (q) { return [q[0], q[1], q[2]]; }); },
-  cellsKey: function (u, ctx) { return lev((ctx || {}).r || 0) >= 16 ? "none" : null; },
+  cellsKey: function (u, ctx) { return ((ctx || {}).r || 0) > 0 ? "none" : null; },
   footprint: function (u, ctx) { if (!DATA) DATA = derive(engineOf()); return footprint(layoutFor(ctx || {}), clamp01(u == null ? 1 : u)); },
   mount: function (host, opts) { return mount(host, opts || {}); },
   draw: function (u, box, ctx) { return draw(u, box, ctx || {}); },
@@ -3748,85 +3809,83 @@ var walkCheck = { reversible: false, lock: false, end: false };
 })();
 
 /* ---------- the figures ---------- */
-// emergence: the SAP-1 program from emergence/cpu, replayed by an ISA-faithful interpreter
-  var SAP = (function () {
-    // the exact program from emergence/cpu/run_cpu.py (a=11, b=12, t=13)
-    var LISTING = [
-      ["top:", "LDA a"], ["", "OUT"], ["", "ADD b"], ["", "JC done"], ["", "STA t"],
-      ["", "LDA b"], ["", "STA a"], ["", "LDA t"], ["", "STA b"], ["", "JMP top"],
-      ["done:", "HLT"], ["a:", "DB 1"], ["b:", "DB 1"], ["t:", "DB 0"]
-    ];
-    function fresh() { return { M: [0x1B, 0xE0, 0x2C, 0x8A, 0x4D, 0x1C, 0x4B, 0x1D, 0x4C, 0x60, 0xF0, 1, 1, 0], PC: 0, A: 0, C: 0, OUT: [], halt: false }; }
-    function stepInstr(s) {
-      if (s.halt) return;
-      var w2 = s.M[s.PC], op = w2 >> 4, ad = w2 & 15;
-      s.PC = (s.PC + 1) & 15;
-      if (op === 0x1) s.A = s.M[ad];
-      else if (op === 0x2) { var r = s.A + s.M[ad]; s.C = r > 255 ? 1 : 0; s.A = r & 255; }
-      else if (op === 0x4) s.M[ad] = s.A;
-      else if (op === 0x6) s.PC = ad;
-      else if (op === 0x8) { if (s.C) s.PC = ad; }
-      else if (op === 0xE) s.OUT.push(s.A);
-      else if (op === 0xF) s.halt = true;
-    }
-    return {
-      LISTING: LISTING,
-      at: function (nInstr) {
-        var s = fresh();
-          for (var i = 0; i < nInstr && !s.halt; i++) stepInstr(s);
-        s.line = s.halt ? 10 : s.PC;
-        return s;
-      }
-    };
-  })();
-// one snapshot per executed instruction, each read back from the interpreter
-var SAPT = (function () {
-  var snaps = [], s = SAP.at(0), prev, n = 0;
-  function snap(x, op, ad, pc0) { return { M: x.M.slice(), PC: x.PC, A: x.A, C: x.C, out: x.OUT.slice(), halt: x.halt, op: op, ad: ad, pc0: pc0 }; }
-  snaps.push(snap(s, -1, 0, 0));
-  while (!s.halt && n < 1000) { prev = s; s = SAP.at(++n); var w = prev.M[prev.PC]; snaps.push(snap(s, w >> 4, w & 15, prev.PC)); }
-  return { snaps: snaps };
+// emergence: the SAP-1 replayed from its recorded gate-level netlist run. The page simulates nothing here: every value
+// drawn is a column of Olivesz/emergence@910b296:cpu/traces/sap1_fib.json, one row per clock (record_trace.py writes it
+// from the NAND/DFF netlist; its --check reproduces it byte for byte on every push). RAM is the header's image with each
+// recorded write (Wr: bus to RAM[MAR]) applied; the OUT tape is OUT after each recorded out_load.
+var SAP_TRACE = {
+  src: "Olivesz/emergence@910b296:cpu/traces/sap1_fib.json",
+  header: {"machine":"SAP-1","program":"fibonacci","source":"cpu/run_cpu.py P5","image":[27,224,44,138,77,28,75,29,76,96,240,1,1,0,0,0],"image_sha256":"999613917fcd6c6384ecf9d1ee2edee79e9f8a31f3df7cf507c82e49673d4038","netlist":{"nand":1446,"dff":175},"columns":["T","PC","MAR","IR","A","B","OUT","C","bus","on","out_load"],"clocks":688,"out_tape":[1,1,2,3,5,8,13,21,34,55,89,144]},
+  sigs: ["Ep","Cp","Lm","CE","Li","Ei","La","Lb","Eu","Su","Ea","Wr","Lo","Jl"],   // record_trace.py#L23: the order "on" lists them in
+  rowsFnv: 960371679,   // FNV-1a 32 of the file's rows text, which the decode must reproduce
+  rows: "AQAAAAAAAAUAAgAAAAAAAAIAAxAAAAAAGxgABBAbAAAACyQABRsbAAAAAUgABhsbAQAAAAAAARsbAQAAAQUAAhEbAQAAAAIAAyEbAQAA4BgAFCHgAQAAAQAUBSHgAQABAAAABiHgAQABAAAAASHgAQABAgUAAiLgAQABAAIAAzLgAQABLBgABDIsAQABDCQABTwsAQABAYgABjwsAQEBAkABATwsAgEBAwUAAjMsAgEBAAIAA0MsAgEBihgABEOKAgEBAAAABUOKAgEBAAAABkOKAgEBAAAAAUOKAgEBBAUAAkSKAgEBAAIAA1SKAgEBTRgABFRNAgEBDSQABV1NAgEBAgAMBl1NAgEBAAAAAV1NAgEBBQUAAlVNAgEBAAIAA2VNAgEBHBgABGUcAgEBDCQABWwcAgEBAUgABmwcAQEBAAAAAWwcAQEBBgUAAmYcAQEBAAIAA3YcAQEBSxgABHZLAQEBCyQABXtLAQEBAQAMBntLAQEBAAAAAXtLAQEBBwUAAndLAQEBAAIAA4dLAQEBHRgABIcdAQEBDSQABY0dAQEBAkgABo0dAgEBAAAAAY0dAgEBCAUAAogdAgEBAAIAA5gdAgEBTBgABJhMAgEBDCQABZxMAgEBAgAMBpxMAgEBAAAAAZxMAgEBCQUAAplMAgEBAAIAA6lMAgEBYBgABKlgAgEBACAgBQlgAgEBAAAABglgAgEBAAAAAQlgAgEBAAUAAgBgAgEBAAIAAxBgAgEBGxgABBAbAgEBCyQABRsbAgEBAUgABhsbAQEBAAAAARsbAQEBAQUAAhEbAQEBAAIAAyEbAQEB4BgAFCHgAQEBAQAUBSHgAQEBAAAABiHgAQEBAAAAASHgAQEBAgUAAiLgAQEBAAIAAzLgAQEBLBgABDIsAQEBDCQABTwsAQEBAogABjwsAQIBA0ABATwsAwIBAwUAAjMsAwIBAAIAA0MsAwIBihgABEOKAwIBAAAABUOKAwIBAAAABkOKAwIBAAAAAUOKAwIBBAUAAkSKAwIBAAIAA1SKAwIBTRgABFRNAwIBDSQABV1NAwIBAwAMBl1NAwIBAAAAAV1NAwIBBQUAAlVNAwIBAAIAA2VNAwIBHBgABGUcAwIBDCQABWwcAwIBAkgABmwcAgIBAAAAAWwcAgIBBgUAAmYcAgIBAAIAA3YcAgIBSxgABHZLAgIBCyQABXtLAgIBAgAMBntLAgIBAAAAAXtLAgIBBwUAAndLAgIBAAIAA4dLAgIBHRgABIcdAgIBDSQABY0dAgIBA0gABo0dAwIBAAAAAY0dAwIBCAUAAogdAwIBAAIAA5gdAwIBTBgABJhMAwIBDCQABZxMAwIBAwAMBpxMAwIBAAAAAZxMAwIBCQUAAplMAwIBAAIAA6lMAwIBYBgABKlgAwIBACAgBQlgAwIBAAAABglgAwIBAAAAAQlgAwIBAAUAAgBgAwIBAAIAAxBgAwIBGxgABBAbAwIBCyQABRsbAwIBAkgABhsbAgIBAAAAARsbAgIBAQUAAhEbAgIBAAIAAyEbAgIB4BgAFCHgAgIBAgAUBSHgAgICAAAABiHgAgICAAAAASHgAgICAgUAAiLgAgICAAIAAzLgAgICLBgABDIsAgICDCQABTwsAgICA4gABjwsAgMCBUABATwsBQMCAwUAAjMsBQMCAAIAA0MsBQMCihgABEOKBQMCAAAABUOKBQMCAAAABkOKBQMCAAAAAUOKBQMCBAUAAkSKBQMCAAIAA1SKBQMCTRgABFRNBQMCDSQABV1NBQMCBQAMBl1NBQMCAAAAAV1NBQMCBQUAAlVNBQMCAAIAA2VNBQMCHBgABGUcBQMCDCQABWwcBQMCA0gABmwcAwMCAAAAAWwcAwMCBgUAAmYcAwMCAAIAA3YcAwMCSxgABHZLAwMCCyQABXtLAwMCAwAMBntLAwMCAAAAAXtLAwMCBwUAAndLAwMCAAIAA4dLAwMCHRgABIcdAwMCDSQABY0dAwMCBUgABo0dBQMCAAAAAY0dBQMCCAUAAogdBQMCAAIAA5gdBQMCTBgABJhMBQMCDCQABZxMBQMCBQAMBpxMBQMCAAAAAZxMBQMCCQUAAplMBQMCAAIAA6lMBQMCYBgABKlgBQMCACAgBQlgBQMCAAAABglgBQMCAAAAAQlgBQMCAAUAAgBgBQMCAAIAAxBgBQMCGxgABBAbBQMCCyQABRsbBQMCA0gABhsbAwMCAAAAARsbAwMCAQUAAhEbAwMCAAIAAyEbAwMC4BgAFCHgAwMCAwAUBSHgAwMDAAAABiHgAwMDAAAAASHgAwMDAgUAAiLgAwMDAAIAAzLgAwMDLBgABDIsAwMDDCQABTwsAwMDBYgABjwsAwUDCEABATwsCAUDAwUAAjMsCAUDAAIAA0MsCAUDihgABEOKCAUDAAAABUOKCAUDAAAABkOKCAUDAAAAAUOKCAUDBAUAAkSKCAUDAAIAA1SKCAUDTRgABFRNCAUDDSQABV1NCAUDCAAMBl1NCAUDAAAAAV1NCAUDBQUAAlVNCAUDAAIAA2VNCAUDHBgABGUcCAUDDCQABWwcCAUDBUgABmwcBQUDAAAAAWwcBQUDBgUAAmYcBQUDAAIAA3YcBQUDSxgABHZLBQUDCyQABXtLBQUDBQAMBntLBQUDAAAAAXtLBQUDBwUAAndLBQUDAAIAA4dLBQUDHRgABIcdBQUDDSQABY0dBQUDCEgABo0dCAUDAAAAAY0dCAUDCAUAAogdCAUDAAIAA5gdCAUDTBgABJhMCAUDDCQABZxMCAUDCAAMBpxMCAUDAAAAAZxMCAUDCQUAAplMCAUDAAIAA6lMCAUDYBgABKlgCAUDACAgBQlgCAUDAAAABglgCAUDAAAAAQlgCAUDAAUAAgBgCAUDAAIAAxBgCAUDGxgABBAbCAUDCyQABRsbCAUDBUgABhsbBQUDAAAAARsbBQUDAQUAAhEbBQUDAAIAAyEbBQUD4BgAFCHgBQUDBQAUBSHgBQUFAAAABiHgBQUFAAAAASHgBQUFAgUAAiLgBQUFAAIAAzLgBQUFLBgABDIsBQUFDCQABTwsBQUFCIgABjwsBQgFDUABATwsDQgFAwUAAjMsDQgFAAIAA0MsDQgFihgABEOKDQgFAAAABUOKDQgFAAAABkOKDQgFAAAAAUOKDQgFBAUAAkSKDQgFAAIAA1SKDQgFTRgABFRNDQgFDSQABV1NDQgFDQAMBl1NDQgFAAAAAV1NDQgFBQUAAlVNDQgFAAIAA2VNDQgFHBgABGUcDQgFDCQABWwcDQgFCEgABmwcCAgFAAAAAWwcCAgFBgUAAmYcCAgFAAIAA3YcCAgFSxgABHZLCAgFCyQABXtLCAgFCAAMBntLCAgFAAAAAXtLCAgFBwUAAndLCAgFAAIAA4dLCAgFHRgABIcdCAgFDSQABY0dCAgFDUgABo0dDQgFAAAAAY0dDQgFCAUAAogdDQgFAAIAA5gdDQgFTBgABJhMDQgFDCQABZxMDQgFDQAMBpxMDQgFAAAAAZxMDQgFCQUAAplMDQgFAAIAA6lMDQgFYBgABKlgDQgFACAgBQlgDQgFAAAABglgDQgFAAAAAQlgDQgFAAUAAgBgDQgFAAIAAxBgDQgFGxgABBAbDQgFCyQABRsbDQgFCEgABhsbCAgFAAAAARsbCAgFAQUAAhEbCAgFAAIAAyEbCAgF4BgAFCHgCAgFCAAUBSHgCAgIAAAABiHgCAgIAAAAASHgCAgIAgUAAiLgCAgIAAIAAzLgCAgILBgABDIsCAgIDCQABTwsCAgIDYgABjwsCA0IFUABATwsFQ0IAwUAAjMsFQ0IAAIAA0MsFQ0IihgABEOKFQ0IAAAABUOKFQ0IAAAABkOKFQ0IAAAAAUOKFQ0IBAUAAkSKFQ0IAAIAA1SKFQ0ITRgABFRNFQ0IDSQABV1NFQ0IFQAMBl1NFQ0IAAAAAV1NFQ0IBQUAAlVNFQ0IAAIAA2VNFQ0IHBgABGUcFQ0IDCQABWwcFQ0IDUgABmwcDQ0IAAAAAWwcDQ0IBgUAAmYcDQ0IAAIAA3YcDQ0ISxgABHZLDQ0ICyQABXtLDQ0IDQAMBntLDQ0IAAAAAXtLDQ0IBwUAAndLDQ0IAAIAA4dLDQ0IHRgABIcdDQ0IDSQABY0dDQ0IFUgABo0dFQ0IAAAAAY0dFQ0ICAUAAogdFQ0IAAIAA5gdFQ0ITBgABJhMFQ0IDCQABZxMFQ0IFQAMBpxMFQ0IAAAAAZxMFQ0ICQUAAplMFQ0IAAIAA6lMFQ0IYBgABKlgFQ0IACAgBQlgFQ0IAAAABglgFQ0IAAAAAQlgFQ0IAAUAAgBgFQ0IAAIAAxBgFQ0IGxgABBAbFQ0ICyQABRsbFQ0IDUgABhsbDQ0IAAAAARsbDQ0IAQUAAhEbDQ0IAAIAAyEbDQ0I4BgAFCHgDQ0IDQAUBSHgDQ0NAAAABiHgDQ0NAAAAASHgDQ0NAgUAAiLgDQ0NAAIAAzLgDQ0NLBgABDIsDQ0NDCQABTwsDQ0NFYgABjwsDRUNIkABATwsIhUNAwUAAjMsIhUNAAIAA0MsIhUNihgABEOKIhUNAAAABUOKIhUNAAAABkOKIhUNAAAAAUOKIhUNBAUAAkSKIhUNAAIAA1SKIhUNTRgABFRNIhUNDSQABV1NIhUNIgAMBl1NIhUNAAAAAV1NIhUNBQUAAlVNIhUNAAIAA2VNIhUNHBgABGUcIhUNDCQABWwcIhUNFUgABmwcFRUNAAAAAWwcFRUNBgUAAmYcFRUNAAIAA3YcFRUNSxgABHZLFRUNCyQABXtLFRUNFQAMBntLFRUNAAAAAXtLFRUNBwUAAndLFRUNAAIAA4dLFRUNHRgABIcdFRUNDSQABY0dFRUNIkgABo0dIhUNAAAAAY0dIhUNCAUAAogdIhUNAAIAA5gdIhUNTBgABJhMIhUNDCQABZxMIhUNIgAMBpxMIhUNAAAAAZxMIhUNCQUAAplMIhUNAAIAA6lMIhUNYBgABKlgIhUNACAgBQlgIhUNAAAABglgIhUNAAAAAQlgIhUNAAUAAgBgIhUNAAIAAxBgIhUNGxgABBAbIhUNCyQABRsbIhUNFUgABhsbFRUNAAAAARsbFRUNAQUAAhEbFRUNAAIAAyEbFRUN4BgAFCHgFRUNFQAUBSHgFRUVAAAABiHgFRUVAAAAASHgFRUVAgUAAiLgFRUVAAIAAzLgFRUVLBgABDIsFRUVDCQABTwsFRUVIogABjwsFSIVN0ABATwsNyIVAwUAAjMsNyIVAAIAA0MsNyIVihgABEOKNyIVAAAABUOKNyIVAAAABkOKNyIVAAAAAUOKNyIVBAUAAkSKNyIVAAIAA1SKNyIVTRgABFRNNyIVDSQABV1NNyIVNwAMBl1NNyIVAAAAAV1NNyIVBQUAAlVNNyIVAAIAA2VNNyIVHBgABGUcNyIVDCQABWwcNyIVIkgABmwcIiIVAAAAAWwcIiIVBgUAAmYcIiIVAAIAA3YcIiIVSxgABHZLIiIVCyQABXtLIiIVIgAMBntLIiIVAAAAAXtLIiIVBwUAAndLIiIVAAIAA4dLIiIVHRgABIcdIiIVDSQABY0dIiIVN0gABo0dNyIVAAAAAY0dNyIVCAUAAogdNyIVAAIAA5gdNyIVTBgABJhMNyIVDCQABZxMNyIVNwAMBpxMNyIVAAAAAZxMNyIVCQUAAplMNyIVAAIAA6lMNyIVYBgABKlgNyIVACAgBQlgNyIVAAAABglgNyIVAAAAAQlgNyIVAAUAAgBgNyIVAAIAAxBgNyIVGxgABBAbNyIVCyQABRsbNyIVIkgABhsbIiIVAAAAARsbIiIVAQUAAhEbIiIVAAIAAyEbIiIV4BgAFCHgIiIVIgAUBSHgIiIiAAAABiHgIiIiAAAAASHgIiIiAgUAAiLgIiIiAAIAAzLgIiIiLBgABDIsIiIiDCQABTwsIiIiN4gABjwsIjciWUABATwsWTciAwUAAjMsWTciAAIAA0MsWTciihgABEOKWTciAAAABUOKWTciAAAABkOKWTciAAAAAUOKWTciBAUAAkSKWTciAAIAA1SKWTciTRgABFRNWTciDSQABV1NWTciWQAMBl1NWTciAAAAAV1NWTciBQUAAlVNWTciAAIAA2VNWTciHBgABGUcWTciDCQABWwcWTciN0gABmwcNzciAAAAAWwcNzciBgUAAmYcNzciAAIAA3YcNzciSxgABHZLNzciCyQABXtLNzciNwAMBntLNzciAAAAAXtLNzciBwUAAndLNzciAAIAA4dLNzciHRgABIcdNzciDSQABY0dNzciWUgABo0dWTciAAAAAY0dWTciCAUAAogdWTciAAIAA5gdWTciTBgABJhMWTciDCQABZxMWTciWQAMBpxMWTciAAAAAZxMWTciCQUAAplMWTciAAIAA6lMWTciYBgABKlgWTciACAgBQlgWTciAAAABglgWTciAAAAAQlgWTciAAUAAgBgWTciAAIAAxBgWTciGxgABBAbWTciCyQABRsbWTciN0gABhsbNzciAAAAARsbNzciAQUAAhEbNzciAAIAAyEbNzci4BgAFCHgNzciNwAUBSHgNzc3AAAABiHgNzc3AAAAASHgNzc3AgUAAiLgNzc3AAIAAzLgNzc3LBgABDIsNzc3DCQABTwsNzc3WYgABjwsN1k3kEABATwskFk3AwUAAjMskFk3AAIAA0MskFk3ihgABEOKkFk3AAAABUOKkFk3AAAABkOKkFk3AAAAAUOKkFk3BAUAAkSKkFk3AAIAA1SKkFk3TRgABFRNkFk3DSQABV1NkFk3kAAMBl1NkFk3AAAAAV1NkFk3BQUAAlVNkFk3AAIAA2VNkFk3HBgABGUckFk3DCQABWwckFk3WUgABmwcWVk3AAAAAWwcWVk3BgUAAmYcWVk3AAIAA3YcWVk3SxgABHZLWVk3CyQABXtLWVk3WQAMBntLWVk3AAAAAXtLWVk3BwUAAndLWVk3AAIAA4dLWVk3HRgABIcdWVk3DSQABY0dWVk3kEgABo0dkFk3AAAAAY0dkFk3CAUAAogdkFk3AAIAA5gdkFk3TBgABJhMkFk3DCQABZxMkFk3kAAMBpxMkFk3AAAAAZxMkFk3CQUAAplMkFk3AAIAA6lMkFk3YBgABKlgkFk3ACAgBQlgkFk3AAAABglgkFk3AAAAAQlgkFk3AAUAAgBgkFk3AAIAAxBgkFk3GxgABBAbkFk3CyQABRsbkFk3WUgABhsbWVk3AAAAARsbWVk3AQUAAhEbWVk3AAIAAyEbWVk34BgAFCHgWVk3WQAUBSHgWVlZAAAABiHgWVlZAAAAASHgWVlZAgUAAiLgWVlZAAIAAzLgWVlZLBgABDIsWVlZDCQABTwsWVlZkIgABjwsWZBZ6UABATws6ZBZAwUAAjMs6ZBZAAIAA0Ms6ZBZihgABEOK6ZBZAAAABUOK6ZBZAAAABkOK6ZBZAAAAAUOK6ZBZBAUAAkSK6ZBZAAIAA1SK6ZBZTRgABFRN6ZBZDSQABV1N6ZBZ6QAMBl1N6ZBZAAAAAV1N6ZBZBQUAAlVN6ZBZAAIAA2VN6ZBZHBgABGUc6ZBZDCQABWwc6ZBZkEgABmwckJBZAAAAAWwckJBZBgUAAmYckJBZAAIAA3YckJBZSxgABHZLkJBZCyQABXtLkJBZkAAMBntLkJBZAAAAAXtLkJBZBwUAAndLkJBZAAIAA4dLkJBZHRgABIcdkJBZDSQABY0dkJBZ6UgABo0d6ZBZAAAAAY0d6ZBZCAUAAogd6ZBZAAIAA5gd6ZBZTBgABJhM6ZBZDCQABZxM6ZBZ6QAMBpxM6ZBZAAAAAZxM6ZBZCQUAAplM6ZBZAAIAA6lM6ZBZYBgABKlg6ZBZACAgBQlg6ZBZAAAABglg6ZBZAAAAAQlg6ZBZAAUAAgBg6ZBZAAIAAxBg6ZBZGxgABBAb6ZBZCyQABRsb6ZBZkEgABhsbkJBZAAAAARsbkJBZAQUAAhEbkJBZAAIAAyEbkJBZ4BgAFCHgkJBZkAAUBSHgkJCQAAAABiHgkJCQAAAAASHgkJCQAgUAAiLgkJCQAAIAAzLgkJCQLBgABDIskJCQDCQABTwskJCQ6YgABjwskOmQeUABCTwseemQAwUACjMseemQAAIAC0MseemQihgADEOKeemQCiAgDaOKeemQAAAADqOKeemQAAAACaOKeemQCgUACqqKeemQAAIAC7qKeemQ8BgADLrweemQAAAA"
+};
+var SAP_OPS = ["NOP", "LDA", "ADD", "SUB", "STA", "LDI", "JMP", "JZ", "JC", "", "", "", "", "", "OUT", "HLT"];   // sap1.py#L32-L33
+var SAPR = (function () {
+  var b = atob(SAP_TRACE.rows), n = b.length / 9, G = SAP_TRACE.sigs, rows = [], i, k;
+  for (i = 0; i < n; i++) {
+    var q = function (j) { return b.charCodeAt(9 * i + j); }, m = q(7) | q(8) << 8, on = [];
+    for (k = 0; k < G.length; k++) if (m >> k & 1) on.push(G[k]);
+    rows.push([q(0) & 7, q(1) >> 4, q(1) & 15, q(2), q(3), q(4), q(5), q(0) >> 3 & 1, q(6), on, q(0) >> 4 & 1]);
+  }
+  // per clock: the RAM as it stands and how long the OUT tape is, both from the rows before it
+  var ram = new Uint8Array(16 * n), tape = [], tapeN = new Uint8Array(n), outC = [], fetches = 0, M = SAP_TRACE.header.image.slice();
+  for (i = 0; i < n; i++) {
+    ram.set(M, 16 * i); tapeN[i] = tape.length;
+    var r = rows[i];
+    if (r[0] === 1) fetches++;                                     // T1 starts each instruction's fetch
+    if (r[9].indexOf("Wr") >= 0) M[r[2]] = r[8];
+    if (r[10] && i + 1 < n) { tape.push(rows[i + 1][6]); outC.push(i); }
+  }
+  var h = 0x811c9dc5, s = JSON.stringify(rows);
+  for (i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 0x01000193) >>> 0;
+  return { rows: rows, n: n, ram: ram, tape: tape, tapeN: tapeN, outC: outC, fetches: fetches, fnv: h };
 })();
-
-// one instruction per step of the beat: Fibonacci halts on its 115th (HLT included), so u runs 0..115
-var SAP_N = SAPT.snaps.length - 1, SAP_OUT = SAPT.snaps[SAP_N].out;
-// RAM is 16 rows of 8 bits; an 8-lane bus (one lane per bit, x 12..26); PC, A, OUT and carry as 2x2-cell bits from x 29
+var SAP_N = SAPR.n - 1;                                            // u runs over clocks 0..687: the last row is the HLT
+// sources and destinations on the bus, by control line (sap1.py's names): E* puts a register on the bus, L*/Wr/Jl load it
+var SAP_SRC = { Ep: "PC", CE: "RAM", Ei: "IR", Ea: "A", Eu: "A+B" }, SAP_DST = { Lm: "MAR", Li: "IR", La: "A", Lb: "B", Lo: "OUT", Wr: "RAM", Jl: "PC" };
+// the classic SAP-1 floor plan: the memory side left of an 8-lane bus, the accumulator side right. A register is its
+// bits, one cell each on a 2-cell pitch (ink 1, copper 0), under its name and decimal value; RAM is its 16 words
+// standing as columns, MAR's word marked below. Up to the first OUT, which plays slowly, each transfer lights its source,
+// the bus lanes of its 1 bits and both stubs; after that the clock runs too fast to follow one, so only values change.
+var SAP_ROW = { PC: 4, MAR: 8, IR: 12, RAM: 19, A: 4, "A+B": 4, B: 8, OUT: 12 }, SAP_BUS = 18;
 function figSAP(F, u, L) {
-  var N = SAP_N, f = clamp01(u) * N, n = Math.min(N, Math.floor(f)), fr = f - n;
-  var S = SAPT.snaps[n], nx = n < N ? SAPT.snaps[n + 1] : null, r, bt, q, y;
-  var pcRow = nx ? nx.pc0 : 10;
-  for (r = 0; r < 16; r++) for (bt = 0; bt < 8; bt++) F(2 + bt, 3 + r, (S.M[r] >> (7 - bt)) & 1 ? T_INK : T_COPPER);
-  F(0, 3 + pcRow, S.halt ? T_INK : T_SIG);
-  for (bt = 0; bt < 8; bt++) for (y = 3; y <= 19; y++) F(12 + 2 * bt, y, T_COPPER);
-  function reg(v, nb, y0) {
-    for (var b = 0; b < nb; b++) { var on = (v >> (nb - 1 - b)) & 1; for (q = 0; q < 4; q++) F(29 + b * 3 + (q & 1), y0 + (q >> 1), on ? T_INK : T_COPPER); }
+  var R = SAPR, i = Math.min(SAP_N, Math.floor(clamp01(u) * SAP_N + 1e-9)), r = R.rows[i], x, y, b;
+  var pc = r[1], mar = r[2], ir = r[3], A = r[4], B = r[5], out = r[6], C = r[7], bus = r[8], on = r[9];
+  var src = null, dst = [], op = SAP_OPS[ir >> 4], hd = SAP_TRACE.header;
+  if (i <= R.outC[0]) on.forEach(function (c) { if (SAP_SRC[c]) src = SAP_SRC[c]; if (SAP_DST[c]) dst.push(SAP_DST[c]); });
+  function bits(v, nb, x1, y0, hot) { for (var k = 0; k < nb; k++) F(x1 - 2 * k, y0, (v >> k) & 1 ? (hot ? T_SIG : T_INK) : T_COPPER); }
+  function left(n) { return n === "PC" || n === "MAR" || n === "IR" || n === "RAM"; }
+  function stub(n) { var yy = SAP_ROW[n], x0 = left(n) ? SAP_BUS - 2 : SAP_BUS + 8; F(x0, yy, T_SIG); F(x0 + 1, yy, T_SIG); }
+  // the bus: eight lanes, bit 7 at the left, dark until a transfer drives a 1 on a lane
+  for (b = 0; b < 8; b++) { var lit = src && (bus >> (7 - b)) & 1; for (y = 2; y <= 23; y++) F(SAP_BUS + b, y, lit ? T_SIG : T_RESIDUE); }
+  L("bus", SAP_BUS, 1.9);
+  // memory side
+  bits(pc, 4, 15, SAP_ROW.PC, src === "PC"); bits(mar, 4, 15, SAP_ROW.MAR, false); bits(ir, 8, 15, SAP_ROW.IR, src === "IR");
+  L("PC  " + pc, 1, SAP_ROW.PC - 0.1); L("MAR " + mar, 1, SAP_ROW.MAR - 0.1);
+  L("IR  " + op + (op === "OUT" || op === "HLT" || op === "NOP" ? "" : " " + (ir & 15)), 1, SAP_ROW.IR - 0.1);
+  var ramHot = src === "RAM" || dst.indexOf("RAM") >= 0;
+  for (x = 0; x < 16; x++) {
+    var w = R.ram[16 * i + x];
+    for (b = 0; b < 8; b++) F(x, 16 + b, (w >> (7 - b)) & 1 ? (ramHot && x === mar ? T_SIG : T_INK) : T_COPPER);
   }
-  reg(pcRow, 4, 3); reg(S.A, 8, 8); reg(S.out.length ? S.out[S.out.length - 1] : 0, 8, 13); reg(S.C, 1, 18);
-  // a transfer rides the bus: each lane whose bit is 1 carries a head and its tail from the source row to the destination
-  if (nx && fr > 0) {
-    var from = -1, to = -1, val = 0;
-    if (nx.op === 1 || nx.op === 2) { from = 3 + nx.ad; to = 8; val = S.M[nx.ad]; }
-    else if (nx.op === 4) { from = 8; to = 3 + nx.ad; val = S.A; }
-    else if (nx.op === 0xE) { from = 8; to = 13; val = S.A; }
-    if (from >= 0) {
-      var ram = nx.op === 4 ? to : from, rg = nx.op === 4 ? from : nx.op === 0xE ? -1 : to;
-      if (nx.op !== 0xE) { F(10, ram, T_COPPER); F(11, ram, T_COPPER); }
-      F(27, from === ram ? to : from, T_COPPER); F(28, from === ram ? to : from, T_COPPER);
-      if (nx.op === 0xE) { F(27, to, T_COPPER); F(28, to, T_COPPER); }
-      var dir = to > from ? 1 : -1, hy = Math.round(from + (to - from) * fr), ty = hy - dir;
-      for (bt = 0; bt < 8; bt++) if ((val >> (7 - bt)) & 1) {
-        F(12 + 2 * bt, hy, T_SIG);
-        if ((ty - from) * dir >= 0) F(12 + 2 * bt, ty, T_SIG2);
-      }
-    }
-  }
-  L("RAM", 2, 2.4); L("PC", 29, 2.4); L("A", 29, 7.4); L("OUT", 29, 12.4); L("carry", 29, 17.4);
-  L("PC " + pcRow + " · " + (S.halt ? "HLT" : SAP.LISTING[pcRow][1]), 0, 22);
-  if (S.out.length) L(S.out.join(" "), 0, 24.6, 1);
+  F(mar, 24, T_SIG);                                               // MAR points at a word
+  L("RAM", 0, 15.9);
+  // accumulator side
+  bits(A, 8, SAP_BUS + 24, SAP_ROW.A, src === "A" || src === "A+B"); bits(B, 8, SAP_BUS + 24, SAP_ROW.B, src === "A+B"); bits(out, 8, SAP_BUS + 24, SAP_ROW.OUT, false);
+  F(SAP_BUS + 10, 16, C ? T_INK : T_COPPER);
+  L("A   " + A, SAP_BUS + 10, SAP_ROW.A - 0.1); L("B   " + B, SAP_BUS + 10, SAP_ROW.B - 0.1); L("OUT " + out, SAP_BUS + 10, SAP_ROW.OUT - 0.1); L("carry " + C, SAP_BUS + 10, 15.9);
+  if (src) stub(src);
+  dst.forEach(stub);
+  // the netlist's size, from the trace's own header: gates simulated at gate level, not compiled into Wireworld cells
+  L("netlist: " + hd.netlist.nand.toLocaleString("en-US") + " NAND gates" + (PF ? "" : " · " + hd.netlist.dff + " flip-flops"), 0, 28);   // a phone's row is too short for both
+  L("SAP-1 netlist trace · clock " + (i + 1) + " of " + R.n + (i === SAP_N && op === "HLT" ? " · HLT" : ""), 0, 30.4);
+  if (R.tapeN[i]) L(R.tape.slice(0, R.tapeN[i]).join(" "), 0, 32.8, 1);
 }
-function sapCheck() {           // the interpreter's tape against run_cpu.py's expected list, and the measured halt
-  var want = [1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144];
-  return { id: "sap", ok: SAP_N === 115 && SAPT.snaps[SAP_N].halt && SAP_OUT.join() === want.join(), got: { instructions: SAP_N, out: SAP_OUT.slice() }, want: { instructions: 115, out: want } };
+function sapCheck() {           // the decoded rows are the recorded file's, and the tape replayed from them is the header's
+  var hd = SAP_TRACE.header, R = SAPR;
+  var ok = R.fnv === SAP_TRACE.rowsFnv && R.n === hd.clocks && R.n === 688 && R.tape.join() === hd.out_tape.join() && R.fetches === 115 && SAP_OPS[R.rows[SAP_N][3] >> 4] === "HLT";
+  return { id: "sap", ok: ok, got: { clocks: R.n, instructions: R.fetches, out: R.tape.slice(), fnv: R.fnv }, want: { clocks: hd.clocks, instructions: 115, out: hd.out_tape, fnv: SAP_TRACE.rowsFnv } };
 }
 
 
@@ -3846,7 +3905,7 @@ var NV = { pp: 0, k: 1 };                                       // the pitch thi
 function stationR(ch, now) {
   if (NV.k !== 1 || NV.pp !== devP(cssP("station"))) return 0;
   var st = chT(ch), mine = clip && clip.ch === ch ? clip : null, ct = mine ? now - mine.t0 : 0;
-  if (mine && mine.kind === "build") return clamp01((ct - 416) / 240);          // the dither starts as the rings close
+  if (mine && mine.kind === "build") return Math.max(1e-3, clamp01(ct / 480));  // the layer from the first frame, stepping up its colours
   if (mine && mine.kind === "unbuild") return 1 - clamp01(ct / 240);
   // once a later station arrives, a dimmed one goes back to its cells (a cell figure keeps the dropout), so only the
   // held station is native; the later station's build or unbuild clip times the 240ms crossfade
@@ -3880,8 +3939,8 @@ var CHAPTERS = [
       { len: 0.5, w: NSZ[0].w, h: NSZ[0].h, pw: NSZ[1].w, ph: NSZ[1].h, build: FigNand.beat.build, phoneBuild: FigNand.beat.phoneBuild,
         instruction: "a NAND cell in raw Wireworld. click a or b.", input: "buttons", selfCheck: "nand",
         ctl: { place: function (fn, pk) { FigNand.place(fn, PF ? 1 : 2, pk); }, release: function () { FigNand.release(); } } },
-      { len: 0.75, w: 52, h: 25, pw: 52, ph: 26, build: figSAP, phoneBuild: figSAP,
-        instruction: "each row is a register. values replayed from the program trace.", input: null, selfCheck: "sap" }
+      { len: 0.75, w: 52, h: 33, pw: 52, ph: 33, build: figSAP, phoneBuild: figSAP,
+        instruction: "a recorded netlist trace. one clock at a time.", input: null, selfCheck: "sap" }
     ] },
   { id: "freeflow", title: "freeflow", lineage: null,
     beats: [nativeBeat("freeflow")] },
@@ -3909,10 +3968,12 @@ var LOCK_RUN = PERIOD * 6;                                            // the loc
 //  - the finished table holds 800ms before the SAP builds;
 //  - the SAP's first loop runs slowly enough to follow the bus;
 //  - its OUT tape then counts up, slows into 144, and the carry, the jump and the halt land one at a time.
-function emergenceKeys() {
+// A phone shows one beat at a time, so the moments that sit side by side on a desktop must each be held on their own:
+// there the finished truth table, its key row 1 1 -> 0 last, stays ~0.8s before the CPU replaces it, and the CPU runs
+// quicker, so the whole clock still fits the time the figure is in frame.
+function emergenceKeys(phone) {
   var bs = CHAPTERS[0].beats, NL = bs[0].len / (bs[0].len + bs[1].len), sc = FigNand.script, R = sc.rows, live = 1000 / sc.tps;
-  var outN = [], K = [[0, 0]], ms = 0;
-  for (var n = 1; n <= SAP_N; n++) if (SAPT.snaps[n].out.length > SAPT.snaps[n - 1].out.length) outN.push(n);
+  var outN = SAPR.outC, K = [[0, 0]], ms = 0;                         // the clocks that load OUT, from the trace
   function nand(t) { return NL * sc.u(t); }
   function sap(n) { return NL + (1 - NL) * n / SAP_N; }
   function at(dt, p) { ms += Math.round(dt); K.push([ms, p]); }
@@ -3921,10 +3982,11 @@ function emergenceKeys() {
   at((R[2] - R[0]) * 8, nand(R[2]));                                // rows 0 1 and 1 0 -> 1
   at((R[3] - R[2]) * fast, nand(R[3]));                             // the key row, 1 1 -> 0
   at(tail, nand(sc.end));                                           // the run's last ticks, then the table holds
+  if (phone) { at(680, nand(sc.end)); at(80, NL); at(240, sap(outN[0])); at(150, sap(outN[1])); at(110, sap(outN[3])); at(140, sap(outN[9])); at(100, sap(outN[11])); at(100, 1); return K; }
   at(Math.max(80, 300 - tail), NL);
-  at(220, sap(outN[0])); at(300, sap(outN[1]));                     // LDA, OUT: the first 1; the first loop, the second 1
-  at(200, sap(outN[3])); at(360, sap(outN[9]));                     // 2 and 3; then 5 to 55 at 60ms a value
-  at(200, sap(outN[11])); at(240, 1);                               // 89 and 144, slowing; ADD sets carry, JC, HLT
+  at(500, sap(outN[0])); at(260, sap(outN[1]));                     // LDA, then OUT's load at 50ms a clock, each transfer shown; the first loop
+  at(160, sap(outN[3])); at(300, sap(outN[9]));                     // 2 and 3; then 5 to 55 at 50ms a value
+  at(160, sap(outN[11])); at(160, 1);                               // 89 and 144, slowing; ADD sets carry, JC, HLT
   return K;
 }
 // The point lands first: a visitor scrolling on at a normal pace sees each station's message within about 1.5 s of
@@ -3932,7 +3994,7 @@ function emergenceKeys() {
 // unfinished pauses and resumes on the way back (tickPlay). It runs whether or not the visitor scrolls, so the hold
 // needs no scroll for it.
 var PLAY = {
-  emergence: { keys: emergenceKeys(), live: { desk: [0, 1], phone: [0, 0.4] } },
+  emergence: { keys: emergenceKeys(), phone: emergenceKeys(true), live: { desk: [0, 1], phone: [0, 0.4] } },
   // freeflow: the key press, the first passes brisk, then slow on pass 6, where 'Fry' is struck for 'Friday,' and the
   // word waits; pass 7 agrees and types it; the rest runs out to the stop
   freeflow:  { keys: [[0, 0], [120, 0.03], [450, 0.335], [700, 0.459], [1250, 0.513], [1450, 0.578], [1850, 0.84], [2050, 1]] },
@@ -3941,7 +4003,11 @@ var PLAY = {
   // and rest on 41 of 41; the quarters ease in and out, and the drawdown readout lands with the last one
   kronos:    { keys: [[0, 0], [120, 0.08], [240, 0.16], [380, 0.24], [520, 0.32], [800, 0.32],
                       [830, 1 / 3], [930, 0.36], [1150, 0.65], [1200, 0.66],
-                      [1230, 2 / 3], [1350, 0.7], [1900, 0.93], [2100, 1]], live: { desk: [0, 1 / 3], phone: [0, 1 / 3] } },
+                      [1230, 2 / 3], [1350, 0.7], [1900, 0.93], [2100, 1]],
+  // a phone swaps views, so the lock and the full gate row each get their own dwell before the next view replaces them
+               phone: [[0, 0], [100, 0.08], [200, 0.16], [300, 0.24], [400, 0.32], [1050, 0.32],
+                       [1080, 1 / 3], [1150, 0.36], [1400, 0.65], [1650, 0.66],
+                       [1680, 2 / 3], [1770, 0.7], [2000, 0.93], [2100, 1]], live: { desk: [0, 1 / 3], phone: [0, 1 / 3] } },
   // custos, read off its figure's phases: the claim stands unread, the rule reads the log a line at a time and narrows
   // onto the failing count, the wire runs to the claim, and the verdict holds alone before the stop; the passing control
   // comes last, once the point has landed
@@ -3956,13 +4022,15 @@ var PLAY = {
 // hold is HOLD_PH: long enough that a visitor who stops to read the card for a second and a half, then scrolls on at a
 // normal pace, sees the longest clock (emergence's) finish while the figure is still in frame.
 var HOLD_TAIL = 90, HOLD_MIN = 0.34, HOLD_PH = 0.65;
+// each layout plays its own key table (a phone's holds each moment on its own view)
+function setPlayKeys() { CHAPTERS.forEach(function (ch) { var k = PF ? ch.play.pk : ch.play.dk; ch.play.keys = k; ch.play.ms = k[k.length - 1][0]; }); }
 // steps the ant walks on across a desktop hold, so every notch there still moves the road; a phone frames the ant at
 // the edge of its art box, where any walk would carry it out, so there it stands
 var CREEP = Math.round(PERIOD / 2);
 function creep() { return PF ? 0 : CREEP; }
 CHAPTERS.forEach(function (ch) {
   var v = 0; ch.beats.forEach(function (b) { b.v0 = v; v += b.len; }); ch.L = v;
-  ch.play = PLAY[ch.id]; ch.play.ms = ch.play.keys[ch.play.keys.length - 1][0];
+  ch.play = PLAY[ch.id]; ch.play.dk = ch.play.keys; ch.play.pk = ch.play.phone || ch.play.keys; ch.play.ms = ch.play.keys[ch.play.keys.length - 1][0];
   ch.lead = ch.beats[0].native ? 540 : 150;                          // the clock starts as the build clip resolves the figure: a native layer is half in at 536ms
   ch.pb = { state: "idle", t0: 0, p: 0, seen: false };               // idle -> playing -> done; held once an input takes over
 });
@@ -4000,11 +4068,11 @@ var ageRef = 0;                                                        // the st
 /* ---------- chapter I in colour: the one ant's chaos, each cell in the hue of the epoch that last lit it ---------- */
 // Until the lock, a chaos cell older than the fresh band shows the vivid token of the epoch (LOCK / 12 steps) that last
 // lit it, cycling red, amber, green, cyan, blue, violet, so one ant's own history reads as a riot of strata. From
-// LOCK - 1800 to LOCK + 500 a calm opens outward from the chaos centre, its edge dithered by Bayer, and every cell it
+// LOCK - 1800 to LOCK a calm opens outward from the chaos centre, its edge dithered by Bayer, and every cell it
 // passes returns to the pink age bands: structure is one colour. Colour is a pure function of the step, so scrolling
 // back brings the riot back. Only cells the ant itself lit ever change colour; no other ant runs here.
 var ERA_TOK = [T_VRED, T_VAMBER, T_VGREEN, T_VCYAN, T_VBLUE, T_VVIOLET];
-var EPOCH = Math.max(1, Math.ceil(LOCK / 12)), RS0 = LOCK - 1800, RS1 = LOCK + 500, ERA_CX = 0, ERA_CY = 0, ERA_R = 1;
+var EPOCH = Math.max(1, Math.ceil(LOCK / 12)), RS0 = LOCK - 1800, RS1 = LOCK, ERA_CX = 0, ERA_CY = 0, ERA_R = 1;
 var ERA_CELL = new Int32Array(0), ERA_AT = new Int32Array(0);
 function eraRS(x, y) {                  // the step at which the calm reaches world-local cell (x, y)
   var d = Math.min(1, Math.hypot(x + 0.5 - ERA_CX, y + 0.5 - ERA_CY) / ERA_R);
@@ -4223,9 +4291,40 @@ function tryStation(ch) {
   takeOver(ch);
   if (ch.pb.state !== "held") { ch.pb.state = "held"; ch.pb.p = 1; ch.pb.seen = true; }
   var el = $("#ctl-" + ch.id);
-  requestAnimationFrame(function () { requestAnimationFrame(function () { var f = el && el.querySelector("input,button"); if (f) f.focus({ preventScroll: true }); }); });
+  requestAnimationFrame(function () { requestAnimationFrame(function () { var f = el && el.querySelector("input,button"); if (f) { f.focus({ preventScroll: true }); armTry(ch, f); } }); });
   wake();
   return true;
+}
+// the input 'try it' hands over is armed where the visitor can see it: a 2px ink box around it, a short hint in the
+// chapter's hue beside it, and one step shown (the switch nudged a few days so the fit re-locks; a toggled once so out
+// flips). The box and the hint stay until the visitor scrolls on, leaves the input or 4 s pass.
+var ARM = null;
+function armTry(ch, f) {
+  disarm();
+  var h = d0.createElement("span"); h.className = "arm-h"; h.setAttribute("aria-hidden", "true");
+  h.style.color = ch.id === "kronos" ? "var(--v-amber)" : "var(--v-green)";
+  h.textContent = ch.id === "kronos" ? "drag ↔" : (TOUCH ? "tap a" : "click a");
+  d0.body.appendChild(h); f.classList.add("armed");
+  ARM = { f: f, h: h, s: targetS, t0: performance.now() };
+  f.addEventListener("blur", disarm, { once: true, passive: true });
+  setTimeout(function () {
+    if (!ARM || ARM.f !== f) return;
+    if (ch.id === "kronos") FigKronos.setSwitch(FigKronos.switchValue() + 5);
+    else FigNand.toggle("A", performance.now());
+    wake();
+  }, RM ? 0 : 420);
+  (function pos() {
+    if (!ARM || ARM.f !== f) return;
+    var r = f.getBoundingClientRect();
+    if (performance.now() - ARM.t0 > 4000 || Math.abs(targetS - ARM.s) > 0.03 || !r.width) { disarm(); return; }
+    var hw = h.offsetWidth, x = r.right + 8 + hw <= VW - 8 ? r.right + 8 : Math.max(8, r.left - 8 - hw);
+    h.style.left = Math.round(x) + "px"; h.style.top = Math.round(r.top + r.height / 2 - 8) + "px";
+    requestAnimationFrame(pos);
+  })();
+}
+function disarm() {
+  if (!ARM) return;
+  ARM.f.classList.remove("armed"); ARM.h.remove(); ARM = null;
 }
 function replayStation(ch, now) {
   if (!ch || RM) return false;
@@ -4356,7 +4455,8 @@ function updStation(ch, s, now) {
     var bb = ch.beats[tB], Rb = Math.max(1, Math.max(cheb(bb.o[0], bb.o[1], mine.o), cheb(bb.o[0] + bb.bw - 1, bb.o[1] + bb.bh - 1, mine.o), cheb(bb.o[0], bb.o[1] + bb.bh - 1, mine.o), cheb(bb.o[0] + bb.bw - 1, bb.o[1], mine.o)));
     if (mine.kind === "beat") {
       fr = Rb * easeOut(ct / 300);
-      mask = function (x, y, b) { if (b !== tB) return 2; var d = cheb(x, y, mine.o); if (d > fr) return 0; var td = 300 * (1 - Math.sqrt(Math.max(0, 1 - d / Rb))); return ct - td < 120 ? 1 : 2; };
+      // a new beat comes in at its resting tones, never a signal flood: the ring only reveals it
+      mask = function (x, y, b) { if (b !== tB) return 2; return cheb(x, y, mine.o) <= fr ? 2 : 0; };
     } else {
       fr = Rb * (1 - clamp01(ct / 240) * clamp01(ct / 240));
       mask = function (x, y, b) { return b !== tB || cheb(x, y, mine.o) <= fr ? 2 : 0; };
@@ -4367,8 +4467,7 @@ function updStation(ch, s, now) {
     mask = function (x, y, b) {
       var d = cheb(x, y, ringO);
       if (b === mine.from && b !== mine.to) return d <= fOut ? 2 : 0;
-      if (d > fIn) return 0;
-      var td = 100 + 320 * (1 - Math.sqrt(Math.max(0, 1 - d / Math.max(1, R)))); return ct - td < 120 ? 1 : 2;
+      return d > fIn ? 0 : 2;
     };
   }
   list.forEach(function (b) {
@@ -4384,8 +4483,8 @@ function updStation(ch, s, now) {
       var X = ox + x, Y = oy + y, a = 1;
       if (mine && mine.kind === "build") { var td = 416 * (1 - Math.sqrt(Math.max(0, 1 - cheb(X, Y, ch.O) / Math.max(1, R)))); a = clamp01((ct - td) / 200); }
       else if (mine && (mine.kind === "unbuild" || (mine.kind === "swap" && b === mine.from && b !== mine.to))) a = 0;
-      else if (mine && mine.kind === "beat" && b === tB) a = clamp01((ct - 300) / 200);
-      else if (mine && mine.kind === "swap") a = clamp01((ct - 260) / 200);
+      else if (mine && mine.kind === "beat" && b === tB) a = cheb(X, Y, mine.o) <= fr + 1 ? 1 : 0;   // each label with the ring that reaches it
+      else if (mine && mine.kind === "swap") a = cheb(X, Y, ch.O) <= fIn + 1 ? 1 : 0;
       if (a > 0) labels.push([text, X, Y, big, a]);
     });
   });
@@ -4408,9 +4507,11 @@ var dpr = 1, VW = 0, VH = 0, S = 900, SVH = 900, BAND = 900, wide = true, PF = f
 var LANDQ = matchMedia("(max-width:1023px) and (min-width:724px) and (orientation:landscape) and (max-height:500px)");
 var MAPW = 0, MAPH = 0, MAPA = [0, 0], mapP = 1, mapHalf = false, halfCv = null, halfVer = -1, HAND = null;
 var LAND = 0.03, LAND_CHAOS = 2.00, LOCK_END = 2.40, PULL_LEN = 0.70, MAP_LEN = 0.03, T_MIN = 0.35, T0_ON = 0.01, KD = 0.75;
+var LOCK_CAM = 0.30;              // the camera settles on the lock frame over three notches, eased: never inside one
+var ZSPAN = 800;                  // the landing's close-up unwinds over eight notches, eased: the camera steps back, it does not jump
 var CH_LIN = 0.17;                // the chaos curve's linear share: about one step per px from the first notch, not a flat start
 var PULL = 0, ZOOM = 0, MAPS = 0, DOCS = 0, NAME_S = 2.6, heroH = 0, heroTop = 96, cardTop = 96, laidWide = null, laidNative = null;
-var lastW = -1, lastS = -1, HALO = {}, BB = [0, 0, 0, 0], MAPC = [0, 0], C8 = [0, 0], C16 = [0, 0], LOCKC = [0, 0], CI = [0, 0], ZL = 1;
+var lastW = -1, lastS = -1, HALO = {}, BB = [0, 0, 0, 0], MAPC = [0, 0], C8 = [0, 0], C16 = [0, 0], LOCKC = [0, 0], LOCKP = 1, CI = [0, 0], ZL = 1;
 /* ---------- blooms: the pull-back grows each visited station's themes, in their vivid tokens, around its place ---------- */
 // Colour never competes with a figure being read: no bloom shows at a station or on the way to it. Once the camera
 // pulls back, every station the visitor reached grows its themes' lace around its place on the map, in the same hues
@@ -4588,7 +4689,7 @@ function layout() {
   VW = d0.documentElement.clientWidth; S = $("#pl").offsetHeight; SVH = $("#ps").offsetHeight;
   VH = S; dpr = window.devicePixelRatio || 1;
   TW = {}; WR = {};                                                  // text is measured again at this size, in the loaded fonts
-  land = VW < 1024 && LANDQ.matches; wide = VW >= 1024 || land; PF = VW < 1024;
+  land = VW < 1024 && LANDQ.matches; wide = VW >= 1024 || land; PF = VW < 1024; setPlayKeys();
   STRIP = 40; CAP = land ? 38 : wide ? 40 : 44;
   BAND = wide ? VH : $("#pb").offsetHeight;
   // the land column: as wide as the art beside it leaves, the art box (past its 3-cell dither edge) at least 352px,
@@ -4619,9 +4720,21 @@ function layout() {
   // transit k is long enough for card k-1 to pass under the strip before card k sticks, for card k to rise from below
   // the fold only once the figure before it has dimmed (no card fades in), and for the camera to move at most 250 CSS px
   // per 100px notch: smootherstep peaks at 1.875x its mean speed, so a travel of D CSS px takes KD = 0.75 D px of scroll
-  var bl = [1e9, 1e9, -1e9, -1e9];
-  for (var q = LOCK; q <= LOCK + 2 * PERIOD; q++) gr(bl, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
+  // chapter I's frame: the chaos and the dated trails
+  var tb = [1e9, 1e9, -1e9, -1e9];
+  for (var q = 0; q <= LOCK; q++) gr(tb, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
+  TR.forEach(function (tr) { gr(tb, tr.bb[0], tr.bb[1], tr.bb[2], tr.bb[3]); });
+  C8 = [(tb[0] + tb[2]) / 2, (tb[1] + tb[3]) / 2];
+  // a phone art band is too small for chapter I at its 6px pitch: the chaos pitch drops to whatever fits it, with a label line above and below
+  CHAOS_FIT = !PF ? 1e9 : Math.max(1, Math.floor(Math.min((ABW - 32) * dpr / (tb[2] - tb[0]), (ABH - 48) * dpr / (tb[3] - tb[1]))));
+  // the lock frames chapter I whole, with the road's first periods leaving it, at no more than the chaos pitch: nothing
+  // of the chaos or its trails is cut while the road appears. A phone fits it; a desktop whose art box is too narrow
+  // for it at the chaos pitch (1024px) steps in only to the station pitch, so the lock never zooms out and back in
+  var bl = tb.slice();
+  for (q = LOCK; q <= LOCK + LOCK_RUN + PERIOD; q++) gr(bl, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
   LOCKC = [(bl[0] + bl[2]) / 2, (bl[1] + bl[3]) / 2];
+  var lfit = Math.max(1, Math.floor(Math.min((ABW - (wide ? 64 : 32)) * dpr / (bl[2] - bl[0]), (ABH - 48) * dpr / (bl[3] - bl[1]))));
+  LOCKP = Math.min(devP(cssP("chaos")), CHAOS_FIT, PF ? lfit : Math.max(devP(cssP("station")), lfit));
   var prevH = heroH, t = LOCK_END, prevC = LOCKC, cpx = devP(cssP("station")) / dpr, fold = (SVH - cardTop) / S + 0.05;
   CHAPTERS.forEach(function (ch) {
     var blk = $("#b-" + ch.id), card = blk.firstElementChild;
@@ -4657,12 +4770,6 @@ function layout() {
   MAPS = ZOOM + PULL_LEN; DOCS = MAPS + MAP_LEN;
   $("#story").style.height = Math.round((DOCS + 1) * S) + "px";      // the résumé's top enters at the viewport bottom at DOCS
   // camera poses
-  var tb = [1e9, 1e9, -1e9, -1e9];
-  for (q = 0; q <= LOCK; q++) gr(tb, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
-  TR.forEach(function (tr) { gr(tb, tr.bb[0], tr.bb[1], tr.bb[2], tr.bb[3]); });
-  C8 = [(tb[0] + tb[2]) / 2, (tb[1] + tb[3]) / 2];
-  // a phone art band is too small for chapter I at its 6px pitch: the chaos pitch drops to whatever fits it, with a label line above and below
-  CHAOS_FIT = !PF ? 1e9 : Math.max(1, Math.floor(Math.min((ABW - 32) * dpr / (tb[2] - tb[0]), (ABH - 48) * dpr / (tb[3] - tb[1]))));
   var b6 = [1e9, 1e9, -1e9, -1e9]; for (q = 0; q <= 600; q++) gr(b6, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
   C16 = [(b6[0] + b6[2]) / 2, (b6[1] + b6[3]) / 2];
   // the landing frames the intro's chaos at up to 3x its chapter-I scale: about 60% of the art box at rest
@@ -4747,17 +4854,17 @@ function stepAt(s) {
   return END;
 }
 // poses: [centre, device pitch]; reduced motion cuts between them at each travel's midpoint
-function poseLock() { return [LOCKC, devP(cssP("station"))]; }
+function poseLock() { return [LOCKC, LOCKP]; }
 function poseSt(k) { return [CHAPTERS[k].C, devP(cssP("station"))]; }
 function camAt(s) {
   var ps = devP(cssP("station")), pc = Math.min(devP(cssP("chaos")), CHAOS_FIT), p16 = devP(cssP("close")), a, b, e, key;
   if (s < LAND_CHAOS) {
     if (RM) return s < LAND ? { c: C16, pf: p16, key: 0 } : { c: C8, pf: pc, key: 1 };
     e = chaosPitchE(stepAt(s));
-    var zw = 1 - ss(clamp01(s * S / 300));
+    var zw = 1 - ss(clamp01(s * S / ZSPAN));
     return { c: lerp2(lerp2(C16, C8, e), CI, zw), pf: logP(p16, pc, e) * Math.exp(Math.log(ZL) * zw) };
   }
-  if (s < LOCK_END) { a = [C8, pc]; b = poseLock(); e = (s - LAND_CHAOS) / 0.12; key = 2; }
+  if (s < LOCK_END) { a = [C8, pc]; b = poseLock(); e = (s - LAND_CHAOS) / LOCK_CAM; key = 2; }
   else {
     var k = 0;
     while (k < CHAPTERS.length && s >= CHAPTERS[k].hold) k++;
@@ -4786,14 +4893,14 @@ function sceneId(s) {
   return "document";
 }
 function mapMix(s) { return RM ? (s >= (ZOOM + MAPS) / 2 ? 1 : 0) : ss((s - ZOOM) / (MAPS - ZOOM)); }
-var LOCK_TXT = "";
+var LOCK_TXT = "", MAP_TXT = "the whole walk. " + (TOUCH ? "tap" : "click") + " a label to go back there.";
 // the landing says 'scroll ↓' first; its three-cell cue steps down on a 400ms clock and stops for good on the first scroll
 var SCROLL_TXT = "scroll ↓", PLANT_TXT = TOUCH ? "tap anywhere to plant an ant." : "click anywhere to plant an ant.";
 var LAND_TXT = SCROLL_TXT;       // what the landing row draws, joined in line order
 var cueOn = true, cueT0 = -1, cueTimer = 0, CUE_MS = 400, leftLanding = false;
 function instrAt(s) {
   if (s < T0_ON) return leftLanding ? PLANT_TXT : LAND_TXT;
-  if (s < LAND_CHAOS) return "scroll steps the ant. scroll up and it runs backward.";
+  if (s < LAND_CHAOS) return "Scrolling walks the ant. Scroll up and it runs backward.";   // sentence case, like the lock line after it
   if (s < LOCK_END) return LOCK_TXT;
   for (var i = 0; i < CHAPTERS.length; i++) {
     var ch = CHAPTERS[i], st = chT(ch);
@@ -4804,7 +4911,7 @@ function instrAt(s) {
       return ch.tryClause && st.bi > 0 && lw && ch.pb.p > lw[0] && ch.pb.p <= lw[1] ? said + " " + ch.tryClause : said;
     }
   }
-  if (s >= PULL) return Math.round(camAt(s).pf) <= (mapHalf ? 1 : mapP) && (wide || phoneMapClear(s, 0)) ? "the whole walk. every label is a place." : "";
+  if (s >= PULL) return Math.round(camAt(s).pf) <= (mapHalf ? 1 : mapP) && (wide || phoneMapClear(s, 0)) ? MAP_TXT : "";
   return "";
 }
 
@@ -4868,7 +4975,7 @@ function plantsTick(now) {
 }
 
 /* ---------- one frame: void, the world at one integer pitch, the ant, the dithered edge, the labels ---------- */
-var view = null, stepShown = -1, rmKey = -1, stats = [], lastFig = null;
+var view = null, stepShown = -1, rmKey = -1, stats = [], lastFig = null, lastPP = 0, lastK = 1, POP_MS = 100;
 function scene(s) {
   var cam = camAt(s), m = mapMix(s), half = false, pp;
   if (cam.pf < 0.75 && mapHalf) { half = true; pp = 1; } else pp = Math.max(1, Math.round(cam.pf));
@@ -4899,6 +5006,10 @@ function render(s, now) {
   fadesBusy = false; drawn = [];
   var sc = scene(s);
   NV.pp = sc.pp; NV.k = sc.k;
+  // the pull-back steps through whole device pitches; below 6 each step is a 17-50% jump in scale, so the frame before
+  // it dissolves over the new one (the jumps' own dissolve, shorter) and the zoom reads as one move, not a run of pops
+  if (!RM && s > ZOOM && s < MAPS && lastPP && (sc.k !== lastK || (sc.pp !== lastPP && Math.min(sc.pp, lastPP) < 6)) && now >= snapEnd) snapFade(POP_MS);
+  lastPP = sc.pp; lastK = sc.k;
   if (RM && sc.key !== undefined && sc.key !== rmKey) { if (rmKey !== -1) snapFade(200); rmKey = sc.key; }
   seekMain(sc.step); seekTrails(sc.step);
   for (var i = 0; i < CHAPTERS.length; i++) updStation(CHAPTERS[i], s, now);
@@ -5000,6 +5111,11 @@ function render(s, now) {
       var r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), t.side === "l" ? ["l", "tl", "bl", "t", "b", "r"] : ["r", "tr", "br", "t", "b", "l", "lb", "lt"], bounds, obst);
       if (!r2 && PF && t.ph2) { lines = t.ph2; r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), ["tz"], bounds, obst); }   // a narrower phone: three short lines
       if (own) obst.splice(1 + trIx(i), 0, own[0]);
+      // a label that changes sides, or comes back after finding no slot, fades in at its new place: it never jumps
+      // across its trail at full opacity
+      var sig = r2 ? labSide["tr" + i] + "|" + lines.length : "";
+      if (labSig[i] !== undefined && sig !== labSig[i] && sig && !RM) { FADES["tr" + i] = { on: true, a: 0, t: now, a0: 0 }; al = 0; fadesBusy = true; }
+      labSig[i] = sig;
       if (r2) {
         var px4 = Math.round(4 * dpr), py2 = Math.round(2 * dpr);
         ctx.globalAlpha = 1; ctx.fillStyle = TOKCSS[T_VOID];         // the plate stays whole while its text fades: no half-faded word over the trails
@@ -5103,15 +5219,13 @@ function placeCtl(sc) {
     });
   });
 }
-var labSide = {};
+var labSide = {}, labSig = [];
 function trIx(i) { var n = 0; for (var j = 0; j < i; j++) if (TR[j].n > 0) n++; return n; }
-// the dated labels speak in chapter I and while travelling, never over a held station
-// and they are gone before the next station builds, so none fades out over a figure or the trails around it
+// the dated labels speak in chapter I only: they fade as the first station arrives, with the trails receding, so none
+// hangs over a figure later in the walk
 function trailLabelsOn(s) {
-  function off(ch) { return Math.max(ch.from, (ch.on0 === undefined ? ch.arrive : ch.on0) - 0.04); }
-  if (s < off(CHAPTERS[0])) return true;
-  for (var i = 0; i < CHAPTERS.length; i++) if (s >= CHAPTERS[i].from && s < off(CHAPTERS[i])) return true;
-  return false;
+  var ch = CHAPTERS[0];
+  return s < Math.max(ch.from, (ch.on0 === undefined ? ch.arrive : ch.on0) - 0.04);
 }
 function placeLabel(key, lines, bx0, by0, bx1, by1, pref, B, obst) {
   var w = 0; for (var i = 0; i < lines.length; i++) w = Math.max(w, textW(lines[i], 11));
@@ -5280,6 +5394,7 @@ function layoutPlacesLive() {
   while (leaders.firstChild) leaders.removeChild(leaders.firstChild);
   if (!wide) {
     PLACES.forEach(function (p, i) { p.el.style.transform = "translate(16px," + Math.round(BAND + 16 + 32 * i) + "px)"; });
+    eggMapLayout(toCss, [minX, minY, maxX, maxY], taken, segs);
     return;
   }
   // the dated trails and the lock sit in one dense cluster: stack their labels beside it, with leaders
@@ -5328,13 +5443,29 @@ function layoutPlacesLive() {
     ln.setAttribute("x2", Math.round(sg[2]) + 0.5); ln.setAttribute("y2", Math.round(sg[3]) + 0.5);
     leaders.appendChild(ln);
   });
+  eggMapLayout(toCss, [minX, minY, maxX, maxY], taken, segs);
+}
+// the map's hidden ant (the egg script below places it): every box a free spot must keep clear of, in CSS px. The
+// places, their labels and leaders, chapter I as a whole, the road, and each station with the room its bloom may grow
+function eggMapLayout(toCss, box, taken, segs) {
+  var ob = taken.concat(segs.map(function (g) { return [Math.min(g[0], g[2]), Math.min(g[1], g[3]), Math.max(g[0], g[2]) + 1, Math.max(g[1], g[3]) + 1]; }));
+  var cb = [1e9, 1e9, -1e9, -1e9], q, a, b;
+  for (q = 0; q <= LOCK; q++) { if (posX[q] < cb[0]) cb[0] = posX[q]; if (posY[q] < cb[1]) cb[1] = posY[q]; if (posX[q] > cb[2]) cb[2] = posX[q]; if (posY[q] > cb[3]) cb[3] = posY[q]; }
+  TR.forEach(function (t) { if (t.bb) { cb[0] = Math.min(cb[0], t.bb[0]); cb[1] = Math.min(cb[1], t.bb[1]); cb[2] = Math.max(cb[2], t.bb[2]); cb[3] = Math.max(cb[3], t.bb[3]); } });
+  a = toCss(cb[0], cb[1]); b = toCss(cb[2] + 1, cb[3] + 1); ob.push([a[0], a[1], b[0], b[1]]);
+  for (q = LOCK; q <= END; q += 8) { a = toCss(posX[q], posY[q]); ob.push([a[0] - 2, a[1] - 2, a[0] + 3, a[1] + 3]); }
+  CHAPTERS.forEach(function (ch) { if (!ch.F) return; a = toCss(ch.F[0] - BLOOM_EXT, ch.F[1] - BLOOM_EXT); b = toCss(ch.F[0] + ch.w + BLOOM_EXT, ch.F[1] + ch.h + BLOOM_EXT); ob.push([a[0], a[1], b[0], b[1]]); });
+  PLACES.forEach(function (p) { if (p.pos && wide) ob.push([p.pos[0], p.pos[1], p.pos[0] + p.el.offsetWidth, p.pos[1] + p.el.offsetHeight]); });
+  window.__eggMapAt = { wide: wide, box: box, ob: ob, anchor: [MAPA[0], MAPA[1]], rows: wide ? null : Math.round(BAND + 16 + 32 * PLACES.length) };
+  if (window.__eggMap) window.__eggMap(window.__eggMapAt);
 }
 
 /* ---------- jumps teleport: a snapshot of the old frame dissolves over the new one ---------- */
-var snapT = 0;
+var snapT = 0, snapEnd = 0;
 function snapFade(ms) {
-  snapCv.width = cv.width; snapCv.height = cv.height;
-  var sctx = snapCv.getContext("2d"); sctx.drawImage(cv, 0, 0);
+  var sctx = snapCv.getContext("2d");
+  if (snapCv.width !== cv.width || snapCv.height !== cv.height) { snapCv.width = cv.width; snapCv.height = cv.height; } else sctx.clearRect(0, 0, snapCv.width, snapCv.height);
+  sctx.drawImage(cv, 0, 0); snapEnd = performance.now() + ms;
   snapCv.style.transition = "none"; snapCv.style.opacity = "1"; snapCv.style.visibility = "visible";
   void snapCv.offsetWidth;
   snapCv.style.transition = "opacity " + ms + "ms linear"; snapCv.style.opacity = "0";
@@ -5349,6 +5480,9 @@ function teleport(s) {
   syncDom();
   wake();
 }
+// a jump is a history entry, so Back returns to the place it left (the browser restores that scroll) instead of leaving
+// the site; the hash is one a reload lands on the same way, or none
+function remember(h) { try { history.pushState(null, "", h || location.pathname + location.search); } catch (err) {} }
 // a jump takes focus with it, so the next Tab goes on from where it landed, not from where it left
 function landFocus(el) { if (el && el.focus) el.focus({ preventScroll: true }); }
 function placeEl(p) { return p.ch ? $("#" + p.ch.id) : $(".hero"); }
@@ -5358,27 +5492,35 @@ d0.addEventListener("click", function (e) {
   if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;   // a new tab or window opens the #hash
   var w = e.target.closest && e.target.closest("a[data-walk]");
   if (w) { var p = PLACES.filter(function (q) { return q.id === w.getAttribute("data-walk"); })[0];
-    if (p) { e.preventDefault(); teleport(p.s()); landFocus(placeEl(p)); } return; }
+    if (p) { e.preventDefault(); remember(p.ch ? "#" + p.id : ""); teleport(p.s()); landFocus(placeEl(p)); } return; }
   var a = e.target.closest && e.target.closest("[data-go]");
-  if (!a) return;
+  if (!a) {
+    // off the art, a click on nothing in particular still plants: never on a control, the strip, the map or the document
+    if (e.target !== hit && e.target.closest && !e.target.closest("a,button,input,select,textarea,label,summary,#strip,#places,#doc,.ctl")) plantClick(e);
+    return;
+  }
   e.preventDefault();
   var go = a.getAttribute("data-go");
+  remember(go === "top" ? "" : "#" + go);
   teleport(go === "top" ? 0 : docS("#" + go));
   landFocus(go === "top" ? $(".hero") : $("#" + go));
 });
-hit.addEventListener("click", function (e) {
+// the whole landing plants: a click beside or below the art (the hero column, a phone's thumb zone) plants on the
+// art cell nearest to it
+function plantClick(e) {
   if (!view || targetS >= P_ON) return;          // planting lives on the landing only
-  var v = view, X = e.clientX * dpr, Y = e.clientY * dpr;
-  if (X < v.R.x || X >= v.R.x1 || Y < v.R.y || Y >= v.R.y1) return;
+  var v = view, X = Math.min(v.R.x1 - 1, Math.max(v.R.x, e.clientX * dpr)), Y = Math.min(v.R.y1 - 1, Math.max(v.R.y, e.clientY * dpr));
   var cx = Math.floor((X - v.Ox) / v.pp) * v.k + X0, cy = Math.floor((Y - v.Oy) / v.pp) * v.k + Y0;
   var now = performance.now();
   plantAt(cx, cy, now); acks.push({ x: cx, y: cy, t: now }); if (acks.length > 8) acks.shift();
   render(shownS, now);                       // the acknowledgement lands on this frame
   wake();
-});
+}
+hit.addEventListener("click", plantClick);
 var acks = [];
 
 /* ---------- one smoothing stage: shown += d * (1 - exp(-dt / 100ms)); stalls and jumps snap ---------- */
+var TAIL = 0.75;
 var running = false, lastT = 0, targetS = 0, shownS = 0, named = false, placesOn = false, placesLive = null, parkT = 0, placesBot = 0, docTop = 1e9;
 // a phone lists the places in rows under its art band: only once the last card has left that column (its foot at or
 // above the first row) and the camera rests on the map pose (within 2 CSS px), so every row's marker is in the band
@@ -5409,9 +5551,13 @@ function frame(now) {
   var dd = targetS - shownS;
   if (RM || raw > 250 || Math.abs(dd) > 1.5) shownS = targetS;       // a stall, a returning tab or a jump: no fly-through
   else {
-    var dt = Math.max(1, Math.min(50, raw));
-    shownS += dd * (1 - Math.exp(-dt / 100));
-    if (Math.abs(targetS - shownS) * S <= 2) shownS = targetS;          // within 2px it lands: tau 100 alone leaves 1.5px of a 600px jump at 600ms
+    // the glide never ends in a hop: once tau 100 would move less than TAIL px a frame, the last few px run out at TAIL,
+    // so the camera (up to 2.5 px of art per px of scroll) slows to a stop instead of creeping and then jumping 2px of
+    // scroll at once; a 600px jump still lands by about 570ms
+    var dt = Math.max(1, Math.min(50, raw)), mv = dd * (1 - Math.exp(-dt / 100)), vmin = TAIL * dt / 16 / S;
+    if (Math.abs(mv) < vmin) mv = Math.abs(dd) <= vmin ? dd : dd > 0 ? vmin : -vmin;
+    shownS += mv;
+    if (shownS === targetS || Math.abs(targetS - shownS) * S < 0.01) shownS = targetS;
   }
   clipT(now);
   var plBusy = tickPlay(now);
@@ -5599,14 +5745,14 @@ window.__walk = {
   },
   handoff: function () { var el = $("#bookend-ant"); return el ? { el: el, s: HAND ? HAND.y / S : null } : null; },
   resumeLast: function () { return d0.querySelector("#resume .rv-page"); },   // the page box; the text copy under it is 1px sr-only
-  selfCheck: function () { return { reversible: walkCheck.reversible, lock: walkCheck.lock, lockStep: LOCK, sapSteps: SAPT.snaps.length - 1, sapOut: SAPT.snaps[SAPT.snaps.length - 1].out.slice() }; }
+  selfCheck: function () { return { reversible: walkCheck.reversible, lock: walkCheck.lock, lockStep: LOCK, sapClocks: SAPR.n, sapOut: SAPR.tape.slice() }; }
 };
 })();
 </script>
 <script>
 /* all the work: five theme blobs, each as large as its theme, naming the projects to start with and counting the rest;
    a pick opens every project in the theme beside the field (under it on a phone).
-   Listeners: click on #work, resize on window, and one IntersectionObserver that grows the blobs once on arrival.
+   Listeners: click on #work, resize on window, and one IntersectionObserver that grows the blobs once, a screen before they arrive.
    No wheel, touch, key, pointer or scroll listener. */
 (function () {
   "use strict";
@@ -5679,7 +5825,7 @@ window.__walk = {
   function show(upTo, b) {
     (b ? [b] : blobs).forEach(function (x) { [].forEach.call(x.querySelectorAll(".k-bs path"), function (p) { p.classList.toggle("k-hid", +p.getAttribute("data-st") >= upTo); }); x.classList.toggle("k-pre", upTo < K); });
   }
-  // the blobs grow once, the first time the field is in view: centre out, a stage every 50ms, one theme after another;
+  // the blobs grow once, the first time the field is within a screen of view: centre out, a stage every 50ms, one theme after another;
   // nothing moves while they do, and reduced motion shows them whole
   function grow() {
     if (grown) return;
@@ -5739,14 +5885,159 @@ window.__walk = {
   window.__workGrow = { state: function () { return { picked: picked, grown: grown, growing: growing, mode: mode }; } };
   if ("IntersectionObserver" in window && !reduce) {
     var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting && e.intersectionRatio >= 0.35) { grow(); io.disconnect(); } });
-    }, { threshold: [0, 0.35] });
+      es.forEach(function (e) { if (e.isIntersecting) { grow(); io.disconnect(); } });
+    }, { threshold: [0], rootMargin: "0px 0px 100% 0px" });     // a screen early, so every blob is whole when the header lands
     io.observe(field);
   } else grown = true;
   window.addEventListener("resize", layout);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { lastW = -1; layout(); });
   layout();
   commit(null, false);
+})();
+</script>
+<script>
+/* ---------- hidden ants: three eggs after chapter I; each plants exactly one ant, one runs at a time ---------- */
+// Each egg's ant is a turmite whose run of `steps` comes home to its egg on a symmetric figure: Langton's RL at 472,
+// LLRR at 5,480 and RLR at 616 (checked here: a run that does not end on its start cell keeps its egg hidden). Only
+// odd-state cells show, as in the blooms, so a many-state rule draws its lace rather than a slab.
+// The run is computed once, so any step is exact; the clock eases it out over `ms`, and reduced motion plants the
+// last step at once. The ant draws on its own small canvas, a box no text, figure, road or bloom comes within 24px of.
+(function () {
+  var d0 = document, RM = matchMedia("(prefers-reduced-motion: reduce)").matches, TOUCH = matchMedia("(hover: none)").matches;
+  var DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0], C = 4, M = 24, R = 64;
+  var EGGS = [
+    { id: "map", rule: "RL", steps: 472, hue: "v-cyan", ms: 1800 },
+    { id: "work", rule: "LLRR", steps: 5480, hue: "v-amber", ms: 3000 },
+    { id: "end", rule: "RLR", steps: 616, hue: "v-green", ms: 2000 }
+  ];
+  var root = getComputedStyle(d0.documentElement), INK = root.getPropertyValue("--ink").trim();
+  var places = d0.getElementById("places"), doc = d0.getElementById("doc"), work = d0.getElementById("work"), resume = d0.getElementById("resume");
+  if (!places || !doc || !work || !resume) return;
+  var endSp = d0.createElement("div"); endSp.className = "egg-end"; doc.appendChild(endSp);
+  var active = null, tallyEl = null, marks = [], tallyT = null;
+  EGGS.forEach(function (e) {
+    var g = new Uint8Array(R * R), x = R >> 1, y = R >> 1, d = 0, n = e.rule.length, bx = [x, y, x, y];
+    e.at = new Uint16Array(e.steps); e.to = new Uint8Array(e.steps); e.hp = new Uint16Array(e.steps);
+    for (var t = 0; t < e.steps; t++) {
+      var i = y * R + x, c = g[i];
+      d = (d + (e.rule[c] === "R" ? 1 : 3)) & 3; g[i] = (c + 1) % n; e.at[t] = i; e.to[t] = g[i];
+      x += DX[d]; y += DY[d]; e.hp[t] = y * R + x;
+      if (x < bx[0]) bx[0] = x; if (y < bx[1]) bx[1] = y; if (x > bx[2]) bx[2] = x; if (y > bx[3]) bx[3] = y;
+    }
+    e.home = x === R >> 1 && y === R >> 1;
+    e.bx = bx; e.W = bx[2] - bx[0] + 1; e.H = bx[3] - bx[1] + 1; e.g = new Uint8Array(R * R); e.n = 0;
+    e.col = root.getPropertyValue("--" + e.hue).trim();
+    var b = d0.createElement("button"); b.type = "button"; b.className = "egg"; b.style.setProperty("--eh", "var(--" + e.hue + ")");
+    b.setAttribute("aria-label", "a hidden ant: let it out"); b.setAttribute("data-egg", e.id);
+    var mk = d0.createElement("i"); mk.setAttribute("aria-hidden", "true"); b.appendChild(mk);
+    var h = d0.createElement("span"); h.className = "egg-h"; h.setAttribute("aria-hidden", "true");
+    h.textContent = "a hidden ant · " + (TOUCH ? "tap" : "click") + " to let it out"; b.appendChild(h);
+    var cv = d0.createElement("canvas"); cv.className = "egg-cv"; cv.setAttribute("aria-hidden", "true");
+    b.addEventListener("click", function (ev) { ev.preventDefault(); ev.stopPropagation(); plant(e); });
+    e.b = b; e.cv = cv; e.par = e.id === "map" ? places : doc;
+    if (!e.home) { b.hidden = true; cv.hidden = true; }
+    if (e.id === "work") work.after(cv, b);         // in tab order right after the section it sits under, not after the colophon
+    else { e.par.appendChild(cv); e.par.appendChild(b); }
+  });
+  // the ant at step k: replayed forward from where it is, or from the start when k is behind it
+  function seek(e, k) {
+    if (k < e.n) { e.g.fill(0); e.n = 0; }
+    for (; e.n < k; e.n++) e.g[e.at[e.n]] = e.to[e.n];
+  }
+  function draw(e, head) {
+    var cv = e.cv, P = Math.max(1, Math.round(C * (window.devicePixelRatio || 1)));
+    if (cv.width !== e.W * P) { cv.width = e.W * P; cv.height = e.H * P; }
+    var g2 = cv.getContext("2d"); g2.clearRect(0, 0, cv.width, cv.height); g2.fillStyle = e.col;
+    for (var y = e.bx[1]; y <= e.bx[3]; y++) for (var x = e.bx[0]; x <= e.bx[2]; x++) if (e.g[y * R + x] & 1) g2.fillRect((x - e.bx[0]) * P, (y - e.bx[1]) * P, P, P);
+    if (head && e.n > 0) { var hp = e.hp[e.n - 1]; g2.fillStyle = INK; g2.fillRect((hp % R - e.bx[0]) * P, (((hp / R) | 0) - e.bx[1]) * P, P, P); }
+  }
+  function settle(e) { seek(e, e.steps); e.done = true; draw(e, false); if (active === e) active = null; }
+  function tick(now) {
+    var e = active; if (!e) return;
+    var f = Math.min(1, (now - e.t0) / e.ms);
+    seek(e, Math.round(e.steps * (1 - Math.pow(1 - f, 3))));
+    if (f < 1) { draw(e, true); requestAnimationFrame(tick); } else settle(e);
+  }
+  function plant(e) {
+    if (e.t0 || !e.home) return;                        // one ant per egg
+    if (active) settle(active);                          // and one running at a time: the last one lands at its end
+    e.t0 = performance.now();
+    e.b.setAttribute("aria-disabled", "true"); e.b.setAttribute("aria-label", "hidden ant found");
+    tally();
+    if (RM) { settle(e); return; }
+    active = e; draw(e, true); requestAnimationFrame(tick);
+  }
+  // a box at (x, y) in its parent's CSS px: the canvas covers the ant's whole run, the egg sits on its start cell
+  function place(e, x, y) {
+    x = Math.round(x); y = Math.round(y);
+    var s = e.cv.style; s.left = x + "px"; s.top = y + "px"; s.width = e.W * C + "px"; s.height = e.H * C + "px";
+    var bw = e.b.offsetWidth || 24, cx = x + ((R >> 1) - e.bx[0] + 0.5) * C, cy = y + ((R >> 1) - e.bx[1] + 0.5) * C;
+    e.b.style.left = Math.round(cx - bw / 2) + "px"; e.b.style.top = Math.round(cy - bw / 2) + "px";
+    var pr = e.par.getBoundingClientRect();
+    e.b.classList.toggle("l", pr.left + cx > d0.documentElement.clientWidth / 2);
+    if (e.t0) draw(e, active === e);
+  }
+  function tally() {
+    var n = EGGS.filter(function (e) { return e.t0; }).length;
+    if (!tallyEl) return;
+    tallyT.textContent = n + " of " + EGGS.length + " hidden ants found";
+    EGGS.forEach(function (e, i) { marks[i].classList.toggle("on", !!e.t0); });
+  }
+  // the map: the free spot nearest the map's centre, on an 8px grid, every obstacle grown by the 24px margin
+  window.__eggMap = function (o) {
+    var e = EGGS[0], bw = e.W * C, bh = e.H * C, G = 8, VW = d0.documentElement.clientWidth, VH = window.innerHeight;
+    var gw = Math.ceil(VW / G) + 1, gh = Math.ceil(VH / G) + 1, I = new Int32Array((gw + 1) * (gh + 1)), occ = new Uint8Array(gw * gh);
+    o.ob.forEach(function (r) {
+      var x0 = Math.max(0, Math.floor((r[0] - M) / G)), y0 = Math.max(0, Math.floor((r[1] - M) / G));
+      var x1 = Math.min(gw, Math.ceil((r[2] + M) / G)), y1 = Math.min(gh, Math.ceil((r[3] + M) / G));
+      for (var y = y0; y < y1; y++) for (var x = x0; x < x1; x++) occ[y * gw + x] = 1;
+    });
+    for (var y = 0; y < gh; y++) for (var x = 0, rs = 0; x < gw; x++) { rs += occ[y * gw + x]; I[(y + 1) * (gw + 1) + x + 1] = I[y * (gw + 1) + x + 1] + rs; }
+    var cw = Math.ceil(bw / G), ch = Math.ceil(bh / G), best = null, bd = 1e18;
+    for (var gy = Math.ceil(o.box[1] / G); (gy + ch) * G <= o.box[3]; gy++) for (var gx = Math.ceil(o.box[0] / G); (gx + cw) * G <= o.box[2]; gx++) {
+      var sum = I[(gy + ch) * (gw + 1) + gx + cw] - I[gy * (gw + 1) + gx + cw] - I[(gy + ch) * (gw + 1) + gx] + I[gy * (gw + 1) + gx];
+      if (sum) continue;
+      var dx = gx * G + bw / 2 - o.anchor[0], dy = gy * G + bh / 2 - o.anchor[1], dd = dx * dx + dy * dy;
+      if (dd < bd) { bd = dd; best = [gx * G, gy * G]; }
+    }
+    e.free = !!best;
+    e.b.hidden = e.cv.hidden = !best || !e.home;           // no free spot: this layout keeps the egg hidden
+    if (best) place(e, best[0], best[1]);
+    if (!tallyEl) {
+      tallyEl = d0.createElement("p"); tallyEl.className = "egg-tally";
+      var tm = d0.createElement("span"); tm.className = "egg-tm"; tm.setAttribute("aria-hidden", "true");
+      EGGS.forEach(function (q) { var i = d0.createElement("i"); i.style.setProperty("--eh", "var(--" + q.hue + ")"); tm.appendChild(i); marks.push(i); });
+      tallyT = d0.createElement("span"); tallyEl.appendChild(tm); tallyEl.appendChild(tallyT); places.appendChild(tallyEl);
+    }
+    if (o.rows !== null) tallyEl.style.setProperty("--egg-row", o.rows + "px"); else tallyEl.style.removeProperty("--egg-row");
+    tally();
+  };
+  if (window.__eggMapAt) window.__eggMap(window.__eggMapAt);
+  // the document: one box in the gap between all the work and the résumé, one in the room after the colophon, each
+  // flush with the column's right edge
+  function layoutDoc() {
+    var dr = doc.getBoundingClientRect(), w = work.getBoundingClientRect(), r = resume.getBoundingClientRect(), sp = endSp.getBoundingClientRect();
+    var right = Math.min(w.right, d0.documentElement.clientWidth - 16) - dr.left, e = EGGS[1];
+    place(e, right - e.W * C, w.bottom - dr.top + (r.top - w.bottom - e.H * C) / 2);
+    e = EGGS[2]; place(e, right - e.W * C, sp.top - dr.top + (sp.height - e.H * C) / 2);
+  }
+  if (window.ResizeObserver) new ResizeObserver(layoutDoc).observe(work);
+  window.addEventListener("resize", layoutDoc);
+  if (d0.fonts && d0.fonts.ready) d0.fonts.ready.then(layoutDoc);
+  layoutDoc();
+  // read-only hooks for the contract tests
+  window.__eggs = {
+    list: function () {
+      return EGGS.map(function (e) {
+        var r = e.cv.getBoundingClientRect(), q = e.b.getBoundingClientRect(), lit = 0;
+        for (var i = 0; i < e.g.length; i++) if (e.g[i] & 1) lit++;
+        return { id: e.id, hue: e.hue, home: e.home, shown: !e.b.hidden, planted: !!e.t0, done: !!e.done, running: active === e, n: e.n, steps: e.steps, lit: lit,
+          box: [r.left, r.top, r.width, r.height], egg: [q.left, q.top, q.width, q.height] };
+      });
+    },
+    running: function () { return active ? 1 : 0; },
+    tally: function () { return tallyEl ? tallyEl.textContent : null; }
+  };
 })();
 </script>
 </body>

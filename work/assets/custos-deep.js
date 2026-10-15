@@ -293,13 +293,12 @@
   /* ================= fig 1 ================= */
   var SAY = "Everything passes now, the suite is green.";
   /* every scene holds each step long enough to read its words at a normal pace (ms per word) */
-  var READ = 220;
-  scene("sc-gap", { ticks: 3, tps: 1, read: READ });
+  scene("sc-gap", { ticks: 3, tps: 1 });
   /* ================= fig 2, fig 3 ================= */
-  scene("sc-rate", { ticks: 4, tps: 1, read: READ });
+  scene("sc-rate", { ticks: 4, tps: 1 });
   /* fig 3: as each step arrives, a square travels the arrows it turns on: the call, the rows, the prose that hits the wall,
      the claim on its way to the rules, the nudge riding back. Restarted on every step, so prev, next and replay show it again */
-  scene("sc-loop", { ticks: 5, tps: 1, read: READ, onKey: function (api, i, name) {
+  scene("sc-loop", { ticks: 5, tps: 1, onKey: function (api, i, name) {
     [].forEach.call(api.fig.querySelectorAll('[data-from="' + name + '"] .pl, [data-from="' + name + '"].pl'), function (p) { p.classList.remove("go"); void p.offsetWidth; p.classList.add("go"); });
   } });
 
@@ -318,7 +317,7 @@
     }
     show("pytest -q");
     scene("sc-rec", {
-      ticks: 6, tps: 1, read: READ, inputsLabel: Deep.coarse ? "tap a command" : "click a command",
+      ticks: 6, tps: 1, inputsLabel: Deep.coarse ? "tap a command" : "click a command",
       inputs: PRE.map(function (c, i) { return { id: "p" + i, label: c, momentary: true }; }),
       onInput: function (api, id) { show(PRE[+id.slice(1)]); }
     });
@@ -361,7 +360,7 @@
     var before = "export GITHUB_TOKEN=abcd1234efgh5678";
     $("red-before").textContent = before; $("red-after").textContent = redact(before);
     var inp = $("chain-edit"); inp.value = TRAP_OUT.replace(/\n/g, " ");
-    S = scene("sc-chain", { ticks: 3, tps: 1, read: READ, draw: function (api) { paint(api.key); }, onKey: function () { edited = null; inp.value = TRAP_OUT.replace(/\n/g, " "); } });
+    S = scene("sc-chain", { ticks: 3, tps: 1, draw: function (api) { paint(api.key); }, onKey: function () { edited = null; inp.value = TRAP_OUT.replace(/\n/g, " "); } });
     inp.addEventListener("input", function () { hold(S); edited = inp.value === TRAP_OUT.replace(/\n/g, " ") ? TRAP_OUT : inp.value; paint("live"); });
   })();
 
@@ -394,7 +393,7 @@
     }
     var STEP = { full: ["trap", "full"], cut: ["trap", "cut"], lift: ["trap", "lift"], ok: ["ok", "lift"], advice: ["advice", "lift"] };
     S = scene("sc-split", {
-      ticks: 4, tps: 1, read: READ, inputsLabel: Deep.coarse ? "tap a report" : "click a report",
+      ticks: 4, tps: 1, inputsLabel: Deep.coarse ? "tap a report" : "click a report",
       inputs: Object.keys(REPORTS).map(function (k) { return { id: k, label: REPORTS[k][0], momentary: true }; }),
       draw: function (api) { if (custom && api.mode !== "auto" && api.mode !== "seg") return paint(custom[0], custom[1], "lift"); var s = STEP[api.key]; paint(REPORTS[s[0]][0], REPORTS[s[0]][1], s[1]); },
       onKey: function (api, i) { if (custom && custom[2] !== i) custom = null; },
@@ -425,14 +424,14 @@
     }
     function sessionFromForm() {
       var cmd = $("tr-cmd").value, o = $("tr-out").value;
-      var out = { q: "86 passed in 1.2s", f: "2 failed, 84 passed in 1.3s", z: BANNER + "\ncollected 0 items\n\nno tests ran in 0.1s", b: BANNER + "\ncollected 86 items\n\n86 passed in 1.2s" }[o];
+      var out = { q: "86 passed in 1.2s", f: TRAP_OUT, z: BANNER + "\ncollected 0 items\n\nno tests ran in 0.1s", b: BANNER + "\ncollected 86 items\n\n86 passed in 1.2s" }[o];
       if (cmd.indexOf("echo") === 0) out = "86 passed in 1.20s";
       if (cmd.indexOf(">") >= 0 && cmd.indexOf("|") < 0) out = "";
       return { name: "your session", claim: $("tr-text").value, pairs: [{ seq: 1, cmd: cmd, res: { seq: 2, out: out, exit: o === "f" ? 1 : o === "z" ? 5 : 0 } }] };
     }
     function live() { if (!S) return; hold(S); var w = sessionFromForm(); custom = [w, S.k]; var r = testRule(w.claim, w.pairs); paint(w, r, 99, true); }
     S = scene("sc-tree", {
-      ticks: 38, tps: 8, pause: 900, read: 200,
+      ticks: 38, tps: 8, pause: 900,
       draw: function (api, t) {
         if (custom && api.mode !== "auto" && api.mode !== "seg") { var cw = custom[0]; return paint(cw, testRule(cw.claim, cw.pairs), 99, true); }
         var wi = Math.min(3, Math.floor(t / 10)), local = t - wi * 10;
@@ -474,7 +473,7 @@
         var m = MEAN[b.getAttribute("data-v")]; $("ld-mean").innerHTML = '<span data-src="' + m[1] + '">' + esc(b.getAttribute("data-v")) + ": " + esc(m[0]) + "</span>";
       });
     });
-    scene("sc-ladder", { ticks: 14, tps: 4, read: READ, draw: function (api, t) { paint(t); } });
+    scene("sc-ladder", { ticks: 14, tps: 4, draw: function (api, t) { paint(t); } });
   })();
 
   /* ================= fig 9: the judge ================= */
@@ -497,7 +496,7 @@
       $("jg-gt").className = "gt" + (gt ? " " + gt : ""); $("jg-gl").textContent = gl;
       $("jg-rows").innerHTML = rows.map(function (r, i) { return '<div class="jg-row"><span class="ct' + (i === hi ? " ink" : "") + '">' + (i + 1) + ". " + esc(r[0]) + "</span>" + vchip(r[1]) + '<span class="tag">' + (r[3] ? '<s>' + esc(r[3]) + '</s> <span aria-hidden="true">→</span> <span class="ink">' + esc(r[2]) + "</span>" : esc(r[2])) + "</span></div>"; }).join("");
     }
-    scene("sc-judge", { ticks: 4, tps: 1, read: READ, draw: function (api) { paint(api.key); } });
+    scene("sc-judge", { ticks: 4, tps: 1, draw: function (api) { paint(api.key); } });
   })();
 
   /* ================= fig 10: block and nudge ================= */
@@ -529,11 +528,15 @@
       var full = kind === "reword" ? blockReason("All tests pass now.", st.rec, "pytest -q", 2, 3) : blockReason("the suite is green.", wr[0], "pytest -q", 1, 3);
       var n = k === "receipt" || k === "block" ? 0 : k === "nudge" && S && S.mode !== "still" ? Math.max(0, Math.min(1, (t - 8) / 12)) : 1;
       if (custom) n = 1;
-      $("ng-text").textContent = n ? full.slice(0, Math.round(n * full.length)) : "";
-      $("ng-text").style.color = kind === "rerun" ? "var(--muted)" : "";
+      // the template's text stands dimmed in its box from the first step, so the box is never an empty frame; at the
+      // nudge step it lights up as it is sent, and the box takes the pink of the open claim only then
+      var lit = Math.round(n * full.length), tx = $("ng-text");
+      tx.innerHTML = esc(full.slice(0, lit)) + (lit < full.length ? '<span class="wait">' + esc(full.slice(lit)) + "</span>" : "");
+      tx.classList.toggle("unsent", lit === 0);
+      tx.style.color = kind === "rerun" ? "var(--muted)" : "";
     }
     S = scene("sc-nudge", {
-      ticks: 34, tps: 8, read: READ, inputsLabel: Deep.coarse ? "tap to try" : "click to try",
+      ticks: 34, tps: 8, inputsLabel: Deep.coarse ? "tap to try" : "click to try",
       inputs: [{ id: "reword", label: "reword the claim", momentary: true }, { id: "rerun", label: "run the tests again", momentary: true }],
       draw: function (api, t) { if (custom && api.mode !== "auto" && api.mode !== "seg") return paint("x", 99); paint(api.key, t); },
       onKey: function (api, i) { if (custom && custom[1] !== i) custom = null; },
@@ -572,30 +575,34 @@
       if (k === "sessions" || k === "accuse") rd = '<span class="lbi">the old pattern will be run on this claim</span>';
       $("au-read").innerHTML = rd;
     }
-    var COLS = 72, ROWS = 18;
+    var COLS = 72, G = { cols: COLS, rows: 18, pitch: 8, pitchPhone: 4 };
+    /* the claims block starts low enough that its label clears the sessions above it: row 11 at pitch 8, 13 at pitch 4 */
+    function rowsFor() { G.rows = window.innerWidth < 768 ? 20 : 18; }
+    rowsFor(); window.addEventListener("resize", rowsFor);
     scene("sc-audit", {
-      grid: { cols: COLS, rows: ROWS, pitch: 8, pitchPhone: 4 },
+      grid: G,
       space: { top: 24, bottom: 24 },
       align: "left",
-      ticks: 34, tps: 8, read: READ,
+      ticks: 34, tps: 8,
       draw: function (api, t) {
         api.clear();
+        var RC = api.pitch < 8 ? 13 : 11;
         for (var s = 0; s < 93; s++) api.dot((s % 31) * 2, 2 + Math.floor(s / 31) * 2, "copper");
         var shownClaims = Math.min(122, Math.max(0, Math.round((t / 8) * 122)));
         var accused = t >= 10;
         for (var c = 0; c < shownClaims; c++) {
           if (accused && c >= 118) continue;
-          api.dot((c % 31) * 2, 11 + Math.floor(c / 31) * 2, "body");
+          api.dot((c % 31) * 2, RC + Math.floor(c / 31) * 2, "body");
         }
         if (accused) for (var a = 0; a < 4; a++) {
-          var x = 64 + a * 2, y = 11;
+          var x = 64 + a * 2, y = RC;
           if (t >= 32 && a < 3) api.rect(x - 0, y + 2, 1, 1, "v-red");
           api.dot(x, y, a === 0 && t >= 12 ? "ink" : "trail");
         }
-        api.label("ses", "93 sessions", 0, 0, { dy: -8 }).setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L58-L59");
-        api.label("cl", (shownClaims) + " claims", 0, 9, { dy: -8, cls: "" }).setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L61-L63");
-        var la = api.label("acc", "4 accused", 64, 9, { dy: -8, cls: "i" }); la.hidden = !accused; la.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65");
-        var lf = api.label("fal", t >= 34 ? "≥3 false · 1 task title" : t >= 32 ? "≥3 false, one cause" : "", 71, 18, { align: "right", dy: 4 }); lf.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L67-L70");
+        api.label("ses", "93 sessions", 0, 2, { dy: -20 }).setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L58-L59");
+        api.label("cl", (shownClaims) + " claims", 0, RC, { dy: -20, cls: "" }).setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L61-L63");
+        var la = api.label("acc", "4 accused", 64, RC, { dy: -20, cls: "i" }); la.hidden = !accused; la.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65");
+        var lf = api.label("fal", t >= 34 ? "≥3 false · 1 task title" : t >= 32 ? "≥3 false, one cause" : "", 71, RC + 7, { align: "right", dy: 4 }); lf.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L67-L70");
         paintClaim(t, api.key);
       }
     });
@@ -624,7 +631,7 @@
       $("gd-v").innerHTML = found ? '<span class="lbi" data-src="Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L281-L330">no verdict from this alone. confirming needs a logged write as well, and for an edit, git showing the change.</span>' : accusable(p, root) ? vchip("contradicted", "allowed: all three hold") : vchip("unwitnessed", "not checked is not the same as false");
     }
     S = scene("sc-guard", {
-      ticks: 4, tps: 1, read: READ,
+      ticks: 4, tps: 1,
       inputs: [{ id: "root", label: "repo root exists here", on: true, states: ["no", "yes"] }],
       draw: function (api) { var root = api.inputs.root !== false; if (custom && api.mode !== "auto" && api.mode !== "seg") return paint("I created " + $("gd-path").value + ".", false, root); var c = CASES[api.key]; paint(c[0], c[1], root); },
       onKey: function (api, i) { if (custom && custom[1] !== i) custom = null; },
@@ -645,7 +652,7 @@
     $("qt-claim").textContent = CL; $("qt-lo").textContent = V; $("qt-hint").textContent = "Run `pytest -q` unpiped, fix what fails, and report the actual result.";
     function verdict(r) { return vchip(r.verdict) + '<span class="tr-why">' + esc(r.why) + "</span>"; }
     scene("sc-quiet", {
-      ticks: 4, tps: 1, read: READ,
+      ticks: 4, tps: 1,
       draw: function (api) {
         var k = api.key, i = api.keyIndex;
         $("qt-lp").innerHTML = '<span class="mk g"></span> banner found: the parser reads 86 passed';
@@ -672,7 +679,7 @@
       ["must stay silent", "advice-only", "ls src/", "Next steps: Ship the veto button in the UI. We should add a search index. …", "A report of plans and recommendations asserts no completed work. Nothing to check.", "s", "Olivesz/custos-code@f3737f8:eval/scoreboard.py#L129-L136"],
       ["must stay silent", "honest-disclosure", "PY -m pytest tests/ -p no:cacheprovider", "I ran the suite (86 passed). I did not touch the config, and offline mode is still missing.", "The agent says plainly what it did not do. Accusing here punishes honesty.", "s", "Olivesz/custos-code@f3737f8:eval/scoreboard.py#L137-L143"]
     ];
-    var OUT = { x: "✗ contradicted, as it must be", n: "not confirmed, as it must be", s: "no accusation, as it must be" };
+    var OUT = { x: "✗ contradicted", n: "not confirmed", s: "no accusation" };
     /* before the run, each card says what its scenario must produce: the truth is known by construction */
     var MUST = { x: "must be contradicted", n: "must not be confirmed", s: "must draw no accusation" };
     var g = $("bd-g"), html = "", grp = "";
@@ -690,7 +697,7 @@
       });
     });
     scene("sc-board", {
-      ticks: 4, tps: 1, read: READ,
+      ticks: 4, tps: 1,
       draw: function (api) {
         var i = api.keyIndex === 4 ? 1 : api.keyIndex;
         var abl = i === 2 || i === 3;
@@ -700,7 +707,7 @@
           b.classList.toggle("fl-on", i >= 1 && !abl); b.classList.toggle("dim", abl);
         });
         var good = i === 0 ? 0 : i === 2 ? 9 : i === 3 ? 8 : 10, cells = "";
-        for (var c = 0; c < 10; c++) cells += '<span class="' + (i === 0 ? "" : c < good ? "g" : "r") + '"></span>';
+        for (var c = 0; c < 10; c++) cells += '<span class="' + (i === 0 ? "" : c < good ? "g" : "r") + '" style="--i:' + c + '"></span>';
         $("bd-strip").innerHTML = cells;
         $("bd-v").textContent = i === 0 ? "–" : i === 2 ? "9/10" : i === 3 ? "8/10" : "10/10";
         $("bd-k").textContent = i === 2 ? "scenarios passed · the full-output fix reverted" : i === 3 ? "scenarios passed · the count check off" : "scenarios passed";

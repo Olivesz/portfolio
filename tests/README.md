@@ -6,8 +6,8 @@ once, to read the native figure layers' labels.
 
 | command | what it settles | time |
 |---|---|---|
-| `.venv/bin/python tests/contract.py` | the scroll and design contract, in headless Chromium | about 3 min |
-| `.venv/bin/python tests/contract.py --fast` | the subset a fix most often breaks, for use between edits | about 40 s |
+| `.venv/bin/python tests/contract.py` | the scroll and design contract, in headless Chromium | about 23 min (load-sensitive) |
+| `.venv/bin/python tests/contract.py --fast` | the subset a fix most often breaks, for use between edits | about 45 s |
 | `python3 tests/check-claims.py` | no retired claim or personal data is in a tracked file | 1 s |
 | `python3 tests/check-panels.py` | every figure is in the source line it cites | about 35 s; the first run fetches |
 | `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, every page has its own link-preview card, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
@@ -67,7 +67,7 @@ desktop, phone and phone-small. It skips the hold sweeps,
 pixels, handoff, settle and perf, so a green `--fast` is not a green run.
 
 **Hooks.** The page exposes `window.__walk`; [HOOKS.md](HOOKS.md) is the
-contract builders implement. A missing hook FAILs with `hook missing: …`. It is
+contract the page implements. A missing hook FAILs with `hook missing: …`. It is
 never skipped, and where a fallback exists the line still reports a
 measurement.
 
@@ -85,7 +85,7 @@ Nothing is taken on the page's word where it can be read back:
 - **Phone text:** the art band is screenshotted three times: as is, with native figure text made transparent, and with all DOM and SVG text made transparent. The last two differ only by DOM text other than the native layers, and that must be zero. The first two differ by the native layers' own labels, which must lie inside their layer's box. Text under the opaque band does not count.
 - **Reading zone at a hold:** the card being read is the one stuck at its sticky top, not the one with the most overlap.
 - **Native figure layers** (HOOKS.md) are found by `data-native` or their module's root class. Colours, sizes, the phone text test and clipping all include them.
-- **Station playback:** a station's clock may run only while its figure is in frame (the share of its box in the art region, from `figVis`, at least 0.2 once running) and its own layer is on screen. `playwalk` logs every frame of the lens's visitor (110px every 120ms, top to the map) twice: stopping 1.5s at each hold's start, every station plays from p 0 to done at p 1; never stopping, p never advances on a frame when the figure was out of frame (that frame and the one before, since the suite's poll and the page's frame may run in either order) and never runs ahead of its own clock (more than its fastest key segment allows in the time since the last frame, + 50ms and 0.005), so nothing snaps to its end. `playthrough` flicks past every station, then visits each hold: a paused clock resumes where it stopped and finishes. `playreplay` also clicks each card's replay button 1, 3, 6 and 10 notches past its hold, wherever the button is still on screen and not under the strip or a phone's art band: in every frame the clock advances, the station is the scene and the current figure, at least half in frame, with its native layer on screen inside `figure().art`.
+- **Station playback:** a station's clock may run only while its figure is in frame (the share of its box in the art region, from `figVis`, at least 0.2 once running) and its own layer is on screen. `playwalk` logs every frame of a visitor at a normal pace (110px every 120ms, top to the map) twice: stopping 1.5s at each hold's start, every station plays from p 0 to done at p 1; never stopping, p never advances on a frame when the figure was out of frame (that frame and the one before, since the suite's poll and the page's frame may run in either order) and never runs ahead of its own clock (more than its fastest key segment allows in the time since the last frame, + 50ms and 0.005), so nothing snaps to its end. `playthrough` flicks past every station, then visits each hold: a paused clock resumes where it stopped and finishes. `playreplay` also clicks each card's replay button 1, 3, 6 and 10 notches past its hold, wherever the button is still on screen and not under the strip or a phone's art band: in every frame the clock advances, the station is the scene and the current figure, at least half in frame, with its native layer on screen inside `figure().art`.
 - **Colour at a hold:** `vivid` reads a screenshot of the whole viewport at every hold sample. Pixels within 16 per channel of any `--v-*` token inside the art region may be at most half of the figure's own ink, every non-ground pixel inside `figure().cells` (its native box included).
 - **Colours:**
   - Every rendered element's computed colours, including `::before`/`::after`, borders, outlines and SVG shapes, resolved to sRGB by painting them.
@@ -93,7 +93,7 @@ Nothing is taken on the page's word where it can be read back:
   - `:root` must define all 19 tokens: the 13 spec tokens and the six `--v-*` of palette_vivid.
 - **Resize:** in its own context, the viewport is resized at a transit, at two points of every hold and in the résumé (desktop to 1024×768, 1440×700 and back; a phone rotated to 844×390 and back). The scene after must be the scene before at the same fraction through it (within 0.04), and the résumé line first under the strip must stay within 24px. A resize may scroll the page once to get there; every other page-initiated scroll still needs a click.
 - **On its side:** `landcards` checks each held card sits in the text column clear of the art box, and is whole when it fits the viewport. `figclip` exempts the ant only where the figure itself fills the art box (custos at 740×360), and prints it.
-- **Perf:** `requestAnimationFrame` callbacks and scroll handlers are timed in-page under `Emulation.setCPUThrottlingRate {rate: 4}`, summed per frame, and the p95 is taken over one wheel run from the top to the bottom. Three runs per viewport, each in a fresh context; the verdict is the median p95, at most 2.3ms (the perf-budget ruling, which prices in the vivid colour layer; the spec's own target is 1ms, which the page does not meet). The page's own `stats()` is printed beside it as a cross-check, never used as the verdict. The frames that cost most are station build and dim clips, where a station's cells are rebuilt and its native layer redrawn every frame.
+- **Perf:** `requestAnimationFrame` callbacks and scroll handlers are timed in-page under `Emulation.setCPUThrottlingRate {rate: 4}`, summed per frame, and the p95 is taken over one wheel run from the top to the bottom. Three runs per viewport, each in a fresh context; the verdict is the median p95, at most 2.3ms (the perf budget, which prices in the vivid colour layer; the spec's own target is 1ms, which the page does not meet). The page's own `stats()` is printed beside it as a cross-check, never used as the verdict. The frames that cost most are station build and dim clips, where a station's cells are rebuilt and its native layer redrawn every frame.
 - **Self-checks:** answers known outside the page are compared with `got`, not with the page's `want`:
   - NAND `1,1,1,0`
   - EM `14,7,2,0`
@@ -108,7 +108,7 @@ Nothing is taken on the page's word where it can be read back:
 4. **Handoff size.** The bookend square is 8 CSS px, while the canvas ant at map fit pitch is a few device px. "Registered within 1 device px" is therefore measured centre to centre, and both sizes are printed.
 5. **The pink cap at a hold.** A cap on the `--trail` share of lit cells could not hold: the ant's last 312 steps are about 48 lit `--trail` cells, which was 23% to 43% of the cells on screen at a desktop hold and up to 100% on a phone, because a figure's cells leave the census once it resolves into a native layer. Resolved: the cap is a visual share of the viewport (1.5%, everything pink counted), which measures 0.56% desktop and 0.84% phone at the worst hold, KRONOS's drawdown row.
 6. **Transit length vs the card in the zone.** The spec's transit rule clears card k−1 before card k sticks, but not card k below the fold: with the longest transit 0.51 screen, card k sat in the zone for up to 68% of a hold. Lengthening every transit past the fold costs about 16 notches, against a 105-notch budget already met exactly. First resolved with a 240ms fade, which spec T11 forbids. Now resolved by length, under the 140-notch budget: transit k is at least (viewport − card top)/S + 0.05, so card k rises natively from below the fold once the figure before it has dimmed, and no card fades. `rise` checks it and `holdzone` still does; `cardband` lets two frames run per sample so it reads the page's scroll-driven state rather than the state before the scroll.
-7. **Whip-pan transits.** A transit sized only by the cards moved the art 400 to 530 CSS px per 100px notch. Ruled (whip-pan-transits): T = max(T_MIN, (prevH + 64)/S, 0.75·D/S, fold), D the pose-centre distance in CSS px; smootherstep peaks at 1.875× its mean speed, so the art moves at most 250 CSS px per notch. `pan` measures it on drawn frames at 1440, 1280 and 1024 wide.
+7. **Whip-pan transits.** A transit sized only by the cards moved the art 400 to 530 CSS px per 100px notch. Resolved: T = max(T_MIN, (prevH + 64)/S, 0.75·D/S, fold), D the pose-centre distance in CSS px; smootherstep peaks at 1.875× its mean speed, so the art moves at most 250 CSS px per notch. `pan` measures it on drawn frames at 1440, 1280 and 1024 wide.
 
 ### Falsification
 
@@ -221,17 +221,17 @@ the fix a row names.
 | poster.py | the grey poster (the map frame with no blooms), after the read-through render | FAIL | mean diff 13.33, 6.75% of pixels off by more than 48 |
 | poster.py | none (read-through render, baseline) | PASS | mean diff 0.000, 0.000% off |
 
-The checks added in the first review round were each run against the page at 026da7f, before its fix
-(transits sized by the cards alone, cards fading in at the gate, the custos verdict at u 0.63), served
-from a copy with `--root`:
+These checks were each run against an earlier build of the page without the fix they guard (transits
+sized by the cards alone, cards fading in at the gate, the custos verdict at u 0.63), served from a copy
+with `--root`:
 
 | assertion | mutation | expected | measured |
 |---|---|---|---|
-| pan | the page at 026da7f | FAIL | 530, 525 and 407 CSS px per notch at 1440, 1280 and 1024 (KRONOS); emergence 261 at 1440 |
-| rise | the page at 026da7f | FAIL | 12 of 12 samples per viewport; the emergence card 533px above the fold at 1440 while the lock was held |
-| firstnotch | the page at 026da7f | FAIL | custos 342 CSS px at 1440x900 against a 972 floor; at 390x844 it measured 326 against 247, so on a phone `custos` is the guard |
-| custos | the page at 026da7f | FAIL | 'contradicted' 0.18 screen at 1440 and 0.16 at 390; the caption named pink 32 and 34 samples before the verdict |
-| places | the page at 026da7f, at 360x740 DPR 1 | FAIL | 24 crossings from s 8.50: place row 1 over the custos card's meta and repo link; at DPR 2 the map pitch fits later and it passed, hence `phone-small-1x` |
+| pan | the earlier build | FAIL | 530, 525 and 407 CSS px per notch at 1440, 1280 and 1024 (KRONOS); emergence 261 at 1440 |
+| rise | the earlier build | FAIL | 12 of 12 samples per viewport; the emergence card 533px above the fold at 1440 while the lock was held |
+| firstnotch | the earlier build | FAIL | custos 342 CSS px at 1440x900 against a 972 floor; at 390x844 it measured 326 against 247, so on a phone `custos` is the guard |
+| custos | the earlier build | FAIL | 'contradicted' 0.18 screen at 1440 and 0.16 at 390; the caption named pink 32 and 34 samples before the verdict |
+| places | the earlier build, at 360x740 DPR 1 | FAIL | 24 crossings from s 8.50: place row 1 over the custos card's meta and repo link; at DPR 2 the map pitch fits later and it passed, hence `phone-small-1x` |
 | check-panels team_meta | the custos meta with 'September 2026 hackathon.' restored | FAIL | 'names the month September; cards carry no months' |
 
 The playback checks (`play*`) each open fresh contexts, since the shared view has already scrolled through every
@@ -245,8 +245,8 @@ station. Each was run at 1440x900 against a copy with one rule of the station cl
 | playreplay | the replay button no longer resets the clock | FAIL | all four never playing after the click |
 | playreduced | reduced motion runs the clock | FAIL | 73 of 73 frames `playing` after each arrival |
 
-The station clock's round-5 rules (it runs only in frame, pauses instead of snapping, replays the real figure) and
-the round-5 colour and work checks, each run at 1440x900 against a copy with one rule put back the way it was:
+The station clock's rules (it runs only in frame, pauses instead of snapping, replays the real figure) and
+the colour and work checks, each run at 1440x900 against a copy with one rule put back the way it was:
 
 | assertion | mutation | expected | measured |
 |---|---|---|---|
@@ -259,7 +259,7 @@ the round-5 colour and work checks, each run at 1440x900 against a copy with one
 Harness defects found by the first runs of these, and fixed: the shot a third of the way in waited for the page to
 settle, which under a clock means the end, so custos read 0px apart; the done time was read by the same loop that
 paused for that shot, so custos read 389ms late; and after the replay click the pointer rested on the button, whose
-hover colour put every replay 140px off. In round 5: the frame poll and the page's own frame run in either order, so an
+hover colour put every replay 140px off. Also: the frame poll and the page's own frame run in either order, so an
 advance is out of frame only when two frames in a row were; a replay button under a phone's art band is not on screen,
 so it is hit-tested, not just boxed; and a snap from 0.85 to the end was smaller than any fixed per-frame cap, so the
 check is the clock's own fastest segment over the time since the last frame.
@@ -271,7 +271,7 @@ Harness defects found this way and fixed:
 - **The colour resolver's own canvas** was recorded as page fills, so `fills` failed whenever `colours` ran first. The resolver's canvas is now ignored.
 - **A cached frame was taken for the page's position.** `phonetext` and `settle` could screenshot or measure wherever the previous check had left the page. They now scroll to the sample. Native labels went unseen until this was fixed.
 - **SVG text was not hidden** in the phone text diff, so SVG text in the art band passed unseen.
-- **A held frame was taken before its station had finished.** `frame_at` settled for at most 2.5s, but a jump into a hold builds the station and runs its clock for up to 3.5s, so at 360×740 emergence's register tape moved between `phonetext`'s three shots and read as 7,171 to 9,355 px of DOM text (on the page before round 5 too). It settles for up to 4s now; 0 px.
+- **A held frame was taken before its station had finished.** `frame_at` settled for at most 2.5s, but a jump into a hold builds the station and runs its clock for up to 3.5s, so at 360×740 emergence's register tape moved between `phonetext`'s three shots and read as 7,171 to 9,355 px of DOM text (on earlier builds too). It settles for up to 4s now; 0 px.
 
 ## check-claims.py
 
@@ -320,10 +320,9 @@ Pattern controls also check what must *not* match: "21.05" and the drawdown figu
 `<main>` must hold the figure its line holds, and every prose figure outside navigation and furniture (contents rail,
 kickers, figure numbers, stepper, sources list, case-nav, fact labels) must sit inside a `data-src`, `data-derived`
 (computed in the page from cited inputs) or `data-live` (this visitor's random draw) element. A step's `.sc-keys li`
-carries `data-at` as its tick, so `data-at` is ignored on an element with `data-key`. The deep dives shipped with
-citations that point near a figure rather than at its line, and with uncited cross-references and worked values, so
-this part is a ratchet: `DEEP_KNOWN` holds each page's (not in its line, uncovered) counts, a page over either FAILS,
-a page under is told to lower them, and a deep dive not listed must be clean. Labels a scene draws as it steps are not
+carries `data-at` as its tick, so `data-at` is ignored on an element with `data-key`. This part is a
+ratchet: `DEEP_KNOWN` holds each page's (not in its line, uncovered) counts, now (0, 0) on every deep dive, so a page
+over either FAILS, a page under is told to lower them, and a deep dive not listed must be clean. Labels a scene draws as it steps are not
 read. **Falsified**: a cited 41 changed to 47 in `work/kronos-deep.html`, the same 41 with its `data-src` removed, and
 an unlisted copy of the freeflow deep dive each fail.
 
@@ -342,7 +341,7 @@ The markup it keys on is in [HOOKS.md](HOOKS.md).
 
 **How it checks.**
 
-- **Sources.** A repo line is fetched read-only with `gh api` at its pinned SHA and cached under `scratchpad/redesign/build/srccache/`. A publication with no repo line may cite its page on doi.org, thinkmind.org or crossref, and an award its awarding body's own post on greensoftware.foundation, fetched read-only with GET and cached. A résumé line cites `public_resume.tex#Ln` and is read against the tracked `resume.pdf` with `pdftotext`. `page:<what>` marks a figure the page computes, which contract.py's self-checks verify. `--offline` reads only the cache.
+- **Sources.** A repo line is fetched read-only with `gh api` at its pinned SHA and cached in `.srccache/` at the repo root, which git ignores. A publication with no repo line may cite its page on doi.org, thinkmind.org or crossref, and an award its awarding body's own post on greensoftware.foundation, fetched read-only with GET and cached. A résumé line cites `public_resume.tex#Ln` and is read against the tracked `resume.pdf` with `pdftotext`. `page:<what>` marks a figure the page computes, which contract.py's self-checks verify. `--offline` reads only the cache.
 - **Matching.** The figure must appear in what it cites, after normalising minus signs, ×, thousands separators and number words. Magnitude is kept: `2.6M+` matches "more than 2.6 million" and nothing smaller. On a publication page the figure must sit within 200 characters of its context word. `at`/`data-at` covers a source that spells the number differently (−0.179 for −17.9%). An element with no figure must share a content word with its source; an element with only dates must find them there.
 - **Coverage.** Every figure in a region must be covered: in the DOM by an enclosing `data-src`, in a script string by a FACTS entry whose `v` matches and whose `ctx` word is in the same string. Number words from three up count as figures.
 - **Team and role.** The custos card's meta line must state the team size and role that the custos entry states in `resume.pdf` and in the page's résumé block ('team of 3' against '3-person', 'Led', 'designed the core engine'). A missing meta, a different size or role, or 'Coded'/'Owned' in the meta fails. Falsified with each of those, and with the PDF's lines altered.

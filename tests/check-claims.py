@@ -38,9 +38,9 @@ RETIRED = [
     (r"22 pre-registered",
      "KRONOS: README.md governs the count of pre-registered experiments."),
     # held-out: singular and plural, with or without a following noun
-    (r"seashells[^.\n]{0,30}held-out|held-out[^.\n]{0,20}days?\b|held-out\s+backtest",
-     "IMC: README.md describes the figure as a run of the backtest script. Do not "
-     "describe it as held-out or out of sample, in any phrasing."),
+    (r"held-out[^.\n]{0,20}days?\b|held-out\s+backtest",
+     "A backtest run is not a held-out test: describe no backtest figure as held-out, "
+     "in any phrasing."),
     # any citation count, with words allowed between the number and the noun
     (r"\d+\s*(\+|×|x)?\s*(IEEE\s+)?citations|cited\s+\d+\s*(×|x)|citations at 17",
      "Publications: state no citation count in any phrasing. A count depends on the "

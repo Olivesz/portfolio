@@ -1,5 +1,5 @@
 /* emergence, in depth: the scenes.
-   Every Wireworld picture runs the exact rule (ww.js) on a layout ported cell for cell from Olivesz/emergence at ad96d38:
+   Every Wireworld picture runs the exact rule (ww.js) on a layout ported cell for cell from Olivesz/emergence at 910b296:
    the gate art of index.html (Act VIII), and the NAND and memory cells of cpu/ww_cells.py. Every netlist picture runs the
    repo's own gate-level port, cpu/wwcpu.js, unchanged. Each scene checks its claim before it is allowed to play. */
 (function () {
@@ -127,16 +127,18 @@
     return out;
   }
   function ok(name, v) { CHECKS[name] = !!v; return !!v; }
-  /* autoplay pacing: ticks with no step within 4 run at 3x, so each scene reaches its point sooner */
+  /* autoplay pacing. Ticks with no step within 4 run at 3x, so a scene reaches its point sooner; deep.js then holds
+     each step until its words can be read (its holdAt, shared by every deep dive), less this quicker travel. */
   function fast(S) {
     if (!S) return S;
+    S.quick = true;
     S.advance = function (dt) {
       if (S.holdLeft > 0) { S.holdLeft -= dt; return true; }
       var nk = Infinity; for (var i = 0; i < S.keys.length; i++) if (S.keys[i].at > S.t + 1e-9) { nk = S.keys[i].at; break; }
       var lim = Math.min(nk, S.target), quick = S.mode === "auto" && lim - S.t > 4;
       var nt = S.t + dt * S.tps * (quick ? 3 : 1) / 1000;
       if (quick && nt > lim - 4) nt = lim - 4;
-      if (S.mode === "auto") for (var j = 0; j < S.keys.length; j++) { var a = S.keys[j].at; if (a > S.t + 1e-9 && a <= nt && a < S.target) { nt = a; S.holdLeft = S.pause; break; } }
+      if (S.mode === "auto") for (var j = 0; j < S.keys.length; j++) { var a = S.keys[j].at; if (a > S.t + 1e-9 && a <= nt && a < S.target) { nt = a; S.holdLeft = S.holdAt(j); break; } }
       if (nt >= S.target) { S.t = S.target; return false; }
       S.t = nt; return true;
     };
@@ -285,7 +287,7 @@
         paintR(api, g, COLS, rN, act !== rN); paintR(api, g, COLS, rM, act !== rM);
         crowds(g, COLS, ROWS, act).forEach(function (c) { ring(api, c[0], c[1]); });
         lbl(api, "ln", "nand cell", rN[0] + 1, rN[1], { dy: -16, cls: act === rN ? "i" : "" });
-        lbl(api, "lm", "memory cell", rM[0] + 18, rM[1] + 17, { cls: act === rM ? "i" : "" });
+        lbl(api, "lm", "memory loop", rM[0] + 18, rM[1] + 17, { cls: act === rM ? "i" : "" });
         return;
       }
       var n = Math.min(NN + ND, Math.round((NN + ND) * Math.min(1, (tick - F0) / (F1 - F0))));
@@ -917,25 +919,94 @@
     }
   })();
 
+  /* the repo's recorded netlist trace of this same run (cpu/traces/sap1_fib.json, recorded from the Python netlist):
+     the page's own run, on the JavaScript port, must equal it on every clock before fig 15 plays */
+  var TR = window.SAP1_FIB_TRACE, TSIG = ["Ep", "Cp", "Lm", "CE", "Li", "Ei", "La", "Lb", "Eu", "Su", "Ea", "Wr", "Lo", "Jl"];
+  var TRACE_OK = (function () {
+    if (!TR || !TR.rows || TR.rows.length !== TR.header.clocks || FIB.snaps.length !== TR.rows.length) return false;
+    for (var i = 0; i < TR.rows.length; i++) {
+      var r = TR.rows[i], s = FIB.snaps[i], on = TSIG.filter(function (k) { return s.sigs.indexOf(k) >= 0; }).join();
+      if (r[0] !== s.T || r[1] !== s.PC || r[2] !== s.MAR || r[3] !== s.IR || r[4] !== s.A || r[5] !== s.B || r[6] !== s.OUT ||
+          r[7] !== s.C || r[8] !== s.bus || r[9].join() !== on || r[10] !== (s.sigs.indexOf("Lo") >= 0 ? 1 : 0)) return false;
+    }
+    return TR.header.out_tape.join() === FIB.outs.join() && TR.header.netlist.nand === 1446 && TR.header.netlist.dff === 175;
+  })();
+  CHECKS["the page's fibonacci run equals the recorded netlist trace on every clock"] = TRACE_OK;
+
+  /* the whole run on one strip, from the trace: a column per clock, its height the A register; each OUT marked with the
+     number it printed; the carry where it trips. Columns up to the playhead are lit. A phone folds it into two bands. */
+  function Strip(fig) {
+    var st = fig.querySelector(".sc-stage"), el = document.createElement("div"), cv = document.createElement("canvas");
+    el.className = "sc-trace"; el.setAttribute("aria-hidden", "true");
+    el.setAttribute("data-src", "Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1");
+    el.appendChild(cv); st.appendChild(el);
+    var rows = TR.rows, N = rows.length, outs = [], carry = -1, g = cv.getContext("2d"), labels = [], dpr = 1, per = N, bands = 1, last = null;
+    rows.forEach(function (r, i) { if (r[10]) outs.push(i); if (carry < 0 && r[7]) carry = i; });
+    var LBL = 16, TICK = 4, BAR = 40, GAPB = 16, HEAD = 24;      // a band: out labels, ticks, bars, then a row for the carry label
+    function bandTop(b) { return HEAD + b * (LBL + 4 + TICK + 4 + BAR + 4 + LBL + GAPB); }
+    function span(cls, text, x, y, align) {
+      var e = document.createElement("span"); e.className = "sc-l" + (cls ? " " + cls : ""); e.textContent = text; el.appendChild(e);
+      labels.push({ e: e, x: x, y: y, align: align }); return e;
+    }
+    span("", "recorded netlist trace: register a, " + N + " clocks", 0, 0, "left");
+    var outL = outs.map(function (c, k) { return span("", String(TR.header.out_tape[k]), c, null, "center"); });
+    var carL = span("", "carry", carry, null, "right");
+    function place() {
+      labels.forEach(function (L) {
+        var x = L.x, y = L.y, w = L.e.offsetWidth;
+        if (y === null) { var b = Math.floor(x / per); x = x % per; y = bandTop(b); }
+        var left = L.align === "center" ? x - w / 2 : L.align === "right" ? x + 1 - w : x;
+        L.e.style.left = Math.round(Math.max(0, Math.min(per - w, left))) + "px"; L.e.style.top = Math.round(y) + "px";
+      });
+      carL.style.top = (parseInt(carL.style.top, 10) + LBL + 4 + TICK + 4 + BAR + 4) + "px";
+    }
+    function layout(avail) {
+      dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
+      per = avail >= N ? N : Math.ceil(N / Math.ceil(N / avail)); bands = Math.ceil(N / per);
+      var h = bandTop(bands) - GAPB;
+      cv.width = per * dpr; cv.height = h * dpr; cv.style.width = per + "px"; cv.style.height = h + "px";
+      el.style.width = per + "px"; el.style.height = h + "px"; el.style.marginLeft = Math.max(0, Math.floor((avail - per) / 2)) + "px";
+      place(); last = null;
+    }
+    function rect(x, y, w, h, tok) { g.fillStyle = Deep.tokens()[tok]; g.fillRect(x * dpr, y * dpr, w * dpr, h * dpr); }
+    /* cy: the clock reached (-1: none lit, as when another program runs) */
+    function draw(cy) {
+      if (cy === last) return; last = cy;
+      g.fillStyle = Deep.tokens().void; g.fillRect(0, 0, cv.width, cv.height);
+      for (var c = 0; c < N; c++) {
+        var b = Math.floor(c / per), x = c % per, y0 = bandTop(b), base = y0 + LBL + 4 + TICK + 4 + BAR, a = rows[c][4];
+        var h = a ? Math.max(1, Math.round(a / 255 * BAR)) : 0;
+        if (h) rect(x, base - h, 1, h, c <= cy ? "v-amber" : "copper");
+        else rect(x, base - 1, 1, 1, "residue");
+      }
+      outs.forEach(function (c, k) { var b = Math.floor(c / per), x = c % per, on = c <= cy; rect(Math.min(per - 2, x), bandTop(b) + LBL + 4, 2, TICK, on ? "v-green" : "copper"); outL[k].className = "sc-l" + (on ? " i" : ""); });
+      if (carry >= 0) { var cb = Math.floor(carry / per), cx = carry % per, con = carry <= cy; rect(Math.min(per - 2, cx), bandTop(cb) + LBL + 4, 2, TICK + 4 + BAR + 4, con ? "v-cyan" : "copper"); carL.className = "sc-l" + (con ? " c" : ""); }
+      if (cy >= 0 && cy < N) { var pb = Math.floor(cy / per), px = cy % per, py = bandTop(pb) + LBL + 4; rect(px, py, 1, TICK + 4 + BAR, "ink"); }
+    }
+    return { layout: layout, draw: draw, el: el };
+  }
+
   /* fig 15: SAP-1 runs Fibonacci */
   (function () {
     var S = FIB.snaps, last = S.length - 1, CUR = curAddrs(S), PL = progLines(PROGS.fib);
+    var fig15 = document.getElementById("sc-sap"), strip = TRACE_OK && fig15 && TR.rows.length === S.length ? Strip(fig15) : null;
     var pick = [0, 1, 4, 7, 9, 11];
     var ats = {}; ["o1", "o2", "o5", "o21", "o89", "o144"].forEach(function (k, i) { ats[k] = FIB.at[pick[i]]; }); ats.halt = last;
     setAt("sc-sap", ats);
     function tapeAt(cy) { return FIB.outs.filter(function (v, k) { return FIB.at[k] <= cy; }); }
     fast(Deep.scene("sc-sap", {
-      check: function () { return ok("fibonacci tape on the netlist", SAPOK && FIB.outs.join(",") === WANT_OUT.fib.join(",") && S[last].halt === 1); },
+      check: function () { return ok("fibonacci tape on the netlist", SAPOK && TRACE_OK && !!strip && FIB.outs.join(",") === WANT_OUT.fib.join(",") && S[last].halt === 1); },
+      layout: function (api, avail) { if (strip) strip.layout(avail); },
       grid: { cols: PCOLS, rows: PROWN, pitch: 16, pitchPhone: 8 }, space: PHONE ? { top: 16, bottom: 216 } : { top: 16, bottom: 16, right: 128 },
       ticks: last, tps: 60, pause: 900, rest: "halt",
-      draw: function (api, tick) { var cy = Math.min(last, tick); panel(api, S[cy], tapeAt(cy), { ram: true, prog: PL, cur: CUR[cy], big: true }); },
+      draw: function (api, tick) { var cy = Math.min(last, tick); panel(api, S[cy], tapeAt(cy), { ram: true, prog: PL, cur: CUR[cy], big: true }); if (strip) strip.draw(cy); },
       inputs: [{ id: "fib", label: "fibonacci", momentary: true }, { id: "add", label: "5 + 3", momentary: true }, { id: "sub", label: "9 − 4", momentary: true }, { id: "count", label: "countdown", momentary: true }, { id: "sum", label: "sum", momentary: true }],
       live: {
         start: function () { return { cpu: null }; },
-        step: function (api, L) { if (!L.cpu) return false; var s = L.cpu.snapshot(); if (s.halt) return false; var lo = s.sigs.indexOf("Lo") >= 0; L.cpu.step(); if (lo) L.tape.push(L.cpu.c.getbus(L.cpu.O)); var s2 = L.cpu.snapshot(); if (s2.T === 1) L.cur = s2.PC; return true; },
-        draw: function (api, L) { if (L.cpu) panel(api, L.cpu.snapshot(), L.tape, { ram: true, prog: L.prog, cur: L.cur, big: true }); }, budget: 3000
+        step: function (api, L) { if (!L.cpu) return false; var s = L.cpu.snapshot(); if (s.halt) return false; var lo = s.sigs.indexOf("Lo") >= 0; L.cpu.step(); L.cy++; if (lo) L.tape.push(L.cpu.c.getbus(L.cpu.O)); var s2 = L.cpu.snapshot(); if (s2.T === 1) L.cur = s2.PC; return true; },
+        draw: function (api, L) { if (L.cpu) panel(api, L.cpu.snapshot(), L.tape, { ram: true, prog: L.prog, cur: L.cur, big: true }); if (strip) strip.draw(L.id === "fib" ? L.cy : -1); }, budget: 3000
       },
-      onInput: function (api, id, on, L) { if (L) { L.cpu = new SAP1(assemble(PROGS[id]).image); L.tape = []; L.prog = progLines(PROGS[id]); L.cur = 0; } }
+      onInput: function (api, id, on, L) { if (L) { L.cpu = new SAP1(assemble(PROGS[id]).image); L.tape = []; L.prog = progLines(PROGS[id]); L.cur = 0; L.cy = 0; L.id = id; } }
     }));
   })();
 
@@ -1050,40 +1121,10 @@
   Deep.scene("sc-ladder", { ticks: 5, tps: 1.6, pause: 400 });
   Deep.scene("sc-rule", { ticks: 2, tps: 1 });
 
-  /* ================= one figure at a time =================
-     Two short figures often share the screen (figs 3 and 4, 6 and 7, 16 and 17). Arriving figures queue in reading
-     order: the highest one on screen plays first, and the next starts a beat after it ends or scrolls away, so the
-     reader never reaches a figure that has already played half its steps. Replay, the stepper and the inputs always act
-     at once. (Proposed for deep.js in shared-requests/emergence.md; delete this block if deep.js takes it.) */
+  /* the read time in the head: deep.js's rule, the same on every deep dive (the prose at 230 words a minute, plus
+     each figure's autoplay) */
   (function () {
-    if (Deep.reduce) return;
-    var user = null, lastBusy = -1e9, BEAT = 600;
-    function seen(S) {                                   // the share of the stage on screen, against what could fit
-      var r = S.stage.getBoundingClientRect(), h = window.innerHeight, v = Math.min(r.bottom, h) - Math.max(r.top, 0);
-      return v <= 0 ? 0 : v / Math.max(1, Math.min(r.height, h));
-    }
-    function busy() { return Deep.scenes.some(function (o) { return o.id !== "sc-hero" && o.mode === "auto" && o.visible && seen(o) >= 0.5; }); }
-    function kick() {
-      if (busy()) { lastBusy = Date.now(); return; }
-      if (Date.now() - lastBusy < BEAT) return;
-      var c = Deep.scenes.filter(function (S) { return S.waiting && S.visible && seen(S) >= 0.5; });
-      if (!c.length) return;
-      c.sort(function (a, b) { return a.stage.getBoundingClientRect().top - b.stage.getBoundingClientRect().top; });
-      c[0].waiting = false; c[0].play0();
-    }
-    Deep.scenes.forEach(function (S) {
-      if (S.id === "sc-hero") return;
-      S.play0 = S.play;
-      S.fig.addEventListener("click", function (e) {
-        var b = e.target.closest && e.target.closest("button"); if (!b) return;
-        S.waiting = false; if (b.classList.contains("replay")) user = S;
-      }, true);
-      S.fig.addEventListener("input", function () { S.waiting = false; }, true);
-      S.play = function () {
-        if (user === S) { user = null; S.waiting = false; return S.play0(); }
-        S.waiting = true; setTimeout(kick, 0);         // after every arrival in this batch has queued
-      };
-    });
-    setInterval(kick, 200);
+    var r = Deep.readTime();
+    CHECKS["read time " + r.min + " min = " + r.words + " words at 230 wpm + " + Math.round(r.figMs / 1000) + " s of figures"] = r.min > 0;
   })();
 })();

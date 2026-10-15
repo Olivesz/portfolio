@@ -150,6 +150,12 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig .c-llm{fill:var(--t-llm)} .ig .c-verify{fill:var(--t-verify)} .ig .c-systems{fill:var(--t-systems)}
 .ig .c-data{fill:var(--t-data)} .ig .c-play{fill:var(--t-play)} .ig .c-signal{fill:var(--v-cyan)} .ig .c-ref{fill:var(--muted)}
 .ig rect,.ig line,.ig path{shape-rendering:crispEdges}
+/* arrival builds (case.js, [data-build]): bars grow from their start, marks fade in, staggered by --i; whole without script */
+.ig .bld{transform-box:fill-box;transform-origin:0 50%;transition:transform 600ms var(--ease-enter) calc(var(--i, 0) * 60ms)}
+.ig .bld-o{transition:opacity 360ms var(--ease-enter) calc(var(--i, 0) * 60ms)}
+.ig[data-build="pre"] .bld{transform:scaleX(0)}
+.ig[data-build="pre"] .bld-o{opacity:0}
+@media print{ .ig .bld{transform:none!important} .ig .bld-o{opacity:1!important} }
 
 /* results: a stat row (each number with its baseline under it) and the index page's proof table */
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:32px;list-style:none}
@@ -211,3 +217,14 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .dd-end .dd-cta{margin-top:0}
 @media (min-width:1024px){ .dd-end .dd-cta{margin-left:192px} }
 /* deep-dive entry: end */
+
+/* reveal: an inline figure marked data-reveal draws itself once, when 40% of it is on screen. case.js arms only figures
+   still below the fold, so a figure already in view, a page without script and reduced motion all show the final state.
+   Parts: .rv-x grows from its left edge, .rv-f fades in; --o is a part's step in the figure's order, 360 ms apart.
+   A figure read as one picture sets a shorter --rv-step, so all its rows grow together. */
+.ig.armed .rv-x{transform-box:fill-box;transform-origin:0 50%;transform:scaleX(0)}
+.ig.armed .rv-f{opacity:0}
+/* the transitions live on .on only, so arming hides at once and arrival is the one thing that animates */
+.ig.armed.on .rv-x{transform:none;transition:transform 560ms var(--ease-enter) calc(var(--o,0) * var(--rv-step,360ms))}
+.ig.armed.on .rv-f{opacity:1;transition:opacity 320ms var(--ease-enter) calc(var(--o,0) * var(--rv-step,360ms) + 120ms)}
+/* reveal: end */
