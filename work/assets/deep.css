@@ -44,7 +44,7 @@
 .ch>.scene,.st>.scene,.ch>.ig,.st>.ig,.ch>.stats,.st>.stats,.ch>.tbl,.st>.tbl{margin-top:32px}
 .ch>.scene+p,.st>.scene+p,.ch>.ig+p,.st>.ig+p,.ch>.stats+p,.st>.stats+p,.ch>.tbl+p,.st>.tbl+p{margin-top:32px}
 /* a pull line: one sentence that carries the chapter, ink on a 2 px accent bar */
-.pull{max-width:576px;margin-top:32px;padding-left:16px;border-left:2px solid var(--accent);font:500 15px/24px var(--sg);color:var(--ink)}
+.pull,.ch>p.pull,.st>p.pull{max-width:576px;margin-top:32px;padding-left:16px;border-left:2px solid var(--accent);font:500 15px/24px var(--sg);color:var(--ink)}
 /* the sources, folded, as on every case study */
 .ch>.srcs-d,.st>.srcs-d{margin-top:24px}
 .srcs .m{overflow-wrap:anywhere}                                     /* a long file path breaks rather than pans a phone */
@@ -80,6 +80,19 @@
 .scene.js .draw.on,.scene.js .on .draw{stroke-dashoffset:0}
 .scene.js .tip{opacity:0;transition:opacity 160ms var(--ease-enter)}
 .scene.js .tip.on,.scene.js .on .tip{opacity:1;transition-delay:520ms}
+
+/* a part waiting for its step ([data-ghost], see deep.js): a faint preview drawn a token down, never with an alpha;
+   words copper, boxes, lines and fills rule; a stroke that draws itself on stays undrawn until its step */
+.scene.js [data-ghost].ghost{opacity:1}
+.scene.js [data-ghost].rv{opacity:0!important;transition:none!important}
+.scene.js :is(text.ghost,.ghost text){fill:var(--copper)}
+.scene.js :is(.ghost,.ghost *):is(.bx,.bx-a,.ln,.ln-a,.ln-2,.ln-b,.ln-ref){stroke:var(--rule)}
+.scene.js :is(.ghost,.ghost *):is(.hd,.hd-a,.cell,.cell-i,.bx-f,.ww-h,.ww-t,.ww-w,[class^="c-"]){fill:var(--rule)}
+
+/* the progress rule: 1 px in the accent over the stage's bottom edge, filling while the scene plays on its own */
+.sc-prog{position:relative;z-index:1;height:1px;margin-top:-1px;pointer-events:none}
+.sc-prog i{display:block;width:0;height:1px;background:var(--accent);opacity:0;transition:opacity 600ms var(--ease-enter)}
+.sc-prog.on i{opacity:1;transition-duration:240ms}
 
 /* Wireworld's states in SVG diagrams: the same tokens the canvas uses for head, tail and wire */
 .scene .ww-h,.ig .ww-h{fill:var(--signal)} .scene .ww-t,.ig .ww-t{fill:var(--signal-2)} .scene .ww-w,.ig .ww-w{fill:var(--copper)}
@@ -120,7 +133,7 @@
 /* one anatomy on every deep dive: the art, its step words, the try-it inputs, then the stepper and the caption */
 .scene.js{display:flex;flex-direction:column}
 .scene.js>*{order:2}
-.scene.js>.sc-stage{order:0} .scene.js>.sc-keys{order:1} .scene.js>.sc-bar{order:3} .scene.js>.sc-cap{order:4}
+.scene.js>.sc-stage,.scene.js>.sc-prog{order:0} .scene.js>.sc-keys{order:1} .scene.js>.sc-bar{order:3} .scene.js>.sc-cap{order:4}
 .sc-bar .replay.idle{visibility:hidden}
 /* the figure's caption: number in the accent, mono 11 */
 .sc-cap{margin-top:16px;max-width:576px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
@@ -166,10 +179,10 @@
    on a void backing while the scene is on screen, and its try-it inputs follow the stepper */
 @media (max-width:767px){
   .scene.js.docked>*{order:3}
-  .scene.js.docked>.sc-stage{order:0} .scene.js.docked>.sc-keys{order:1} .scene.js.docked>.sc-bar{order:2} .scene.js.docked>.sc-cap{order:4}
+  .scene.js.docked>.sc-stage,.scene.js.docked>.sc-prog{order:0} .scene.js.docked>.sc-keys{order:1} .scene.js.docked>.sc-bar{order:2} .scene.js.docked>.sc-cap{order:4}
   .scene.js.docked>.sc-keys{position:sticky;bottom:var(--dock-b,72px);z-index:2;margin-top:-1px;padding-top:12px;border-top:1px solid var(--rule);background:var(--void)}
   .scene.js.docked>.sc-bar{position:sticky;bottom:0;z-index:2;margin-top:0;padding:8px 0;background:var(--void)}
 }
 
 @media (prefers-reduced-motion:reduce){ .scene.js .draw{stroke-dashoffset:0} .scene.js .tip{opacity:1} }
-@media print{ .dd-rail{display:none} .dd{grid-template-columns:1fr} .sc-bar,.sc-in{display:none} .scene.js .sc-keys li{visibility:visible} }
+@media print{ .dd-rail{display:none} .dd{grid-template-columns:1fr} .sc-bar,.sc-in,.sc-prog{display:none} .scene.js .sc-keys li{visibility:visible} }

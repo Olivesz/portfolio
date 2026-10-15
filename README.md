@@ -43,7 +43,7 @@ Native scrolling is never taken over. The page has no wheel, touch or key
 listeners. Its one scroll listener is passive: it reads `scrollY` and wakes the
 frame loop. The page scrolls itself only inside a click handler. There are no inner scrollers and no
 horizontal overflow. Every 100px wheel notch advances the page, and the top to
-the last résumé line takes at most 105 notches on desktop and 115 on a phone.
+the last résumé line takes at most 140 notches, on a desktop or a phone.
 
 The page exposes a read-only `window.__walk` for the tests.
 [tests/HOOKS.md](tests/HOOKS.md) is that contract.
@@ -64,7 +64,8 @@ python3 tests/check-links.py                                   # links resolve; 
 `contract.py` serves the repo on a free port, prints one `PASS`/`FAIL` line per
 assertion and viewport, and exits 1 on any failure. `--list` names the
 assertions; `--only` and `--viewport` narrow a run. The three guards read files
-and their sources without running the page. [tests/README.md](tests/README.md)
+and their sources; check-panels also renders the page once, to read the labels
+drawn in its figures. [tests/README.md](tests/README.md)
 covers what each assertion measures and how each was made to fail on purpose.
 
 ## Deploy

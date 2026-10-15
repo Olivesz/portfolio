@@ -374,11 +374,12 @@
     return bw;
   }
   (function () {
-    scene("sc-stair", 62, {
+    scene("sc-stair", [62, 65], {
       ticks: 32, tps: 8, pause: 1100,
       draw: function (api, tick) {
         api.clear();
-        var W = api.cols, y0 = 10, H = 40, shown = Math.min(tick, 31), rows = ROWS.slice(0, shown);
+        // on a phone the readout spans the width, so the staircase starts lower and the newest pass's label clears it
+        var W = api.cols, y0 = narrow(api) ? 13 : 10, H = 40, shown = Math.min(tick, 31), rows = ROWS.slice(0, shown);
         var bw = bars(api, ROWS, shown, y0, H, 1100, function (r) { return r.ae; }, "v-violet", function (r) { return r.ae; });   // the whole staircase in copper, filled as the passes run
         var tot = sum(rows, function (r) { return r.ae; });                  // hundredths while under 10 s, so the first pass reads 0.70 s, as its step says
         lab(api, "tot", "audio re-read so far " + pl(tot < 1000 ? s2(tot) : th(Math.round(tot / 100))) + " s · passes " + pl(rows.length), 0, 0, { cls: "r" });

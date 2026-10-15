@@ -12,7 +12,7 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 | hook | type | contract |
 |---|---|---|
 | `sceneId(s)` | fn → string | `'landing'` if and only if `s < 0.03`. `'chaos'` for the chaos beat, `'lock'` for the lock beat. During chapter k's hold `[A_k, E_k)` it returns that chapter's id, the same id used in `stations` and `cards()`. `'pull-back'` on `[PULL, MAPS)`, `'map'` on `[MAPS, DOCS)`, `'document'` after that. Other values, such as transits, are free. |
-| `stepAt(s)` | fn → int | The ant's step at `s`. Non-decreasing in `s`. On the landing it is the intro clock: 0 to 1,100 over 2.5 s after load (1,100 at once under reduced motion); the scroll walk goes on from 1,100. |
+| `stepAt(s)` | fn → int | The ant's step at `s`. Non-decreasing in `s`. On the landing it is the intro clock: 0 to 1,100 over 2.5 s after load, then on at a slowing walk to 1,380 by about 17 s (1,380 at once under reduced motion); the scroll walk goes on from wherever the clock stood at the first scroll, and from then on is a pure function of `s`. |
 | `S()` | fn → px | One screen: the height of the fixed `100lvh` probe the page itself uses. |
 | `stations` | array | `[[id, A, E], ...]` in page order. `A` is the hold start (the card reaches its sticky top) and `E` the hold end, in screens. An optional 4th element lists beat start positions: `[id, A, E, [b0, b1, ...]]`. |
 | `view()` | fn → object | `{pp, k, half, dpr, step, Ox, Oy}` for the last drawn frame. `pp` is device px per drawn cell (an integer), `k` is world cells per drawn cell (1, or 2 when decimated), `step` is the step actually drawn, and `Ox`/`Oy` are the world origin in device px. |
@@ -155,8 +155,8 @@ restated in the suite, never read from the page:
 | element | contract |
 |---|---|
 | `#work .k-field .k-blob[data-k]` | one native `<button aria-pressed aria-controls="k-panel">` per theme (`llm verify systems data play`), in the tab order. Its `.k-bs` SVG holds the blob's cells as `<path>` stages (`.k-hid` while hidden), its `.k-bn` lines name the theme's signature projects, and `.k-bm b` counts the rest. Only the cells take the pointer. A picked theme's blob is `aria-pressed="true"`; the others carry `.off`. |
-| `#work .k-pane[data-pane]` | `rest` (a key, no projects), and one per theme key; the shown pane has `.cur`. A theme pane holds `.k-hi .k-card[data-p]` (its signatures) and `.k-rest .k-mrow[data-p]` (every other member, shown). |
-| `#work .k-msg`, `#work .k-ask` | the status line (hidden at rest), and the prompt (`.k-a1` pointer, `.k-a2` touch). |
+| `#work .k-pane[data-pane]` | `rest` (a key, no projects), and one per theme key; the shown pane has `.cur`. At rest the shown pane is the first theme's (picked) where `.k-panel` sits beside `.k-field` (1024 px and wider), and `rest` where it sits under it. A theme pane holds `.k-hi .k-card[data-p]` (its signatures) and `.k-rest .k-mrow[data-p]` (every other member, shown). |
+| `#work .k-msg`, `#work .k-ask` | the status line (hidden while no theme is picked), and the prompt (`.k-a1` pointer, `.k-a2` touch). |
 | `window.__workGrow.state()` | `{picked, grown, growing, mode}`: read-only; the blobs grow once, the first time the field is in view. |
 
 ## Résumé viewer (markup the suite reads)

@@ -71,6 +71,15 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .facts dd{min-width:0;overflow-wrap:anywhere}
 .facts .dot{color:var(--muted)}
 .facts .q{display:block;color:var(--muted)}
+/* arrival: on a case study (a header followed by its hero) the header rises in once, kicker first, facts last;
+   CSS only, so it runs without script, and reduced motion (below) shows it at rest */
+@keyframes case-rise{from{opacity:0;transform:translateY(12px)}}
+.head:has(+ .hero-fig)>.kick,.head:has(+ .hero-fig)>h1,.head:has(+ .hero-fig) .head-grid>div>*,.head:has(+ .hero-fig) .facts{animation:case-rise 560ms var(--ease-enter) both}
+.head:has(+ .hero-fig)>h1{animation-delay:60ms}
+.head:has(+ .hero-fig) .head-grid>div>*{animation-delay:140ms}
+.head:has(+ .hero-fig) .head-grid>div>*+*{animation-delay:190ms}
+.head:has(+ .hero-fig) .head-grid>div>*+*+*{animation-delay:240ms}
+.head:has(+ .hero-fig) .facts{animation-delay:200ms}
 @media (max-width:1023px){
   .head{padding-top:32px}
   .head h1{font-size:44px;line-height:48px}
@@ -93,7 +102,8 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .instr .n{color:var(--accent);margin-right:8px}
 .replay{flex:none;min-height:24px;padding:4px 8px;background:none;border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 11px/16px var(--mono);letter-spacing:.04em;cursor:pointer;transition:border-color var(--t-ui) var(--ease-enter)}
 .replay:hover,.replay:focus-visible{border-color:var(--ink)}
-.replay[hidden]{display:none}
+/* a hidden replay keeps its place, so the caption beside it does not reflow when it appears */
+.replay[hidden]{display:inline-block;visibility:hidden}
 .cap-row{min-height:34px}
 @media (pointer:coarse){ .cap-row{min-height:42px} }
 .srcs-d summary{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);cursor:pointer;min-height:24px;padding:4px 0}
@@ -141,6 +151,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig text{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .ig .lb{font-size:11px;letter-spacing:.04em;fill:var(--muted)}
 .ig .lb-i{font-size:11px;letter-spacing:.04em;fill:var(--ink)}
+.ig .lb-a{font-size:11px;letter-spacing:.04em;fill:var(--accent)}
 .ig .rd{font-size:13px;fill:var(--ink)}
 .ig .rd-a{font-size:13px;fill:var(--accent)}
 .ig .bx{fill:var(--void);stroke:var(--copper);stroke-width:1px}
@@ -238,4 +249,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig.armed.on .rv-f{opacity:1;transition:opacity 320ms var(--ease-enter) calc(var(--o,0) * var(--rv-step,360ms) + 120ms)}
 /* a phone stacks a figure's parts and passes them sooner: its steps come 200 ms apart unless the figure sets its own */
 @media (max-width:767px){ .ig[data-reveal]{--rv-step:200ms} }
+/* .quick (case.js): the figure came into view at a skim, so its parts follow 40 ms apart, whatever its own step */
+.ig.armed.on.quick .rv-x{transition-delay:calc(var(--o,0) * 40ms)}
+.ig.armed.on.quick .rv-f{transition-delay:calc(var(--o,0) * 40ms + 60ms)}
 /* reveal: end */

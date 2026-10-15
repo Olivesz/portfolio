@@ -90,7 +90,7 @@ Nothing is taken on the page's word where it can be read back:
 - **Colours:**
   - Every rendered element's computed colours, including `::before`/`::after`, borders, outlines and SVG shapes, resolved to sRGB by painting them.
   - Every colour literal in the CSSOM, which catches `:hover`, `:focus` and media variants that are not on screen.
-  - `:root` must define all 19 tokens: the 13 spec tokens and the six `--v-*` of palette_vivid.
+  - `:root` must define all 19 tokens: the 13 spec tokens and the six `--v-*` vivid tokens.
 - **Resize:** in its own context, the viewport is resized at a transit, at two points of every hold and in the résumé (desktop to 1024×768, 1440×700 and back; a phone rotated to 844×390 and back). The scene after must be the scene before at the same fraction through it (within 0.04), and the résumé line first under the strip must stay within 24px. A resize may scroll the page once to get there; every other page-initiated scroll still needs a click.
 - **On its side:** `landcards` checks each held card sits in the text column clear of the art box, and is whole when it fits the viewport. `figclip` exempts the ant only where the figure itself fills the art box (custos at 740×360), and prints it.
 - **Perf:** `requestAnimationFrame` callbacks and scroll handlers are timed in-page under `Emulation.setCPUThrottlingRate {rate: 4}`, summed per frame, and the p95 is taken over one wheel run from the top to the bottom. Three runs per viewport, each in a fresh context; the verdict is the median p95, at most 2.3ms (the perf budget, which prices in the vivid colour layer; the spec's own target is 1ms, which the page does not meet). The page's own `stats()` is printed beside it as a cross-check, never used as the verdict. The frames that cost most are station build and dim clips, where a station's cells are rebuilt and its native layer redrawn every frame.
@@ -112,8 +112,8 @@ Nothing is taken on the page's word where it can be read back:
 
 ### Falsification
 
-Every assertion was made to fail on purpose against throwaway copies of the page, one mutation per copy;
-assertions an earlier build already failed were first fixed in a copy, shown to pass, then broken again.
+Every assertion is made to fail on purpose against a throwaway copy of the page, one mutation per copy;
+an assertion the page fails is first fixed in a copy, shown to pass, then broken again.
 
 | assertion | mutation | expected | measured |
 |---|---|---|---|
@@ -146,7 +146,7 @@ assertions an earlier build already failed were first fixed in a copy, shown to 
 | settle | τ 100 → 60 | PASS | 0.03px (τ = 100 measures 1.27px) |
 | handoff | synthetic page, square on the ant (baseline) | PASS | 0.00 device px (re-run on the current suite) |
 | handoff | square 1px right / canvas keeps drawing the ant | FAIL | 2.00 device px / "still drawn" (re-run on the current suite) |
-| length | not mutated | n/a | a threshold on the notch count; the count itself matches the earlier build's own figures (128 desktop, 135 phone) |
+| length | not mutated | n/a | a threshold on the notch count; the count itself is printed with the result |
 
 The reading-zone, census and native-layer changes were falsified against
 the built page, one mutation or injected layer per copy. Every row was re-run
@@ -221,17 +221,16 @@ the fix a row names.
 | poster.py | the grey poster (the map frame with no blooms), after the read-through render | FAIL | mean diff 13.33, 6.75% of pixels off by more than 48 |
 | poster.py | none (read-through render, baseline) | PASS | mean diff 0.000, 0.000% off |
 
-These checks were each run against an earlier build of the page without the fix they guard (transits
-sized by the cards alone, cards fading in at the gate, the custos verdict at u 0.63), served from a copy
-with `--root`:
+These checks are each run against a copy of the page without the fix they guard (transits sized by the
+cards alone, cards fading in at the gate, the custos verdict at u 0.63), served with `--root`:
 
 | assertion | mutation | expected | measured |
 |---|---|---|---|
-| pan | the earlier build | FAIL | 530, 525 and 407 CSS px per notch at 1440, 1280 and 1024 (KRONOS); emergence 261 at 1440 |
-| rise | the earlier build | FAIL | 12 of 12 samples per viewport; the emergence card 533px above the fold at 1440 while the lock was held |
-| firstnotch | the earlier build | FAIL | custos 342 CSS px at 1440x900 against a 972 floor; at 390x844 it measured 326 against 247, so on a phone `custos` is the guard |
-| custos | the earlier build | FAIL | 'contradicted' 0.18 screen at 1440 and 0.16 at 390; the caption named pink 32 and 34 samples before the verdict |
-| places | the earlier build, at 360x740 DPR 1 | FAIL | 24 crossings from s 8.50: place row 1 over the custos card's meta and repo link; at DPR 2 the map pitch fits later and it passed, hence `phone-small-1x` |
+| pan | the page without the fix | FAIL | 530, 525 and 407 CSS px per notch at 1440, 1280 and 1024 (KRONOS); emergence 261 at 1440 |
+| rise | the page without the fix | FAIL | 12 of 12 samples per viewport; the emergence card 533px above the fold at 1440 while the lock was held |
+| firstnotch | the page without the fix | FAIL | custos 342 CSS px at 1440x900 against a 972 floor; at 390x844 it measured 326 against 247, so on a phone `custos` is the guard |
+| custos | the page without the fix | FAIL | 'contradicted' 0.18 screen at 1440 and 0.16 at 390; the caption named pink 32 and 34 samples before the verdict |
+| places | the page without the fix, at 360x740 DPR 1 | FAIL | 24 crossings from s 8.50: place row 1 over the custos card's meta and repo link; at DPR 2 the map pitch fits later and it passed, hence `phone-small-1x` |
 | maplabels | the build before the map caption row and the station-label search | FAIL | caption row at opacity 0 on all six viewports; at 844x390 '2024 · Carbon Hack' overlaps 'emergence' by 17x3 px, at 740x360 three label pairs overlap |
 | check-panels team_meta | the custos meta with 'September 2026 hackathon.' restored | FAIL | 'names the month September; cards carry no months' |
 
@@ -256,6 +255,7 @@ the colour and work checks, each run at 1440x900 against a copy with one rule pu
 | playreplay | replay resets the clock wherever the visitor is, with no jump back | FAIL | one notch past emergence's hold, 164 of 164 playing frames were not the station in frame as itself |
 | vivid | the old bloom rule (a bloom grows on the way into its station and is whole halfway through the hold) | FAIL | 10.45x the figure's ink at custos s 8.65 (485,376 vivid against 46,448 ink device px); emergence 1.49x |
 | work | every blob drawn at one size | FAIL | 338 to 343 cells for 4 to 7 projects: systems (7) no larger than verify (5) |
+| work | the build before the section opened on its first theme at 1024px and wider | FAIL | at rest: pane rest, nothing pressed, no cards, no status; the picked theme pressed again went back to an empty column |
 
 Harness defects found by the first runs of these, and fixed: the shot a third of the way in waited for the page to
 settle, which under a clock means the end, so custos read 0px apart; the done time was read by the same loop that
@@ -272,7 +272,7 @@ Harness defects found this way and fixed:
 - **The colour resolver's own canvas** was recorded as page fills, so `fills` failed whenever `colours` ran first. The resolver's canvas is now ignored.
 - **A cached frame was taken for the page's position.** `phonetext` and `settle` could screenshot or measure wherever the previous check had left the page. They now scroll to the sample. Native labels went unseen until this was fixed.
 - **SVG text was not hidden** in the phone text diff, so SVG text in the art band passed unseen.
-- **A held frame was taken before its station had finished.** `frame_at` settled for at most 2.5s, but a jump into a hold builds the station and runs its clock for up to 3.5s, so at 360×740 emergence's register tape moved between `phonetext`'s three shots and read as 7,171 to 9,355 px of DOM text (on earlier builds too). It settles for up to 4s now; 0 px.
+- **A held frame was taken before its station had finished.** `frame_at` settled for at most 2.5s, but a jump into a hold builds the station and runs its clock for up to 3.5s, so at 360×740 emergence's register tape moved between `phonetext`'s three shots and read as 7,171 to 9,355 px of DOM text. It settles for up to 4s now; 0 px.
 
 ## check-claims.py
 

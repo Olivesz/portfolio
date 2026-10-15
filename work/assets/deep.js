@@ -67,10 +67,12 @@
     };
     S.restKey = spec.rest !== undefined ? S.idx(spec.rest) : S.keys.length - 1;
 
-    /* keyed DOM parts: data-from / data-until / data-only name a step */
+    /* keyed DOM parts: data-from / data-until / data-only name a step. A part that also carries data-ghost stands as a
+       faint preview in the tokens (deep.css) until its step, and before the figure arrives, so a figure never opens on
+       an empty stage; give it only to parts in a region of their own, so no preview prints under another part's words */
     S.keyed = [].slice.call(fig.querySelectorAll("[data-from],[data-until],[data-only]")).map(function (e) {
       var f = e.getAttribute("data-from"), u = e.getAttribute("data-until"), a = e.getAttribute("data-only");
-      return { e: e, lo: a ? S.idx(a) : f ? S.idx(f) : 0, hi: a ? S.idx(a) : u ? S.idx(u) : 1e9 };
+      return { e: e, lo: a ? S.idx(a) : f ? S.idx(f) : 0, hi: a ? S.idx(a) : u ? S.idx(u) : 1e9, ghost: e.hasAttribute("data-ghost") };
     });
 
     S.canvas = null; S.labels = {}; S.hits = []; S.inputs = {}; S.inputBtns = {};
@@ -94,7 +96,8 @@
     var g = b - a, S = this;
     return S.quick && g > 4 ? ((g - 4) / (3 * S.tps) + 4 / S.tps) * 1000 : g / S.tps * 1000;
   };
-  SP.travelMs = function (i) { var nx = this.keys[i + 1]; return nx ? this.span(this.keys[i].at, nx.at) : 0; };
+  // the frames after step i: to the next step, or for the last step to the end of the timeline
+  SP.travelMs = function (i) { var nx = this.keys[i + 1]; return this.span(this.keys[i].at, nx ? nx.at : this.T); };
   /* one whole autoplay, in ms: the frames' travel, each step's hold, and the last step's words */
   SP.playMs = function () {
     var S = this, n = S.keys.length, last = S.keys[n - 1];
@@ -150,9 +153,13 @@
       });
     }
     S.replayB = mk("button", "replay idle", bar, "replay"); S.replayB.type = "button";
-    S.prevB.addEventListener("click", function () { S.go(S.k - 1, true); });
-    S.nextB.addEventListener("click", function () { S.go(S.k + 1, false); });
+    // a 1 px rule over the stage's bottom edge that fills as the scene plays, so a long scene shows how far along it is
+    S.prog = mk("div", "sc-prog"); S.prog.setAttribute("aria-hidden", "true"); S.progI = mk("i", "", S.prog);
+    S.stage.parentNode.insertBefore(S.prog, S.stage.nextSibling); S.progPx = -1; S.progOn = false;
+    S.prevB.addEventListener("click", function () { var i = Math.max(0, S.k - 1); S.go(i, true); S.reveal(i); });
+    S.nextB.addEventListener("click", function () { var i = Math.min(S.keys.length - 1, S.k + 1); S.go(i, false); S.reveal(i); });
     S.replayB.addEventListener("click", function () { S.play(); });
+    S.pips.forEach(function (p, i) { p.addEventListener("click", function () { S.reveal(i); }); });
   };
 
   SP.syncInputs = function () {
@@ -252,16 +259,56 @@
       h.e.style.width = W + "px"; h.e.style.height = H + "px";
     });
     S.drawnTick = -1;
+    S.progW = S.stage.clientWidth; S.progPx = -1;
     S.dock();
   };
 
   /* phone: a scene whose art, words and stepper do not fit one screen under the strip docks its words and stepper to
      the bottom of the screen while it is on screen, so the step being described and its words are always in view
      together, and the try-it inputs move under the stepper */
-  function room() { var s = document.querySelector(".strip"); return root.innerHeight - (s ? s.offsetHeight : 0) - 16; }   // under the strip, less a margin
+  function stripH() { var s = document.querySelector(".strip"); return s ? s.offsetHeight : 0; }
+  // the screen under the strip, less 16 px for a stage parked a little below the strip and 8 px under the stepper
+  function room() { return root.innerHeight - stripH() - 24; }
+  // from the top of the stage (its rule) to the bottom of the stepper
   SP.reach = function () {
-    var a = (this.art || this.stage).getBoundingClientRect(), b = this.fig.querySelector(".sc-bar").getBoundingClientRect();
+    var a = this.stage.getBoundingClientRect(), b = this.fig.querySelector(".sc-bar").getBoundingClientRect();
     return b.bottom - a.top;
+  };
+  /* what a step changes, for a docked scene to keep in view: spec.focus(api, i, name) or spec.focus[name] gives an
+     element, a list of them or a selector inside the figure (false: nothing); by default, the keyed parts in the stage
+     that turn on at that step */
+  SP.subject = function (i) {
+    var S = this, f = S.spec.focus, name = S.keys[i].name, got = null;
+    if (typeof f === "function") got = f(S.api, i, name);
+    else if (f && typeof f === "object") got = f[name];
+    if (got === false) return [];
+    if (got === undefined || got === null) got = S.keyed.filter(function (o) { return o.lo === i && S.stage.contains(o.e); }).map(function (o) { return o.e; });
+    if (typeof got === "string") got = S.fig.querySelectorAll(got);
+    if (got && got.nodeType === 1) got = [got];
+    return [].slice.call(got || []).filter(function (e) { return e && e.getClientRects().length; });
+  };
+  /* the words and stepper docked at the bottom of the screen: their top edge, in px from the top of the screen */
+  SP.dockTop = function () {
+    var keys = this.fig.querySelector(".sc-keys"), bar = this.fig.querySelector(".sc-bar");
+    return root.innerHeight - (keys ? keys.getBoundingClientRect().height : 0) - bar.getBoundingClientRect().height;
+  };
+  /* the band a step's subject must sit in, between the strip and the dock, and the subject's own extent there */
+  SP.bounds = function (els) {
+    var top = Infinity, bot = -Infinity;
+    els.forEach(function (e) { var r = e.getBoundingClientRect(); top = Math.min(top, r.top); bot = Math.max(bot, r.bottom); });
+    return { top: top, bot: bot, lo: stripH() + 8, hi: this.dockTop() - 8 };
+  };
+  /* a stepper click on a docked phone scene: scroll the least that brings the step's subject between the strip and
+     the docked words (a subject taller than that shows its top). A click is the reader's, so the page may move. */
+  SP.reveal = function (i, els) {
+    var S = this;
+    if (!S.fig.classList.contains("docked") || root.innerWidth >= 768) return;
+    els = els || S.subject(i); if (!els.length) return;
+    var b = S.bounds(els), dy = 0;
+    if (b.bot > b.hi) dy = b.bot - b.hi;
+    if (b.top - dy < b.lo) dy = b.top - b.lo;
+    if (Math.abs(dy) < 2) return;
+    root.scrollBy({ top: Math.round(dy), left: 0, behavior: REDUCE ? "auto" : "smooth" });
   };
   SP.dock = function () {
     var S = this, fig = S.fig, bar = fig.querySelector(".sc-bar");
@@ -281,13 +328,48 @@
     if (S.mode === "live") { if (S.spec.live && S.spec.live.draw) S.spec.live.draw(S.api, S.live); }
     else if (S.spec.draw && (force || tick !== S.drawnTick || S.spec.smooth)) { S.spec.draw(S.api, tick, S.spec.smooth ? frac : 0); S.drawnTick = tick; }
     S.syncBar();
+    S.syncProg();
+  };
+  /* the autoplay's own clock, in ms, from its start to tick t: each stretch between steps, and each step's hold that is
+     done (the one it sits on counts what has passed of it). A step at the very end gets no hold, as in advance(). */
+  SP.clockAt = function (t, holdLeft) {
+    var S = this, ms = 0, prev = 0;
+    for (var i = 0; i < S.keys.length; i++) {
+      var a = S.keys[i].at; if (a > t + 1e-9) break;
+      ms += S.span(prev, a); prev = a;
+      var h = (i === 0 && a === 0) || (a > 0 && a < S.T) ? S.holdAt(i) : 0;
+      ms += a < t - 1e-9 ? h : Math.max(0, h - Math.max(0, holdLeft));
+    }
+    return ms + S.span(prev, Math.max(prev, t));
+  };
+  /* the progress rule: shown while the scene plays on its own, its length the share of the autoplay's clock gone, in
+     whole pixels; when the play ends it fades out at full length */
+  SP.syncProg = function () {
+    var S = this, on = S.mode === "auto" && !S.ambient && !REDUCE;
+    if (on) {
+      if (S.clockMs === undefined) S.clockMs = S.clockAt(S.T, 0);
+      var px = S.clockMs > 0 ? Math.round(S.progW * Math.min(1, S.clockAt(S.t, S.holdLeft) / S.clockMs)) : 0;
+      if (px !== S.progPx) { S.progPx = px; S.progI.style.width = px + "px"; }
+    }
+    if (on !== S.progOn) { S.progOn = on; S.prog.classList.toggle("on", on); }
   };
   SP.setKey = function (k) {
     var S = this; S.k = k;
     S.keys.forEach(function (key, i) { if (key.li) key.li.classList.toggle("on", i === k); });
-    // keyed parts wait for the arrival, so the first step's parts also animate in front of the reader
+    // keyed parts wait for the arrival, so the first step's parts also animate in front of the reader; a ghosted part
+    // waits as its preview, and when its step comes it fades in from nothing in its own colours, not by a colour swap
     var live = S.arrived || REDUCE;
-    S.keyed.forEach(function (o) { o.e.classList.toggle("on", live && k >= o.lo && k <= o.hi); });
+    S.keyed.forEach(function (o) {
+      var on = live && k >= o.lo && k <= o.hi, e = o.e;
+      e.classList.toggle("on", on);
+      if (!o.ghost) return;
+      var gh = !on && (k < o.lo || (!S.arrived && k <= o.lo));
+      if (!gh && on && e.classList.contains("ghost") && !REDUCE) {
+        e.classList.add("rv"); e.getBoundingClientRect();
+        requestAnimationFrame(function () { e.classList.remove("rv"); });
+      }
+      e.classList.toggle("ghost", gh);
+    });
     S.fig.setAttribute("data-key", S.keys[k].name);
     if (S.spec.onKey) S.spec.onKey(S.api, k, S.keys[k].name);
   };
@@ -328,9 +410,11 @@
     if (S.holdLeft > 0) { S.holdLeft -= dt; return true; }
     var nt = S.t + dt * S.tps / 1000;
     if (S.mode === "auto") {
+      // a step not yet held: the clock may sit a hair under a step's tick after summing frame times, so a step within
+      // 1e-6 of the clock still holds unless it was the last one held
       for (var i = 0; i < S.keys.length; i++) {
         var a = S.keys[i].at;
-        if (a > S.t + 1e-9 && a <= nt && a < S.target) { nt = a; S.holdLeft = S.holdAt(i); break; }
+        if (a <= nt && a < S.target && (a > S.t + 1e-9 || (a > S.t - 1e-6 && S.heldAt !== a))) { nt = a; S.heldAt = a; S.holdLeft = S.holdAt(i); break; }
       }
     }
     if (nt >= S.target) { S.t = S.target; return false; }
@@ -345,14 +429,15 @@
   SP.play = function () {
     var S = this; S.queued = false; S.paused = false; S.played = true; S.stop(); S.leaveLive();
     if (REDUCE) { S.show(S.keys[S.restKey].at); return; }
-    S.mode = "auto"; S.t = 0; S.target = S.T; S.holdLeft = S.keys[0].at === 0 ? S.holdAt(0) : 0; S.render(true); S.run();
+    S.mode = "auto"; S.t = 0; S.target = S.T; S.holdLeft = S.keys[0].at === 0 ? S.holdAt(0) : 0; S.heldAt = S.keys[0].at === 0 ? 0 : -1; S.render(true); S.run();
   };
-  /* go to step i: forward plays the segment to it; back (or a square), or a figure off screen, snaps */
+  /* go to step i: forward plays the segment to it; back (or a square), or a figure off screen, snaps. The last step
+     runs on to the end of the timeline, where the autoplay leaves it, so what plays after its words is not lost. */
   SP.go = function (i, snap) {
     var S = this;
     i = Math.max(0, Math.min(S.keys.length - 1, i));
     var wasLive = S.mode === "live"; S.leaveLive(); S.stop(); S.arrived = true; S.queued = false; S.paused = false; S.played = true;
-    var at = S.keys[i].at;
+    var at = i === S.keys.length - 1 ? S.T : S.keys[i].at;
     if (snap || REDUCE || wasLive || at <= S.t || !S.visible) { S.show(at); return; }
     S.mode = "seg"; S.target = at; S.holdLeft = 0; S.run();
   };
@@ -524,6 +609,8 @@
 
   var Deep = {
     tokens: tokens, reduce: REDUCE, coarse: COARSE, scenes: scenes, readTime: readTime,
+    /* from a click on a docked phone scene's own controls: bring these elements between the strip and the dock */
+    reveal: function (id, els) { scenes.forEach(function (s) { if (s.id === id) s.reveal(0, [].concat(els).filter(Boolean)); }); },
     scene: function (id, spec) {
       var fig = typeof id === "string" ? document.getElementById(id) : id;
       if (!fig) return null;
@@ -542,23 +629,30 @@
     toc: function () { var a = document.querySelector(".dd-toc a.on[aria-current]"); return a ? a.getAttribute("href") : null; },
     readTime: readTime,
     /* ok only when every figure.scene on the page passed its own check() and became a Scene with a stepper, every
-       caption and note is in sentence case, and on a phone every scene either fits one screen from its art to its
-       stepper or docks its stepper, so the site's case-study contract (which runs every selfCheck it finds) fails a
-       deep dive that breaks any of them */
+       caption and note is in sentence case, and on a phone every scene either fits one screen from its stage to its
+       stepper or docks its stepper, with what each step changes short enough to sit above the dock, so the site's
+       case-study contract (which runs every selfCheck it finds) fails a deep dive that breaks any of them */
     selfCheck: function () {
       var figs = [].slice.call(document.querySelectorAll("figure.scene")), built = {};
       scenes.forEach(function (s) { built[s.id] = s; });
       var failed = figs.filter(function (f) { return f.getAttribute("data-check") === "fail"; }).map(function (f) { return f.id; });
       var unbuilt = figs.filter(function (f) { return f.getAttribute("data-check") !== "fail" && !built[f.id]; }).map(function (f) { return f.id || "?"; });
       var nobar = scenes.filter(function (s) { return !s.fig.querySelector(".sc-bar"); }).map(function (s) { return s.id; });
-      var caps = lowerCaps(), fit = [];
+      var caps = lowerCaps(), fit = [], under = [];
       if (root.innerWidth < 768) scenes.forEach(function (s) {
         var bar = s.fig.querySelector(".sc-bar");
         if (!bar || s.ambient || getComputedStyle(bar).display === "none") return;
         if (s.fig.classList.contains("docked") ? getComputedStyle(bar).position !== "sticky" : s.reach() > room()) fit.push(s.id);
+        // docked: what each step changes fits between the strip and the docked words, so a stepper click can bring
+        // all of it into view (see reveal)
+        if (s.fig.classList.contains("docked")) s.keys.forEach(function (k, i) {
+          var els = s.subject(i); if (!els.length) return;
+          var b = s.bounds(els);
+          if (b.bot - b.top > b.hi - b.lo) under.push(s.id + " " + k.name + " " + Math.round(b.bot - b.top) + ">" + Math.round(b.hi - b.lo));
+        });
       });
-      return { ok: figs.length > 0 && !failed.length && !unbuilt.length && !nobar.length && !caps.length && !fit.length,
-               figures: figs.length, scenes: scenes.length, failed: failed, unbuilt: unbuilt, nobar: nobar, caps: caps, fit: fit };
+      return { ok: figs.length > 0 && !failed.length && !unbuilt.length && !nobar.length && !caps.length && !fit.length && !under.length,
+               figures: figs.length, scenes: scenes.length, failed: failed, unbuilt: unbuilt, nobar: nobar, caps: caps, fit: fit, under: under };
     }
   };
   /* sentence case: the words after a caption's number, and after each sentence end in a caption or note, start with a

@@ -895,7 +895,9 @@
       },
       grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 8 }, space: { top: 16, bottom: 8 },
       ticks: TICKS, tps: 4, pause: 1300, rest: "ripple",
-      draw: function (api, tick) { var e = Math.min(2, Math.floor(tick / 10)), ex = EX[e], up = api.reduce ? 8 : Math.min(8, tick - e * 10); draw(api, ex[0], ex[1], ex[2], Math.max(1, up)); },
+      // each step starts its own example (one@1, ripple@2, sub@10, carry@20), which then plays under its words; with
+      // reduced motion a step shows its example settled, and the first step its lowest bit alone
+      draw: function (api, tick) { var e = Math.min(2, Math.floor(tick / 10)), ex = EX[e], up = api.reduce ? (tick < 2 ? 1 : 8) : Math.min(8, tick - e * 10); draw(api, ex[0], ex[1], ex[2], Math.max(1, up)); },
       inputs: [{ id: "sub", label: "subtract" }],
       live: { start: function () { return {}; }, step: function () { return false; }, draw: function (api) { draw(api, ui.a, ui.b, api.inputs.sub ? 1 : 0, 8); } }
     });
@@ -1116,7 +1118,7 @@
   })();
 
   /* ================= fig 19: the ladder (a diagram) ================= */
-  Deep.scene("sc-ladder", { ticks: 5, tps: 1.6, pause: 400 });
+  Deep.scene("sc-ladder", { ticks: 6, tps: 1.6, pause: 400 });
   Deep.scene("sc-rule", { ticks: 2, tps: 1 });
 
   /* the read time in the head: deep.js's rule, the same on every deep dive (the prose at 230 words a minute, plus

@@ -27,6 +27,7 @@
 <link rel="stylesheet" href="assets/case.css">
 <link rel="stylesheet" href="assets/deep.css">
 <style>
+.ig .rd-m{font-size:13px;fill:var(--muted)}
 /* this page's readout colours: each one is a token with one meaning (see the legend in fig 3's caption) */
 .sc-r .m,.sc-l .m{color:var(--muted)}
 .sc-r .g,.sc-l .g{color:var(--v-green)}
@@ -72,7 +73,7 @@ a.xr{color:inherit}
 <header class="strip">
   <a class="nm" href="../index.html" target="_blank" rel="noopener noreferrer">Oliver Zhang</a>
   <span class="here" aria-hidden="true">work · emergence · in depth</span>
-  <a class="sp" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the short version</a>
+  <a class="sp" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
   <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
 </header>
 
@@ -123,7 +124,7 @@ a.xr{color:inherit}
           <li><a href="#ch-broke"><span class="n">04</span>what broke</a></li>
           <li><a href="#ch-results"><span class="n">05</span>results</a></li>
         </ol>
-        <a class="back-to" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the short version</a>
+        <a class="back-to" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
       </nav>
     </aside>
 
@@ -140,7 +141,7 @@ a.xr{color:inherit}
             <div class="sc-art">
               <svg class="ig-w" width="704" height="176" viewBox="0 0 704 176" role="img" aria-labelledby="sc-rule-t" xmlns="http://www.w3.org/2000/svg">
                 <title id="sc-rule-t" data-src="Olivesz/emergence@910b296:index.html#L921">The cycle of states: head becomes tail, tail becomes wire, and wire becomes head when 1 or 2 of its 8 neighbours are heads.</title>
-                <g data-from="head">
+                <g data-from="head" data-ghost>
                   <rect class="bx" x="0.5" y="8.5" width="191" height="55"/>
                   <rect class="ww-h" x="16" y="28" width="16" height="16"/>
                   <text class="rd" x="48" y="41">head</text>
@@ -150,7 +151,7 @@ a.xr{color:inherit}
                   <path class="hd-a tip" d="M249 32.5L256 36.5L249 40.5Z"/>
                   <text class="lb" x="224" y="24" text-anchor="middle">always</text>
                 </g>
-                <g data-from="head">
+                <g data-from="head" data-ghost>
                   <rect class="bx" x="256.5" y="8.5" width="191" height="55"/>
                   <rect class="ww-t" x="272" y="28" width="16" height="16"/>
                   <text class="rd" x="304" y="41">tail</text>
@@ -159,6 +160,8 @@ a.xr{color:inherit}
                   <path class="ln-a draw" pathLength="1" d="M448 36.5H505"/>
                   <path class="hd-a tip" d="M505 32.5L512 36.5L505 40.5Z"/>
                   <text class="lb" x="480" y="24" text-anchor="middle">always</text>
+                </g>
+                <g data-from="tail" data-ghost>
                   <rect class="bx" x="512.5" y="8.5" width="191" height="55"/>
                   <rect class="ww-w" x="528" y="28" width="16" height="16"/>
                   <text class="rd" x="560" y="41">wire</text>
@@ -166,19 +169,25 @@ a.xr{color:inherit}
                 <g data-from="fire">
                   <path class="ln-a draw" pathLength="1" d="M608.5 64V120.5H96.5V72"/>
                   <path class="hd-a tip" d="M92.5 72L96.5 65L100.5 72Z"/>
+                </g>
+                <g data-from="fire" data-ghost>
                   <text class="rd-a" x="352" y="148" text-anchor="middle" data-src="Olivesz/emergence@910b296:index.html#L921">when 1 or 2 of its 8 neighbours are heads</text>
                   <text class="lb" x="352" y="168" text-anchor="middle">with any other count, it stays wire</text>
                 </g>
               </svg>
               <svg class="ig-n" width="328" height="304" viewBox="0 0 328 304" role="img" aria-labelledby="sc-rule-tn" xmlns="http://www.w3.org/2000/svg">
                 <title id="sc-rule-tn" data-src="Olivesz/emergence@910b296:index.html#L921">The cycle of states: head becomes tail, tail becomes wire, and wire becomes head when 1 or 2 of its 8 neighbours are heads.</title>
-                <g data-from="head">
+                <g data-from="head" data-ghost>
                   <rect class="bx" x="0.5" y="0.5" width="239" height="47"/>
                   <rect class="ww-h" x="16" y="16" width="16" height="16"/>
                   <text class="rd" x="48" y="29">head</text>
+                </g>
+                <g data-from="head">
                   <path class="ln-a draw" pathLength="1" d="M48.5 48V81"/>
                   <path class="hd-a tip" d="M44.5 81L48.5 88L52.5 81Z"/>
                   <text class="lb" x="64" y="72">always</text>
+                </g>
+                <g data-from="head" data-ghost>
                   <rect class="bx" x="0.5" y="88.5" width="239" height="47"/>
                   <rect class="ww-t" x="16" y="104" width="16" height="16"/>
                   <text class="rd" x="48" y="117">tail</text>
@@ -187,6 +196,8 @@ a.xr{color:inherit}
                   <path class="ln-a draw" pathLength="1" d="M48.5 136V169"/>
                   <path class="hd-a tip" d="M44.5 169L48.5 176L52.5 169Z"/>
                   <text class="lb" x="64" y="160">always</text>
+                </g>
+                <g data-from="tail" data-ghost>
                   <rect class="bx" x="0.5" y="176.5" width="239" height="47"/>
                   <rect class="ww-w" x="16" y="192" width="16" height="16"/>
                   <text class="rd" x="48" y="205">wire</text>
@@ -194,6 +205,8 @@ a.xr{color:inherit}
                 <g data-from="fire">
                   <path class="ln-a draw" pathLength="1" d="M240 200.5H288.5V24.5H247"/>
                   <path class="hd-a tip" d="M247 20.5L240 24.5L247 28.5Z"/>
+                </g>
+                <g data-from="fire" data-ghost>
                   <text class="rd-a" x="0" y="256" data-src="Olivesz/emergence@910b296:index.html#L921">when 1 or 2 of its 8</text>
                   <text class="rd-a" x="0" y="276">neighbours are heads</text>
                   <text class="lb" x="0" y="298">with any other count, it stays wire</text>
@@ -257,7 +270,7 @@ a.xr{color:inherit}
         <h2 id="h-idea">Two parts and a clock</h2>
         <p class="np">NAND can build any logic, and a clocked flip-flop can hold a bit. So the whole machine needs only two parts.</p>
         <p>First show, in the raw rule, that logic and memory both exist there: a NAND cell, and a loop that keeps a bit. Then stop wiring by hand: put every signal on one clock, latch it in a flip-flop each cycle, and let the NAND logic settle in between.</p>
-        <p>The memory loop is not that flip-flop. <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L22-L23">It has no data input and no enable: set writes a 1, clear erases a stored 1</span>. The CPU’s flip-flop copies its input on each clock edge; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L46-L47">compiled to the rule, it is a NAND multiplexer feeding a loop exactly one clock long</span>, checked on its own (<a class="xr n" href="#ch-results">chapter 05</a>).</p>
+        <p>The memory loop is not that flip-flop. <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L22-L23">It has no data input and no enable: set writes a 1, clear erases a stored 1</span>. The CPU’s flip-flop copies its input on each clock edge; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L46-L47">compiled to the rule, it is a NAND multiplexer</span> (it passes one of two inputs) <span data-src="Olivesz/emergence@910b296:cpu/README.md#L46-L47">feeding a loop exactly one clock long</span>, checked on its own (<a class="xr n" href="#ch-results">chapter 05</a>).</p>
 
         <figure class="scene" id="sc-plan" aria-labelledby="sc-plan-cap">
           <div class="sc-stage"><div class="sc-art"></div></div>
@@ -433,9 +446,9 @@ a.xr{color:inherit}
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="one" data-at="1">One full adder: the lowest bit adds its two inputs and passes a carry left.</li>
-              <li data-key="ripple" data-at="9">The carry ripples from the lowest bit to the highest, one adder at a time.</li>
-              <li data-key="sub" data-at="19">Subtract: every bit of b is flipped, the first carry-in is set, and the same adders do the rest.</li>
-              <li data-key="carry" data-at="29">When the sum passes <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L64">255</span>, the carry out is set. The CPU latches it as the carry flag, and JC reads it.</li>
+              <li data-key="ripple" data-at="2">The carry ripples from the lowest bit to the highest, one adder at a time.</li>
+              <li data-key="sub" data-at="10">Subtract: every bit of b is flipped, the first carry-in is set, and the same adders do the rest.</li>
+              <li data-key="carry" data-at="20">When the sum passes <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L64">255</span>, the carry out is set. The CPU latches it as the carry flag, and JC reads it.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-alu-cap"><span class="n">fig 14</span>The adder/subtractor on the gate-level netlist, checked against plain arithmetic on every pair of inputs. <span class="key-l k-a"></span>A set bit <span class="key-l k-c"></span>a carry. Drag a or b.</figcaption>
           </figure>
@@ -499,31 +512,35 @@ a.xr{color:inherit}
                 <title id="sc-sync-t">A row of flip-flops feeds a cloud of NAND logic that feeds another row of flip-flops. The logic settles, then every flip-flop updates at once on the clock edge.</title>
                 <text class="lb" x="0" y="12">flip-flops</text><text class="lb" x="256" y="12">nand logic</text><text class="lb" x="576" y="12">flip-flops</text>
                 <g><rect class="c-amber" x="0" y="32" width="24" height="24"/><rect class="c-amber" x="0" y="72" width="24" height="24"/><rect class="bx" x="0.5" y="112.5" width="23" height="23"/><rect class="c-amber" x="0" y="152" width="24" height="24"/></g>
+                <g data-from="settle" data-ghost>
+                  <rect class="c-green" x="200" y="48" width="24" height="24"/><rect class="c-green" x="200" y="96" width="24" height="24"/><rect class="bx" x="288.5" y="72.5" width="23" height="23"/><rect class="c-green" x="288" y="128" width="24" height="24"/><rect class="c-green" x="376" y="56" width="24" height="24"/><rect class="c-green" x="376" y="112" width="24" height="24"/>
+                </g>
                 <g data-from="settle">
                   <path class="ln-a draw" pathLength="1" d="M24 44.5H120V60.5H200"/><path class="ln-a draw" pathLength="1" d="M24 84.5H160V100.5H200"/><path class="ln-a draw" pathLength="1" d="M24 164.5H120V116.5H200"/>
-                  <rect class="c-green" x="200" y="48" width="24" height="24"/><rect class="c-green" x="200" y="96" width="24" height="24"/><rect class="bx" x="288.5" y="72.5" width="23" height="23"/><rect class="c-green" x="288" y="128" width="24" height="24"/><rect class="c-green" x="376" y="56" width="24" height="24"/><rect class="c-green" x="376" y="112" width="24" height="24"/>
                   <path class="ln-a draw" pathLength="1" d="M224 60.5H256V84.5H288"/><path class="ln-a draw" pathLength="1" d="M224 108.5H256V140.5H288"/><path class="ln-a draw" pathLength="1" d="M312 84.5H344V68.5H376"/><path class="ln-a draw" pathLength="1" d="M312 140.5H344V124.5H376"/>
                   <path class="ln-a draw" pathLength="1" d="M400 68.5H576"/><path class="ln-a draw" pathLength="1" d="M400 124.5H488V164.5H576"/>
                   <text class="rd-a" x="256" y="196">settle: each gate waits for its inputs</text>
                 </g>
-                <g data-until="settle"><rect class="bx" x="576.5" y="56.5" width="23" height="23"/><rect class="bx" x="576.5" y="152.5" width="23" height="23"/></g>
-                <g data-from="commit"><rect class="c-amber" x="576" y="56" width="24" height="24"/><rect class="c-amber" x="576" y="152" width="24" height="24"/><path class="ln-b" d="M640.5 24V184"/><text class="lb" x="700" y="196" text-anchor="end">clock edge</text></g>
-                <text class="lb" data-only="hold" x="256" y="196">hold: the flip-flops keep their values</text>
+                <g data-until="settle" data-ghost><rect class="bx" x="576.5" y="56.5" width="23" height="23"/><rect class="bx" x="576.5" y="152.5" width="23" height="23"/></g>
+                <g data-from="commit"><rect class="c-amber" x="576" y="56" width="24" height="24"/><rect class="c-amber" x="576" y="152" width="24" height="24"/></g><g data-from="commit" data-ghost><path class="ln-b" d="M640.5 24V184"/><text class="lb" x="700" y="196" text-anchor="end">clock edge</text></g>
+                <text class="lb" data-only="hold" data-ghost x="256" y="196">hold: the flip-flops keep their values</text>
               </svg>
               <svg class="ig-n" width="328" height="232" viewBox="0 0 328 232" role="img" aria-labelledby="sc-sync-tn" xmlns="http://www.w3.org/2000/svg">
                 <title id="sc-sync-tn">A row of flip-flops feeds NAND logic that feeds another row of flip-flops; the logic settles, then every flip-flop updates on the clock edge.</title>
                 <text class="lb" x="0" y="12">in</text><text class="lb" x="128" y="12">nand logic</text><text class="lb" x="280" y="12">out</text>
                 <g><rect class="c-amber" x="0" y="32" width="16" height="16"/><rect class="c-amber" x="0" y="72" width="16" height="16"/><rect class="bx" x="0.5" y="112.5" width="15" height="15"/><rect class="c-amber" x="0" y="152" width="16" height="16"/></g>
+                <g data-from="settle" data-ghost>
+                  <rect class="c-green" x="112" y="48" width="16" height="16"/><rect class="c-green" x="112" y="96" width="16" height="16"/><rect class="c-green" x="176" y="56" width="16" height="16"/><rect class="c-green" x="176" y="112" width="16" height="16"/>
+                </g>
                 <g data-from="settle">
                   <path class="ln-a draw" pathLength="1" d="M16 40.5H96V56.5H112"/><path class="ln-a draw" pathLength="1" d="M16 80.5H88V100.5H112"/><path class="ln-a draw" pathLength="1" d="M16 160.5H96V108.5H112"/>
-                  <rect class="c-green" x="112" y="48" width="16" height="16"/><rect class="c-green" x="112" y="96" width="16" height="16"/><rect class="c-green" x="176" y="56" width="16" height="16"/><rect class="c-green" x="176" y="112" width="16" height="16"/>
                   <path class="ln-a draw" pathLength="1" d="M128 56.5H152V64.5H176"/><path class="ln-a draw" pathLength="1" d="M128 104.5H152V120.5H176"/>
                   <path class="ln-a draw" pathLength="1" d="M192 64.5H280"/><path class="ln-a draw" pathLength="1" d="M192 120.5H240V160.5H280"/>
                   <text class="rd-a" x="0" y="204">settle: each gate waits for its inputs</text>
                 </g>
-                <g data-until="settle"><rect class="bx" x="280.5" y="56.5" width="15" height="15"/><rect class="bx" x="280.5" y="152.5" width="15" height="15"/></g>
-                <g data-from="commit"><rect class="c-amber" x="280" y="56" width="16" height="16"/><rect class="c-amber" x="280" y="152" width="16" height="16"/><path class="ln-b" d="M312.5 24V184"/><text class="lb" x="0" y="226">clock edge: all update at once</text></g>
-                <text class="lb" data-only="hold" x="0" y="204">hold: the flip-flops keep their values</text>
+                <g data-until="settle" data-ghost><rect class="bx" x="280.5" y="56.5" width="15" height="15"/><rect class="bx" x="280.5" y="152.5" width="15" height="15"/></g>
+                <g data-from="commit"><rect class="c-amber" x="280" y="56" width="16" height="16"/><rect class="c-amber" x="280" y="152" width="16" height="16"/></g><g data-from="commit" data-ghost><path class="ln-b" d="M312.5 24V184"/><text class="lb" x="0" y="226">clock edge: all update at once</text></g>
+                <text class="lb" data-only="hold" data-ghost x="0" y="204">hold: the flip-flops keep their values</text>
               </svg>
             </div>
           </div>
@@ -556,30 +573,32 @@ a.xr{color:inherit}
       <section class="ch" id="ch-results" aria-labelledby="h-results">
         <p class="ch-k">05 <span class="sep">·</span> results</p>
         <h2 id="h-results">Every rung has a check that runs</h2>
-        <p class="np">The NAND cell and the memory loop pass in the rule; the gates and modules pass at netlist level; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span> run against their expected output. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">Compiled to the raw rule, a full adder, a 4-bit counter and a D flip-flop match the netlist on every clock; the whole CPU is not compiled yet.</span></p>
+        <p class="np">The NAND cell and the memory loop pass in the rule; the gates and modules pass at netlist level; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span> run against their expected output.</p>
 
         <figure class="scene ig" id="sc-ladder" aria-labelledby="sc-ladder-cap">
           <div class="sc-stage">
             <div class="sc-art">
-              <svg class="ig-w" width="704" height="248" viewBox="0 0 704 248" role="img" aria-labelledby="sc-ladder-t" xmlns="http://www.w3.org/2000/svg">
+              <svg class="ig-w" width="704" height="288" viewBox="0 0 704 288" role="img" aria-labelledby="sc-ladder-t" xmlns="http://www.w3.org/2000/svg">
                 <title id="sc-ladder-t">The ladder from the rule to programs, each rung with the check that covers it.</title>
-                <path class="ln" d="M8.5 16V232"/>
-                <g data-from="r1"><rect class="c-green" x="0" y="216" width="16" height="16"/><text class="rd" x="32" y="229">rule</text><text class="lb" x="200" y="228" data-src="Olivesz/emergence@910b296:docs/acts.md#L15">4-state; a wire cell fires on 1 or 2 heads</text></g>
-                <g data-from="r2"><rect class="c-green" x="0" y="176" width="16" height="16"/><text class="rd" x="32" y="189">two cells</text><text class="lb" x="200" y="188" data-src="Olivesz/emergence@910b296:cpu/README.md#L25">NAND and loop memory, verified in the raw rule</text></g>
-                <g data-from="r3"><rect class="c-green" x="0" y="136" width="16" height="16"/><text class="rd" x="32" y="149">gates</text><text class="lb" x="200" y="148" data-src="Olivesz/emergence@910b296:cpu/README.md#L81">AND, OR, XOR, MUX derived from NAND; self-test</text></g>
-                <g data-from="r4"><rect class="c-green" x="0" y="96" width="16" height="16"/><text class="rd" x="32" y="109">modules</text><text class="lb" x="200" y="108" data-src="Olivesz/emergence@910b296:cpu/README.md#L21">register, full adder, adder/subtractor, PC, decoder, RAM</text></g>
-                <g data-from="r5"><rect class="c-green" x="0" y="56" width="16" height="16"/><text class="rd" x="32" y="69">CPU</text><text class="lb" x="200" y="68" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates + 175 flip-flops</text></g>
-                <g data-from="r6"><rect class="c-green" x="0" y="16" width="16" height="16"/><text class="rd" x="32" y="29">programs</text><text class="lb" x="200" y="28" data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs, self-checking</text></g>
+                <path class="ln" d="M8.5 56V272"/>
+                <g data-from="r7" data-ghost><path class="ln-ref" d="M8.5 32V56" stroke-dasharray="3 2"/><rect class="ln-ref" x="0.5" y="16.5" width="15" height="15" stroke-dasharray="3 2"/><text class="rd-m" x="32" y="29">CPU in the raw rule</text><text class="lb" x="200" y="28" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">not yet (the full adder, 4-bit counter and D flip-flop are)</text></g>
+                <g data-from="r1" data-ghost><rect class="c-green" x="0" y="256" width="16" height="16"/><text class="rd" x="32" y="269">rule</text><text class="lb" x="200" y="268" data-src="Olivesz/emergence@910b296:docs/acts.md#L15">4-state; a wire cell fires on 1 or 2 heads</text></g>
+                <g data-from="r2" data-ghost><rect class="c-green" x="0" y="216" width="16" height="16"/><text class="rd" x="32" y="229">two cells</text><text class="lb" x="200" y="228" data-src="Olivesz/emergence@910b296:cpu/README.md#L25">NAND and loop memory, verified in the raw rule</text></g>
+                <g data-from="r3" data-ghost><rect class="c-green" x="0" y="176" width="16" height="16"/><text class="rd" x="32" y="189">gates</text><text class="lb" x="200" y="188" data-src="Olivesz/emergence@910b296:cpu/README.md#L81">AND, OR, XOR, MUX derived from NAND; self-test</text></g>
+                <g data-from="r4" data-ghost><rect class="c-green" x="0" y="136" width="16" height="16"/><text class="rd" x="32" y="149">modules</text><text class="lb" x="200" y="148" data-src="Olivesz/emergence@910b296:cpu/README.md#L21">register, full adder, adder/subtractor, PC, decoder, RAM</text></g>
+                <g data-from="r5" data-ghost><rect class="c-green" x="0" y="96" width="16" height="16"/><text class="rd" x="32" y="109">CPU</text><text class="lb" x="200" y="108" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates + 175 flip-flops</text></g>
+                <g data-from="r6" data-ghost><rect class="c-green" x="0" y="56" width="16" height="16"/><text class="rd" x="32" y="69">programs</text><text class="lb" x="200" y="68" data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs, self-checking</text></g>
               </svg>
-              <svg class="ig-n" width="328" height="296" viewBox="0 0 328 296" role="img" aria-labelledby="sc-ladder-tn" xmlns="http://www.w3.org/2000/svg">
+              <svg class="ig-n" width="328" height="344" viewBox="0 0 328 344" role="img" aria-labelledby="sc-ladder-tn" xmlns="http://www.w3.org/2000/svg">
                 <title id="sc-ladder-tn">The ladder from the rule to programs, each rung with its check.</title>
-                <path class="ln" d="M8.5 16V280"/>
-                <g data-from="r1"><rect class="c-green" x="0" y="248" width="16" height="16"/><text class="rd" x="32" y="261">rule</text><text class="lb" x="32" y="280" data-src="Olivesz/emergence@910b296:docs/acts.md#L15">4-state; fires on 1 or 2 heads</text></g>
-                <g data-from="r2"><rect class="c-green" x="0" y="200" width="16" height="16"/><text class="rd" x="32" y="213">two cells</text><text class="lb" x="32" y="232" data-src="Olivesz/emergence@910b296:cpu/README.md#L25">verified in the raw rule</text></g>
-                <g data-from="r3"><rect class="c-green" x="0" y="152" width="16" height="16"/><text class="rd" x="32" y="165">gates</text><text class="lb" x="32" y="184" data-src="Olivesz/emergence@910b296:cpu/README.md#L20">AND, OR, XOR, MUX from NAND</text></g>
-                <g data-from="r4"><rect class="c-green" x="0" y="104" width="16" height="16"/><text class="rd" x="32" y="117">modules</text><text class="lb" x="32" y="136" data-src="Olivesz/emergence@910b296:cpu/README.md#L21">register, adder, PC, decoder, RAM</text></g>
-                <g data-from="r5"><rect class="c-green" x="0" y="56" width="16" height="16"/><text class="rd" x="32" y="69">CPU</text><text class="lb" x="32" y="88" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates + 175 flip-flops</text></g>
-                <g data-from="r6"><rect class="c-green" x="0" y="8" width="16" height="16"/><text class="rd" x="32" y="21">programs</text><text class="lb" x="32" y="40" data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs, self-checking</text></g>
+                <path class="ln" d="M8.5 64V328"/>
+                <g data-from="r7" data-ghost><path class="ln-ref" d="M8.5 24V56" stroke-dasharray="3 2"/><rect class="ln-ref" x="0.5" y="8.5" width="15" height="15" stroke-dasharray="3 2"/><text class="rd-m" x="32" y="21">CPU in the raw rule</text><text class="lb" x="32" y="40" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">not yet; adder, counter, flip-flop are</text></g>
+                <g data-from="r1" data-ghost><rect class="c-green" x="0" y="296" width="16" height="16"/><text class="rd" x="32" y="309">rule</text><text class="lb" x="32" y="328" data-src="Olivesz/emergence@910b296:docs/acts.md#L15">4-state; fires on 1 or 2 heads</text></g>
+                <g data-from="r2" data-ghost><rect class="c-green" x="0" y="248" width="16" height="16"/><text class="rd" x="32" y="261">two cells</text><text class="lb" x="32" y="280" data-src="Olivesz/emergence@910b296:cpu/README.md#L25">verified in the raw rule</text></g>
+                <g data-from="r3" data-ghost><rect class="c-green" x="0" y="200" width="16" height="16"/><text class="rd" x="32" y="213">gates</text><text class="lb" x="32" y="232" data-src="Olivesz/emergence@910b296:cpu/README.md#L20">AND, OR, XOR, MUX from NAND</text></g>
+                <g data-from="r4" data-ghost><rect class="c-green" x="0" y="152" width="16" height="16"/><text class="rd" x="32" y="165">modules</text><text class="lb" x="32" y="184" data-src="Olivesz/emergence@910b296:cpu/README.md#L21">register, adder, PC, decoder, RAM</text></g>
+                <g data-from="r5" data-ghost><rect class="c-green" x="0" y="104" width="16" height="16"/><text class="rd" x="32" y="117">CPU</text><text class="lb" x="32" y="136" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates + 175 flip-flops</text></g>
+                <g data-from="r6" data-ghost><rect class="c-green" x="0" y="56" width="16" height="16"/><text class="rd" x="32" y="69">programs</text><text class="lb" x="32" y="88" data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs, self-checking</text></g>
               </svg>
             </div>
           </div>
@@ -590,8 +609,9 @@ a.xr{color:inherit}
             <li data-key="r4" data-at="3">The modules: registers, adders, the program counter, the decoder, the RAM.</li>
             <li data-key="r5" data-at="4">The CPU, one netlist of the two parts.</li>
             <li data-key="r6" data-at="5">Programs, each compared with the output it should print.</li>
+            <li data-key="r7" data-at="6">Not yet: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L52">the whole CPU compiled to the raw rule</span>. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">A full adder, a 4-bit counter and a D flip-flop are, and match the netlist on every clock.</span></li>
           </ol>
-          <figcaption class="sc-cap" id="sc-ladder-cap"><span class="n">fig 20</span>Every rung has a check that runs, from the rule up to <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span>.</figcaption>
+          <figcaption class="sc-cap" id="sc-ladder-cap"><span class="n">fig 20</span>Every rung has a check that runs, from the rule up to <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span>. Dashed: not built yet.</figcaption>
         </figure>
 
         <ul class="stats">
@@ -616,11 +636,12 @@ a.xr{color:inherit}
 
         <p>A larger SAP-2 runs on the same two parts: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L104">18,895 NAND gates and 2,118 flip-flops</span>, a stack and <span data-src="Olivesz/emergence@910b296:cpu/README.md#L93">256 bytes</span> of memory, the memory built from flip-flops too. It runs multiply, divide, GCD, primes and bubble sort.</p>
         <p>In Conway’s Life, the same project builds gates from glider collisions. That is a separate build; the CPU does not run on it.</p>
+        <p class="pull">Proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L25">the NAND cell and the memory loop in the raw rule</span>; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">a full adder, a 4-bit counter and a D flip-flop compiled to it, matching the netlist on every clock</span>; the CPU and its <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five programs</span> at netlist level. Not proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L55">the whole CPU in the raw rule; the router handles about a dozen gates so far</span>.</p>
 
         <details class="srcs-d">
-          <summary>sources · 11 lines pinned to emergence@910b296</summary>
+          <summary>sources · 10 lines and 1 file pinned to emergence@910b296</summary>
           <ol class="srcs">
-            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/docs/acts.md#L15" target="_blank" rel="noopener noreferrer">docs/acts.md#L15</a> the rule, the page’s gates and their tables</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/docs/acts.md?plain=1#L15" target="_blank" rel="noopener noreferrer">docs/acts.md#L15</a> the rule, the page’s gates and their tables</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/index.html#L919-L1048" target="_blank" rel="noopener noreferrer">index.html#L919-L1048</a> the wire, memory, OR, XOR and AND layouts and their launch</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/ww_cells.py#L124-L125" target="_blank" rel="noopener noreferrer">cpu/ww_cells.py#L124-L125</a> the diode</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/ww_cells.py#L165-L188" target="_blank" rel="noopener noreferrer">cpu/ww_cells.py#L165-L188</a> the NAND cell</li>
@@ -630,7 +651,7 @@ a.xr{color:inherit}
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/wwcpu.js#L1-L3" target="_blank" rel="noopener noreferrer">cpu/wwcpu.js</a> the gate-level port this page runs</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/run_cpu.py#L61-L103" target="_blank" rel="noopener noreferrer">cpu/run_cpu.py#L61-L103</a> the programs and their expected output</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/traces/sap1_fib.json" target="_blank" rel="noopener noreferrer">cpu/traces/sap1_fib.json</a> the recorded netlist trace of the Fibonacci run, under fig 15</li>
-            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/README.md#L10-L87" target="_blank" rel="noopener noreferrer">cpu/README.md#L10-L87</a> the counts, the instruction set, SAP-2</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/README.md?plain=1#L10-L87" target="_blank" rel="noopener noreferrer">cpu/README.md#L10-L87</a> the counts, the instruction set, SAP-2</li>
           </ol>
         </details>
       </section>
@@ -638,7 +659,7 @@ a.xr{color:inherit}
   </div>
 
   <nav class="blk case-nav" aria-label="deep dives">
-    <a class="prev" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the short version</span></a>
+    <a class="prev" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
     <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
     <a class="next" href="freeflow-deep.html" rel="next noopener noreferrer" target="_blank"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">freeflow</span></a>
   </nav>

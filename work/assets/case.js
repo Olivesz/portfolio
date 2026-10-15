@@ -37,15 +37,25 @@
 
 /* inline figures marked data-reveal: armed while still below the fold, drawn once when 40% of the figure is on screen,
    or a fifth of the viewport for a figure taller than that, so a reader never pauses over a screen of empty space.
+   A figure that comes into view faster than 2 px/ms (a skim, a flick or a jump; reading runs near 1) is marked .quick
+   and draws its parts almost together, so a skimming reader is not shown the empty half still waiting its turn.
    Reduced motion or no IntersectionObserver: nothing is armed, so every part rests in its final state. */
 (function () {
   "use strict";
   var figs = document.querySelectorAll(".ig[data-reveal]");
   if (!figs.length || !("IntersectionObserver" in window) || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  var first = typeof WeakMap === "function" ? new WeakMap() : null;
   var io = new IntersectionObserver(function (es) {
     for (var i = 0; i < es.length; i++) {
       var e = es[i], r = e.intersectionRect;
-      if (e.isIntersecting && (e.intersectionRatio >= 0.4 || r.height >= innerHeight * 0.2)) { e.target.classList.add("on"); io.unobserve(e.target); }
+      if (!e.isIntersecting) continue;
+      if (first && !first.has(e.target)) first.set(e.target, { t: e.time, y: e.boundingClientRect.top });
+      if (e.intersectionRatio >= 0.4 || r.height >= innerHeight * 0.2) {
+        // speed from how far the figure moved since it first showed; met already this far in, it came faster than a notch
+        var f = first && first.get(e.target), dt = f ? e.time - f.t : 0;
+        if (f && (dt > 0 ? Math.abs(f.y - e.boundingClientRect.top) / dt > 2 : r.height > 140)) e.target.classList.add("quick");
+        e.target.classList.add("on"); io.unobserve(e.target);
+      }
     }
   }, { threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4] });
   for (var i = 0; i < figs.length; i++) {

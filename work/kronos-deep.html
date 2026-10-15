@@ -62,6 +62,8 @@
 @media (pointer:coarse){ .kr-sl input[type=range]{height:32px} .kr-sl input[type=range]::-webkit-slider-thumb{width:12px;height:24px;margin-top:-11px} .kr-sl input[type=range]::-moz-range-thumb{width:12px;height:24px} }
 .sc-l.kr-g{color:var(--v-green)} .sc-l.kr-t{color:var(--v-red)} .sc-l.kr-a{color:var(--v-amber)} .sc-l.kr-c{color:var(--v-cyan)}
 .sc-l.kr-s0{color:var(--v-blue)} .sc-l.kr-s1{color:var(--v-violet)} .sc-l.kr-s2{color:var(--v-red)}
+/* fig 1's recipe tour: the moods not in focus step down to muted */
+.sc-l.kr-dim{color:var(--muted)}
 /* a label that sits on the art (fig 5's state names, fig 12's readout) gets a void tag so it stays readable */
 .sc-l.kr-tag{background:var(--void);padding:0 4px}
 /* a chapter's one-line opener under its title: where the story stands, for a reader who lands from the contents */
@@ -69,6 +71,9 @@
 .ch>p.ch-sum+p{margin-top:24px}
 /* a caption sentence that opens on the click or tap verb */
 .verb.cap{text-transform:capitalize}
+/* the hero: the regime gate in one picture, no stepper */
+#sc-hero{margin-top:32px}
+#sc-hero .sc-bar,#sc-hero .sc-keys,#sc-hero .sc-in{display:none}
 /* fig 15: a readout line that names three books, KRONOS in amber */
 .sc-l .kr-a{color:var(--v-amber)}
 </style>
@@ -78,7 +83,7 @@
 <header class="strip">
   <a class="nm" href="../index.html" target="_blank" rel="noopener noreferrer">Oliver Zhang</a>
   <span class="here" aria-hidden="true">work · KRONOS · in depth</span>
-  <a class="sp" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the short version</a>
+  <a class="sp" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
   <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
 </header>
 
@@ -98,6 +103,11 @@
         <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 17 minutes</dd></div>
       </dl>
     </div>
+    <figure class="scene hero" id="sc-hero" aria-label="The answer planted in a synthetic market, 3,000 days of three moods, and under it the fitted model's reading of each day: the two bands match on all but a handful of days.">
+      <div class="sc-stage"><div class="sc-art"></div></div>
+      <ol class="sc-keys"><li data-key="run" data-at="0">The planted answer, and the model’s reading of it.</li></ol>
+      <figcaption class="sc-cap"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L16-L45">The regime gate</span>, run in your browser.</figcaption>
+    </figure>
   </header>
 
   <div class="blk dd">
@@ -121,7 +131,7 @@
           <li><a href="#ch-broke"><span class="n">04</span>what broke</a></li>
           <li><a href="#ch-results"><span class="n">05</span>results</a></li>
         </ol>
-        <a class="back-to" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the short version</a>
+        <a class="back-to" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
       </nav>
     </aside>
 
@@ -131,7 +141,7 @@
         <p class="ch-k">01 <span class="sep">·</span> the situation</p>
         <h2 id="h-situation">One history, no answer key</h2>
         <p class="np">Markets switch moods. Calm rallies, choppy stretches and selloffs come and go, and none of them is announced.</p>
-        <p>A model that labels those moods has nothing to check its labels against. Its answer for any given day can be wrong and still look right on a chart. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L56-L58">Most backtests are a single number computed once on one history, with no ground truth to check that number against.</span></p>
+        <p>A model that labels those moods has nothing to check its labels against: a wrong label can still look right on a chart. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L56-L58">Most backtests are a single number computed once on one history, with no ground truth to check it against.</span></p>
 
         <figure class="scene" id="sc-market" aria-labelledby="sc-market-cap">
           <div class="sc-stage"><div class="sc-art"></div></div>
@@ -144,7 +154,7 @@
           <figcaption class="sc-cap" id="sc-market-cap"><span class="n">fig 1</span><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/data.py#L101-L103">A synthetic market from the platform’s own generator, with fat tails, volatility clustering and regime shifts.</span> The coloured band is the answer it was built from. <span class="verb cap">click</span> new draw, or hide the answer to see what a model gets.</figcaption>
         </figure>
 
-        <p>The platform runs fully offline on markets like this one, <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/data.py#L101-L103">built so every model has real structure to find</span>, and the answer to each one is known.</p>
+        <p>The platform runs fully offline on markets like this one, <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/data.py#L101-L103">built so every model has real structure to find</span>, and the answer is known.</p>
       </section>
 
       <!-- 02 -->
@@ -152,7 +162,7 @@
         <p class="ch-k">02 <span class="sep">·</span> the idea</p>
         <h2 id="h-idea">Plant the answer, then grade</h2>
         <p class="np">Build worlds where the answer is planted. An estimator has to find the plant, and stay quiet in a world with nothing planted, before it is allowed near a real price.</p>
-        <p>The two halves have names. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L30-L34">Size: on a world where the effect is absent, the test does not fire. Power: on a world where it is present by construction, the test detects it.</span> A test that never fires has perfect size and is worth nothing, so both worlds are needed.</p>
+        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L30-L34">Size: on a world where the effect is absent, the test does not fire. Power: on a world where it is present by construction, the test detects it.</span> A test that never fires has perfect size and is worth nothing, so both worlds are needed.</p>
 
         <figure class="scene ig" id="sc-idea" aria-labelledby="sc-idea-cap">
           <div class="sc-stage">
@@ -246,7 +256,7 @@
       <section class="ch" id="ch-build" aria-labelledby="h-build">
         <p class="ch-k">03 <span class="sep">·</span> the build</p>
         <h2 id="h-build">From a planted world to a sized book</h2>
-        <p>The steps below build the regime model and the gates around it, then the book that model used to drive, then the overlay that sizes the book. <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L138-L143">That regime-gated book lost to plain equal weight under a pre-registered test, so the shipped book is now equal weight, and the regime-gated one runs beside it as the control every new construction must beat.</span> (Pre-registered: the expected outcomes and the kill lines were written down before the run.) First, the whole machine on one page.</p>
+        <p>The steps below build the regime model and its gates, then the book it used to drive, then the overlay that sizes the book. <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L138-L143">That regime-gated book lost to plain equal weight under a pre-registered test, so the shipped book is now equal weight, and the regime-gated one runs beside it as the control every new construction must beat.</span> (Pre-registered: the expected outcomes and the kill lines were written down before the run.)</p>
 
         <figure class="scene ig" id="sc-flow" aria-labelledby="sc-flow-cap">
           <div class="sc-stage">
@@ -323,7 +333,7 @@
           <ol class="sc-keys">
             <li data-key="stages" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L128-L132">One rebalance, two books. The shipped book holds every name at equal weight; the regime-gated book it replaced runs beside it as the control. The same overlay sizes either one.</span></li>
             <li data-key="feeds" data-at="1"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L23-L55">A side part: a forecast of the book’s own volatility sets the lever, from its squared returns averaged over the last 1, 5 and 22 days.</span></li>
-            <li data-key="pairs" data-at="2">Another: <span data-src="Olivesz/kronos-quant@c19c5ca:run_kronos.py#L90-L96">a pairs sleeve adds its returns to the day’s</span>, at <span data-derived="0.10 = 10%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L72">10%</span> gross.</li>
+            <li data-key="pairs" data-at="2">Another: <span data-src="Olivesz/kronos-quant@c19c5ca:run_kronos.py#L90-L96">a pairs sleeve adds its returns to the day’s</span>, sized at <span data-derived="0.10 = 10%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L72">10%</span> of the book, long and short legs counted together.</li>
             <li data-key="clock" data-at="3"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/backtest.py#L3-L9">Everything is decided at the close of day t, from data up to t. Trades, costs and returns start at t+1.</span></li>
           </ol>
           <figcaption class="sc-cap" id="sc-flow-cap"><span class="n">fig 3</span>The machine at one rebalance: the shipped book’s path in amber, the control’s in grey. HRP + BL is hierarchical risk parity with a Black-Litterman tilt, built in the book step below. Each step below opens on a small copy of it, with its own box lit.</figcaption>
@@ -354,7 +364,7 @@
           <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
           <h3>EM finds the plant</h3>
           <p>The model is a hidden Markov model: <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L42">three</span> states, each with its own centre and spread in the two features, and a table of day-to-day switching odds. It is fitted by expectation-maximisation, which alternates two moves.</p>
-          <p>First, score every day against the current guesses with a forward sweep and a backward sweep through time. Then move each guess to the weighted average of the days that belong to it. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L150-L152">Repeat, and break off once the fit stops improving.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L83-L104">The fit starts 3 times, the later starts nudged at random, and keeps the best.</span></p>
+          <p>Score every day against the current guesses with a sweep forward and a sweep back through time, then move each guess to the weighted average of its days. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L150-L152">Repeat, and break off once the fit stops improving.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L83-L104">The fit starts 3 times, the later starts nudged at random, and keeps the best.</span></p>
 
           <figure class="scene" id="sc-em" aria-labelledby="sc-em-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
@@ -378,7 +388,7 @@
           <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
           <h3>Read it without the future</h3>
           <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L68-L75">A fitted model can answer two questions about any day. Filtered: given the data up to that day, which state is it in now? Smoothed: given the whole sample, which state was it in? The smoothed answer is cleaner because it uses days that had not happened yet.</span></p>
-          <p>The regime gate’s world is so clean that both readings agree on almost every day. The next two figures use a murkier market from the opening figure’s generator, fitted the same way and read through the same two features as real data.</p>
+          <p>The regime gate’s world is so clean that both readings agree on almost every day, so the next two figures use a murkier market from the opening figure’s generator, fitted the same way, on the same two features as real data.</p>
           <p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L101-L102">Every trading decision reads filtered probabilities only.</span> The model is refit walk-forward: first after <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L45">750</span> days, then every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L46">21</span> trading days.</p>
 
           <figure class="scene" id="sc-causal" aria-labelledby="sc-causal-cap">
@@ -399,7 +409,7 @@
           <p class="st-k">step 04 <span class="sep">·</span> the label</p>
           <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
           <h3>From probabilities to a label</h3>
-          <p>A filtered probability jitters from day to day. Trading on its raw leader would turn the book over on noise, so the label follows two rules.</p>
+          <p>A filtered probability jitters from day to day, and trading on its raw leader would turn the book over on noise. So the label follows two rules.</p>
           <p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L264-L265">The label flips only after a confirmation streak, and holds for a minimum dwell unless the new state is near-certain.</span> A new state has to lead above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span> for <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L51">5</span> straight days, and the label stays put for at least <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days after a change, unless the new state is above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span> on the day it is confirmed.</p>
 
           <figure class="scene" id="sc-hyst" aria-labelledby="sc-hyst-cap">
@@ -408,7 +418,7 @@
               <li data-key="raw" data-at="0">Filtered probabilities, one per state, and the label built from them. Their leader alone would flicker.</li>
               <li data-key="blip" data-at="1">A false alarm: a new state leads above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span>, then falls back before <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L51">5</span> straight days. No change.</li>
               <li data-key="flip" data-at="2">A real change: <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L51">5</span> straight days above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span>, at least <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days since the last change. The label flips and the counters reset.</li>
-              <li data-key="urgent" data-at="3">An urgent change: the label moved fewer than <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days ago, but the new state is above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span>, so the wait is waived.</li>
+              <li data-key="urgent" data-at="3">Bull took over <span data-derived="this draw's readout: Bear to Bull on day 85, the urgent flip on day 92">7</span> days ago, then Volatile passed <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span>. An urgent change: the label moved fewer than <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days ago, but above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span> the wait is waived.</li>
               <li data-key="stable" data-at="4">A steady label under jittery lines.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-hyst-cap"><span class="n">fig 7</span>The label rule run day by day on that market’s filtered readings. The readout counts days in a row above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span> and days since the last change, which carries in from before the window; both reset when the label moves. <span class="verb cap">click</span> no hysteresis to see the raw leader.</figcaption>
@@ -440,7 +450,7 @@
           <p class="st-k">step 06 <span class="sep">·</span> the book</p>
           <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> regimes <span aria-hidden="true">→</span> <b>signals</b> <span aria-hidden="true">→</span> <b>HRP + BL</b> <span aria-hidden="true">→</span> overlay</p>
           <h3>The control: from a label to a book</h3>
-          <p>This was the shipped book until <span data-derived="commit date of c19c5ca">13 October</span>, and it still runs as the control. Every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L104">21</span> trading days the label picks a signal mix, the mix ranks the names, and <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/black_litterman.py#L1-L7">the book is a hierarchical-risk-parity backbone with a Black-Litterman tilt, which feeds the signal into the weights as a view</span> (the BL in HRP + BL). <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L100-L101">Equal weight replaced all of that in the shipped book</span>; the overlay in the next step sizes either one.</p>
+          <p>This was the shipped book until <span data-derived="commit date of c19c5ca">13 October</span>, and it still runs as the control. Every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L104">21</span> trading days the label picks a signal mix, the mix ranks the names, and <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/black_litterman.py#L1-L7">the book is a hierarchical-risk-parity backbone with a Black-Litterman tilt, which feeds the signal into the weights as a view</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L100-L101">Equal weight replaced all of that in the shipped book</span>; the overlay in the next step sizes either one.</p>
 
           <figure class="scene" id="sc-book" aria-labelledby="sc-book-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
@@ -460,7 +470,7 @@
           <p class="kr-here" aria-label="where this step sits in fig 3">either book <span aria-hidden="true">·</span> equal weight or HRP + BL <span aria-hidden="true">→</span> <b>overlay</b> <span aria-hidden="true">→</span> t+1</p>
           <h3>Lever times the tighter brake</h3>
           <p>The size of the whole book is set last. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L69-L75">A lever aims the book’s volatility at its target by dividing the target by a forecast of the book’s own volatility</span>, capped at <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5×</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L77-L93">Two brakes can only hold it back: a tail-loss brake and a drawdown throttle. Exposure is the lever times whichever brake is tighter.</span></p>
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L23-L55">The forecast is a small regression, refit every 21 days: the book’s squared daily returns, averaged over the last 1, 5 and 22 days, predict the next day’s.</span> A short window reacts to a shock, a long one remembers the regime, and the regression learns how much to trust each. That is the forecast box in the machine above.</p>
+          <p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L23-L55">The forecast is a small regression, refit every 21 days: the book’s squared daily returns, averaged over the last 1, 5 and 22 days, predict the next day’s.</span> A short window reacts to a shock, a long one remembers the regime, and the regression learns how much to trust each. It is the forecast box in fig 3.</p>
 
           <figure class="scene" id="sc-overlay" aria-labelledby="sc-overlay-cap">
             <div class="sc-stage"><div class="sc-art"></div></div>
@@ -483,9 +493,9 @@
       <section class="ch" id="ch-broke" aria-labelledby="h-broke">
         <p class="ch-k">04 <span class="sep">·</span> what broke</p>
         <h2 id="h-broke">The brake that pushed the wrong way</h2>
-        <p class="ch-sum">After the build: the machine, and a gate on every estimator. This chapter is the bug none of the gates asked about.</p>
+        <p class="ch-sum">After the build: the machine, and a gate on every estimator. This chapter: the bug none of the gates asked about.</p>
         <p class="np">Every gate passed, and the book still fell short of its own plan.</p>
-        <p>Realized volatility sat at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L26">6.9%</span> against a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24">13%</span> target, so the question was where the return went. The gates themselves were the first place to look.</p>
+        <p>Realized volatility sat at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L26">6.9%</span> against a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24">13%</span> target. Where did the return go? The gates were the first place to look.</p>
 
         <figure class="scene" id="sc-gates" aria-labelledby="sc-gates-cap">
           <div class="sc-stage"><div class="sc-art"></div></div>
@@ -538,7 +548,7 @@
           <figcaption class="sc-cap" id="sc-pay-cap"><span class="n">fig 14</span>Did the repair pay? A calm book at full brakes under each rule, the financing bill against its kill line, and realized volatility at each stage.</figcaption>
         </figure>
 
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L1150-L1154">A later gate checks the exposure cap under an extreme tilt instead of assuming it, and its record says why: an inverted overlay hid in this codebase once.</span> Direction is now something the suite tests.</p>
+        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L1150-L1154">A later gate checks the exposure cap under an extreme tilt instead of assuming it, and its record says why: an inverted overlay hid in this codebase once.</span> The suite now tests direction.</p>
         <p class="pull">A brake that braked at the top and let go in a crash passed every gate, because no gate asked which way it pushed.</p>
       </section>
 
@@ -563,16 +573,16 @@
         </figure>
 
         <ul class="stats">
-          <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">1.12</span><span class="k">Sharpe, zero rate</span><span class="b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">equal weight 1.10</span> · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">SPY 0.91</span></span></li>
-          <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">−18.7%</span><span class="k">max drawdown</span><span class="b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">equal weight −29.5%</span> · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">SPY −33.7%</span></span></li>
+          <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L28-L30">64%</span><span class="k">of equal weight’s drawdown</span><span class="b" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L28-L30">at about its Sharpe, on the same names</span></li>
+          <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L30-L31">56%</span><span class="k">of SPY’s drawdown</span><span class="b" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L30-L31">at a higher Sharpe</span></li>
           <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span><span class="k">gates</span><span class="b" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">all run in CI on real prices, nothing skipped</span></li>
         </ul>
 
         <p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L166-L177">Since 2026-08-17 a CI job has logged the unlevered KRONOS-TRADE variant (the system the research licenses for live use), not the shipped book, before each session: after 35 trading days it is down 2.38%, against SPY’s +0.70% and equal weight’s −2.25%, a gap of about one standard error, too soon to confirm or refute the backtest.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L180-L182">Its decisions before 13 October ran on a panel with a 74-day gap, since repaired.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L228-L240">Frozen with every US setting and rerun on Japan, Europe and Asia-EM, the shipped book kept roughly half the local index’s drawdown, but equal weight on the same names beat its Sharpe in all three markets, and the index did in Japan and Europe.</span></p>
 
-        <p>Beside the book sit <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L186">35</span> pre-registered experiments, with <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L320-L322">negative results reported as plainly as positive ones: stat-arb is dead, random-matrix denoising does not help here, duration models do not beat the plain HMM, and the trading system does not beat the S&amp;P on CAGR</span>.</p>
-        <p>Every number on this page comes from <a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">Olivesz/kronos-quant</a> at a pinned commit, listed below, and the short version is in <a href="kronos.html" target="_blank" rel="noopener noreferrer">the case study</a>.</p>
-        <details class="srcs-d"><summary>sources · pinned to kronos-quant@c19c5ca</summary>
+        <p>Beside the book sit <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L186">35</span> pre-registered experiments, with <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L320-L322">negative results reported as plainly as positive ones: stat-arb is dead, random-matrix denoising does not help here, duration models do not beat the plain HMM, and the trading system does not beat SPY on CAGR</span>.</p>
+        <p>Every number here comes from <a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">Olivesz/kronos-quant</a> at a pinned commit, listed below; the short version is <a href="kronos.html" target="_blank" rel="noopener noreferrer">the case study</a>.</p>
+        <details class="srcs-d"><summary>sources · 20 files pinned to kronos-quant@c19c5ca, and the gate list at three earlier commits</summary>
           <ol class="srcs">
             <li><a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/README.md" target="_blank" rel="noopener noreferrer">README.md</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/config.py" target="_blank" rel="noopener noreferrer">config.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/run_kronos.py" target="_blank" rel="noopener noreferrer">run_kronos.py</a> · c19c5ca</li>
             <li><a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/data.py" target="_blank" rel="noopener noreferrer">kronos/data.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/regime.py" target="_blank" rel="noopener noreferrer">regime.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/thmm.py" target="_blank" rel="noopener noreferrer">thmm.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/signals.py" target="_blank" rel="noopener noreferrer">signals.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/hrp.py" target="_blank" rel="noopener noreferrer">hrp.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/black_litterman.py" target="_blank" rel="noopener noreferrer">black_litterman.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/risk.py" target="_blank" rel="noopener noreferrer">risk.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/backtest.py" target="_blank" rel="noopener noreferrer">backtest.py</a> · c19c5ca</li>
@@ -586,7 +596,7 @@
   </div>
 
   <nav class="blk case-nav" aria-label="deep dives">
-    <a class="prev" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the short version</span></a>
+    <a class="prev" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
     <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
     <a class="next" href="custos-code-deep.html" rel="next noopener noreferrer" target="_blank"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">custos-code</span></a>
   </nav>
@@ -673,10 +683,15 @@
     o = o || {};
     var L = api.scene.labels[id]; if (L) L.e.hidden = false;
     x -= o.align === "right" ? 1 : o.align === "center" ? 0.5 : 0;
+    // deep.js keeps the base class (sc-l, sc-l i, sc-r) in step with o.cls; the page's own extra classes (o.k) are
+    // swapped here, and the label placed again only when they change, since a tag's padding changes its width
+    var k = o.k || "", was = L ? L.e.krK || "" : "";
     var e = api.label(id, text, x, y, o);
-    var base = o.cls === "r" ? "sc-r" : "sc-l" + (o.cls ? " " + o.cls : "");
-    var want = base + (o.k ? " " + o.k : "");
-    if (e.className !== want) { e.className = want; api.label(id, null, x, y, o); }
+    if (k !== was) {
+      if (was) was.split(" ").forEach(function (c) { e.classList.remove(c); });
+      if (k) k.split(" ").forEach(function (c) { e.classList.add(c); });
+      e.krK = k; api.label(id, null, x, y, o);
+    }
     ["src", "derived", "inputs"].forEach(function (a) { if (o[a]) e.setAttribute("data-" + a, o[a]); else e.removeAttribute("data-" + a); });
     if (o.live) e.setAttribute("data-live", "this draw"); else e.removeAttribute("data-live");
     USED[api.scene.id][id] = 1;
@@ -747,16 +762,29 @@
     /* the answer is painted under the line left to right, day by day, as the step that names it arrives (and again
        after a new draw or when the answer comes back); a timed wipe, so it plays while the step's words are read */
     var WIPE = 1400, wipe0 = 0, raf = 0;
+    /* the recipe step tours the moods in the order its words name them: each one's days lit on the band and on the
+       line, the others dimmed, its recipe row written beside it; then all three at once, the line keeping their colours */
+    var TOUR = 4800, tour0 = 0;
     function wiped() { var u = wipe0 ? clamp((performance.now() - wipe0) / WIPE, 0, 1) : 1; return u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; }
-    function pump() { raf = 0; if (!sc) return; if (wipe0 && performance.now() - wipe0 >= WIPE) wipe0 = 0; sc.drawnTick = -1; sc.render(false); if (wipe0) raf = requestAnimationFrame(pump); }
+    function toured() { return tour0 ? clamp((performance.now() - tour0) / TOUR, 0, 1) : 1; }
+    function pump() {
+      raf = 0; if (!sc) return; var now = performance.now();
+      if (wipe0 && now - wipe0 >= WIPE) wipe0 = 0; if (tour0 && now - tour0 >= TOUR) tour0 = 0;
+      sc.drawnTick = -1; sc.render(false); if (wipe0 || tour0) raf = requestAnimationFrame(pump);
+    }
     function wipe() { if (Deep.reduce) return; wipe0 = performance.now(); if (!raf) raf = requestAnimationFrame(pump); }
+    function tour() { if (Deep.reduce) return; tour0 = performance.now(); if (!raf) raf = requestAnimationFrame(pump); }
     sc = Deep.scene("sc-market", {
       grid: { cols: 88, rows: 32, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 72 : 64; } },
       ticks: 30, tps: 8,
       inputs: [{ id: "draw", label: "new draw", momentary: true }, { id: "hide", label: "hide the answer", states: ["off", "on"] }],
       onInput: function (api, id, on) { if (id === "draw") { seed += 1; M = genMarket(seed, T); } if (api.keyIndex >= 2 && !api.inputs.hide && (id === "draw" || !on)) wipe(); },
-      onKey: function (api, k) { if (k >= 2 && prevK < 2 && (api.mode === "auto" || api.mode === "seg")) wipe(); if (k < 2) wipe0 = 0; prevK = k; },
+      onKey: function (api, k) {
+        if (k >= 2 && prevK < 2 && (api.mode === "auto" || api.mode === "seg")) wipe(); if (k < 2) wipe0 = 0;
+        if (k === 3 && prevK < 3 && !api.inputs.hide) tour(); if (k < 3) tour0 = 0;
+        prevK = k;
+      },
       draw: function (api, tick) {
         begin(api);
         var W = api.cols, k = api.keyIndex, hide = !!api.inputs.hide, ph = api.phone;
@@ -765,12 +793,25 @@
         function X(t) { return t / (T - 1) * W; }
         function Y(v) { return bot - (v - M.lo) / (M.hi - M.lo) * (bot - top); }
         hr(api, 0, W, bot + 0.5, "rule");
-        var pts = []; for (var t = 0; t < nd; t += 2) pts.push([X(t), Y(M.lp[t])]);
-        if (nd === T) pts.push([X(T - 1), Y(M.lp[T - 1])]);
-        line(api, pts, "ink", 1.5);
-        lab(api, "t", "a synthetic market · this draw", 0, 0, { dy: -24 });
         // the band: asked for, then painted in; the toggle takes it away again (what real prices give a model)
         var reveal = !hide && k >= 2 ? wiped() : 0;
+        // the recipe step: f is the mood in focus (0 Bull, 1 Volatile, 2 Bear), -1 once all three are shown
+        var ph4 = k >= 3 && !hide ? Math.floor(toured() * 4) : 4, f = ph4 < 3 ? ph4 : -1;
+        if (k >= 3 && !hide) {
+          // the line takes each day's mood where the answer is painted: Bear's stretches fall, Volatile's chop
+          var lim0 = Math.round(reveal * T), run = null, runs = [];
+          for (var j = 2; j < T + 1; j += 2) {
+            var t1 = Math.min(j, T - 1), t0 = j - 2, c0 = t1 < lim0 ? M.s[t1] : -1;
+            if (!run || run.c !== c0) { run = { c: c0, pts: [[X(t0), Y(M.lp[t0])]] }; runs.push(run); }
+            run.pts.push([X(t1), Y(M.lp[t1])]);
+          }
+          runs.forEach(function (r) { line(api, r.pts, r.c < 0 ? "ink" : ST[r.c], 1.5, r.c < 0 || f < 0 || r.c === f ? 1 : 0.22); });
+        } else {
+          var pts = []; for (var t = 0; t < nd; t += 2) pts.push([X(t), Y(M.lp[t])]);
+          if (nd === T) pts.push([X(T - 1), Y(M.lp[T - 1])]);
+          line(api, pts, "ink", 1.5);
+        }
+        lab(api, "t", "a synthetic market · this draw", 0, 0, { dy: -24 });
         var hatch = hide;
         var g = G(api), cw = g.p * W / T;
         if (hatch) {
@@ -781,8 +822,10 @@
           if (lim < T) box(api, 0, b0, W, bh, "copper");             // the empty row the answer is painted into
           for (var t2 = 0; t2 < lim; t2++) {
             g.c.fillStyle = api.tok(ST[M.s[t2]]); var x0 = Math.round(t2 * cw), x1 = Math.round((t2 + 1) * cw);
+            g.c.globalAlpha = f < 0 || M.s[t2] === f ? 1 : 0.22;
             if (x1 > x0) g.c.fillRect(x0, b0 * g.p, x1 - x0, bh * g.p);
           }
+          g.c.globalAlpha = 1;
           if (lim < T) vr(api, lim / T * W, top, b0 + bh, "v-cyan"); // the day being painted
         } else {
           box(api, 0, b0, W, bh, "copper");
@@ -803,7 +846,8 @@
            ["Bear", "−25% a year · vol 38% · ~30 days", "#L81"]].forEach(function (q, i) {
             if (painted < T && !(M.first[i] < painted)) return;
             var x = 0, yy = y + i * (ph ? 4.5 : 2.25);
-            lab(api, "rc" + i, k >= 3 ? q[0] + " · " + q[1] : q[0], x, yy, { dy: 1, k: SC[i], src: R + "kronos/data.py" + q[2] });
+            // on the tour, a mood's recipe is written when its turn comes; until then the row keeps its name only
+            lab(api, "rc" + i, k >= 3 && (f < 0 || i <= f) ? q[0] + " · " + q[1] : q[0], x, yy, { dy: 1, k: SC[i] + (f >= 0 && i !== f ? " kr-dim" : ""), src: R + "kronos/data.py" + q[2] });
             row++;
           });
         }
@@ -1036,6 +1080,49 @@
   }
   function world() { if (!WORLD) WORLD = makeWorld(WSEED); return WORLD; }
 
+  /* ======================================================================================================
+     the hero: the regime gate's planted world (tests/test_regime.py), the answer it was built from, and the fitted model's
+     filtered reading of each day, painted under it; the days they disagree on are ticked, and the share right is graded
+     ====================================================================================================== */
+  (function () {
+    var TICKS = 66, A0 = 2, A1 = 26, B0 = 28, B1 = 56;
+    var hero = Deep.scene("sc-hero", {
+      grid: { get cols() { return PHONE() ? 108 : 112; }, get rows() { return PHONE() ? 62 : 15; }, pitch: 8, pitchPhone: 3 },   // the header's width; 108 x 3 fits a 360 px phone
+      space: { top: 24, get bottom() { return PHONE() ? 8 : 8; } },
+      ticks: TICKS, tps: 24, pause: 0,
+      draw: function (api, tick) {
+        begin(api);
+        var Wd = world(), W = api.cols, ph = api.phone, g = G(api), cw = g.p * W / NT;
+        var bh = ph ? 9 : 3, ya = 1, yb = ya + bh + (ph ? 9 : 3), yr = yb + bh + (ph ? 3 : 1.5);
+        var ua = clamp((tick - A0) / (A1 - A0), 0, 1), ub = clamp((tick - B0) / (B1 - B0), 0, 1), done = tick >= B1;
+        function found(t) { var F = Wd.F, a = F[3 * t], b = F[3 * t + 1], c = F[3 * t + 2]; return a >= b && a >= c ? 0 : b >= c ? 1 : 2; }
+        function band(y, lim, pick) {
+          box(api, 0, y, W, bh, "rule");
+          for (var t = 0; t < lim; t++) {
+            var x0 = Math.round(t * cw), x1 = Math.round((t + 1) * cw); if (x1 <= x0) continue;
+            g.c.fillStyle = api.tok(ST[pick(t)]); g.c.fillRect(x0, Math.round(y * g.p), x1 - x0, Math.round(bh * g.p));
+          }
+          if (lim > 0 && lim < NT) vr(api, lim / NT * W, y - 0.5, y + bh + 0.5, "v-cyan");
+        }
+        lab(api, "ha", ph ? "planted: the answer" : "planted · the answer this world was built from", 0, ya, { dy: -20 });
+        band(ya, Math.round(ua * NT), function (t) { return Wd.s[t]; });
+        lab(api, "hb", ph ? "found: the fitted model, day by day" : "found · the fitted model’s reading of each day, from the days up to it", 0, yb, { dy: -20, cls: ub > 0 ? "i" : "" });
+        band(yb, Math.round(ub * NT), found);
+        var wrong = 0;
+        if (done) for (var t = 0; t < NT; t++) if (found(t) !== Wd.s[t]) { wrong++; vr(api, t / NT * W, yb + bh + 0.25, yb + bh + (ph ? 2.5 : 1), "ink"); }
+        ["Bull", "Volatile", "Bear"].forEach(function (n, i) { lab(api, "hk" + i, n, ph ? i * 30 : W - 40 + i * 13.5, ph ? yr : ya, { dy: ph ? 78 : -20, k: SC[i] }); });   // a phone keeps the key under the readout
+        lab(api, "hd", NT.toLocaleString("en-US") + " days", W, ya, { align: "right", dy: ph ? -20 : bh * api.pitch + 4, src: R + "tests/test_regime.py#L16" });
+        if (done) {
+          lab(api, "hr", "right state on " + pct(Wd.acc, 1) + " of days · this draw", 0, yr, { dy: ph ? 6 : 4, cls: "r", live: 1 });
+          lab(api, "hg", (Wd.grade.acc ? "pass" : "fail") + " · the gate asks for more than 0.80", 0, yr, { dy: ph ? 30 : 28, k: Wd.grade.acc ? "kr-g" : "i", src: R + "tests/test_regime.py#L45" });
+          if (wrong) lab(api, "hw", ph ? "ticks: the " + wrong + " days it got wrong" : "ticks under it: the " + wrong + " days it got wrong", ph ? 0 : W, yr, { align: ph ? "left" : "right", dy: ph ? 52 : 4, live: 1 });
+        }
+        end(api);
+      }
+    });
+    if (hero && Deep.reduce) hero.show(TICKS);                       // reduced motion rests on the graded picture
+  })();
+
   /* the plane figs 4 and 5 draw on: daily return across, log volatility up */
   var XR = [-0.07, 0.07], YR = [-2.7, -0.55];
   function plane(api) {
@@ -1107,6 +1194,11 @@
         axes(api, pl, "a");
         // every day so far, as a dot in its mood's colour, then grey
         var g = G(api), s2 = Math.max(1, Math.round((ph ? 2 : 3) * g.d)), last = n - 1;
+        // the days still to come stand faint in the rule colour, so the plane is never empty axes; each lands in colour
+        if (n < NT) {
+          g.c.globalAlpha = 0.7; g.c.fillStyle = api.tok("rule");
+          for (var t0 = n; t0 < NT; t0++) g.c.fillRect(Math.round(px(pl, Wd.X[2 * t0]) * g.p - s2 / 2), Math.round(py(pl, Wd.X[2 * t0 + 1]) * g.p - s2 / 2), s2, s2);
+        }
         for (var t = 0; t < n; t++) {
           var st = Wd.s[t]; g.c.globalAlpha = grey ? 0.55 : 0.75; g.c.fillStyle = api.tok(grey ? "muted" : ST[st]);
           g.c.fillRect(Math.round(px(pl, Wd.X[2 * t]) * g.p - s2 / 2), Math.round(py(pl, Wd.X[2 * t + 1]) * g.p - s2 / 2), s2, s2);
@@ -1206,36 +1298,33 @@
           line_ = 5;
           ro("r0", "round " + it + " of " + nIt + " · " + llt + " · this draw", { live: 1 });
           ro("r2", stt, { cls: "r", live: 1 });
-          if (k === 5) ro("r3", "states named, colours fixed", {});
-          if (k >= 6) {
-            i += 0.4; var hy = i;
-            ro("gh", "the gate’s pass lines", {}); lab(api, "gv", "this draw", 88, ry + hy * line_, { align: "right", live: 1 });
-            [["g0", gr.stays, "every stay > 0.85", "#L39", "lowest " + fmt(Math.min.apply(null, gr.diag), 3)],
-             ["g1", gr.bull, "Bull mean 0.0008 ± 0.0004", "#L37", minus(fmt(gr.bullMean, 5))],
-             ["g2", gr.bear, "Bear mean −0.0015 ± 1.2e-3", "#L38", minus(fmt(gr.bearMean, 5))],
-             ["g3", gr.acc, "right state > 0.80 of days", "#L45", pct(gr.accV, 1)]].forEach(function (q) {
-              var y = ry + i * line_;
-              ro(q[0], (q[1] ? "pass" : "fail") + " · " + q[2], { k: q[1] ? "kr-g" : "i", src: R + "tests/test_regime.py" + q[3] });
-              lab(api, q[0] + "v", q[4], 88, y, { align: "right", cls: "i", live: 1 });
-            });
-          }
+          // the gate's pass lines stand muted from the first round, so the target is in view while the fit climbs; they
+          // are graded, with this draw's numbers, at the last step (the state names sit on the ellipses from step 6)
+          i += 0.4; var hy = i;
+          ro("gh", "the gate’s pass lines", {}); if (k >= 6) lab(api, "gv", "this draw", 88, ry + hy * line_, { align: "right", live: 1 });
+          [["g0", gr.stays, "every stay > 0.85", "#L39", "lowest " + fmt(Math.min.apply(null, gr.diag), 3)],
+           ["g1", gr.bull, "Bull mean 0.0008 ± 0.0004", "#L37", minus(fmt(gr.bullMean, 5))],
+           ["g2", gr.bear, "Bear mean −0.0015 ± 1.2e-3", "#L38", minus(fmt(gr.bearMean, 5))],
+           ["g3", gr.acc, "right state > 0.80 of days", "#L45", pct(gr.accV, 1)]].forEach(function (q) {
+            var y = ry + i * line_;
+            ro(q[0], (k >= 6 ? (q[1] ? "pass" : "fail") : "gate") + " · " + q[2], { k: k >= 6 ? (q[1] ? "kr-g" : "i") : "", src: R + "tests/test_regime.py" + q[3] });
+            if (k >= 6) lab(api, q[0] + "v", q[4], 88, y, { align: "right", cls: "i", live: 1 });
+          });
           end(api);
           return;
         }
         ro("r0", "round " + it + " of " + nIt + " · this draw", { live: 1 });
         ro("r1", llt, { cls: "r", live: 1 });
         ro("r2", stt, { cls: "r", live: 1 });
-        if (k >= 5) {
-          ro("r3", "states named, colours fixed", {});
-          if (k >= 6) {
-            i++;
-            ro("g0", (gr.stays ? "pass" : "fail") + " · every stay > 0.85", { k: gr.stays ? "kr-g" : "i", src: R + "tests/test_regime.py#L39" });
-            ro("g1", (gr.bull ? "pass" : "fail") + " · Bull mean 0.0008 ± 0.0004", { k: gr.bull ? "kr-g" : "i", src: R + "tests/test_regime.py#L37" });
-            ro("g2", (gr.bear ? "pass" : "fail") + " · Bear mean −0.0015 ± 1.2e-3", { k: gr.bear ? "kr-g" : "i", src: R + "tests/test_regime.py#L38" });
-            ro("g3", (gr.acc ? "pass" : "fail") + " · right state > 0.80 of days", { k: gr.acc ? "kr-g" : "i", src: R + "tests/test_regime.py#L45" });
-            ro("g4", "this draw: " + pct(gr.accV, 1) + " of days right", { live: 1 });
-            ro("g5", "Bull " + minus(fmt(gr.bullMean, 5)) + " · Bear " + minus(fmt(gr.bearMean, 5)), { live: 1 });
-          }
+        if (k >= 5) ro("r3", "states named, colours fixed", {}); else i++;
+        i++;                                                         // the pass lines, muted until the grade
+        [["g0", gr.stays, "every stay > 0.85", "#L39"], ["g1", gr.bull, "Bull mean 0.0008 ± 0.0004", "#L37"],
+         ["g2", gr.bear, "Bear mean −0.0015 ± 1.2e-3", "#L38"], ["g3", gr.acc, "right state > 0.80 of days", "#L45"]].forEach(function (q) {
+          ro(q[0], (k >= 6 ? (q[1] ? "pass" : "fail") : "gate") + " · " + q[2], { k: k >= 6 ? (q[1] ? "kr-g" : "i") : "", src: R + "tests/test_regime.py" + q[3] });
+        });
+        if (k >= 6) {
+          ro("g4", "this draw: " + pct(gr.accV, 1) + " of days right", { live: 1 });
+          ro("g5", "Bull " + minus(fmt(gr.bullMean, 5)) + " · Bear " + minus(fmt(gr.bearMean, 5)), { live: 1 });
         }
         end(api);
       }
@@ -1354,7 +1443,8 @@
     sc6 = Deep.scene("sc-hyst", {
       grid: { cols: 88, get rows() { return PHONE() ? 42 : 36; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 40 : 8; } },
-      ticks: WIN, tps: 14, check: function () { return mworld().win.n >= 1; },
+      // step 4's words name the flip before the urgent one: Bear to Bull, 7 days before Volatile passes 0.90
+      ticks: WIN, tps: 14, check: function () { var m = mworld(), w = m.win, i = w.a + w.at.urgent, u = m.H.log[i], b = m.H.log[i - 1]; return w.n >= 1 && !!u && !!b && u.dwell === 7 && SN[u.cur] === "Volatile" && SN[b.cur] === "Bull"; },
       inputs: [{ id: "raw", label: "no hysteresis", states: ["off", "on"] }],
       draw: function (api, tick) {
         begin(api);
@@ -1363,8 +1453,8 @@
         function Y(p) { return L.y1 - p * (L.y1 - L.y0); }
         hr(api, 0, W, Y(0), "rule");
         hr(api, 0, W, Y(HY.prob), "muted", 1, true); hr(api, 0, W, Y(HY.urgent), "muted", 1, true);
-        lab(api, "p65", "0.65", W, Y(HY.prob), { align: "right", dy: -18, src: R + "config.py#L50" });
-        lab(api, "p90", "0.90", W, Y(HY.urgent), { align: "right", dy: -18, src: R + "config.py#L53" });
+        lab(api, "p65", "0.65", W, Y(HY.prob), { align: "right", dy: -18, k: "kr-tag", src: R + "config.py#L50" });
+        lab(api, "p90", "0.90", W, Y(HY.urgent), { align: "right", dy: -18, k: "kr-tag", src: R + "config.py#L53" });
         for (var k = 0; k < 3; k++) {                                // the days ahead of the cursor dimmed, the days behind it in colour
           var ahead = []; for (var d = cur; d < WIN; d++) ahead.push([X(d), Y(F[3 * (a + d) + k])]);
           if (ahead.length > 1) line(api, ahead, "rule", 1);
@@ -1687,13 +1777,13 @@
         var lever = r3(Math.min(OV.cap, OV.target / st.v)), mc = r3(Math.min(1, OV.cvar / st.cv)), md = r3(ddFixed(st.dd)), brake = Math.min(mc, md);
         var tf = 1 + OV.tilt * TL[st.tl], ex = r3(clamp(lever * brake * tf, 0, OV.cap));
         if (k === 4) {
-          var bw = ph ? 42 : 38, y = 4, rc = ph ? "i" : "r";
-          box(api, 0, y, bw, 10, "copper"); box(api, W - bw, y, bw, 10, "v-amber");
+          var bw = ph ? 42 : 38, y = 4, rc = ph ? "i" : "r", bh = ph ? 15 : 10;    // a phone's day t+1 box holds its three lines
+          box(api, 0, y, bw, bh, "copper"); box(api, W - bw, y, bw, bh, "v-amber");
           lab(api, "c0", "close of day t", 1, y, { dy: 6 }); lab(api, "c1", "exposure set: " + fmt(ex, 3) + "×", 1, y, { dy: 26, cls: rc });
           lab(api, "c2", "day t+1", W - bw + 1, y, { dy: 6 }); lab(api, "c3", ph ? "gross × exposure" : "net = gross × exposure", W - bw + 1, y, { dy: 26, cls: rc });
           lab(api, "c3b", "− costs − financing", W - bw + 1, y, { dy: ph ? 42 : 50, cls: rc });
           line(api, [[bw + 1, y + 5], [W - bw - 2, y + 5]], "v-cyan", 2); sq(api, W - bw - 2, y + 5, 6, "v-cyan");
-          var fy = ph ? 20 : 19;
+          var fy = ph ? 22 : 19;
           lab(api, "f0", ph ? "costs: 1 bp + 2 bp spread + impact, cap 25 bp" : "costs: 1 bp commission + 2 bp spread + square-root impact, capped at 25 bp", 0, fy, { src: R + "README.md#L318-L319" });
           var finbp = Math.max(0, ex - 1) * OV.fin / 252 * 1e4;
           lab(api, "f1", (ph ? "financing: " + fmt(Math.max(0, ex - 1), 2) + " × 3.5%/yr ÷ 252 = " : "financing: " + fmt(Math.max(0, ex - 1), 2) + " × 3.5% a year ÷ 252 = ") + fmt(finbp, 2) + " bp" + (ph ? "" : " a day"), 0, fy, { dy: ph ? 40 : 24, cls: "i", derived: "(exposure − 1) × 0.035 / 252", inputs: R + "docs/design/DESIGN15.md#L42-L43" });
@@ -1751,12 +1841,12 @@
         var present = PIN.filter(function (g) { return E.drop.indexOf(g) < 0; });
         var sweep = k >= 4 ? 1 : clamp((tick - BASE[e] - 1) / 12, 0, 1), run = sweep > 0 && sweep < 1 ? Math.floor(sweep * present.length) : -1;
         lab(api, "hd", E.date + " · " + E.sha + " · ", 0, 0, { dy: -24, derived: "commit date and sha" });
-        lab(api, "hn", E.n + " gates" + (E.drop.length ? " · gaps: gates added later" : ""), 0, 0, { dy: -24, dx: 176, cls: "i", src: e === 0 ? "Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29" : e === 1 ? "Olivesz/kronos-quant@0c1b53b:tests/run_all.py#L11-L40" : e === 2 ? "Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42" : R + "tests/run_all.py#L11-L73" });
+        lab(api, "hn", E.n + " gates" + (E.drop.length ? " · outlined: gates added later" : ""), 0, 0, { dy: -24, dx: 176, cls: "i", src: e === 0 ? "Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29" : e === 1 ? "Olivesz/kronos-quant@0c1b53b:tests/run_all.py#L11-L40" : e === 2 ? "Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42" : R + "tests/run_all.py#L11-L73" });
         var j = 0, riskPos = null;
         PIN.forEach(function (g, i) {
           var x = (i % per) * tw, y = 1 + Math.floor(i / per) * tw, here = E.drop.indexOf(g) < 0;
           if (g === "risk") riskPos = [x, y];
-          if (!here) { if (g === "risk" && e === 1) box(api, x, y, ts, ts, "muted", 1, true); return; }
+          if (!here) { if (g === "risk" && e === 1) box(api, x, y, ts, ts, "muted", 1, true); else box(api, x, y, ts, ts, "rule"); return; }
           var at = j === run; j++;                                      // every tile of a commit is lit at its step; the runner re-checks them in between
           fill(api, x, y, ts, ts, g === "risk" ? "v-amber" : "v-green");
           if (at) { fill(api, x - 0.5, y - 0.5, ts + 1, ts + 1, "ink"); fill(api, x, y, ts, ts, g === "risk" ? "v-amber" : "v-green"); }
@@ -1867,7 +1957,8 @@
       for (i = 1; i < idx.length; i++) if (m[idx[i]] - m[idx[i - 1]] < -1e-12) c = false;
       return { a: a, b: b, c: c, d: d, first: firstFail };
     }
-    var GF = grade(mF), GW = grade(mW), A = 250, B = 470;
+    var GF = grade(mF), GW = grade(mW), A = 250, B = 470, NMAX = 1.0;
+    for (i = A; i <= B; i++) NMAX = Math.max(NMAX, nav[i]);
     Deep.scene("sc-repair", {
       grid: { cols: 88, get rows() { return PHONE() ? 52 : 34; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 16 : 24; } },
@@ -1883,7 +1974,7 @@
           var still = api.mode !== "auto" && api.mode !== "seg";
           var u0 = still ? 1 : clamp(tick / 11, 0, 1), u1 = still ? (k >= 1 ? 1 : 0) : clamp((tick - 12) / 10, 0, 1);
           var ny0 = 1, ny1 = ph ? 13 : 11, my0 = ph ? 17 : 15, my1 = ph ? 34 : 29;
-          function YN(x) { return ny1 - (x - 0.74) / (1.0 - 0.74) * (ny1 - ny0); }
+          function YN(x) { return ny1 - (x - 0.74) / (NMAX - 0.74) * (ny1 - ny0); }      // the recovery ends above the old high
           function YM(m) { return my1 - m / 1.1 * (my1 - my0); }
           hr(api, 0, W, YN(1), "rule", 1, true); hr(api, 0, W, YN(0.748), "rule", 1, true);
           lab(api, "n1", "NAV, days " + A + " to " + B + " of 1,500", 0, ny0, { dy: -24, src: R + "tests/test_risk.py#L24" });
@@ -1892,6 +1983,10 @@
           // the slide's depth once the line has reached its bottom; the throttle's axis once its traces start
           if (A + (B - A) * u0 >= 340) lab(api, "n2", "−25.2%", X(340), YN(nav[339]), { dy: 4, align: "center", cls: "i", derived: "0.99278^40 − 1", inputs: R + "tests/test_risk.py#L31" });
           hr(api, 0, W, YM(0), "rule");
+          if (u1 < 1) {                                              // the traces to come, dimmed, so the lower plot never stands empty
+            var gw = [], gf = []; for (d = A; d <= B; d++) { gw.push([X(d), YM(mW[d])]); gf.push([X(d), YM(mF[d])]); }
+            line(api, gw, "v-red", 2, 0.18); line(api, gf, "v-amber", 2, 0.18);
+          }
           if (u1 > 0) {
             hr(api, 0, W, YM(1), "rule", 1, true); hr(api, 0, W, YM(0.25), "rule", 1, true);
             lab(api, "m1", "1", W - 0.5, YM(1), { align: "right", dy: -18 }); lab(api, "m2", "0.25", W - 0.5, YM(0.25), { align: "right", dy: -18, src: R + "config.py#L91" });
@@ -1899,13 +1994,12 @@
             line(api, pw, "v-red", 2); line(api, pf, "v-amber", 2);
             lab(api, "tw", "as found", X(A + 4), YM(mW[A]), { dy: 4, k: "kr-t" }); lab(api, "tf", "fixed", X(A + 10), YM(1), { dy: -20, k: "kr-a" });
           }
-          if (k >= 2) {
-            var asFound = swap || k === 3, Gd = asFound ? GW : GF, who = asFound ? "as found" : "fixed";
-            [["a", "1 at every high"], ["c", "never more for deeper"], ["d", "between the floor and 1, −10% to −18%"], ["b", "the floor past −20%"]].forEach(function (q, i) {
-              lab(api, "ck" + i, (Gd[q[0]] ? "pass · " : "fail · ") + q[1], ph ? 0 : (i % 2) * 44, my1 + 1 + (ph ? i * 4.5 : Math.floor(i / 2) * 2.5), { dy: 2, k: Gd[q[0]] ? "kr-g" : "i", src: R + "tests/test_risk.py#L38-L52" });
-            });
-            lab(api, "who", "grading: " + who + (asFound ? " · fails on day one at " + fmt(mW[0], 2) : ""), W, ny0, { align: "right", dy: -24, k: asFound ? "kr-t" : "kr-a" });
-          }
+          // X27's four checks stand muted from the first step, so the reader knows what the path is for; graded at step 3
+          var asFound = swap || k === 3, Gd = asFound ? GW : GF, who = asFound ? "as found" : "fixed", graded = k >= 2;
+          [["a", "1 at every high"], ["c", "never more for deeper"], ["d", "between the floor and 1, −10% to −18%"], ["b", "the floor past −20%"]].forEach(function (q, i) {
+            lab(api, "ck" + i, (graded ? (Gd[q[0]] ? "pass · " : "fail · ") : "check · ") + q[1], ph ? 0 : (i % 2) * 44, my1 + 1 + (ph ? i * 4.5 : Math.floor(i / 2) * 2.5), { dy: 2, k: graded ? (Gd[q[0]] ? "kr-g" : "i") : "", src: R + "tests/test_risk.py#L38-L52" });
+          });
+          if (graded) lab(api, "who", "grading: " + who + (asFound ? " · fails on day one at " + fmt(mW[0], 2) : ""), W, ny0, { align: "right", dy: -24, k: asFound ? "kr-t" : "kr-a" });
         }
         end(api);
       }
@@ -1929,12 +2023,13 @@
           var U = (W - (ph ? 14 : 8)) / 1.5; function XB(v) { return v * U; }
           lab(api, "h0", ph ? "calm book · lever 1.5 · brakes at 1" : "a calm book · lever capped at 1.5 · both brakes at 1", 0, 0, { dy: -24, cls: "i" });
           [[ph ? "smallest of lever and brakes" : "the smallest of the lever and the brakes", 1.0, "copper", "old rule", "Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L44-L45"], [ph ? "lever × tighter brake" : "the lever times the tighter brake", 1.5, "v-amber", "new rule", R + "kronos/risk.py#L89-L93"]].forEach(function (q, i) {
-            if (i && k0 === 0) return;                               // the new rule arrives with its own step
-            var yy = (ph ? 3 : 2) + i * (ph ? 14 : 9);
-            lab(api, "mp" + i, q[3] + " · " + q[0], 0, yy, { dy: 0, cls: i ? "i" : "", src: q[4] });
-            fill(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, q[2]);
+            // the new rule arrives with its own step; until then its row stands as an outlined slot under a muted name
+            var yy = (ph ? 3 : 2) + i * (ph ? 14 : 9), wait = i && k0 === 0;
+            lab(api, "mp" + i, q[3] + " · " + q[0], 0, yy, { dy: 0, cls: i && !wait ? "i" : "", src: q[4] });
+            if (wait) box(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, "rule");
+            else fill(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, q[2]);
             vr(api, XB(1), yy + (ph ? 4 : 2), yy + (ph ? 11 : 8), "ink", 1, true);
-            lab(api, "mv" + i, fmt(q[1], 1) + "×", XB(q[1]), yy + (ph ? 5 : 3), { dx: 8, dy: ph ? 2 : 8, cls: "r" });
+            if (!wait) lab(api, "mv" + i, fmt(q[1], 1) + "×", XB(q[1]), yy + (ph ? 5 : 3), { dx: 8, dy: ph ? 2 : 8, cls: "r" });
           });
           lab(api, "one", "1×: where the brakes top out", XB(1), ph ? 30 : 21, { align: ph ? "right" : "center", dy: 4, src: R + "docs/design/DESIGN15.md#L39-L41" });
         } else if (k === 1) {
@@ -1974,6 +2069,8 @@
       { n: "CAGR", k: 13.6, e: 16.6, s: 15.0, max: 18, f: function (v) { return v.toFixed(1) + "%"; } },
       { n: "realized vol", k: 12.0, e: 15.0, s: 16.8, max: 20, f: function (v) { return v.toFixed(1) + "%"; }, tgt: 13 }
     ];
+    // which way is better on each row's scale: higher Sharpe and growth, a shallower drawdown; volatility has a target instead
+    var BETTER = [1, 1, -1, 1, 0];
     var FOCUS = { read: [0, 2], cash: [1], raw: [3] };
     function ease(u) { return 1 - Math.pow(1 - u, 3); }
     /* a square outline of s css px, 2 css px thick, centred on (x, y) cells */
@@ -2003,6 +2100,7 @@
           sq(api, sx, y + 0.06, 12, on ? "muted" : "rule");
           sq(api, kx, y + 0.06, 12, "v-amber", on ? 1 : 0.5);
           ring(api, ex, y + 0.06, 12, on ? "ink" : "body");                // equal weight: an outline, drawn last so it frames KRONOS where they meet
+          if (BETTER[i]) lab(api, "bt" + i, BETTER[i] > 0 ? "better →" : "← better", ph || BETTER[i] > 0 ? x1 : x0, y, ph ? { align: "right", dy: -22 } : { align: BETTER[i] > 0 ? "right" : "left", dy: 8 });   // a phone keeps it on the name's line, at the right
           if (q.tgt) { vr(api, X(q.tgt), y - 1.5, y + 1.5, "ink", 1, true); lab(api, "tg", "target 13%", X(q.tgt), ph ? y - 1.5 : y + 1.5, { align: "center", dy: ph ? -16 : 2, src: R + "docs/design/DESIGN15.md#L24" }); }
           if (k >= 1 || !moving) {
             var html = '<span class="kr-a">KRONOS ' + q.f(q.k) + "</span> · EW " + q.f(q.e) + " · SPY " + q.f(q.s);

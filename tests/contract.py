@@ -38,7 +38,7 @@ TOKENS = {
     "trail-3": "#4a1a34", "signal": "#8fe6ff", "signal-2": "#2f6f86", "ink": "#e8e6f0",
     "copper": "#3a3550", "residue": "#1f1d2c", "body": "#b9b6cc", "muted": "#8a87a0",
     "rule": "#1d1b2a",
-    # the vivid set (palette_vivid): allowed everywhere, canvas and DOM
+    # the vivid set: allowed everywhere, canvas and DOM
     "v-red": "#ff6557", "v-amber": "#fab72a", "v-green": "#61d46a", "v-cyan": "#2fd4ec", "v-blue": "#5696ff", "v-violet": "#b77ff2",
 }
 CONTRAST = {"copper": "#5a5672", "residue": "#2a2638", "muted": "#a3a0b8"}   # @media (prefers-contrast: more)
@@ -66,6 +66,9 @@ VIEWPORTS = {
     "desktop-125": dict(viewport={"width": 1536, "height": 864}, device_scale_factor=1.25),
     "desktop-1280": dict(viewport={"width": 1280, "height": 800}, device_scale_factor=2),
     "desktop-1024": dict(viewport={"width": 1024, "height": 768}, device_scale_factor=2),
+    # the commonest laptop sizes at 1x, where a whole device pixel per cell decides the map's size
+    "laptop-1280": dict(viewport={"width": 1280, "height": 800}, device_scale_factor=1),
+    "laptop-1366": dict(viewport={"width": 1366, "height": 768}, device_scale_factor=1),
     "phone-se":    dict(viewport={"width": 375, "height": 667}, device_scale_factor=2, is_mobile=True, has_touch=True),
     "phone-640":   dict(viewport={"width": 360, "height": 640}, device_scale_factor=2, is_mobile=True, has_touch=True),
     # phones on their side: the words in a column beside the art
@@ -879,7 +882,8 @@ WORK_STATE_JS = r"""() => { const w = document.getElementById('work'); if (!w ||
       unsourced: cur ? [...cur.querySelectorAll('.k-ln,.k-why,.k-sk')].filter(e => !e.getAttribute('data-src')).length : 0,
       msg: seen(w.querySelector('.k-msg')) ? w.querySelector('.k-msg').textContent.trim() : '',
       ask: [...w.querySelectorAll('.k-ask > span')].filter(e => getComputedStyle(e).display !== 'none').map(e => e.textContent).join(' '),
-      h: w.getBoundingClientRect().height }; }"""
+      h: w.getBoundingClientRect().height,
+      side: (() => { const f = w.querySelector('.k-field').getBoundingClientRect(), p = w.querySelector('.k-panel').getBoundingClientRect(); return p.width > 0 && p.left >= f.right - 1; })() }; }"""
 # what #work paints in this state: computed colours and text sizes of every element it renders, SVG fills included
 WORK_PAINT_JS = r"""() => { const w = document.getElementById('work'), colors = {}, sizes = {};
     const add = (b, k, ex) => { if (!b[k]) b[k] = ex; };
@@ -1010,9 +1014,22 @@ def a_work(v):
         r = (area.get(k, 0) / max(1, area.get(base, 0))) / (cnt[k] / cnt[base])
         if not 0.8 <= r <= 1.25:
             bad.append(f"{k}: area off its count by {r:.2f}x")
-    # the default view is the field: no list of projects, no line graph, no chip row, nothing behind a closed disclosure
-    if st["pane"] != "rest" or any(b["pressed"] != "false" or b["off"] for b in st["blobs"]):
-        bad.append(f"at rest: pane {st['pane']}, pressed {[b['k'] for b in st['blobs'] if b['pressed'] == 'true']}")
+    # at rest: where the panel has a column of its own (1024 CSS px and wider) the section opens on the first theme,
+    # picked, so that column is never empty; a narrower layout opens on the field alone, with no list of projects, no
+    # line graph, no chip row and nothing behind a closed disclosure
+    first = WORK_READING[0]
+    rest_pane = first if v.vw >= 1024 else "rest"
+    if v.vw >= 1024 and not st["side"]:
+        bad.append(f"at {v.vw}px the panel is not beside the field")
+    if rest_pane == "rest":
+        if st["pane"] != "rest" or any(b["pressed"] != "false" or b["off"] for b in st["blobs"]):
+            bad.append(f"at rest: pane {st['pane']}, pressed {[b['k'] for b in st['blobs'] if b['pressed'] == 'true']}")
+    elif st["pane"] != first or [b["k"] for b in st["blobs"] if b["pressed"] == "true"] != [first] \
+            or [b["k"] for b in st["blobs"] if b["off"]] != [j for j in WORK_READING if j != first] \
+            or st["cards"] != sig[first] or st["rows"] != rest[first] or st["unseen"] \
+            or WORK_SHORT[first] not in st["msg"]:
+        bad.append(f"at rest: pane {st['pane']}, pressed {[b['k'] for b in st['blobs'] if b['pressed'] == 'true']}, "
+                   f"cards {st['cards']}, status {st['msg']!r}; want {first} open and picked")
     if st["lists"] or st["lines"] or st["chips"] or st["details"]:
         bad.append(f"at rest the section still shows {st['lists']} listed projects, {st['lines']} lines, {st['chips']} chips, {st['details']} disclosures")
     want_ask = "tap a theme" if v.phone else "pick a theme"
@@ -1075,8 +1092,8 @@ def a_work(v):
     work_pick(v, "play")
     work_field(v)
     work_pick(v, "play")
-    if v.js(WORK_STATE_JS)["pane"] != "rest":
-        bad.append("pressing the picked theme again does not return to the field at rest")
+    if v.js(WORK_STATE_JS)["pane"] != rest_pane:
+        bad.append(f"pressing the picked theme again does not return to the state at rest ({rest_pane})")
     work_field(v)
     work_pick(v, "data")
     tag = v.js("() => { const t = document.querySelector('#work .k-pane.cur .k-tag'); if (!t) return null; t.click(); return t.dataset.k; }")
@@ -1147,7 +1164,7 @@ def a_work(v):
         extra = f"; grew in {len({x for x in shown if 0 < x < full})} steps to {full} cells without moving, whole at once under reduced motion"
     v.cur = None
     return not bad, (f"5 theme blobs naming {len(named)} signatures, areas {[area.get(k) for k in WORK_THEMES]} cells for {[cnt[k] for k in WORK_THEMES]} projects; "
-                     f"at rest no list, line or chip; each pick opens its signatures and all {sum(len(r) for r in rest.values())} other rows, shown and sourced; "
+                     f"at rest {'the first theme open' if rest_pane != 'rest' else 'no list, line or chip'}; each pick opens its signatures and all {sum(len(r) for r in rest.values())} other rows, shown and sourced; "
                      f"{len(paints)} states: {len(cols)} colours, sizes {sorted(sizes, key=lambda z: float(z[:-2]))}; "
                      f"{len(got_figs)} page:work-* figures equal the taxonomy; rest height {rest_h:.0f}px"
                      + ("; keyboard picks" if not v.phone else "; taps pick") + extra
@@ -1494,7 +1511,7 @@ SWAP_READ = """() => { const L = document.querySelector('[data-native=kronos]');
   return { labels, lit: lit / (w * h), instr: __walk.instrAt(scrollY / __walk.S()) }; }"""
 # each phone view's own labels (numbers masked); a settled frame shows all of one view's and none of another's
 SWAP_SIG = [{"planted answer · synthetic · EM fit"}, {"# gates", "# of #", "# real-market calibration", "# synthetic, planted answer"},
-            {"KRONOS", "SPY", "# of # gates pass · real prices · log scale"}]
+            {"KRONOS", "SPY", "# of # gates pass · real prices"}]
 SWAP_INSTR = {"Shaded": 0, "A gate": 1, "KRONOS": 2}
 
 
@@ -2163,6 +2180,35 @@ def a_maplabels(v):
             if w > 0.5 and h > 0.5:
                 bad.append(f"'{L[i]['name']}' overlaps the caption row by {round(w)}x{round(h)}")
     return not bad, "; ".join(bad[:4]) if bad else f"{len(names)} labels whole on screen, no two overlapping, clear of the caption row"
+
+
+MAPSIZE_JS = r"""() => { const c = __ct.artCanvas(); if (!c) return null;
+  const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, W = c.width, H = c.height, v = void_;
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) { const q = (y * W + x) * 4;
+    if (d[q + 3] < 128 || (d[q] === v[0] && d[q + 1] === v[1] && d[q + 2] === v[2])) continue;
+    if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  const r = c.getBoundingClientRect(), k = r.width / W;
+  return { bb: x1 < 0 ? null : [x0 * k, y0 * k, (x1 + 1) * k, (y1 + 1) * k], vw: innerWidth, vh: innerHeight }; }"""
+
+
+def a_mapsize(v):
+    """At the map the art (lit canvas pixels) spans at least 45% of the viewport's short side both ways."""
+    g = v.geometry()
+    if g["MAPS"] is None:
+        raise Missing("__walk.MAPS is absent")
+    y, t = 0, round((g["MAPS"] + 0.01) * v.S)
+    while y < t:                                   # walk down as a visitor does, so the pull-back's clips have run
+        y = min(t, y + 300); v.js("y => __ct.scrollTo(0, y)", y); v.page.wait_for_timeout(40)
+    v.cur = None
+    v.settle(2000)
+    r = v.js(MAPSIZE_JS.replace("void_", "[" + ",".join(str(c) for c in TOK_RGB["void"]) + "]"))
+    if r is None or r["bb"] is None:
+        raise Missing("no lit art canvas at the map")
+    bb, short = r["bb"], min(r["vw"], r["vh"])
+    w, h = bb[2] - bb[0], bb[3] - bb[1]
+    need = 0.45 * short
+    return min(w, h) >= need, f"map art {round(w)}x{round(h)} CSS px at {r['vw']}x{r['vh']}; needs both sides >= {round(need)} (45% of {short})"
 
 
 def station_samples(g):
@@ -3050,7 +3096,7 @@ def a_phonetext(v):
     return not bad, m
 
 
-PHRASES = [   # each chapter card's phrase line, exactly as the copy deck has it, lowercase included
+PHRASES = [   # each chapter card's phrase line, exactly as written, lowercase included
     "a truth table. every rung verified, up to the CPU.",
     "a second pass. Whisper re-reads the recent audio every 350 ms.",
     "a planted answer. no estimator touches a real price until it finds one.",
@@ -3059,7 +3105,7 @@ PHRASES = [   # each chapter card's phrase line, exactly as the copy deck has it
 
 
 def a_phrases(v):
-    """The chapter cards' phrase lines are the copy deck's, character for character."""
+    """The chapter cards' phrase lines are these, character for character."""
     got = v.js("() => [...document.querySelectorAll('.card .np')].map(e => e.textContent.trim())")
     ok = got == PHRASES
     return ok, f"{len(got)} phrase lines" + ("" if ok else f"; got {got}")
@@ -3607,13 +3653,14 @@ ASSERTIONS = [
     ("playwalk", ("desktop", "phone"), a_playwalk, "a visitor at a normal pace (110px every 120ms): stopping 1.5s at each hold, every station plays from p 0 to done; never stopping, no clock advances out of frame or runs ahead of itself to its end"),
     ("playreduced", ("desktop", "phone"), a_playreduced, "reduced motion: done at p 1 in every frame from each arrival, never playing; replay hidden and refused"),
     ("places", PHONES + ("phone-small-1x",), a_places, "pull-back to the résumé every 0.02 screen: no shown place row's text crosses a card's text"),
-    ("maplabels", ("desktop", "desktop-1024") + PHONES + LANDS, a_maplabels, "at the map every place label's text is whole on screen, no two labels' text overlap and none overlaps the caption row (landscape included)"),
+    ("maplabels", ("desktop", "desktop-1024", "laptop-1280", "laptop-1366") + PHONES + LANDS, a_maplabels, "at the map every place label's text is whole on screen, no two labels' text overlap and none overlaps the caption row (landscape included)"),
+    ("mapsize", ("desktop", "laptop-1280", "laptop-1366"), a_mapsize, "at the map the lit art spans at least 45% of the viewport's short side both ways (1440x900, and 1280x800 and 1366x768 at 1x)"),
     ("readable", ("desktop", "phone"), a_readable, "each chapter card first fits whole no earlier than its station's arrival - 0.05"),
     ("station", ("desktop", "phone"), a_station, "at holds, built() == the card stuck at its sticky top == sceneId, and the drawn step == stepAt(shown)"),
     ("pink", ("desktop", "phone"), a_pink, "chaos >= 95% trail-family or the ant's own vivid cells over world cells (cellTok/cellAt); at holds, no vivid ant cell; bright --trail <= 1.5% of the viewport's pixels, ant head trail included"),
     ("vivid", ("desktop", "phone"), a_vivid, "at every hold sample the vivid-token pixels in the art region are at most half of the figure's own ink: colour serves the figure being read"),
     ("phonetext", PHONES, a_phonetext, "screenshot diffs with text made transparent: 0 DOM text pixels in the phone art band, native figure labels only inside their own box"),
-    ("phrases", ("desktop",), a_phrases, "each chapter card's phrase line is the copy deck's, character for character"),
+    ("phrases", ("desktop",), a_phrases, "each chapter card's phrase line is as written, character for character"),
     ("nativeclip", PHONES, a_nativeclip, "a phone's native layers draw nothing under the art band at any s from the first native approach to the pull-back, two frames after the scroll with no settling"),
     ("figclip", PHONES + LANDS, a_figclip, "every figure cell and every native layer inside the art band at every held phone frame, and the ant's whole cell with them"),
     ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
@@ -3635,7 +3682,7 @@ ASSERTIONS = [
     ("targets", ("desktop", "phone", "phone-small"), a_targets, "every link, button and input on screen is at least 24 CSS px a side with a fine pointer, 32 on touch"),
     ("pitch", ("desktop", "phone", "desktop-125"), a_pitch, "every blit and cell rect lands on whole device pixels at an integer scale, every frame"),
     ("fills", ("desktop", "phone"), a_fills, "canvas fill/stroke styles and bitmap values are packed tokens; no glow, no filter"),
-    ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: five theme blobs in order, each naming its signature projects by the binding rule (each named once, the chapters in their own themes) and counting the rest, its area following its count; at rest no list, line or chip; a pick opens every project in the theme, signatures first, all shown and sourced, the other blobs stepped down; the picked blob again rests, a tag picks its theme, a click between blobs picks nothing; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status and first project in view with the blobs still; keyboard (desktop) and taps (phone) pick; the blobs grow once on arrival without moving anything, whole at once under reduced motion"),
+    ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: five theme blobs in order, each naming its signature projects by the binding rule (each named once, the chapters in their own themes) and counting the rest, its area following its count; at rest the first theme open and picked where the panel has its own column (1024px and wider), else no list, line or chip; a pick opens every project in the theme, signatures first, all shown and sourced, the other blobs stepped down; the picked blob again rests, a tag picks its theme, a click between blobs picks nothing; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status and first project in view with the blobs still; keyboard (desktop) and taps (phone) pick; the blobs grow once on arrival without moving anything, whole at once under reduced motion"),
     ("eggs", ("desktop", "phone"), a_eggs, "three hidden ants after chapter I, none within 24px of text; each plants exactly one ant that runs on a clock and settles at its last step; one runs at a time; reduced motion plants the end state at once; the map's tally counts them"),
     ("listeners", ("desktop", "phone"), a_listeners, "no wheel, touch or key listener at all, hooked before load"),
     ("scrollto", ("desktop", "phone"), a_scrollto, "no page-initiated scroll outside a click (a resize may restore the place, see resize)"),

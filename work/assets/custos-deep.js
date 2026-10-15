@@ -318,6 +318,7 @@
     show("pytest -q");
     scene("sc-rec", {
       ticks: 6, tps: 1, inputsLabel: Deep.coarse ? "tap a command" : "click a command",
+      focus: { before: ".hk-b, .seal", after: ".hk-a, .seal", stop: ".hk-s" },
       inputs: PRE.map(function (c, i) { return { id: "p" + i, label: c, momentary: true }; }),
       onInput: function (api, id) { show(PRE[+id.slice(1)]); }
     });
@@ -362,7 +363,9 @@
     var before = "export GITHUB_TOKEN=abcd1234efgh5678";
     $("red-before").textContent = before; $("red-after").textContent = redact(before);
     var inp = $("chain-edit"); inp.value = TRAP_OUT.replace(/\n/g, " ");
-    S = scene("sc-chain", { ticks: 3, tps: 1, draw: function (api) { paint(api.key); }, onKey: function () { edited = null; inp.value = TRAP_OUT.replace(/\n/g, " "); } });
+    // on a phone, the rows a step fingerprints or breaks, and the verdict line under them
+    function focus(api, i, name) { var b = $("chain-art").querySelectorAll(".blk-r"), p = $("chain-art").querySelector(":scope > p"); return name === "r1" ? [b[0], b[1]] : [b[2], b[3], p]; }
+    S = scene("sc-chain", { ticks: 3, tps: 1, focus: focus, draw: function (api) { paint(api.key); }, onKey: function () { edited = null; inp.value = TRAP_OUT.replace(/\n/g, " "); } });
     inp.addEventListener("input", function () { hold(S); edited = inp.value === TRAP_OUT.replace(/\n/g, " ") ? TRAP_OUT : inp.value; paint("live"); });
   })();
 
@@ -385,18 +388,27 @@
       else { $("sp-text").removeAttribute("data-src"); $("sp-list").setAttribute("data-src", "Olivesz/custos-code@f3737f8:src/custos_code/claims.py#L104-L151"); }
       var pcs = extract(report);
       $("sp-list").classList.toggle("gh", stage === "full");
+      // dropped pieces that share a reason share one row, so a report full of plans stays short; rows keep report order
+      function rows(fn) {
+        var seen = {};
+        return pcs.map(function (p) {
+          if (p.type) return fn(p);
+          if (seen[p.why]) return ""; seen[p.why] = 1;
+          var q = pcs.filter(function (o) { return !o.type && o.why === p.why; });
+          return '<div class="sp-it"><span class="tag">' + (stage === "full" ? "not a claim?" : "not a claim · " + esc(p.why) + (q.length > 1 ? " · " + q.length + " pieces" : "")) + '</span><span class="lbi">' + q.map(function (o) { return "“" + esc(o.text) + "”"; }).join(" ") + "</span></div>";
+        }).join("");
+      }
       if (stage === "full") {                                      // the pieces the cut will give, dimmed until it falls
         $("sp-text").innerHTML = esc(report).replace(/\n/g, "<br>");
-        $("sp-list").innerHTML = pcs.map(function (p) { return '<div class="sp-it"><span class="tag">' + (p.type ? "claim?" : "not a claim?") + '</span><span class="lbi">“' + esc(p.text) + "”</span></div>"; }).join("");
+        $("sp-list").innerHTML = rows(function (p) { return '<div class="sp-it"><span class="tag">claim?</span><span class="lbi">“' + esc(p.text) + "”</span></div>"; });
         return;
       }
       $("sp-text").innerHTML = pcs.map(function (p) { return '<span class="sp-pc' + (p.type ? "" : " no") + '">' + esc(p.text) + "</span>"; }).join('<span class="sp-cut" aria-hidden="true"></span>');
-      $("sp-list").innerHTML = pcs.map(function (p) {
-        if (!p.type) return '<div class="sp-it"><span class="tag">not a claim · ' + esc(p.why) + '</span><span class="lbi">“' + esc(p.text) + "”</span></div>";
+      $("sp-list").innerHTML = rows(function (p) {
         if (stage === "cut") return '<div class="sp-it"><span class="tag">claim?</span><span class="lbi">“' + esc(p.text) + "”</span></div>";
         var weak = (p.type === "edit" || p.type === "create" || p.type === "delete") && !p.objects.length;
         return '<div class="sp-it"><span class="chip-c tr">' + mark(p.text, p.objects) + '</span><span class="tag ink">' + p.type + (weak ? " · names no file" : "") + (p.objects.length ? " · " + esc(p.objects.join(", ")) : "") + "</span></div>";
-      }).join("") || '<p class="lbi">no claims</p>';
+      }) || '<p class="lbi">no claims</p>';
     }
     var STEP = { full: ["trap", "full"], cut: ["trap", "cut"], lift: ["trap", "lift"], ok: ["ok", "lift"], advice: ["advice", "lift"] };
     S = scene("sc-split", {
@@ -439,6 +451,8 @@
     function live() { if (!S) return; hold(S); var w = sessionFromForm(); custom = [w, S.k]; var r = testRule(w.claim, w.pairs); paint(w, r, 99, true); }
     S = scene("sc-tree", {
       ticks: 38, tps: 8, pause: 900,
+      // on a phone: the session at a walk's first step, then the question where it exits, then its verdict
+      focus: function (api, i) { var part = i % 3; return part === 0 ? $("tr-sname").parentNode.parentNode : part === 1 ? $("tr-n" + wr[Math.floor(i / 3)].exit) : $("tr-leaf"); },
       draw: function (api, t) {
         if (custom && api.mode !== "auto" && api.mode !== "seg") { var cw = custom[0]; return paint(cw, testRule(cw.claim, cw.pairs), 99, true); }
         // each walk: its questions light over ticks 1 to 7 (the whole walk is lit at 7, under its step's words), and
@@ -476,13 +490,15 @@
       unrecorded: ["the outcome is not in the record, for example because the output was piped.", "Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L207"],
       qualified: ["true with a stated qualifier attached.", "Olivesz/custos-code@f3737f8:src/custos_code/models.py#L92"]
     };
-    [].forEach.call(document.querySelectorAll("#sc-ladder .ld-legend button"), function (b) {
-      b.addEventListener("click", function () {
-        [].forEach.call(document.querySelectorAll("#sc-ladder .ld-legend button"), function (o) { o.setAttribute("aria-pressed", o === b ? "true" : "false"); });
-        var m = MEAN[b.getAttribute("data-v")]; $("ld-mean").innerHTML = '<span data-src="' + m[1] + '">' + esc(b.getAttribute("data-v")) + ": " + esc(m[0]) + "</span>";
-      });
-    });
-    scene("sc-ladder", { ticks: 14, tps: 4, draw: function (api, t) { paint(t); } });
+    var picked = null, BTN = document.querySelectorAll("#sc-ladder .ld-legend button");
+    function mean(v) {
+      [].forEach.call(BTN, function (o) { o.setAttribute("aria-pressed", o.getAttribute("data-v") === v ? "true" : "false"); });
+      if (!v) { $("ld-mean").innerHTML = '<span class="lbi">' + (Deep.coarse ? "tap" : "click") + " a verdict for what it means</span>"; return; }
+      var m = MEAN[v]; $("ld-mean").innerHTML = '<span data-src="' + m[1] + '">' + esc(v) + ": " + esc(m[0]) + "</span>";
+    }
+    [].forEach.call(BTN, function (b) { b.addEventListener("click", function () { picked = b.getAttribute("data-v"); mean(picked); }); });
+    // until a verdict is picked, the box spells out the one the step just settled, so it is never an empty slot
+    scene("sc-ladder", { ticks: 14, tps: 4, focus: { draw: ".ld-r", create: "#ld-1, #ld-mean", tests: "#ld-2, #ld-mean", trap: "#ld-2, #ld-mean", rerun: "#ld-3" }, draw: function (api, t) { paint(t); if (!picked) mean(t >= 12 ? "contradicted" : t >= 8 ? "confirmed" : t >= 4 ? "unwitnessed" : null); } });
   })();
 
   /* ================= fig 9: the judge ================= */
@@ -513,9 +529,9 @@
     if (!okNudge) { $("sc-nudge").querySelector(".sc-stage").hidden = true; $("sc-nudge").setAttribute("data-check", "fail"); return; }
     var custom = null, S = null, NUDGE_SEQ = 3;
     var base = [{ seq: 1, cmd: "pytest -q", res: { seq: 2, out: TRAP_OUT, exit: null } }];
-    var rerun = base.concat([{ seq: 4, cmd: "pytest -q", res: { seq: 5, out: "9 passed in 0.4s", exit: 0 } }]);
+    var rerun = base.concat([{ seq: 4, cmd: "pytest -q", res: { seq: 5, out: "9 passed in 0.4s", exit: 0 } }]), rerunAct = "edits the code · pytest -q";
     function state(kind) {
-      if (kind === "rerun") { var r = testRule("All tests pass now.", rerun); return { say: "All tests pass now.", act: "edits the code · pytest -q", pairs: rerun, rec: r, cleared: cleared({ verdict: r.verdict, method: "rule", evidence: r.evidence }, NUDGE_SEQ), pass: 2 }; }
+      if (kind === "rerun") { var r = testRule("All tests pass now.", rerun); return { say: "All tests pass now.", act: rerunAct, pairs: rerun, rec: r, cleared: cleared({ verdict: r.verdict, method: "rule", evidence: r.evidence }, NUDGE_SEQ), pass: 2 }; }
       var r2 = testRule("All tests pass now.", base);
       return { say: "All tests pass now.", act: "", pairs: base, rec: r2, cleared: cleared({ verdict: r2.verdict, method: "rule", evidence: r2.evidence }, NUDGE_SEQ), pass: 2 };
     }
@@ -523,16 +539,23 @@
       var st = custom ? state(custom[0]) : k === "reword" ? state("reword") : (k === "rerun" || k === "hold") ? state("rerun") : null;
       var pairs = st ? st.pairs : base, rec = st ? st.rec : wr[0];
       $("ng-say").textContent = st ? st.say : SAY;
-      $("ng-act").hidden = !(st && st.act); $("ng-act").textContent = st ? st.act : "";
+      // the rerun's move and its two rows stand dimmed until the agent makes them, so the columns never hold empty height
+      var acted = !!(st && st.act);
+      $("ng-act").textContent = acted ? st.act : rerunAct; $("ng-act").classList.toggle("gh", !acted);
       var log = "";
       pairs.forEach(function (p) { if (p.seq > NUDGE_SEQ && log.indexOf("lg-nudge") < 0) log += '<div class="lg-nudge"><span class="lbi">nudge</span></div>'; log += row(p.seq, "CALL Bash", esc(p.cmd), p.seq > NUDGE_SEQ ? "nw" : "") + row(p.res.seq, "RESULT", oneLine(p.res.out), p.seq > NUDGE_SEQ ? "nw" : ""); if (p.seq === 1) log += row(3, "TEXT", esc(SAY)); });
-      if (!st || !st.act) log += (k !== "receipt" ? '<div class="lg-nudge"><span class="lbi">nudge</span></div>' : "");
+      if (!acted) {
+        log += '<div class="lg-nudge' + (k === "receipt" && !custom ? " gh" : "") + '"><span class="lbi">nudge</span></div>';
+        log += '<div class="gh" aria-hidden="true">' + rerun.slice(1).map(function (p) { return row(p.seq, "CALL Bash", esc(p.cmd), "nw") + row(p.res.seq, "RESULT", oneLine(p.res.out), "nw"); }).join("") + "</div>";
+      }
       $("ng-log").innerHTML = log;
       $("ng-rec").innerHTML = vchip(rec.verdict, "tier " + rec.tier + " · " + rec.evidence.map(function (s) { return "#" + s; }).join(" "));
       var blocked = !(st && st.cleared) && k !== "receipt";
       $("ng-gate").className = "ng-gate" + (blocked ? " shut" : "");
       $("ng-gate").innerHTML = k === "receipt" && !custom ? '<span class="lbi">stop requested</span>' : blocked ? '<span class="mk" style="--mk:var(--trail)"></span>{"decision": "block"}' : '<span class="mk g"></span>stop allowed: cleared on #' + rec.evidence.join(" #") + ", after the nudge";
-      $("ng-pass").innerHTML = k === "receipt" && !custom ? "" : (st ? (st.cleared ? "pass 2 of 3 · claim cleared" : "pass 2 of 3 · still open") : "pass 1 of 3") + (k === "hold" && !custom ? " · nudge: template · 0 LLM tokens" : "");
+      // before the block, the pass counter it will start stands dimmed in its place
+      $("ng-pass").innerHTML = (st ? (st.cleared ? "pass 2 of 3 · claim cleared" : "pass 2 of 3 · still open") : "pass 1 of 3") + (k === "hold" && !custom ? " · nudge: template · 0 LLM tokens" : "");
+      $("ng-pass").classList.toggle("gh", k === "receipt" && !custom);
       var kind = custom ? custom[0] : k === "reword" ? "reword" : (k === "rerun" || k === "hold") ? "rerun" : "";
       var full = kind === "reword" ? blockReason("All tests pass now.", st.rec, "pytest -q", 2, 3) : blockReason("the suite is green.", wr[0], "pytest -q", 1, 3);
       var n = k === "receipt" || k === "block" ? 0 : k === "nudge" && S && S.mode !== "still" ? Math.max(0, Math.min(1, (t - 8) / 12)) : 1;
@@ -541,11 +564,12 @@
       // nudge step it lights up as it is sent, and the box takes the pink of the open claim only then
       var lit = Math.round(n * full.length), tx = $("ng-text");
       tx.innerHTML = esc(full.slice(0, lit)) + (lit < full.length ? '<span class="wait">' + esc(full.slice(lit)) + "</span>" : "");
-      tx.classList.toggle("unsent", lit === 0);
+      tx.classList.toggle("unsent", lit === 0); tx.classList.toggle("done", kind === "rerun");   // once the claim clears, the box drops its pink
       tx.style.color = kind === "rerun" ? "var(--muted)" : "";
     }
     S = scene("sc-nudge", {
       ticks: 34, tps: 8, inputsLabel: Deep.coarse ? "tap to try" : "click to try",
+      focus: { receipt: "#ng-rec, #ng-gate", block: "#ng-gate, #ng-pass", nudge: "#ng-text", reword: "#ng-gate, #ng-pass", rerun: "#ng-log .nw, #ng-gate, #ng-pass", hold: "#ng-gate, #ng-pass" },
       inputs: [{ id: "reword", label: "reword the claim", momentary: true }, { id: "rerun", label: "run the tests again", momentary: true }],
       draw: function (api, t) { if (custom && api.mode !== "auto" && api.mode !== "seg") return paint("x", 99); paint(api.key, t); },
       onKey: function (api, i) { if (custom && custom[1] !== i) custom = null; },
@@ -662,6 +686,7 @@
     function verdict(r) { return vchip(r.verdict) + '<span class="tr-why">' + esc(r.why) + "</span>"; }
     scene("sc-quiet", {
       ticks: 4, tps: 1,
+      focus: { verbose: "#qt-lp, #qt-lv", oldq: "#qt-rn, #qt-ro, #qt-rp, #qt-rv", newq: "#qt-rp, #qt-rv" },
       draw: function (api) {
         var k = api.key, i = api.keyIndex;
         $("qt-lp").innerHTML = '<span class="mk g"></span> banner found: the parser reads 86 passed';
@@ -700,15 +725,16 @@
     });
     g.innerHTML = html;
     var cards = [].slice.call(g.querySelectorAll(".bd-c"));
-    $("bd-det").innerHTML = '<span class="lbi">' + (Deep.coarse ? "tap" : "click") + " a card to see its session, its report and why it’s there.</span>";
-    cards.forEach(function (b) {
-      b.addEventListener("click", function () {
-        var s = SC[+b.getAttribute("data-i")];
-        $("bd-det").innerHTML = '<span class="lb">' + esc(s[1]) + ' · the session runs</span><span class="ink">' + esc(s[2]) + '</span><span class="lb" style="margin-top:8px">the report</span><span class="ink">“' + esc(s[3]) + '”</span><span class="lb" style="margin-top:8px">why it’s here</span><span data-src="' + s[6] + '">' + esc(s[4]) + "</span>";
-      });
-    });
+    // the detail opens on count-inflated-quiet, the case the chapter just told, so the box is never an empty slot
+    function detail(i) {
+      var s = SC[i];
+      $("bd-det").innerHTML = '<span class="lb">' + esc(s[1]) + ' · the session runs</span><span class="ink">' + esc(s[2]) + '</span><span class="lb" style="margin-top:8px">the report</span><span class="ink">“' + esc(s[3]) + '”</span><span class="lb" style="margin-top:8px">why it’s here</span><span data-src="' + s[6] + '">' + esc(s[4]) + "</span>" + '<span class="lb" style="margin-top:8px">' + (Deep.coarse ? "tap" : "click") + " any card for its own</span>";
+    }
+    cards.forEach(function (b) { b.addEventListener("click", function () { detail(+b.getAttribute("data-i")); Deep.reveal("sc-board", $("bd-det")); }); });
+    detail(1);
     scene("sc-board", {
       ticks: 4, tps: 1,
+      focus: function (api, i) { return i === 0 ? false : ".bd-score, .bd-strip"; },
       draw: function (api) {
         var i = api.keyIndex === 4 ? 1 : api.keyIndex;
         var abl = i === 2 || i === 3;
@@ -732,11 +758,14 @@
   function steady() {
     STEADY.forEach(function (id) {
       var S = BUILT[id]; if (!S || S.mode !== "still") return;
-      var el = S.art.querySelector(":scope > .cx") || S.art, t = S.t, max = 0;
-      el.style.minHeight = "";
-      S.keys.forEach(function (k) { S.show(k.at); max = Math.max(max, el.getBoundingClientRect().height); });
+      // each block of the stage holds its own tallest step (fig 10's nudge box as well as its columns)
+      var els = [].slice.call(S.art.querySelectorAll(":scope > .cx")), t = S.t, max = [];
+      if (!els.length) els = [S.art];
+      els.forEach(function (el, i) { el.style.minHeight = ""; max[i] = 0; });
+      S.keys.forEach(function (k) { S.show(k.at); els.forEach(function (el, i) { max[i] = Math.max(max[i], el.getBoundingClientRect().height); }); });
       S.show(t);
-      el.style.minHeight = Math.ceil(max) + "px";
+      els.forEach(function (el, i) { el.style.minHeight = Math.ceil(max[i]) + "px"; });
+      if (S.dock) S.dock();                                          // the held height can tip a phone scene past one screen
     });
   }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(steady); else steady();

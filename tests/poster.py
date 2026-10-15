@@ -22,14 +22,14 @@ LINES = ("Oliver Zhang", "CS at UT Austin · Turing Scholars ’28", "a Langton�
 MEAN_MAX, BAD_SHARE_MAX = 0.05, 0.00002   # a re-render in the same browser build is exact; one changed glyph is ~100 px
 CLEAR_PX = 24                              # no lit map pixel within this many px of the text
 
-HIDE = ("#strip,#strip *,#step,#places,#places *,#hit,#story,#story *,#doc,#snap,#native"
+HIDE = ("#strip,#strip *,#step,#places,#places *,#mapcap,#mapcap *,.egg,.egg *,#hit,#story,#story *,#doc,#snap,#native"
         "{visibility:hidden!important;opacity:0!important}")
 SETTLE = """async (ms) => { const raf = () => new Promise(r => requestAnimationFrame(r)); const t0 = performance.now();
   await raf(); await raf(); while (performance.now() - t0 < ms) { if (!__walk.running()) { await raf(); return true; } await raf(); } return false; }"""
 # the poster sheet: the site's fonts and tokens, the map image and the three lines
 SHEET = """<!doctype html><html lang="en"><head><meta charset="utf-8"><style>
 @font-face{font-family:"Space Grotesk";font-style:normal;font-weight:300 700;font-display:block;src:url(/work/assets/space-grotesk.woff2) format("woff2")}
-@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 800;font-display:block;src:url(/work/assets/jetbrains-mono.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400;font-display:block;src:url(/work/assets/jetbrains-mono.woff2) format("woff2")}
 :root{--void:#0a0b14;--ink:#e8e6f0;--body:#b9b6cc;--muted:#8a87a0}
 html,body{margin:0;padding:0;background:var(--void)}
 body{width:1200px;height:630px;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased}
