@@ -47,6 +47,7 @@
 .pull{max-width:576px;margin-top:32px;padding-left:16px;border-left:2px solid var(--accent);font:500 15px/24px var(--sg);color:var(--ink)}
 /* the sources, folded, as on every case study */
 .ch>.srcs-d,.st>.srcs-d{margin-top:24px}
+.srcs .m{overflow-wrap:anywhere}                                     /* a long file path breaks rather than pans a phone */
 
 /* the deep dive's own header extras: the link back to the short version */
 .dd-back{margin-top:24px;font:400 11px/16px var(--mono);letter-spacing:.04em}
@@ -124,6 +125,8 @@
 /* the figure's caption: number in the accent, mono 11 */
 .sc-cap{margin-top:16px;max-width:576px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .sc-cap .n{color:var(--accent);margin-right:8px}
+/* a click or tap verb that opens a sentence (deep.js swaps the word on touch, so the capital comes from here) */
+.verb.cap{text-transform:capitalize}
 
 .sc-btn,.sc-tg{min-width:24px}
 /* inline links in the long read (prose, step words, captions, tables, source lists): padding grows the hit area to
@@ -159,6 +162,14 @@
   .sc-pips{grid-column:1 / -1;grid-row:2;margin-left:-8px}
 }
 @media (max-width:767px) and (pointer:coarse){ .sc-pips{margin-left:-12px} }
+/* phone, a scene taller than one screen (deep.js marks it docked): its words and stepper stay at the bottom of the screen
+   on a void backing while the scene is on screen, and its try-it inputs follow the stepper */
+@media (max-width:767px){
+  .scene.js.docked>*{order:3}
+  .scene.js.docked>.sc-stage{order:0} .scene.js.docked>.sc-keys{order:1} .scene.js.docked>.sc-bar{order:2} .scene.js.docked>.sc-cap{order:4}
+  .scene.js.docked>.sc-keys{position:sticky;bottom:var(--dock-b,72px);z-index:2;margin-top:-1px;padding-top:12px;border-top:1px solid var(--rule);background:var(--void)}
+  .scene.js.docked>.sc-bar{position:sticky;bottom:0;z-index:2;margin-top:0;padding:8px 0;background:var(--void)}
+}
 
 @media (prefers-reduced-motion:reduce){ .scene.js .draw{stroke-dashoffset:0} .scene.js .tip{opacity:1} }
 @media print{ .dd-rail{display:none} .dd{grid-template-columns:1fr} .sc-bar,.sc-in{display:none} .scene.js .sc-keys li{visibility:visible} }

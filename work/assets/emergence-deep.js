@@ -116,9 +116,7 @@
     }).join("<br>");
   }
   function lbl(api, id, text, x, y, o) {
-    o = o || {}; var e = api.label(id, text, x, y, o);
-    var cls = o.cls === "r" ? "sc-r" : "sc-l" + (o.cls ? " " + o.cls : ""); if (e.className !== cls) e.className = cls;
-    return e;
+    return api.label(id, text, x, y, o || {});
   }
   /* cells that saw 3 heads in the last few ticks: the ring stays up for a beat so it can be seen */
   function crowdsRecent(frames, tick, W, H, r, beat) {

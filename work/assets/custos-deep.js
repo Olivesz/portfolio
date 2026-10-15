@@ -344,16 +344,18 @@
       if (changed) { rows[2].output = redact(out2); var c = JSON.parse(JSON.stringify(rows[2])); delete c.hash; rows[2].hash = sha256(rows[2].prev_hash + canonical(c)); }
       var bad = verify(rows), shown = key === "r1" ? 2 : 4;
       var html = "";
-      for (var i = 0; i < shown; i++) {
-        var e = rows[i], txt = e.text || (e.input && e.input.command) || e.output;
+      // every row stands from the first step; a row not yet chained is drawn dimmed, with no fingerprint
+      for (var i = 0; i < rows.length; i++) {
+        var e = rows[i], txt = e.text || (e.input && e.input.command) || e.output, gh = i >= shown;
         var broken = bad >= 0 && i >= bad, fresh = (key === "r1" && i < 2) || (key === "r2" && i >= 2) || (changed && i === 2);
         var gap = bad >= 0 && i === bad;
-        if (i > 0) html += '<div class="lnk' + (gap ? " bad" : "") + '"><span class="lbi' + (gap ? " ink" : "") + '">' + (gap ? "#" + i + " still points at " + e.prev_hash.slice(0, 12) + "…, but #" + (i - 1) + " now hashes to " + rows[i - 1].hash.slice(0, 12) + "…" : "prev = the hash above") + "</span></div>";
-        html += '<div class="blk-r' + (broken ? " bad" : bad >= 0 && i === bad - 1 ? " ed" : "") + '"><span class="lb">#' + e.seq + " " + e.kind.toUpperCase() + (e.tool ? " " + e.tool : "") + "</span>" +
+        if (i > 0) html += '<div class="lnk' + (gap ? " bad" : gh ? " gh" : "") + '"><span class="lbi' + (gap ? " ink" : "") + '">' + (gap ? "#" + i + " still points at " + e.prev_hash.slice(0, 12) + "…, but #" + (i - 1) + " now hashes to " + rows[i - 1].hash.slice(0, 12) + "…" : gh ? "not linked yet" : "prev = the hash above") + "</span></div>";
+        html += '<div class="blk-r' + (gh ? " gh" : broken ? " bad" : bad >= 0 && i === bad - 1 ? " ed" : "") + '"><span class="lb">#' + e.seq + " " + e.kind.toUpperCase() + (e.tool ? " " + e.tool : "") + "</span>" +
           '<span class="ink">' + oneLine(txt) + "</span>" +
-          '<span class="lb" style="margin-top:4px">prev ' + (e.prev_hash ? e.prev_hash.slice(0, 16) + "…" : "none: first row") + ' &nbsp;<span class="hx' + (fresh ? " nw" : "") + '">hash ' + e.hash.slice(0, 24) + "…</span></span></div>";
+          (gh ? '<span class="lb" style="margin-top:4px">not fingerprinted yet</span></div>' :
+          '<span class="lb" style="margin-top:4px">prev ' + (e.prev_hash ? e.prev_hash.slice(0, 16) + "…" : "none: first row") + ' &nbsp;<span class="hx' + (fresh ? " nw" : "") + '">hash ' + e.hash.slice(0, 24) + "…</span></span></div>");
       }
-      if (bad >= 0) html += '<p style="margin-top:16px"><span class="badge"><span class="mk r"></span>chain broken at #' + bad + '</span> <span class="lbi"><span class="mk a"></span> the edited row &nbsp;<span class="mk r"></span> the first row that no longer checks</span></p>';
+      if (bad >= 0) html += '<p style="margin-top:16px"><span class="badge"><span class="mk r"></span>chain broken at #' + bad + '</span> <span class="lbi"><span class="lgi"><span class="mk a"></span> the edited row</span> <span class="lgi"><span class="mk r"></span> the first row that no longer checks</span></span></p>';
       else if (shown === 4) html += '<p style="margin-top:16px"><span class="vd ok">every link checks</span></p>';
       $("chain-art").innerHTML = html;
     }
@@ -382,7 +384,12 @@
       if (src) { $("sp-text").setAttribute("data-src", src); $("sp-list").setAttribute("data-src", src); }
       else { $("sp-text").removeAttribute("data-src"); $("sp-list").setAttribute("data-src", "Olivesz/custos-code@f3737f8:src/custos_code/claims.py#L104-L151"); }
       var pcs = extract(report);
-      if (stage === "full") { $("sp-text").innerHTML = esc(report).replace(/\n/g, "<br>"); $("sp-list").innerHTML = ""; return; }
+      $("sp-list").classList.toggle("gh", stage === "full");
+      if (stage === "full") {                                      // the pieces the cut will give, dimmed until it falls
+        $("sp-text").innerHTML = esc(report).replace(/\n/g, "<br>");
+        $("sp-list").innerHTML = pcs.map(function (p) { return '<div class="sp-it"><span class="tag">' + (p.type ? "claim?" : "not a claim?") + '</span><span class="lbi">“' + esc(p.text) + "”</span></div>"; }).join("");
+        return;
+      }
       $("sp-text").innerHTML = pcs.map(function (p) { return '<span class="sp-pc' + (p.type ? "" : " no") + '">' + esc(p.text) + "</span>"; }).join('<span class="sp-cut" aria-hidden="true"></span>');
       $("sp-list").innerHTML = pcs.map(function (p) {
         if (!p.type) return '<div class="sp-it"><span class="tag">not a claim · ' + esc(p.why) + '</span><span class="lbi">“' + esc(p.text) + "”</span></div>";
@@ -434,8 +441,10 @@
       ticks: 38, tps: 8, pause: 900,
       draw: function (api, t) {
         if (custom && api.mode !== "auto" && api.mode !== "seg") { var cw = custom[0]; return paint(cw, testRule(cw.claim, cw.pairs), 99, true); }
-        var wi = Math.min(3, Math.floor(t / 10)), local = t - wi * 10;
-        paint(WALKS[wi], wr[wi], local < 1 ? 0 : local >= 8 ? 99 : local, local >= 8);
+        // each walk: its questions light over ticks 1 to 7 (the whole walk is lit at 7, under its step's words), and
+        // the verdict lands at 8
+        var wi = Math.min(3, Math.floor(t / 10)), local = t - wi * 10, n = wr[wi].walk.length;
+        paint(WALKS[wi], wr[wi], local < 1 ? 0 : local >= 7 ? 99 : Math.ceil(local * n / 7), local >= 8);
       },
       onKey: function (api, i) { if (custom && custom[1] !== i) custom = null; }
     });
@@ -453,12 +462,12 @@
     function paint(t) {
       for (var r = 0; r <= 3; r++) $("ld-" + r).innerHTML = "";
       C.forEach(function (c) {
-        if (t < c.at) return;
-        var rung = Math.min(c.top, t - c.at), settled = t >= c.done;
-        var el = settled ? c.h : '<span class="chip-c tr">climbing</span>';
-        $("ld-" + rung).insertAdjacentHTML("beforeend", el);
+        var settled = t >= c.done;
+        $("ld-" + c.top).insertAdjacentHTML("beforeend", settled ? c.h : c.h.replace('class="vd ', 'class="vd gh '));
+        if (t < c.at || settled) return;
+        $("ld-" + Math.min(c.top, t - c.at)).insertAdjacentHTML("afterbegin", '<span class="chip-c tr">climbing</span>');
       });
-      if (t >= 14) $("ld-3").insertAdjacentHTML("beforeend", '<span class="vd a dash">re-run · async · <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L555-L559">≤2</span> per session</span>');
+      $("ld-3").insertAdjacentHTML("beforeend", '<span class="vd a dash' + (t >= 14 ? "" : " gh") + '">re-run · async · <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L555-L559">≤2</span> per session</span>');
     }
     var MEAN = {
       confirmed: ["the record shows the claimed thing happened and succeeded.", "Olivesz/custos-code@f3737f8:README.md#L5"],
@@ -658,9 +667,11 @@
         $("qt-lp").innerHTML = '<span class="mk g"></span> banner found: the parser reads 86 passed';
         $("qt-lv").innerHTML = verdict(lv);
         $("qt-rn").textContent = i < 2 ? "quiet run" : i === 2 ? "quiet run · old parser" : "quiet run · new parser";
-        $("qt-ro").textContent = i >= 2 ? Q : "";
-        $("qt-rp").innerHTML = i < 2 ? "" : i === 2 ? '<span class="mk r"></span> no banner: not recognised, falls back to exit 0' : '<span class="mk g"></span> the last line is enough: 86 passed';
-        $("qt-rv").innerHTML = i < 2 ? "" : i === 2 ? vchip(qo.verdict).replace('class="vd ', 'class="vd lie ') + ' <span class="lbi">a lie confirmed</span><span class="tr-why">' + esc(qo.why) + "</span>" : verdict(qn);
+        $("qt-ro").textContent = Q; $("qt-ro").classList.toggle("gh", i < 2);
+        // until the quiet run is read, the old parser's reading of it waits dimmed in its place
+        $("qt-rp").innerHTML = i <= 2 ? '<span class="mk r"></span> no banner: not recognised, falls back to exit 0' : '<span class="mk g"></span> the last line is enough: 86 passed';
+        $("qt-rv").innerHTML = i <= 2 ? vchip(qo.verdict).replace('class="vd ', 'class="vd lie ') + ' <span class="lbi">a lie confirmed</span><span class="tr-why">' + esc(qo.why) + "</span>" : verdict(qn);
+        $("qt-rp").classList.toggle("gh", i < 2); $("qt-rv").classList.toggle("gh", i < 2);
       }
     });
   })();

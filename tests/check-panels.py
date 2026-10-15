@@ -13,8 +13,9 @@ What it reads from index.html, as text:
             instruction lines (script strings under `instruction:`), and labels
             (script strings under `label:` / `labels:` / `short:` / `phoneLabel(s):` /
             `caption(s):`, which carry the map, trail and figure labels)
-and from every work/*-deep.html beside it, as text: each data-src element in <main> and
-every figure in its prose (furniture skipped), held to a per-page ratchet, DEEP_KNOWN
+and from every work/*.html beside it (the case studies and their deep dives), as text: each
+data-src element in <main> and every figure in its prose and drawn labels (furniture skipped,
+see WorkPage), held to a per-page ratchet, WORK_KNOWN
 and, by rendering the page in headless Chromium:
   native    the labels of the native figure layers (tests/HOOKS.md), collected at
             several points of every station's hold on a desktop and a phone viewport
@@ -30,11 +31,17 @@ A source is one of:
                           tracked resume.pdf, which is that source's public build
   page:<what>             a figure the page computes (LOCK, END); listed every run and
                           verified by contract.py's self-checks, not here
+  https://github.com/Olivesz/<repo>/actions/runs/<id>
+                          a CI run: the logs of its jobs, fetched read-only with `gh api`
+                          and cached. The element carries data-at, the log's own words
+                          for the figure ('Executed 55 tests', 'stream WER 0.143'), which
+                          must be in the logs and equal the figure at its precision
 
 A figure matches after normalising minus signs, ×, thousands separators and
 number words (five = 5), and with its magnitude kept: '2.6M+' matches
 'more than 2.6 million' and '2.6M+', not '2.6 thousand'. A data-src element
-that shows no figure must share a content word with what it cites.
+that shows no figure must share a content word with what it cites (by stem,
+so 'claims' matches 'claim'), a number word, or a word of the cited file's name.
 
 Every figure found in a region must be covered: in the DOM by an enclosing
 data-src element, in a script string by a FACTS entry whose `v` matches and
@@ -76,6 +83,8 @@ CACHE = ROOT / ".srccache"   # gitignored
 VENV_PY = ROOT / ".venv" / "bin" / "python"
 
 SRC = re.compile(r"^(?:(?P<owner>[\w.-]+)/)?(?P<repo>[\w.-]+)@(?P<sha>[0-9a-f]{7,40}):(?P<path>[^#\s]+)#L(?P<a>\d+)(?:-L?(?P<b>\d+))?$")
+CI_RUN = re.compile(r"^https://github\.com/(?P<owner>[\w.-]+)/(?P<repo>[\w.-]+)/actions/runs/(?P<run>\d+)$")
+DATA_FILE = re.compile(r"\.(?:json|jsonl|csv|tsv)$", re.I)
 RESUME_SRC = re.compile(r"^public_resume\.tex#L(?P<a>\d+)(?:-L?(?P<b>\d+))?$")
 # publication pages with no repo line: only these hosts, read with GET
 WEB_HOSTS = {"doi.org", "dx.doi.org", "www.doi.org", "thinkmind.org", "www.thinkmind.org",
@@ -97,8 +106,8 @@ SCALE = {"k": r"k|thousand", "m": r"m|mn|mio|million", "b": r"b|bn|billion"}
 
 # a figure: optional sign (only after space or bracket), digits with separators,
 # decimals, an optional unit or magnitude, an optional '+'. Digits glued to a letter,
-# '+' or '-' (SAP-1, x86-64, n+1, L134) are part of a name, not a figure.
-NUM = re.compile(r"(?:(?<![^\s(\[])[\u2212\u2013-]|(?<![\w+\-.\u2212\u2013]))\d[\d,]*(?:\.\d+)?"
+# '+', '-', '=' or '@' (SAP-1, x86-64, n+1, L134, rf=0, recall@5) are part of a name, not a figure.
+NUM = re.compile(r"(?:(?<![^\s(\[])[\u2212\u2013+-]|(?<![\w+\-.\u2212\u2013=@]))\d[\d,]*(?:\.\d+)?"
                  r"(?:\s?(?:%|\u00d7|x\b)|(?:k|m|bn|b|bps|ms|s|gflops|fps)\b)?\+?"
                  r"|" + WORD_FIG, re.I)
 MONTH = r"(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?"
@@ -106,7 +115,11 @@ NOT_A_CLAIM = re.compile(
     rf"\b{MONTH}\s+\d{{4}}(?:\s*[\u2013-]\s*(?:{MONTH}\s+\d{{4}}|now|present))?"   # aug 2026, jul 2026 – now
     r"|\b(?:19|20)\d{2}(?:\s*[\u2013-]\s*(?:(?:19|20)?\d{2}|now|present))?\b"      # 2023, 2025–26
     r"|[\u2019']\d{2}\b"                                                            # ’28
-    r"|SAP-\d+|x86-64|IEEE \w+|Llama [\d.]+ \d+B", re.I)
+    r"|SAP-\d+|x86-64|IEEE \w+|Llama [\d.]+ \d+B"
+    r"|\bfig(?:ure)?s?\.?\s+\d+[a-z]?\b"                                            # a figure reference: (fig 5)
+    r"|\barXiv:?\s*\d{4}\.\d{4,5}(?:v\d+)?"                                          # a paper id
+    r"|\b(?:player|seat|day)\s+\d+\b"                                                # a name in an example: Player 3, day 1
+    r"|\bruns?\s+#?\d{6,}\b", re.I)                                                  # a CI run id
 STOP = set("with from that this into their there which when what each only over about than then them they your "
            "have been were also more most such very just like onto upon course project page line lines "
            "the and for its per not but are was all any can has had how out own via yet you".split())
@@ -176,6 +189,40 @@ def words(text):
     for w in re.findall(r"[a-z][a-z0-9]*(?:-[a-z0-9]+)*", norm(text).lower()):
         out.update(x for x in [w] + w.split("-") if len(x) >= 3 and not x.isdigit() and x not in STOP)
     return sorted(out)
+
+
+SUFFIX = re.compile(r"(?:ations?|ances?|ences?|ments?|ings?|ers?|ies|es|ed|ly|s|ant|ent|e)$")
+
+
+def stem(w):
+    """A crude stem, enough to match a phrase to its source across inflections: claims/claim,
+    importance/important, python3/python."""
+    w = re.sub(r"\d+$", "", w)
+    for _ in range(2):
+        s = SUFFIX.sub("", w)
+        if len(s) < 3 or s == w:
+            break
+        w = s
+    return w
+
+
+def shares(text, line, path=""):
+    """Whether a figure-free phrase is about its source: a content word in common (by stem, or one stem of
+    four or more letters inside a source word), a number word in common ('two' and '**two primitives**'), a
+    word of the cited file's name ('ww_cells.py'), or, for a phrase of stop words only ('all'), the word itself."""
+    mine, theirs = words(text), words(line) + words(re.sub(r"[_./]", " ", path))
+    ts = {stem(w) for w in theirs}
+    for w in mine:
+        s = stem(w)
+        if s in ts or (len(s) >= 4 and any(s in t for t in theirs)):
+            return True
+    nums = lambda t: set(re.findall(r"\d+(?:\.\d+)?", norm(t)))
+    if nums(text) & nums(line):
+        return True
+    if not mine:
+        raw = lambda t: set(re.findall(r"[a-z]{3,}", t.lower()))
+        return bool(raw(text) & raw(line))
+    return False
 
 
 DATE = re.compile(rf"(?:\b({MONTH})\s+)?\b((?:19|20)\d{{2}})\b", re.I)
@@ -328,6 +375,8 @@ class Sources:
             return "page"
         if RESUME_SRC.match(s):
             return "resume"
+        if CI_RUN.match(s):
+            return "ci"
         if s.startswith("https://"):
             return "web"
         return "repo"
@@ -400,6 +449,40 @@ class Sources:
         self.fetched += 1
         return text, None
 
+    def ci(self, url):
+        """(text, error). A CI run of an Olivesz repo: the logs of all its jobs, fetched read-only with `gh api`
+        and cached. A run whose logs have expired cannot be re-read, so it fails until the figure is re-cited."""
+        m = CI_RUN.match(url)
+        if m.group("owner").lower() != OWNER.lower():
+            return None, f"{m.group('owner')}/{m.group('repo')} is not an {OWNER} repo; not read"
+        repo, run = m.group("repo"), m.group("run")
+        vis = self.visibility(repo)
+        if vis != "public":
+            return None, f"{repo} is {vis or 'unreachable'}: a reader cannot check a figure sourced there"
+        f = self.cache / "_ci" / f"{repo}-{run}.txt"
+        if f.is_file():
+            self.hits += 1
+            return f.read_text(encoding="utf-8", errors="replace"), None
+        if self.offline:
+            return None, f"{url}: not cached and --offline"
+        r = subprocess.run(["gh", "api", f"repos/{OWNER}/{repo}/actions/runs/{run}/jobs", "--jq", ".jobs[].id"],
+                           capture_output=True, text=True, timeout=60)
+        jobs = r.stdout.split() if r.returncode == 0 else []
+        if not jobs:
+            return None, f"{url}: gh api listed no jobs ({(r.stderr or r.stdout).strip()[:100]})"
+        logs = []
+        for j in jobs:
+            r = subprocess.run(["gh", "api", f"repos/{OWNER}/{repo}/actions/jobs/{j}/logs"],
+                               capture_output=True, text=True, timeout=60)
+            if r.returncode != 0:
+                return None, f"{url}: the logs of job {j} could not be read ({(r.stderr or r.stdout).strip()[:100]})"
+            logs.append(r.stdout)
+        text = "\n".join(logs)
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(text, encoding="utf-8")
+        self.fetched += 1
+        return text, None
+
     def resume(self):
         """(lines, error): the tracked résumé PDF as text, one entry per line."""
         if self._resume is None:
@@ -462,15 +545,29 @@ def check_element(srcs, e, where):
         if not figs and not set(words(e["text"])) & set(words(text)):
             bad.append(f"{where} data-src on {e['text'][:40]!r}: no word of it is in {e['src']}")
         return bad, kind
+    if kind == "ci":
+        text, err = srcs.ci(e["src"])
+        if err:
+            return [f"{where} data-src: {err}"], kind
+        if figs and not e.get("at"):
+            return [f"{where} {e['src']}: a CI run is cited with data-at, the log's own words for the figure"], kind
+        if e.get("at") and not re.search(r"(?<![\w.])" + re.escape(e["at"]) + r"(?!\w)", text):
+            bad.append(f"{where} data-at {e['at']!r} is not in the logs of {e['src']}")
+        elif e.get("at"):
+            bad += [f"{where} {f!r} is not {e['at']!r} at the shown precision" for f in figs if not same_value(f, e["at"])]
+        elif e["text"].strip() and not shares(e["text"], text):
+            bad.append(f"{where} data-src on {e['text'][:40]!r} shows no figure and shares no word with the logs of {e['src']}")
+        return bad, kind
     L, err = srcs.lines(e["src"])
     if err:
         return [f"{where} data-src: {err}"], kind
-    line = " ".join(L)
+    line, path = " ".join(L), SRC.match(e["src"]).group("path")
     if not figs and dates_ok(e["text"], L) is False:
         bad.append(f"{where} date {e['text'][:30]!r} not in {e['src']}: {line.strip()[:80]!r}")
-    elif not figs and dates_ok(e["text"], L) is None:
-        share = set(words(e["text"])) & set(words(line))
-        if not share:
+    elif not figs and dates_ok(e["text"], L) is None and e["text"].strip() and not DATA_FILE.search(path):
+        # an element with no text (a drawn figure) has no words to compare, and neither does a recorded trace or
+        # results file: their figures are still checked below
+        if not shares(e["text"], line, path):
             bad.append(f"{where} data-src on {e['text'][:40]!r} shows no figure and shares no word with "
                        f"{e['src']}: {line.strip()[:80]!r}")
     for f in figs:
@@ -641,33 +738,62 @@ def team_meta(html, resume_lines):
     return out
 
 
-# ---------------------------------------------------------------- the deep dives, work/*-deep.html
-# The same rules over each deep dive's <main>, minus its navigation and furniture (contents rail, kickers and figure
-# numbers, the stepper, the sources list, the case-nav, the facts' labels). Two differences from the index: a step's
-# `.sc-keys li` carries data-at as the step's tick (deep.js), not as the source's spelling of a value, so data-at is
-# ignored on any element that also has data-key; and a figure is covered by an enclosing data-src, data-derived (a
-# value the page computes from cited inputs) or data-live (this visitor's random draw) element.
-# Read as text only: labels a scene draws as it steps are not scanned here.
-DEEP_SKIP_CLS = {"dd-toc", "dd-rail", "ch-k", "st-k", "kick", "n", "sc-bar", "sc-in", "srcs-d", "srcs", "dd-src", "case-nav",
+# ---------------------------------------------------------------- the work pages, work/*.html
+# The same rules over every page in work/, the case studies and their deep dives: each page's <main>, minus its
+# navigation and furniture (contents rail, kickers and figure numbers, the stepper, the sources list, the case-nav, the
+# facts' labels). How a work page differs from the index:
+#  - A step's `.sc-keys li` carries data-at as the step's tick (deep.js), not as the source's spelling of a value, so
+#    data-at is ignored on any element that also has data-key.
+#  - A figure is covered by an enclosing data-src, data-derived (a value the page computes from cited inputs) or
+#    data-live (this visitor's random draw) element.
+#  - A drawing's <title> and <desc> restate what it draws, for screen readers. Each of their figures must be shown by
+#    a cited element, or be in a source line a cited element cites, in the same drawing, else its <figure>, else its
+#    <section>. A desc that drifts from its labels and their sources FAILS.
+#  - Inside an SVG, number-only labels are furniture when they line up (same x or same y) as an evenly spaced run:
+#    seat numbers 1 2 3 …, axis ticks 0 5 10 15 or 100 1,000 10,000. So are a lone 0 (a zero line) and counted items
+#    numbered from 1 ('1 Merlin' … '7 Minion'). Runs are read with cited labels included, so '7' cited as the seat
+#    count completes 1 … 6.
+#  - A cited element that shows no figure and cites a recorded trace or results file (.json, .csv) is not held to
+#    share a word with it; its figures still are (check_element).
+# Read as text only: labels a script draws as a scene steps are not scanned here.
+WORK_SKIP_CLS = {"dd-toc", "dd-rail", "ch-k", "st-k", "kick", "n", "sc-bar", "sc-in", "srcs-d", "srcs", "dd-src", "case-nav",
                  "strip", "colo", "skip", "sr-only", "back-to", "sc-n"}
-DEEP_SKIP_IDS = {"ch-sources"}
-DEEP_COVER = ("data-src", "data-derived", "data-live")
-# A ratchet held at zero: per page, (figures not in their cited line, uncovered prose figures). Every deep dive is clean,
-# so any figure that points near its line instead of at it, or a prose figure with no data-src, data-derived or data-live,
-# FAILS. A deep dive missing here must be clean too.
-DEEP_KNOWN = {
-    "emergence-deep.html": (0, 0),
-    "freeflow-deep.html": (0, 0),
-    "kronos-deep.html": (0, 0),
+WORK_SKIP_IDS = {"ch-sources"}
+WORK_COVER = ("data-src", "data-derived", "data-live")
+SCOPES = ("svg", "figure", "section")
+MARK = re.compile(r"(\d[\d,]*(?:\.\d+)?)(\s+[A-Za-z][\w-]*)?")
+# A ratchet held at zero: per page, (figures not in their cited line, uncovered figures). Every work page is clean, so
+# a figure that points near its line instead of at it, or a figure with no data-src, data-derived or data-live, FAILS.
+# A page missing here must be clean too.
+WORK_KNOWN = {
+    "ai-capabilities.html": (0, 0),
+    "custos-code.html": (0, 0),
     "custos-code-deep.html": (0, 0),
+    "emergence.html": (0, 0),
+    "emergence-deep.html": (0, 0),
+    "freeflow.html": (0, 0),
+    "freeflow-deep.html": (0, 0),
+    "inf-mem.html": (0, 0),
     "inf-mem-deep.html": (0, 0),
+    "kronos.html": (0, 0),
+    "kronos-deep.html": (0, 0),
 }
 
 
-class DeepPage(Page):
-    def __init__(self):
+def evenly(vals):
+    """An evenly spaced run of three or more: a constant step (1 2 3, 0 5 10 15) or a constant ratio (100 1,000 10,000)."""
+    if len(vals) < 3:
+        return False
+    steps = {round(b - a, 9) for a, b in zip(vals, vals[1:])}
+    if len(steps) == 1:
+        return True
+    return vals[0] > 0 and len({round(b / a, 9) for a, b in zip(vals, vals[1:])}) == 1
+
+
+class WorkPage(Page):
+    def __init__(self, sources):
         super().__init__()
-        self.uncovered = []
+        self.uncovered, self.sources = [], sources
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -676,28 +802,94 @@ class DeepPage(Page):
         super().handle_starttag(tag, attrs)
         if tag not in self.VOID and self.stack:
             e = self.stack[-1]
-            e["skip"] = bool(set((a.get("class") or "").split()) & DEEP_SKIP_CLS) or a.get("id") in DEEP_SKIP_IDS
+            e["skip"] = bool(set((a.get("class") or "").split()) & WORK_SKIP_CLS) or a.get("id") in WORK_SKIP_IDS
             if tag == "main":
                 e["region"] = "deep"
-            e["cover"] = next((a[k] for k in DEEP_COVER if a.get(k)), None)
+            e["cover"] = next((a[k] for k in WORK_COVER if a.get(k)), None)
+            if tag in SCOPES:
+                e["scope"] = {"cited": set(), "echo": [], "srcs": set()}
+            if tag == "svg":
+                e["marks"] = []
+            if a.get("data-src"):
+                for x in self.stack:
+                    if "scope" in x:
+                        x["scope"]["srcs"].add(a["data-src"])
+
+    def handle_endtag(self, tag):
+        before = list(self.stack)
+        super().handle_endtag(tag)
+        for e in reversed(before[len(self.stack):]):
+            if "marks" in e:
+                self.settle_marks(e["marks"])
+            if "scope" in e:
+                self.settle_echo(e["scope"])
 
     def handle_data(self, d):
         super().handle_data(d)
         if not self.stack or self.stack[-1]["tag"] in ("script", "style") or not d.strip():
             return
-        if not any(e.get("region") == "deep" for e in self.stack):
+        if not any(e.get("region") == "deep" for e in self.stack) or any(e.get("skip") for e in self.stack):
             return
-        if any(e.get("skip") or e.get("cover") or e["tag"] == "dt" for e in self.stack):
+        figs = figures(d)
+        if not figs:
             return
-        for f in figures(d):
-            self.uncovered.append((self.getpos()[0], f, " ".join(d.split())[:60]))
+        text, line, top = " ".join(d.split()), self.getpos()[0], self.stack[-1]
+        covered = any(e.get("cover") for e in self.stack)
+        svg = next((e for e in reversed(self.stack) if e["tag"] == "svg"), None)
+        mark = MARK.fullmatch(text) if svg is not None and top["tag"] in ("text", "tspan") else None
+        if mark:
+            at = next((e for e in reversed(self.stack) if e["tag"] == "text"), top)["attrs"]
+            svg["marks"].append({"line": line, "figs": figs, "text": text, "val": float(mark.group(1).replace(",", "")),
+                                 "named": bool(mark.group(2)), "x": at.get("x"), "y": at.get("y"), "covered": covered})
+        if covered:
+            for e in self.stack:
+                if "scope" in e:
+                    e["scope"]["cited"].update(core(f) for f in figs)
+            return
+        if mark or any(e["tag"] == "dt" for e in self.stack):
+            return                                  # a number-only label is settled when its <svg> closes
+        if svg is not None and top["tag"] in ("title", "desc"):
+            svg["scope"]["echo"] += [(line, f, text[:60]) for f in figs]
+            return
+        self.uncovered += [(line, f, text[:60]) for f in figs]
+
+    def settle_marks(self, marks):
+        furniture = set()
+        for axis in ("x", "y"):
+            groups = {}
+            for i, m in enumerate(marks):
+                groups.setdefault((m["named"], m[axis]), []).append(i)
+            for (named, _), idx in groups.items():
+                vals = sorted({marks[i]["val"] for i in idx})
+                if (vals == [float(k) for k in range(1, len(vals) + 1)] and len(vals) >= 3) if named else evenly(vals):
+                    furniture.update(idx)
+        for i, m in enumerate(marks):
+            if not (m["covered"] or i in furniture or (not m["named"] and m["val"] == 0)):
+                self.uncovered += [(m["line"], f, m["text"]) for f in m["figs"]]
+
+    def in_cited_line(self, fig, srcs):
+        for src in srcs:
+            if self.sources.kind(src) == "repo":
+                L, _ = self.sources.lines(src)
+                if L and in_line(fig, " ".join(L)):
+                    return True
+        return False
+
+    def settle_echo(self, scope):
+        """A restated figure the closing scope does not back goes up to the scope around it; past the last, uncovered."""
+        left = [x for x in scope["echo"] if core(x[1]) not in scope["cited"] and not self.in_cited_line(x[1], scope["srcs"])]
+        outer = next((e for e in reversed(self.stack) if "scope" in e), None)
+        if outer is not None:
+            outer["scope"]["echo"] += left
+        else:
+            self.uncovered += left
 
 
-def deep_dives(srcs, work):
-    """(problems, one summary line per page). Problems are a page with nothing cited, or a count over its DEEP_KNOWN."""
+def work_pages(srcs, work):
+    """(problems, one summary line per page). Problems are a page with nothing cited, or a count over its WORK_KNOWN."""
     bad, lines = [], []
-    for path in sorted(work.glob("*-deep.html")):
-        p = DeepPage()
+    for path in sorted(work.glob("*.html")):
+        p = WorkPage(srcs)
         p.feed(path.read_text(encoding="utf-8"))
         p.close()
         miss, seen = [], set()
@@ -706,18 +898,18 @@ def deep_dives(srcs, work):
                 continue
             seen.add((e["src"], e["text"]))
             miss += check_element(srcs, e, f"{path.name}:{e['line']}")[0]
-        known = DEEP_KNOWN.get(path.name, (0, 0))
+        known = WORK_KNOWN.get(path.name, (0, 0))
         lines.append(f"  {path.name}: {len(seen)} cited elements, {len(miss)} not in their line (known {known[0]}), "
-                     f"{len(p.uncovered)} uncovered prose figures (known {known[1]})")
+                     f"{len(p.uncovered)} uncovered figures (known {known[1]})")
         if not seen:
-            bad.append(f"{path.name}: no data-src element in <main>; the deep-dive scan walked nothing")
+            bad.append(f"{path.name}: no data-src element in <main>; the scan walked nothing")
         if len(miss) > known[0]:
             bad += [f"{path.name}: {len(miss)} figures not in their cited line, over the {known[0]} it shipped with"] + miss[:8]
         if len(p.uncovered) > known[1]:
-            bad += [f"{path.name}: {len(p.uncovered)} uncovered prose figures, over the {known[1]} it shipped with"] + \
+            bad += [f"{path.name}: {len(p.uncovered)} uncovered figures, over the {known[1]} it shipped with"] + \
                    [f"{path.name}:{ln} undeclared figure {f!r} in {t!r}" for ln, f, t in p.uncovered[:8]]
         if (len(miss), len(p.uncovered)) < known and len(miss) <= known[0] and len(p.uncovered) <= known[1]:
-            lines.append(f"    fewer than known: lower DEEP_KNOWN[{path.name!r}] to ({len(miss)}, {len(p.uncovered)})")
+            lines.append(f"    fewer than known: lower WORK_KNOWN[{path.name!r}] to ({len(miss)}, {len(p.uncovered)})")
     return bad, lines
 
 
@@ -844,8 +1036,8 @@ def main():
                     bad.append(f"{index.name}:{line} [{kind}] figure {f!r} in {s[:60]!r} has no FACTS entry "
                                f"with that v and a ctx word found in the string")
 
-    deep_bad, deep_lines = deep_dives(srcs, index.parent / "work")
-    bad += deep_bad
+    work_bad, work_lines = work_pages(srcs, index.parent / "work")
+    bad += work_bad
 
     nat = (f"{len(native['chunks'])} native label texts and {len(native['srcs'])} native data-src elements from "
            f"{native['samples']} held samples" if not a.static else "native figure labels NOT scanned (--static)")
@@ -854,12 +1046,12 @@ def main():
           f"{seen['hero']} hero / {seen['card']} card / {seen['work']} work / {seen['resume']} résumé / {seen['instruction']} instruction / {seen['label']} label / "
           f"{seen['native']} native; citations {', '.join(f'{n} {k}' for k, n in sorted(kinds.items()))}; "
           f"sources {srcs.fetched} fetched, {srcs.hits} cached; computed in the page: {', '.join(sorted(set(computed))) or 'none'}")
-    print(f"deep dives ({len(deep_lines)} lines, read as text):\n" + "\n".join(deep_lines) + "\n")
+    print(f"work pages ({len(work_lines)} lines, read as text):\n" + "\n".join(work_lines) + "\n")
     if not bad:
-        debt = [sum(DEEP_KNOWN.get(q.name, (0, 0))[i] for q in (index.parent / "work").glob("*-deep.html")) for i in (0, 1)]
+        debt = [sum(WORK_KNOWN.get(q.name, (0, 0))[i] for q in (index.parent / "work").glob("*.html")) for i in (0, 1)]
         print("PASS - every figure on the index is in the line it cites" + (" (static: native labels not scanned)" if a.static else "")
-              + (f"; the deep dives are within their known counts, still {debt[0]} figures not in their cited line "
-                 f"and {debt[1]} uncovered prose figures to fix." if any(debt) else "; so is every figure in the deep dives."))
+              + (f"; the work pages are within their known counts, still {debt[0]} figures not in their cited line "
+                 f"and {debt[1]} uncovered figures to fix." if any(debt) else "; so is every figure on the work pages."))
         return 0
     for b in bad:
         print("FAIL " + b)

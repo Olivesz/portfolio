@@ -150,7 +150,7 @@
         <li data-key="learn" data-at="36">Prompt and reply go through Groq; a new memory is kept.</li>
         <li data-key="next" data-at="48">On claude.ai, the next prompt is offered the new memory.</li>
       </ol>
-      <figcaption class="sc-cap" id="s-idea-cap"><span class="n">fig 1</span>the store is read before a prompt is sent and written after the reply.</figcaption>
+      <figcaption class="sc-cap" id="s-idea-cap"><span class="n">fig 1</span>The store is read before a prompt is sent and written after the reply.</figcaption>
     </figure>
     <ul class="lgd" aria-label="what the colours mean">
       <li><i class="c-b"></i>blue · to this machine</li>
@@ -207,7 +207,7 @@
             <li data-key="t4" data-at="30">On claude.ai the thread is empty too: a third time.</li>
             <li data-key="t5" data-at="36">Every thread pays the same cost before the real question.</li>
           </ol>
-          <figcaption class="sc-cap" id="s-blank-cap"><span class="n">fig 2</span>each new thread starts blank, on either site. the background lines are <span data-src="Olivesz/inf-mem@c6579f9:docs/make_popup_screenshot.py#L23-L28">memories of the repo’s invented demo user</span>. <span class="verb">click</span> to open another thread.</figcaption>
+          <figcaption class="sc-cap" id="s-blank-cap"><span class="n">fig 2</span>Each new thread starts blank, on either site. The background lines are <span data-src="Olivesz/inf-mem@c6579f9:docs/make_popup_screenshot.py#L23-L28">memories of the repo’s invented demo user</span>. <span class="verb cap">click</span> to open another thread.</figcaption>
         </figure>
 
         <p>The fix needs one way to say which stored line is relevant to a new prompt.</p>
@@ -221,7 +221,7 @@
             <li data-key="far" data-at="20">The EPISODE line is near a right angle: cosine <span data-ex data-derived="the cosine of this schematic’s 84° angle, 0.10">near 0</span>.</li>
             <li data-key="scale" data-at="26">The cosine is the score: <span data-src="Olivesz/inf-mem@c6579f9:tests/test_backend.py#L139-L146">1 same, 0 unrelated, −1 opposite</span>.</li>
           </ol>
-          <figcaption class="sc-cap" id="s-angle-cap"><span class="n">fig 3</span>schematic: <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> dimensions drawn as two. closeness is the cosine of the angle between two texts. drag the slider to turn the prompt.</figcaption>
+          <figcaption class="sc-cap" id="s-angle-cap"><span class="n">fig 3</span>Schematic: <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> dimensions drawn as two. Closeness is the cosine of the angle between two texts. Drag the slider to turn the prompt.</figcaption>
         </figure>
       </section>
 
@@ -259,7 +259,7 @@
               <li data-key="off" data-at="30">Backend stopped: the post fails, and the worker returns an error.</li>
               <li data-key="resend" data-at="42">The script puts the text back and sends it; the site gets it as typed.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-hold-cap"><span class="n">fig 4</span>enter is held; shift + enter still makes a new line. with the backend stopped, the site sends the prompt as typed.</figcaption>
+            <figcaption class="sc-cap" id="s-hold-cap"><span class="n">fig 4</span>Enter is held; Shift + Enter still makes a new line. With the backend stopped, the site sends the prompt as typed.</figcaption>
           </figure>
         </div>
 
@@ -278,7 +278,7 @@
               <li data-key="align" data-at="24">Matrix row i goes with the ID in row i: a lookup.</li>
               <li data-key="add" data-at="30">Only the memory is stored: one row, with its vector inside.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-store-cap"><span class="n">fig 5</span>schematic values. a prompt is embedded and compared, never stored; a memory is embedded and stored. <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L211-L212">ids are uuid4 strings</span>, shortened here. the first version kept vectors and ids in two numpy files; what broke, below, happened there.</figcaption>
+            <figcaption class="sc-cap" id="s-store-cap"><span class="n">fig 5</span>Schematic values. A prompt is embedded and compared, never stored; a memory is embedded and stored. <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L211-L212">IDs are uuid4 strings</span>, shortened here. The first version kept vectors and IDs in two NumPy files; what broke, below, happened there.</figcaption>
           </figure>
         </div>
 
@@ -295,7 +295,7 @@
               <li data-key="gate" data-at="14">Two fall under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> and are never offered.</li>
               <li data-key="pass" data-at="20">Two survive. Only now does importance count.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-gate1-cap"><span class="n">fig 6</span>example similarities. a memory under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> is never offered, however important it is. drag the gate to move it.</figcaption>
+            <figcaption class="sc-cap" id="s-gate1-cap"><span class="n">fig 6</span>Example similarities. A memory under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> is never offered, however important it is. Drag the gate to move it.</figcaption>
           </figure>
         </div>
 
@@ -314,7 +314,7 @@
               <li data-key="cut" data-at="26">Only the <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L124">top 5</span> go back.</li>
               <li data-key="count" data-at="32">Each returned memory’s access count goes up by one.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-rank-cap"><span class="n">fig 7</span>the rule is the code’s; the cards are set to show it. <span data-derived="similarity × (1 + importance / 10), retriever.py#L157">at 0.62 and importance 10 a memory scores 1.24, above one at 0.90 and importance 1 (0.99)</span>. drag the sliders to re-rank.</figcaption>
+            <figcaption class="sc-cap" id="s-rank-cap"><span class="n">fig 7</span>The rule is the code’s; the cards are set to show it. <span data-derived="similarity × (1 + importance / 10), retriever.py#L157">At 0.62 and importance 10 a memory scores 1.24, above one at 0.90 and importance 1 (0.99)</span>. Drag the sliders to re-rank.</figcaption>
           </figure>
         </div>
 
@@ -331,7 +331,7 @@
               <li data-key="buttons" data-at="16">Two buttons: send with memory, or skip it.</li>
               <li data-key="out" data-at="22">What that button sends: the context block, then the prompt.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-panel-cap"><span class="n">fig 8</span>nothing reaches the chat site until a button is pressed. skip sends the prompt as typed; × sends nothing; compress &amp; send appears only when compression is on.</figcaption>
+            <figcaption class="sc-cap" id="s-panel-cap"><span class="n">fig 8</span>Nothing reaches the chat site until a button is pressed. Skip sends the prompt as typed; × sends nothing; compress &amp; send appears only when compression is on.</figcaption>
           </figure>
         </div>
 
@@ -349,7 +349,7 @@
               <li data-key="wait" data-at="22">A <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L227">50 ms</span> wait, so the page catches up.</li>
               <li data-key="enter" data-at="28">The site’s send button is clicked, or Enter pressed; the site sends the text.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-inject-cap"><span class="n">fig 9</span>the literal block, type names as the code writes them. memories approved in the panel travel to the chat site as part of the prompt.</figcaption>
+            <figcaption class="sc-cap" id="s-inject-cap"><span class="n">fig 9</span>The literal block, type names as the code writes them. Memories approved in the panel travel to the chat site as part of the prompt.</figcaption>
           </figure>
         </div>
 
@@ -369,7 +369,7 @@
               <li data-key="check" data-at="30">Not a JSON list: refused. <span data-src="Olivesz/inf-mem@c6579f9:backend/models.py#L79">Importance outside 1-10</span>: skipped. The rest are candidates.</li>
               <li data-key="wait" data-at="36">The candidates wait at the second gate.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-extract-cap"><span class="n">fig 10</span>cyan crosses the machine boundary: the prompt and the finished reply go to groq, once per reply; the store does not. what comes back is a json list, checked before anything is kept.</figcaption>
+            <figcaption class="sc-cap" id="s-extract-cap"><span class="n">fig 10</span>Cyan crosses the machine boundary: the prompt and the finished reply go to Groq, once per reply; the store does not. What comes back is a JSON list, checked before anything is kept.</figcaption>
           </figure>
         </div>
 
@@ -388,7 +388,7 @@
               <li data-key="add" data-at="32">ADD: closest under <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span>, so a new row with its vector, and a new ID.</li>
               <li data-key="axis" data-at="38">Two gates, one scale: <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> offers, <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> means the same memory.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-gate2-cap"><span class="n">fig 11</span>at <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above a candidate counts as a memory already kept: it replaces it only if more important or longer. otherwise it is added under a new id. the similarities are examples.</figcaption>
+            <figcaption class="sc-cap" id="s-gate2-cap"><span class="n">fig 11</span>At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above a candidate counts as a memory already kept: it replaces it only if more important or longer. Otherwise it is added under a new ID. The similarities are examples.</figcaption>
           </figure>
         </div>
 
@@ -426,7 +426,7 @@
               <li data-key="extract" data-at="38">Extract: prompt and finished reply go to Groq, once per reply.</li>
               <li data-key="write" data-at="42">Dedupe and write: the store, scores and unapproved memories stay home.</li>
             </ol>
-            <figcaption class="sc-cap" id="s-ledger-cap"><span class="n">fig 12</span>every crossing for one message. the chat site gets the prompt and what was approved; groq gets the prompt (when compression is on) and the finished reply, once; the store stays in ~/.inf_mem.</figcaption>
+            <figcaption class="sc-cap" id="s-ledger-cap"><span class="n">fig 12</span>Every crossing for one message. The chat site gets the prompt and what was approved; Groq gets the prompt (when compression is on) and the finished reply, once; the store stays in ~/.inf_mem.</figcaption>
           </figure>
         </div>
       </section>
@@ -450,7 +450,7 @@
             <li data-key="down" data-at="38">Startup stops. Every prompt now goes out without memory.</li>
             <li data-key="fix" data-at="46">Fix: IDs as plain strings. A test now opens the store twice.</li>
           </ol>
-          <figcaption class="sc-cap" id="s-idfile-cap"><span class="n">fig 13</span>the ids were written in a form the loader is set to refuse. nothing failed until the next start, so the test now opens the store twice.</figcaption>
+          <figcaption class="sc-cap" id="s-idfile-cap"><span class="n">fig 13</span>The IDs were written in a form the loader is set to refuse. Nothing failed until the next start, so the test now opens the store twice.</figcaption>
         </figure>
 
         <p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L342-L350">The fix saved the IDs as plain strings, with pickle off on both sides.</span> The lesson is in the test. A store that is only opened once can never show this bug, so <span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L126-L133">the test writes a memory, opens a second store on the same folder, and checks that the memory and a 1 × 384 matrix come back</span>.</p>
@@ -470,20 +470,20 @@
           <div class="sc-stage"><div class="sc-art">
             <ol class="tg" id="tg" aria-label="ci jobs at c6579f9"></ol>
             <p class="tg-out" id="tg-out" aria-live="polite"><span class="k">pick a tier to see what it checks</span></p>
-            <ul class="stats">
-              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5, held out</span><span class="b" data-src="Olivesz/inf-mem@c6579f9:README.md#L29">776 questions the gate never saw</span></li>
+            <ul class="stats" data-from="stats">
               <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span><span class="k">off-topic prompts still inject</span><span class="b">the old <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">0.35</span> gate: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span></span></li>
               <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5&nbsp;ms</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">/retrieve p50 at 10,000 memories, Apple M5</span><span class="b">p95 <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">7&nbsp;ms</span>; on the CI runner <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">15&nbsp;/&nbsp;19&nbsp;ms</span></span></li>
+              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5, held out</span><span class="b" data-src="Olivesz/inf-mem@c6579f9:README.md#L29">776 questions the gate never saw</span></li>
             </ul>
           </div></div>
           <ol class="sc-keys">
             <li data-key="grid" data-at="0"><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">Five test tiers on every push</span>, after a lint pass; unit + API on two Pythons.</li>
             <li data-key="pass" data-at="10"><a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">At c6579f9 every job passes.</a></li>
-            <li data-key="stats" data-at="12">Held-out recall, off-topic rate and speed, from the README’s own tables.</li>
+            <li data-key="stats" data-at="12">Off-topic rate, speed and held-out recall, from the README’s own tables.</li>
           </ol>
-          <figcaption class="sc-cap" id="s-results-cap"><span class="n">fig 14</span><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">ci at c6579f9: lint, then five tiers, from mocked endpoints to the extension in chromium</span>. <span class="verb">click</span> a tier to open it, and a line to see what it checks.</figcaption>
+          <figcaption class="sc-cap" id="s-results-cap"><span class="n">fig 14</span><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">CI at c6579f9: lint, then five tiers, from mocked endpoints to the extension in Chromium</span>. <span class="verb cap">click</span> a tier to open it, and a line to see what it checks.</figcaption>
         </figure>
-        <p class="sc-note" data-src="Olivesz/inf-mem@c6579f9:README.md#L81-L85">not covered by tests: the live Groq model. every tier mocks or fakes it.</p>
+        <p class="sc-note" data-src="Olivesz/inf-mem@c6579f9:README.md#L81-L85">Not covered by tests: the live Groq model. Every tier mocks or fakes it.</p>
 
         <details class="srcs-d" id="s-src">
           <summary>sources · 90 lines pinned to inf-mem@c6579f9, and 7 to 2f86999 for the id-file bug</summary>
@@ -507,7 +507,7 @@
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L73" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L73</a> The model downloads once, about 130 MB.</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L79-L87" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L79-L87</a> Five test tiers on every push</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L81" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81</a> unit + API · 4</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L81-L85" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81-L85</a> not covered by tests: the live Groq model. every tier mocks or fakes it.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L81-L85" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81-L85</a> Not covered by tests: the live Groq model. Every tier mocks or fakes it.</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L82" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L82</a> real model · 1</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L83" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L83</a> eval check · 1</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md#L84" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L84</a> CI fails if /extract at 10k takes more than twice as long as at 1k</li>
@@ -539,7 +539,7 @@
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L144" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L144</a> N × 384</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L178-L181" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L178-L181</a> A write touches only its own row.</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/memory_store.py#L410-L412" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/memory_store.py#L410-L412</a> compared with every stored row by cosine, in one pass</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/models.py#L66" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/models.py#L66</a> a request may set its own gate; left out, it is the calibrated default.</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/models.py#L66" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/models.py#L66</a> A request may set its own gate; left out, it is the calibrated default.</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/models.py#L79" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/models.py#L79</a> Importance outside 1-10</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L31" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L31</a> 0.61</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L34-L47" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L34-L47</a> The backend embeds text with BAAI/bge-small-en-v1.5 through fastembed,…</li>
@@ -622,6 +622,15 @@
   function el(t, a, p) { var e = document.createElementNS(NS, t); for (var k in a) if (a[k] !== null && a[k] !== undefined) e.setAttribute(k, a[k]); if (p) p.appendChild(e); return e; }
   function fitFlat(s, px) { var n = Math.floor(px / 6.6); return s.length <= n ? s : s.slice(0, Math.max(1, n - 1)) + "…"; }
   function fit(s, px) { var n = Math.floor(px / CH); return s.length <= n ? s : s.slice(0, Math.max(1, n - 1)) + "…"; }
+  /* a line of the memory block broken to fit px: the first piece, then the rest under a two-character indent */
+  function hang(t, px) { var first = wrap(t, px)[0], rest = t.slice(first.length + 1); return [first].concat(rest ? wrap(rest, px - 2 * CH) : []); }
+  /* s broken at spaces into lines of mono 11 (or of advance cw) that fit px */
+  function wrap(s, px, cw) {
+    var n = Math.max(1, Math.floor(px / (cw || CH))), out = [], cur = "";
+    s.split(" ").forEach(function (w) { if (cur && (cur + " " + w).length > n) { out.push(cur); cur = w; } else cur = cur ? cur + " " + w : w; });
+    if (cur) out.push(cur);
+    return out;
+  }
   function tx(p, x, y, s, cls, o) {
     o = o || {};
     var e = el("text", { x: x, y: y, "class": cls || "lb", "text-anchor": o.a || null }, p);
@@ -901,7 +910,7 @@
       pk(L, p, "f-blue", [P, [Sx, P[1]]], 0.5, 6, { trail: 6.5 });
       pk(L, p, "f-ink", [[st.x + 8, st.y + 66], [b.x + b.w + 8, st.y + 66], [b.x + b.w + 8, b.y + 128], [b.x + b.w - 8, b.y + 128]], 6.5, 12, { trail: 12.5 });
       pk(L, p, "f-ink", [[st.x + 8, st.y + 38], [b.x + b.w + 4, st.y + 38], [b.x + b.w + 4, b.y + 152], [b.x + b.w - 8, b.y + 152]], 7.5, 12);
-      var top = [[b.x + b.w - 8, b.y + 200], [b.x + b.w + 12, b.y + 200], [b.x + b.w + 12, 44], [s.x + 24, 44], [s.x + 24, 52]];
+      var top = [[b.x + b.w - 8, b.y + 200], [b.x + b.w + 12, b.y + 200], [b.x + b.w + 12, 44], [s.x, 44]];   // ends at the chat site's edge, clear of its text
       pk(L, p, "f-violet", top, 12.5, 18, { trail: 18.5 });
       pk(L, p, "f-ink", top.slice().reverse(), 18.5, 23, { trail: 36.5 });
       pk(L, p, "f-blue", [P, [Sx, P[1]]], 23.5, 27, { trail: 36.5 });
@@ -1048,21 +1057,23 @@
   function g1pass(gt) { return G1.filter(function (c) { return c[2] >= gt; }).map(function (c) { return c[0]; }); }
   checks["s-gate1"] = g1pass(GATE).join() === "PROJECT,PREFERENCE" && g1pass(0.35).length === 4;
   s6 = make("s-gate1", "Four stored memories, each with an example cosine against the prompt. The gate at 0.61 drops the two below it before importance is considered.", function (L, p) {
-    /* each memory whole on its own line, its similarity as a bar under it; on desktop the text and the bars share one
-       left edge, so the eye reads type, memory, score down a single column */
-    var n = L.n, W = n ? 328 : 704, X0 = n ? 0 : 112, BW = n ? 328 : 560, RH = n ? 64 : 52, rows = [];
+    /* each memory whole, its similarity as a bar under it; on desktop the text and the bars share one left edge, so the
+       eye reads type, memory, score down a single column; on a phone the text wraps beside its type and the row grows */
+    var n = L.n, W = n ? 328 : 704, X0 = n ? 0 : 112, BW = n ? 328 : 560, RH = n ? 64 : 52, rows = [], y = 24;
     tx(p, W, 12, "example values", "lb", { a: "end" });
     if (!n) { tx(p, X0, 12, "0", "lb"); }
-    G1.forEach(function (c, i) {
-      var y = 24 + i * RH, by = y + (n ? 28 : 26), R = { c: c, by: by };
-      R.box = bx(p, 0, y - 4, W, RH - 8, "bx"); R.box.style.stroke = "transparent";
-      chip(p, 4, y, c[0]); tx(p, n ? 4 + c[0].length * CH + 24 : X0, y + 14, c[1], "lb-i", { w: n ? 328 - (c[0].length * CH + 32) : W - X0 - 8 });
+    G1.forEach(function (c) {
+      var tx0 = n ? Math.round(c[0].length * CH) + 28 : X0, lines = n ? wrap(c[1], W - tx0 - 4) : [c[1]], more = 16 * (lines.length - 1);
+      var by = y + (n ? 28 : 26) + more, R = { c: c, by: by };
+      R.box = bx(p, 0, y - 4, W, RH - 8 + more, "bx"); R.box.style.stroke = "transparent";
+      chip(p, 4, y, c[0]);
+      lines.forEach(function (s, j) { tx(p, tx0, y + 14 + 16 * j, s, "lb-i", n ? {} : { w: W - X0 - 8 }); });
       R.bar = fl(p, X0, by, 0, 12, "f-ink"); R.v = tx(p, 0, by + 10, c[2].toFixed(2), "lb-i");
-      R.drop = tx(p, n ? 328 : 344, n ? by + 10 : y + 14, "never offered", "lb", { a: "end" }); R.drop.style.opacity = "0";
-      if (n) R.drop.setAttribute("y", y + 14 + 16);
+      R.drop = tx(p, n ? 328 : 344, by + 10, "never offered", "lb", { a: "end" }); R.drop.style.opacity = "0";
       rows.push(R);
+      y += RH + more;
     });
-    var top = 16, bot = 24 + 4 * RH - 4;
+    var top = 16;
     /* the gate: a short amber piece across each bar only, so it never strikes through a memory's text */
     var gl = g(p), glines = rows.map(function (R) { return fl(gl, 0, R.by - 6, 2, 24, "f-amber"); });
     var glab = tx(gl, 0, top - 4, "", "lb f-amber", { a: "middle" });
@@ -1086,7 +1097,7 @@
         R.box.style.stroke = (g1manual || t >= 20) && pass ? "var(--ink)" : "transparent";
       });
     });
-    return 24 + 4 * RH + 24;
+    return y + 24;
   }, {
     ticks: 20, rest: "pass",
     draw: function (api) {
@@ -1099,7 +1110,7 @@
     g1rg = range(r6, "gate", 0, 1, 0.01, GATE, function (v) { return v.toFixed(2); }, function (v) { g1gate = v; g1manual = true; hold(s6, "pass"); });
     g1cnt = document.createElement("span"); g1cnt.className = "sc-rg"; g1cnt.textContent = "2 of 4 pass"; r6.appendChild(g1cnt);
     var n6 = document.createElement("p"); n6.className = "sc-note"; n6.setAttribute("data-src", PIN + "backend/models.py#L66");
-    n6.textContent = "a request may set its own gate; left out, it is the calibrated default."; r6.parentNode.insertBefore(n6, r6.nextSibling);
+    n6.textContent = "A request may set its own gate; left out, it is the calibrated default."; r6.parentNode.insertBefore(n6, r6.nextSibling);
   }
 
   /* ============ scene 7 · ranking ============ */
@@ -1171,28 +1182,35 @@
   /* ============ scene 8 · the review panel ============ */
   var pChoice = "with", pComp = false, s8;
   s8 = make("s-panel", "The review panel, redrawn: Memory Review, Injected Memories (2), a PREFERENCE and a PROJECT memory, and the buttons Send with memory and Skip memory. Beside it, exactly what the chosen button sends.", function (L, p) {
-    var n = L.n, PX = n ? 4 : 384, PY = n ? 216 : 0, PW = 320, out = n ? { x: 0, y: 0, w: 328, h: 200 } : { x: 0, y: 0, w: 352, h: 248 };
+    /* every memory whole, in the pane and in the panel (the extension never cuts one): a long one wraps and what is
+       under it moves down */
+    var n = L.n, PW = 320, bw = (n ? 328 : 352) - 16, bl = ["[Memory Context — inf-mem]"];
+    ["• PREFERENCE: " + EX.pref, "• PROJECT: " + EX.proj].forEach(function (t) { hang(t, bw - 16).forEach(function (w, j) { bl.push([w, j]); }); });
+    bl.push("[End Memory Context]");
+    var ox = 18 * (bl.length - 4), out = n ? { x: 0, y: 0, w: 328, h: 200 + ox } : { x: 0, y: 0, w: 352, h: 248 + ox };
+    var mp = wrap(EX.pref, PW - 32, 6.6), mj = wrap(EX.proj, PW - 32, 6.6), e1 = 16 * (mp.length - 1), ep = e1 + 16 * (mj.length - 1);
+    var PX = n ? 4 : 384, PY = n ? 216 + ox : 0;
     // the output pane
     var og = gh(kg(p, "from", "out"));
     bx(og, out.x, out.y, out.w, out.h); tx(og, out.x + 8, out.y + 16, "what this button sends", "lb");
-    var blk = g(og), bw = out.w - 16;
-    bx(blk, out.x + 8, out.y + 28, bw, 84, "s-violet");
-    ["[Memory Context — inf-mem]", "• PREFERENCE: " + EX.pref, "• PROJECT: " + EX.proj, "[End Memory Context]"].forEach(function (s, i) { tx(blk, out.x + 16, out.y + 46 + i * 18, s, "lb-i", { w: bw - 16 }); });
-    var pr = tx(og, out.x + 8, out.y + 136, EX.prompt, "lb-i", { w: out.w - 16 });
-    var cmp = g(og); fl(cmp, out.x + 8, out.y + 128, bw, 12, "f-res"); tx(cmp, out.x + 8, out.y + 156, "Groq’s shorter rewrite, in place of the prompt", "lb", { w: bw });
+    var blk = g(og);
+    bx(blk, out.x + 8, out.y + 28, bw, 84 + ox, "s-violet");
+    bl.forEach(function (o, i) { var t = typeof o === "string" ? o : o[0], ind = typeof o === "string" || !o[1] ? 0 : Math.round(2 * CH); tx(blk, out.x + 16 + ind, out.y + 46 + i * 18, t, "lb-i"); });
+    var pr = tx(og, out.x + 8, out.y + 136 + ox, EX.prompt, "lb-i", { w: out.w - 16 });
+    var cmp = g(og); fl(cmp, out.x + 8, out.y + 128 + ox, bw, 12, "f-res"); tx(cmp, out.x + 8, out.y + 156 + ox, "Groq’s shorter rewrite, in place of the prompt", "lb", { w: bw });
     var none = tx(og, out.x + 8, out.y + 46, "nothing is sent", "lb");
     // the panel
-    var pg = g(p), H0 = 216;
+    var pg = g(p), H0 = 216 + ep;
     var pbox = bx(pg, PX, PY, PW, H0, "bx");
     tx(pg, PX + 16, PY + 26, "Memory Review", "rd"); tx(pg, PX + PW - 16, PY + 26, "×", "rd", { a: "end" });
     ln(pg, "M" + PX + " " + (PY + 40.5) + "H" + (PX + PW), "ln");
     var it = gh(kg(pg, "from", "items"));
     tx(it, PX + 16, PY + 60, "Injected Memories (2)", "lb", { src: "extension/content/shared.js#L102" });
-    chip(it, PX + 16, PY + 70, "PREFERENCE"); tx(it, PX + 16, PY + 108, EX.pref, "lt", { w: PW - 32, flat: true });     // untracked, so each line fits whole
-    chip(it, PX + 16, PY + 120, "PROJECT"); tx(it, PX + 16, PY + 158, EX.proj, "lt", { w: PW - 32, flat: true });
-    var cpv = g(pg); tx(cpv, PX + 16, PY + 184, "Compressed Prompt", "lb"); fl(cpv, PX + 16, PY + 192, PW - 32, 12, "f-res");
-    tx(cpv, PX + 16, PY + 220, "Groq’s shorter rewrite (first 150", "lb"); tx(cpv, PX + 16, PY + 236, "characters)", "lb");
-    var bt = gh(kg(pg, "from", "buttons")), BY0 = PY + 176;
+    chip(it, PX + 16, PY + 70, "PREFERENCE"); mp.forEach(function (t, j) { tx(it, PX + 16, PY + 108 + 16 * j, t, "lt"); });     // untracked face, 6.6 px a character
+    chip(it, PX + 16, PY + 120 + e1, "PROJECT"); mj.forEach(function (t, j) { tx(it, PX + 16, PY + 158 + e1 + 16 * j, t, "lt"); });
+    var cpv = g(pg); tx(cpv, PX + 16, PY + 184 + ep, "Compressed Prompt", "lb"); fl(cpv, PX + 16, PY + 192 + ep, PW - 32, 12, "f-res");
+    tx(cpv, PX + 16, PY + 220 + ep, "Groq’s shorter rewrite (first 150", "lb"); tx(cpv, PX + 16, PY + 236 + ep, "characters)", "lb");
+    var bt = gh(kg(pg, "from", "buttons")), BY0 = PY + 176 + ep;
     var b1 = g(bt), b2 = g(bt), b3 = g(bt);
     bx(b1, 0, 0, 152, 28, "s-ink"); tx(b1, 76, 18, "Send with memory ✓", "lb-i", { a: "middle" });
     bx(b2, 0, 0, 104, 28, "bx"); tx(b2, 52, 18, "Skip memory", "lb-i", { a: "middle" });
@@ -1204,7 +1222,7 @@
       var by = BY0 + (pComp ? 72 : 0), H = (pComp ? H0 + 72 + (pComp ? 36 : 0) : H0);
       pbox.setAttribute("height", H - 1);
       vis(cpv, pComp); vis(b3, pComp); vis(gq, pComp && t < 3.2);
-      var SH = n ? PY + H + 8 : Math.max(256, H + 8); if (L.svg.getAttribute("height") !== String(SH)) { L.svg.setAttribute("height", SH); L.svg.setAttribute("viewBox", "0 0 " + L.W + " " + SH); }
+      var SH = n ? PY + H + 8 : Math.max(out.h + 8, H + 8); if (L.svg.getAttribute("height") !== String(SH)) { L.svg.setAttribute("height", SH); L.svg.setAttribute("viewBox", "0 0 " + L.W + " " + SH); }
       b1.setAttribute("transform", "translate(" + (PX + 16) + "," + by + ")"); b2.setAttribute("transform", "translate(" + (PX + 176) + "," + by + ")"); b3.setAttribute("transform", "translate(" + (PX + 16) + "," + (by + 36) + ")");
       var slide = 1 - ease(frac(t, pComp ? 3 : 0.5, 6)), closed = pChoice === "x" && t >= 22;
       if (closed) slide = 1;
@@ -1212,9 +1230,9 @@
       var pre = !closed && t < 0.5; pg.classList.toggle("ghost", pre); if (pre) slide = 0;
       pg.setAttribute("transform", n ? "translate(0," + Math.round(slide * 380) + ")" : "translate(" + Math.round(slide * 336) + ",0)");
       vis(blk, pChoice === "with" || pChoice === "comp"); vis(pr, pChoice === "with" || pChoice === "skip"); vis(cmp, pChoice === "comp"); vis(none, pChoice === "x");
-      pr.setAttribute("y", pChoice === "skip" ? out.y + 46 : out.y + 136);
+      pr.setAttribute("y", pChoice === "skip" ? out.y + 46 : out.y + 136 + ox);
     });
-    return n ? PY + 360 : 360;
+    return n ? PY + 360 + ep : Math.max(360 + ep, out.h + 8);
   }, {
     ticks: 22, rest: "out",
     inputs: [{ id: "with", label: "Send with memory ✓", momentary: true }, { id: "skip", label: "Skip memory", momentary: true }, { id: "x", label: "×", momentary: true }, { id: "comp", label: "prompt compression (off by default)" }, { id: "cs", label: "Compress & Send", momentary: true }],
@@ -1230,19 +1248,31 @@
 
   /* ============ scene 9 · injection ============ */
   make("s-inject", "The approved memories become one line each inside [Memory Context — inf-mem] and [End Memory Context], then a blank line and the prompt. The text is inserted into the site's input box, and after 50 ms the site's send button is clicked, or Enter pressed when there is none.", function (L, p) {
-    var n = L.n, BW = n ? 328 : 424, lines = ["• PREFERENCE: " + EX.pref, "• PROJECT: " + EX.proj], I = n ? { x: 0, y: 256, w: 328, h: 88 } : { x: 456, y: 48, w: 248, h: 104 };
-    var a1 = chip(p, 0, 0, "PREFERENCE"); tx(p, a1 + 8, 14, EX.pref, "lb", { w: BW - a1 - 8 });
-    var a2 = chip(p, 0, 26, "PROJECT"); tx(p, a2 + 8, 40, EX.proj, "lb", { w: BW - a2 - 8 });
-    var by = 64;
-    var blk = gh(kg(p, "from", "block")); bx(blk, 0, by, BW, 92, "s-violet");
-    tx(blk, 8, by + 18, "[Memory Context — inf-mem]", "lb-i"); tx(blk, 8, by + 82, "[End Memory Context]", "lb-i");
-    lines.forEach(function (s, i) { var e = tx(p, 8, by + 40 + i * 18, "", "lb-i"); ty(L, e, fit(s, BW - 16), 0.5 + i * 2.8, 3 + i * 2.8); });
-    var pr = gh(kg(p, "from", "block")); tx(pr, 0, by + 112, "(blank line)", "lb"); tx(pr, 0, by + 132, EX.prompt, "lb-i", { w: BW });
+    /* every memory and every line of the block whole: a line too long for the column wraps, the block's lines with a
+       two-character hanging indent, and everything under it moves down */
+    var n = L.n, BW = n ? 328 : 424, lines = ["• PREFERENCE: " + EX.pref, "• PROJECT: " + EX.proj], y = 0;
+    [["PREFERENCE", EX.pref], ["PROJECT", EX.proj]].forEach(function (m) {
+      var a = chip(p, 0, y, m[0]), ws = wrap(m[1], BW - a - 8);
+      ws.forEach(function (t, j) { tx(p, a + 8, y + 14 + 16 * j, t, "lb"); });
+      y += 26 + 16 * (ws.length - 1);
+    });
+    var by = y + 12, bl = [];
+    lines.forEach(function (t, i) {
+      var ws = hang(t, BW - 16), at = 0;
+      ws.forEach(function (w, j) { bl.push({ s: w, i: i, j: j, a: at / t.length, b: (at + w.length) / t.length }); at += w.length + 1; });
+    });
+    var bh = 92 + 18 * (bl.length - 2), iw = n ? 328 : 248, il = [];
+    ["[Memory Context — inf-mem]", lines[0], lines[1], "[End Memory Context]", "", EX.prompt].forEach(function (t, i) { (t ? wrap(t, iw - 16) : [""]).forEach(function (w) { il.push({ s: w, i: i }); }); });
+    var I = { x: n ? 0 : 456, y: n ? by + bh + 100 : 48, w: iw, h: 24 + 13 * il.length };
+    var blk = gh(kg(p, "from", "block")); bx(blk, 0, by, BW, bh, "s-violet");
+    tx(blk, 8, by + 18, "[Memory Context — inf-mem]", "lb-i"); tx(blk, 8, by + bh - 10, "[End Memory Context]", "lb-i");
+    bl.forEach(function (o, k) { var e = tx(p, 8 + (o.j ? Math.round(2 * CH) : 0), by + 40 + k * 18, "", "lb-i"), t0 = 0.5 + o.i * 2.8; ty(L, e, o.s, t0 + 2.5 * o.a, t0 + 2.5 * o.b); });
+    var pr = gh(kg(p, "from", "block")); tx(pr, 0, by + bh + 20, "(blank line)", "lb"); tx(pr, 0, by + bh + 40, EX.prompt, "lb-i", { w: BW });
     // the site's input box
     tx(p, I.x, I.y - 8, "the site’s input box", "lb");
     bx(p, I.x, I.y, I.w, I.h);
     var ins = gh(kg(p, "from", "insert"));
-    ["[Memory Context — inf-mem]", lines[0], lines[1], "[End Memory Context]", "", EX.prompt].forEach(function (s, i) { if (s) tx(ins, I.x + 8, I.y + 16 + i * 13, s, i === 5 ? "lb-i" : "lb", { w: I.w - 16 }); });
+    il.forEach(function (o, k) { if (o.s) tx(ins, I.x + 8, I.y + 16 + k * 13, o.s, o.i === 5 ? "lb-i" : "lb"); });   // the box wraps, as a site's input box does
     var cy = I.y + I.h + 12, cx = I.x;
     var ev = kg(p, "only", "insert"); chip(ev, cx, cy, "input", "s-ink");
     var ev2 = kg(p, "from", "wait"); var w1 = chip(ev2, cx, cy, "input"); var w2 = chip(ev2, cx + w1 + 8, cy, "50 ms", "s-ink"); ev2.lastChild.setAttribute("data-src", PIN + "extension/content/shared.js#L227");
@@ -1252,7 +1282,7 @@
     var S = n ? { x: 0, y: cy + 72, w: 328, h: 32 } : { x: I.x, y: cy + 72, w: I.w, h: 32 };
     bx(p, S.x, S.y, S.w, S.h, "s-violet"); tx(p, S.x + 8, S.y + 20, "chat site", "lb");
     pk(L, p, "f-violet", [[S.x + S.w - 24, cy + 52], [S.x + S.w - 24, S.y + 16]], 22.5, 28, { stay: true });
-    return S.y + S.h;
+    return Math.max(S.y + S.h, by + bh + 48);
   }, { ticks: 28, rest: "block" });
 
   /* ============ scene 10 · learning from the reply ============ */

@@ -1,10 +1,4 @@
 # Local files kept on disk and not published.
-index.html.bak-*
-scratchpad/
-prototypes/
-PANEL-REPORTS.md
-AUDIT.md
-NOTES.md
 .private/
 .venv/
 __pycache__/

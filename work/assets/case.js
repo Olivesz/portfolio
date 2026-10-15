@@ -35,7 +35,8 @@
   for (var i = 0; i < figs.length; i++) { figs[i].setAttribute("data-build", "pre"); io.observe(figs[i]); }
 })();
 
-/* inline figures marked data-reveal: armed while still below the fold, drawn once when 40% of the figure is on screen.
+/* inline figures marked data-reveal: armed while still below the fold, drawn once when 40% of the figure is on screen,
+   or a fifth of the viewport for a figure taller than that, so a reader never pauses over a screen of empty space.
    Reduced motion or no IntersectionObserver: nothing is armed, so every part rests in its final state. */
 (function () {
   "use strict";
@@ -44,9 +45,9 @@
   var io = new IntersectionObserver(function (es) {
     for (var i = 0; i < es.length; i++) {
       var e = es[i], r = e.intersectionRect;
-      if (e.isIntersecting && (e.intersectionRatio >= 0.4 || r.height >= innerHeight * 0.4)) { e.target.classList.add("on"); io.unobserve(e.target); }
+      if (e.isIntersecting && (e.intersectionRatio >= 0.4 || r.height >= innerHeight * 0.2)) { e.target.classList.add("on"); io.unobserve(e.target); }
     }
-  }, { threshold: [0, 0.2, 0.4, 0.6] });
+  }, { threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4] });
   for (var i = 0; i < figs.length; i++) {
     if (figs[i].getBoundingClientRect().top < innerHeight) continue;   // already in view at load: leave it whole
     figs[i].classList.add("armed"); io.observe(figs[i]);

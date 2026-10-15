@@ -52,6 +52,9 @@
 .vd::before{content:"";width:8px;height:8px;background:var(--mk,var(--muted));flex:none}
 .vd.ok{--mk:var(--v-green)} .vd.x{--mk:var(--trail)} .vd.q{--mk:var(--muted);color:var(--muted)} .vd.o{--mk:var(--v-amber)} .vd.a{--mk:var(--body)}
 .vd.dash{border-style:dashed}
+/* a legend item keeps its marker with its words; on a phone a long verdict wraps, its lines hanging after the marker */
+.lgi{white-space:nowrap;margin-right:8px}
+@media (max-width:767px){ .vd{white-space:normal;max-width:100%;align-items:flex-start} .vd::before{margin-top:7px} .vd.big::before{margin-top:8px} }
 .chip-c{display:inline-block;padding:0 8px;border:1px solid var(--copper);border-left:2px solid var(--mk,var(--copper));color:var(--ink);overflow-wrap:anywhere}
 .chip-c.x{--mk:var(--trail)} .chip-c.ok{--mk:var(--v-green)} .chip-c.q{--mk:var(--muted);color:var(--muted)} .chip-c.o{--mk:var(--v-amber)} .chip-c.tr{--mk:var(--v-cyan)}
 .tag{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
@@ -311,6 +314,21 @@
 /* controls: 24 px to hit with a mouse, 32 px on touch */
 button.vd{min-height:24px}
 @media (pointer:coarse){ .cx-in input[type=text],.cx-in select,button.vd{min-height:32px} }
+/* fig 2: each slice's value on the bar, at the slice's end, once the slice has grown */
+.bar .bv{position:absolute;top:0;padding:0 4px;background:var(--void);font:500 15px/22px var(--sg);color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.scene.js .bar .bv.on{transition-delay:640ms}
+/* a part the scene has not reached yet stands dimmed, so no step opens on an empty stage */
+.blk-r.gh,.lnk.gh .lbi,.sp-list.gh,.vd.gh,.qt-out.gh,.cx-out.gh,.qt-v.gh{opacity:.32}
+.lnk.gh::before{background:var(--rule)}
+#sc-quiet.js [data-from]:not(.on){opacity:.32}
+/* a grid that holds a taller step's height keeps its rows at the top, so the spare height sits under them */
+.cx-2c,.cx-3c{align-content:start}
+.sp-text{min-height:0}
+@media (max-width:767px){ #qt-ro{min-height:0} }
+/* fig 12: the field's name stays on one line beside it */
+#sc-guard .cx-in label .lbi{white-space:nowrap}
+/* a caption sentence that opens on the click or tap verb */
+.verb.cap{text-transform:capitalize}
 </style>
 </head>
 <body>
@@ -342,7 +360,7 @@ button.vd{min-height:24px}
       <div><span class="lb">the log: what the agent did</span><span class="ink">#2 RESULT … <span class="hero-hit">2 failed</span>, 7 passed</span></div>
       <div class="hero-line" aria-hidden="true"></div>
       <div><span class="lb">the report: what it said</span><span class="ink">“Everything passes now, <span class="hero-hit">the suite is green</span>.”</span></div>
-      <p class="hero-v"><span class="vd x big">✗ contradicted</span><span class="lbi" data-src="Olivesz/custos-code@f3737f8:README.md#L14-L15">tier 2 · rule · citing log rows #1 and #2</span></p>
+      <p class="hero-v"><span class="vd x big">✗ contradicted</span><span class="lbi" data-src="Olivesz/custos-code@f3737f8:README.md#L14-L15">tier 2 (the run settles it) · rule · citing log rows #1 and #2</span></p>
     </div>
   </header>
 
@@ -406,7 +424,7 @@ button.vd{min-height:24px}
             <li data-key="report" data-at="2" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L4">The report: everything passes, the suite is green.</li>
             <li data-key="gap" data-at="3">Nothing reads the two side by side, so the person reads the report and believes it.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-gap-cap"><span class="n">fig 1</span>a packaged demo session, replayed: the tests ran, two failed, and the report says green. its stored output keeps the banner that a real -q run leaves out.</figcaption>
+          <figcaption class="sc-cap" id="sc-gap-cap"><span class="n">fig 1</span>A packaged demo session, replayed: the tests ran, two failed, and the report says green.</figcaption>
         </figure>
 
         <p>A study of real coding-agent sessions counted how often the agent’s own account of its work was the thing that went wrong.</p>
@@ -415,14 +433,14 @@ button.vd{min-height:24px}
           <div class="sc-stage"><div class="sc-art">
             <div class="cx">
               <p class="rate-row" data-from="sessions"><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:README.md#L138">20,574</span><span>real coding-agent sessions, studied</span></p>
-              <div class="bar" data-from="episodes"><span class="fill f-all" data-from="episodes" style="--w:100%"></span><span class="fill f-amb" data-from="misreport" style="--w:22.58%"></span><span class="fill f-res" data-from="resolved" style="--w:9.33%"></span></div>
+              <div class="bar" data-from="episodes"><span class="fill f-all" data-from="episodes" style="--w:100%"></span><span class="fill f-amb" data-from="misreport" style="--w:22.58%"></span><span class="fill f-res" data-from="resolved" style="--w:9.33%"></span><span class="bv" data-from="misreport" style="left:calc(22.58% + 8px)" data-src="Olivesz/custos-code@f3737f8:README.md#L138">22.58%</span><span class="bv" data-from="resolved" style="right:calc(9.33% + 8px)" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">9.33%</span></div>
               <p class="rate-row" data-from="episodes"><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:README.md#L138">16,118</span><span>episodes gone wrong: the whole bar</span></p>
-              <p class="rate-row" data-from="misreport"><span class="mk a"></span><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:README.md#L138">22.58%</span><span>the agent misreported its own work</span></p>
-              <p class="rate-row" data-from="resolved"><span class="mk" style="--mk:transparent;border:2px solid var(--v-green);box-sizing:border-box"></span><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">9.33%</span><span>resolved in the session (<span data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">1,504</span>)</span></p>
+              <p class="rate-row" data-from="misreport"><span class="mk a"></span><span>the agent misreported its own work</span></p>
+              <p class="rate-row" data-from="resolved"><span class="mk" style="--mk:transparent;border:2px solid var(--v-green);box-sizing:border-box"></span><span>resolved in the session (<span data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">1,504</span>)</span></p>
               <div class="zoom" data-from="corrected" aria-hidden="true"></div>
-              <div class="bar" data-from="corrected" style="margin-top:0"><span class="fill f-all" data-from="corrected" style="--w:100%"></span><span class="fill f-grn" data-from="corrected" style="--w:2.99%"></span></div>
+              <div class="bar" data-from="corrected" style="margin-top:0"><span class="fill f-all" data-from="corrected" style="--w:100%"></span><span class="fill f-grn" data-from="corrected" style="--w:2.99%"></span><span class="bv" data-from="corrected" style="left:calc(2.99% + 8px)" data-src="Olivesz/custos-code@f3737f8:README.md#L138">2.99%</span></div>
               <p class="rate-row" data-from="corrected"><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">1,504</span><span>resolved episodes: the whole bar</span></p>
-              <p class="rate-row" data-from="corrected"><span class="mk g"></span><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:README.md#L138">2.99%</span><span>of them: the agent corrected itself</span></p>
+              <p class="rate-row" data-from="corrected"><span class="mk g"></span><span>the agent corrected itself</span></p>
             </div>
           </div></div>
           <ol class="sc-keys">
@@ -432,7 +450,7 @@ button.vd{min-height:24px}
             <li data-key="resolved" data-at="3" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">Only 9.33% of the episodes were resolved in the session: 1,504 of them, outlined in green.</li>
             <li data-key="corrected" data-at="4" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">Stretch those 1,504 to a full bar. In 2.99% of them, the agent corrected itself.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-rate-cap"><span class="n">fig 2</span>shares of episodes, from <a href="https://arxiv.org/html/2605.29442" target="_blank" rel="noopener noreferrer" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L29">arXiv 2605.29442</a> as the repo cites it. amber and green are two separate shares of the whole bar, not one split of it. the lower bar is the green slice, drawn full width.</figcaption>
+          <figcaption class="sc-cap" id="sc-rate-cap"><span class="n">fig 2</span>Shares of episodes, from <a href="https://arxiv.org/html/2605.29442" target="_blank" rel="noopener noreferrer" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L29">arXiv 2605.29442</a> as the repo cites it. Amber and green are two separate shares of the whole bar, not one split of it. The lower bar is the green slice, drawn full width.</figcaption>
         </figure>
 
         <p class="tag" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L59">These are shares of episodes already flagged as gone wrong, so the rate of false reports per session is lower, and not known.</p>
@@ -487,7 +505,7 @@ button.vd{min-height:24px}
             <li data-key="nudge" data-at="4" data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L80">In auto mode (off by default), a contradicted claim blocks the stop and goes back to the agent.</li>
             <li data-key="legend" data-at="5">Every claim ends with one of <span data-derived="the five verdicts README.md#L5 names">five</span> verdicts. The rest of the page builds each part.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 3</span>the whole loop on the demo session. dashed pink: the path back to the agent in auto mode.</figcaption>
+          <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 3</span>The whole loop on the demo session. Dashed pink: the path back to the agent in auto mode.</figcaption>
         </figure>
 
         <p class="pull">The agent can say anything. The verdict only listens to the log.</p>
@@ -547,7 +565,7 @@ button.vd{min-height:24px}
               <li data-key="wall" data-at="5" data-src="Olivesz/custos-code@f3737f8:src/custos_code/models.py#L18">The agent’s own sentence is kept as text, and text is never evidence.</li>
               <li data-key="stop" data-at="6" data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L464-L467">At stop, the third hook chains the session’s rows and reads the report against them. The next steps build that.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-rec-cap"><span class="n">fig 4</span>one tool call through the <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/cli.py#L238">three hooks</span>. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L278">the file name is 16 random bytes</span>, made fresh for this page. <span class="verb">click</span> a command to see whether its output can be trusted.</figcaption>
+            <figcaption class="sc-cap" id="sc-rec-cap"><span class="n">fig 4</span>One tool call through the <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/cli.py#L238">three hooks</span>. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L278">The file name is 16 random bytes</span>, made fresh for this page. <span class="verb cap">click</span> a command to see whether its output can be trusted.</figcaption>
           </figure>
 
           <p data-src="Olivesz/custos-code@f3737f8:docs/MECHANICS.md#L60-L91">The exit-code file was a fix. The first version printed the exit code into the output itself, and that output went back to the agent. An agent that has seen the marker once can print it later and fake a passing run. So the marker moved somewhere the agent never looks.</p>
@@ -575,7 +593,7 @@ button.vd{min-height:24px}
               <li data-key="tamper" data-at="2">Change one word in the stored result row: <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L3">“2 failed”</span> becomes <span data-derived="the edit this step makes to that row">“0 failed”</span>. Its fingerprint changes, but the next row still points at the old one. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/ledger.py#L55-L63">The chain breaks.</span></li>
               <li data-key="restore" data-at="3">Put the word back, and every link checks again.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-chain-cap"><span class="n">fig 5</span><span data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4">the demo session’s rows</span>, <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/ledger.py#L43-L52">chained with sha-256</span> in the browser. these are the shown fields only, not the tool’s own fingerprints, which cover more fields. type in the box to edit the result row.</figcaption>
+            <figcaption class="sc-cap" id="sc-chain-cap"><span class="n">fig 5</span><span data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4">The demo session’s rows</span>, <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/ledger.py#L43-L52">chained with sha-256</span> in the browser. These are the shown fields only, not the tool’s own fingerprints, which cover more fields. Type in the box to edit the result row.</figcaption>
           </figure>
 
           <p data-src="Olivesz/custos-code@f3737f8:src/custos_code/ledger.py#L21-L34">One thing happens before any row is stored: keys, tokens, private keys, credentials in URLs and KEY=… assignments are replaced, so the record never holds them.</p>
@@ -612,7 +630,7 @@ button.vd{min-height:24px}
               <li data-key="ok" data-at="3" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L8">An honest report gives two claims: a create claim naming two files, and a test claim naming a count.</li>
               <li data-key="advice" data-at="4" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L129-L136">Plans drop out. One sentence slips through on the word “wired”, but it names no file, so it can only end unwitnessed. The slip accuses no one.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-split-cap"><span class="n">fig 6</span>the splitter, running the repo’s own patterns in your browser. every claim is the report’s own words. <span class="verb">click</span> a report, or write one.</figcaption>
+            <figcaption class="sc-cap" id="sc-split-cap"><span class="n">fig 6</span>The splitter, running the repo’s own patterns in your browser. Every claim is the report’s own words. <span class="verb cap">click</span> a report, or write one.</figcaption>
           </figure>
 
           <p data-src="Olivesz/custos-code@f3737f8:src/custos_code/claims.py#L224-L237">With a model key, a per-sentence classifier takes the lead and these patterns become the fallback. The model answers with a sentence number, never with text, so it can’t paraphrase a claim into being.</p>
@@ -635,32 +653,32 @@ button.vd{min-height:24px}
                 <div id="tr-nodes"></div>
                 <div class="tr-leaf" id="tr-leaf"></div>
               </div>
-              <div class="cx cx-in">
-                <span class="lbi" style="flex:1 1 100%">build a session and see the verdict</span>
-                <label><span class="lbi">command</span><select id="tr-cmd">
-                  <option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L75">pytest tests/</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L89">pytest -q tests/</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L117">pytest tests/ | tail -1</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L96">pytest tests/ &gt; out.txt</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L103">echo '86 passed in 1.20s'</option>
-                </select></label>
-                <label><span class="lbi">output</span><select id="tr-out">
-                  <option value="q" data-src="Olivesz/custos-code@f3737f8:src/custos_code/parsers.py#L47-L48">86 passed in 1.2s</option><option value="f" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L3">2 failed, 7 passed in 0.5s</option><option value="z" data-src="Olivesz/custos-code@f3737f8:docs/DESIGN.md#L109">collected 0 items / no tests ran</option><option value="b" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L76">banner + 86 passed</option>
-                </select></label>
-                <label style="flex:1 1 100%"><span class="lbi">the claim</span><input type="text" id="tr-text" value="Ran the suite: all 86 tests passed." spellcheck="false" autocomplete="off"></label>
-              </div>
             </div></div>
+            <div class="cx cx-in">
+              <span class="lbi" style="flex:1 1 100%">build a session and see the verdict</span>
+              <label><span class="lbi">command</span><select id="tr-cmd">
+                <option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L75">pytest tests/</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L89">pytest -q tests/</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L117">pytest tests/ | tail -1</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L96">pytest tests/ &gt; out.txt</option><option data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L103">echo '86 passed in 1.20s'</option>
+              </select></label>
+              <label><span class="lbi">output</span><select id="tr-out">
+                <option value="q" data-src="Olivesz/custos-code@f3737f8:src/custos_code/parsers.py#L47-L48">86 passed in 1.2s</option><option value="f" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L3">2 failed, 7 passed in 0.5s</option><option value="z" data-src="Olivesz/custos-code@f3737f8:docs/DESIGN.md#L109">collected 0 items / no tests ran</option><option value="b" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L76">banner + 86 passed</option>
+              </select></label>
+              <label style="flex:1 1 100%"><span class="lbi">the claim</span><input type="text" id="tr-text" value="Ran the suite: all 86 tests passed." spellcheck="false" autocomplete="off"></label>
+            </div>
             <ol class="sc-keys">
               <li data-key="a0" data-at="0" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4">Walk A, the demo: “the suite is green.” against one test run.</li>
-              <li data-key="a1" data-at="1">A runner ran, its result was recorded, nothing was filtered, the summary reads. Then: a failure.</li>
+              <li data-key="a1" data-at="7">A runner ran, its result was recorded, nothing was filtered, the summary reads. Then: a failure.</li>
               <li data-key="a2" data-at="8" data-src="Olivesz/custos-code@f3737f8:README.md#L14-L15">Contradicted, tier 2, by rule, citing #1 and #2: 7 passed, 2 failed, 0 errors.</li>
               <li data-key="b0" data-at="10" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L6-L8">Walk B, an honest session: “Ran the suite: 3 passed.” against a run that collected 3.</li>
-              <li data-key="b1" data-at="11" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L6-L8">Every check passes, and 3 fits the run.</li>
+              <li data-key="b1" data-at="17" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L6-L8">Every check passes, and 3 fits the run.</li>
               <li data-key="b2" data-at="18">Confirmed, citing <span data-derived="row numbers as the replay assigns them: #0 the request, then a call row and a result row for each tool use in ok_tests_0.jsonl">#5 and #6</span>.</li>
               <li data-key="c0" data-at="20" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L100-L106">Walk C: the agent printed a passing summary with <span class="m">echo</span>, then claimed it ran the suite.</li>
-              <li data-key="c1" data-at="21"><span class="m">echo</span> isn’t a test runner, so the walk stops at the first question.</li>
+              <li data-key="c1" data-at="27"><span class="m">echo</span> isn’t a test runner, so the walk stops at the first question.</li>
               <li data-key="c2" data-at="28">Unwitnessed. A printed summary is never a run, so it never confirms.</li>
               <li data-key="d0" data-at="30" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L76-L85">Walk D: “all 120 tests green” against the fixture suite, which has 86 tests.</li>
-              <li data-key="d1" data-at="31"><span data-src="Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L219-L236">The run is clean, so the count is checked.</span> No reading of the run gives <span data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L83">120</span>.</li>
+              <li data-key="d1" data-at="37"><span data-src="Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L219-L236">The run is clean, so the count is checked.</span> No reading of the run gives <span data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L83">120</span>.</li>
               <li data-key="d2" data-at="38">Contradicted on the count alone: the rule’s output for this run, not a recorded session.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-tree-cap"><span class="n">fig 7</span>the test rule, ported line for line and run in your browser on <span data-derived="walks A to D below">four</span> sessions. the right column says where each question’s exit leads; the one taken lights up. change the command, the output or the claim to walk your own.</figcaption>
+            <figcaption class="sc-cap" id="sc-tree-cap"><span class="n">fig 7</span>The test rule, ported line for line and run in your browser on <span data-derived="walks A to D below">four</span> sessions. The right column says where each question’s exit leads; the one taken lights up. Change the command, the output or the claim to walk your own.</figcaption>
           </figure>
 
           <p data-src="Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L42-L47">The count check is narrow on purpose. “Added 12 tests” is about writing tests, not running them, and accusing it would be exactly the false accusation the tool exists to prevent. A missed catch costs one catch. A false accusation costs the tool its credibility.</p>
@@ -710,7 +728,7 @@ button.vd{min-height:24px}
               <li data-key="trap" data-at="12" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4">The demo claim also stops at tier 2: contradicted.</li>
               <li data-key="rerun" data-at="14">Test and build claims can also be re-run against the final tree, at <span data-src="Olivesz/custos-code@f3737f8:docs/DESIGN.md#L111">tier 3</span>, <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/verdicts.py#L210-L214">off to the side and at most twice per session</span>.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-ladder-cap"><span class="n">fig 8</span><span data-derived="one claim from trap_failing_0.jsonl#L4, two from ok_tests_0.jsonl#L8">the demo sessions’ three claims</span> settling on the ladder. <span class="verb">click</span> a verdict for what it means.</figcaption>
+            <figcaption class="sc-cap" id="sc-ladder-cap"><span class="n">fig 8</span><span data-derived="one claim from trap_failing_0.jsonl#L4, two from ok_tests_0.jsonl#L8">The demo sessions’ three claims</span> settling on the ladder. <span class="verb cap">click</span> a verdict for what it means.</figcaption>
           </figure>
 
           <p>Confirmed and contradicted settle a claim either way. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/models.py#L92">The fifth verdict, qualified, means true, with a stated qualifier.</span></p>
@@ -739,7 +757,7 @@ button.vd{min-height:24px}
               <li data-key="advise" data-at="3" data-src="Olivesz/custos-code@f3737f8:src/custos_code/review.py#L233">It proposes contradicted for a claim the rule can’t settle. The rule doesn’t agree, so it is kept as advisory: unrecorded, and it never blocks.</li>
               <li data-key="agree" data-at="4" data-src="Olivesz/custos-code@f3737f8:src/custos_code/review.py#L296-L297">It proposes contradicted where the rule agrees. The rule’s own citation replaces the model’s.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-judge-cap"><span class="n">fig 9</span>the gate between an optional model and the verdicts. a diagram of the source’s rules, on example claims.</figcaption>
+            <figcaption class="sc-cap" id="sc-judge-cap"><span class="n">fig 9</span>The gate between an optional model and the verdicts. A diagram of the source’s rules, on example claims.</figcaption>
           </figure>
 
           <p data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L31-L33">The reason is measured. Run the same <span data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L31">18</span> real sessions through the model twice, and <span data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L31">22.8%</span> of its verdicts flip. So the model never blocks on its own.</p>
@@ -781,7 +799,7 @@ button.vd{min-height:24px}
               <li data-key="rerun" data-at="30" data-src="Olivesz/custos-code@f3737f8:src/custos_code/feedback.py#L87-L93">Illustrative: the agent fixes the code and reruns the tests. Two new rows land after the nudge, confirm the claim, and the stop goes through.</li>
               <li data-key="hold" data-at="34"><span data-src="Olivesz/custos-code@f3737f8:README.md#L20">The nudge is a template: zero model tokens.</span> <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L612-L615">After 3 passes, control goes back to the person with the receipt.</span></li>
             </ol>
-            <figcaption class="sc-cap" id="sc-nudge-cap"><span class="n">fig 10</span>the stop hook in auto mode on the demo session. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/feedback.py#L75-L84">the nudge text is the pinned template’s real output</span>. the last two steps are illustrative. <span class="verb">click</span> to try either move yourself.</figcaption>
+            <figcaption class="sc-cap" id="sc-nudge-cap"><span class="n">fig 10</span>The stop hook in auto mode on the demo session. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/feedback.py#L75-L84">The nudge text is the pinned template’s real output</span>. The last two steps are illustrative. <span class="verb cap">click</span> to try either move yourself.</figcaption>
           </figure>
         </div>
       </section>
@@ -808,7 +826,7 @@ button.vd{min-height:24px}
             <li data-key="three" data-at="32" data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L67-L69">Two more accusations had the same cause. At least three false, one bug.</li>
             <li data-key="fourth" data-at="34" data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L69-L70">The fourth: a restated task title, read as an edit claim.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-audit-cap"><span class="n">fig 11</span>the audit, then the old pattern run in your browser on a path of the same shape. positions of the squares are not data; the counts are.</figcaption>
+          <figcaption class="sc-cap" id="sc-audit-cap"><span class="n">fig 11</span>The audit, then the old pattern run in your browser on a path of the same shape. Positions of the squares are not data; the counts are.</figcaption>
         </figure>
 
         <p data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L72-L78">The fix had three parts. Paths now match whole, with their leading “/”, “~/” or dot. Task titles are no longer claims. And a missing file may only support an accusation when the checker could really have seen it.</p>
@@ -835,7 +853,7 @@ button.vd{min-height:24px}
             <li data-key="real" data-at="3" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L107-L113">The repo is here, the path has a folder and sits inside it, and the file isn’t there. Now a missing file may accuse: contradicted.</li>
             <li data-key="flip" data-at="4" data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">Run over the same sessions again: 1 accusation, none known false.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-guard-cap"><span class="n">fig 12</span>the guard in front of every file-based accusation, ported from the source and run in your browser. type a path, and <span class="verb">click</span> the switch to take the repo away.</figcaption>
+          <figcaption class="sc-cap" id="sc-guard-cap"><span class="n">fig 12</span>The guard in front of every file-based accusation, ported from the source and run in your browser. Type a path, and <span class="verb">click</span> the switch to take the repo away.</figcaption>
         </figure>
 
         <p class="pull" data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L80-L82">Measure the stage where the product can hurt someone, not the stage that’s easiest to label.</p>
@@ -861,7 +879,7 @@ button.vd{min-height:24px}
             <li data-key="newq" data-at="3" data-src="Olivesz/custos-code@f3737f8:src/custos_code/parsers.py#L47-L57">The new parser accepts the last line alone. The same run now reads 86 passed, and the claim is contradicted again.</li>
             <li data-key="hold" data-at="4" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L86-L92">A scoreboard scenario now pins this case. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/feedback.py#L15-L18">The nudge now suggests plain pytest,</span> <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/feedback.py#L44-L50">and keeps -q only when the agent’s own command had it.</span></li>
           </ol>
-          <figcaption class="sc-cap" id="sc-quiet-cap"><span class="n">fig 13</span><span data-src="Olivesz/custos-code@f3737f8:src/custos_code/parsers.py#L52-L57">the old and new pytest signatures</span>, run in your browser on the same outputs. the exit code shown is the wrapped run’s.</figcaption>
+          <figcaption class="sc-cap" id="sc-quiet-cap"><span class="n">fig 13</span><span data-src="Olivesz/custos-code@f3737f8:src/custos_code/parsers.py#L52-L57">The old and new pytest signatures</span>, run in your browser on the same outputs. The exit code shown is the wrapped run’s. The demo’s stored output includes pytest’s header line, which a real pytest -q run omits.</figcaption>
         </figure>
       </section>
 
@@ -887,7 +905,7 @@ button.vd{min-height:24px}
             <li data-key="abl2" data-at="3" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L19-L20">Turn off the count check, and it drops to 8/10.</li>
             <li data-key="back" data-at="4" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L19">Both fixes back in: 10/10.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-board-cap"><span class="n">fig 14</span>the scoreboard as the repo reports it. with a fix turned off, the source gives totals, not which cards fail, so the cells say how many and no more. <span class="verb">click</span> a card for its session and why it’s there.</figcaption>
+          <figcaption class="sc-cap" id="sc-board-cap"><span class="n">fig 14</span>The scoreboard as the repo reports it. With a fix turned off, the source gives totals, not which cards fail, so the cells say how many and no more. <span class="verb cap">click</span> a card for its session and why it’s there.</figcaption>
         </figure>
 
         <ul class="stats">
@@ -895,7 +913,7 @@ button.vd{min-height:24px}
           <li><span class="v" data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L130-L133">7%</span><span class="k">of real claims answered</span><span class="b" data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L130-L133">coverage pass: 8 of 121 claims answered, 113 abstained</span></li>
         </ul>
         <p data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L44-L47">Breaking copies of the checker on purpose started with an earlier embarrassment: a checker that did nothing at all passed <span data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L44-L47">9</span> of its <span data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L44-L47">15</span> tests at the time. Tests that can’t tell a working checker from an empty one don’t test it.</p>
-        <p>Proven: in <span data-src="Olivesz/custos-code@f3737f8:README.md#L32-L33">10 known-truth scenarios</span> it catches <span data-derived="the scenarios with expect=&quot;contradicted&quot; in scoreboard.py#L71-L144">the three planted lies</span> and <span data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L16-L19">leaves the honest work untouched</span>; and <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L58-L65">on 93 real sessions it made 1 accusation, none known false</span>. Not proven: how many real lies it misses. <span data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L130-L133">It answers 7% of real claims and abstains on the rest</span>, counted in a separate coverage pass over <span data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L130-L133">121 claims</span>, against the audit’s <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L61-L63">122</span>.</p>
+        <p>Proven: in <span data-src="Olivesz/custos-code@f3737f8:README.md#L32-L33">10 known-truth scenarios</span> it contradicts <span data-derived="the scenarios with expect=&quot;contradicted&quot; in scoreboard.py#L71-L144">the three lies its rules can settle</span>, confirms <span data-derived="the other 2 lie and 2 blind scenarios in scoreboard.py#L71-L144, each with forbid=(&quot;confirmed&quot;,)">none of the other four traps</span> and <span data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L16-L19">leaves the honest work untouched</span>; and <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L58-L65">on 93 real sessions it made 1 accusation, none known false</span>. Not proven: how many real lies it misses. <span data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L130-L133">It answers 7% of real claims and abstains on the rest</span>, counted in a separate coverage pass over <span data-src="Olivesz/custos-code@f3737f8:docs/GAPS.md#L130-L133">121 claims</span>, against the audit’s <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L61-L63">122</span>.</p>
         <details class="srcs-d" id="sources"><summary>sources · 26 lines pinned to custos-code@f3737f8</summary>
           <ol class="srcs">
             <li><a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md" target="_blank" rel="noopener noreferrer">README.md</a> · <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L1" target="_blank" rel="noopener noreferrer" aria-label="README.md line 1">line 1</a>, <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L3" target="_blank" rel="noopener noreferrer" aria-label="README.md line 3">line 3</a>, <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L5" target="_blank" rel="noopener noreferrer" aria-label="README.md line 5">line 5</a>, <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L14-L15" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 14–15">lines 14–15</a>, <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L20" target="_blank" rel="noopener noreferrer" aria-label="README.md line 20">line 20</a>, <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L27-L29" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 27–29">lines 27–29</a>, <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L32-L33" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 32–33">lines 32–33</a>, <a href="https://github.com/Olivesz/custos-code/blob/f3737f8fba789f5fc4806dd68102b406e925d5b5/README.md#L138" target="_blank" rel="noopener noreferrer" aria-label="README.md line 138">line 138</a></li>

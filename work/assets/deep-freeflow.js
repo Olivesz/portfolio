@@ -218,12 +218,7 @@
   function narrow(api) { return api.cols < 140; }
   function lab(api, id, html, x, y, o) {
     o = o || {}; o.html = true; var L = api.scene.labels[id];
-    if (L) {
-      L.e.hidden = false;                                                                     // unhide first: a hidden label measures 0 wide
-      // deep.js sets a label's class when it is made; a label made muted must still light up when its step comes
-      var want = o.cls === "r" ? "sc-r" : "sc-l" + (o.cls ? " " + o.cls : "");
-      if (L.e.className !== want) L.e.className = want;
-    }
+    if (L) L.e.hidden = false;                                                                // unhide first: a hidden label measures 0 wide
     var e = api.label(id, html, x, y, o), max = api.cols * C, l = parseFloat(e.style.left) || 0, w = e.offsetWidth;
     if (l < 0) { e.style.left = "0px"; l = 0; }                                                 // never past the stage's edges
     if (l + w > max + 0.5) {
@@ -385,10 +380,20 @@
         api.clear();
         var W = api.cols, y0 = 10, H = 40, shown = Math.min(tick, 31), rows = ROWS.slice(0, shown);
         var bw = bars(api, ROWS, shown, y0, H, 1100, function (r) { return r.ae; }, "v-violet", function (r) { return r.ae; });   // the whole staircase in copper, filled as the passes run
-        lab(api, "tot", "audio re-read so far " + pl(th(Math.round(sum(rows, function (r) { return r.ae; }) / 100))) + " s · passes " + pl(rows.length), 0, 0, { cls: "r" });
-        var last = rows[rows.length - 1];
-        if (last) lab(api, "lb", pl(s2(last.ae)) + " s", Math.min((rows.length - 1) * bw, W - 1), y0 + H - Math.round(last.ae / 1100 * H), { align: "right", dy: -18, cls: "i" });
-        else hide(api, "lb");
+        var tot = sum(rows, function (r) { return r.ae; });                  // hundredths while under 10 s, so the first pass reads 0.70 s, as its step says
+        lab(api, "tot", "audio re-read so far " + pl(tot < 1000 ? s2(tot) : th(Math.round(tot / 100))) + " s · passes " + pl(rows.length), 0, 0, { cls: "r" });
+        var last = rows[rows.length - 1], ld = api.scene.labels.lbl;
+        if (last) {
+          // the newest pass's seconds, just above its bar; where the staircase still to come stands taller under the
+          // words (the first passes, pushed to the left edge), they rise clear of it on a leader down to the bar
+          var bx = Math.min((rows.length - 1) * bw, W - 1), top = y0 + H - Math.round(last.ae / 1100 * H);
+          var e = lab(api, "lb", pl(s2(last.ae)) + " s", bx, top, { align: "right", dy: -18, cls: "i" });
+          var l = parseFloat(e.style.left) || 0, r = l + e.offsetWidth, hi = top;
+          ROWS.forEach(function (q, i) { var x0 = i * bw * C, x1 = x0 + (bw - 1) * C; if (x1 > l && x0 < r) hi = Math.min(hi, y0 + H - Math.max(1, Math.round(q.ae / 1100 * H))); });
+          var dy = Math.min(-18, (hi - top) * C - 22);
+          if (dy < -18) e = lab(api, "lb", null, bx, top, { align: "right", dy: dy, cls: "i" });
+          api.lead("lbl", bx, top, top * C + dy + 20); ld = api.scene.labels.lbl; ld.e.hidden = dy >= -18;
+        } else { hide(api, "lb"); if (ld) ld.e.hidden = true; }
         lab(api, "ax", "one bar per pass of the JFK log" + (narrow(api) ? "" : " · height: seconds from the start of the clip"), 0, y0 + H + 2, {});
         var g = lab(api, "gh", "fig 10 brings this down", 0, y0 + H + 7, { cls: "a" }); g.hidden = tick < 32;
       }

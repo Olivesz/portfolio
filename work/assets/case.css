@@ -1,7 +1,7 @@
 /* case studies: one stylesheet for every /work/<slug>.html page; the same tokens, fonts and scale as the index page */
 
 @font-face{font-family:"Space Grotesk";font-style:normal;font-weight:300 700;font-display:block;src:url(space-grotesk.woff2) format("woff2")}
-@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 800;font-display:block;src:url(jetbrains-mono.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400;font-display:block;src:url(jetbrains-mono.woff2) format("woff2")}
 
 :root{
   /* the closed colour set: the index page's 13 tokens plus the six vivid hues; nothing else is a colour */
@@ -104,6 +104,14 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .srcs a,.facts dd a,main p a{padding:5px 0}
 @media (pointer:coarse){ .srcs a,.facts dd a,main p a{padding:9px 0} .strip a{padding:8px 0} }
 @media (max-width:1023px){ .hero-fig{margin-top:32px} .stage{min-height:var(--stage-h-phone,320px)} }
+/* hero key: one line under the hero naming what each hue marks. The square carries the hue and so do the words,
+   except pink, which marks and never colours words */
+.look{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:24px;row-gap:4px;padding-top:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.look>span{--c:var(--muted);display:inline-flex;align-items:baseline;gap:8px;color:var(--c)}
+.look>span::before{content:"";flex:none;width:8px;height:8px;background:var(--c)}
+.look>.lk::before{content:none}
+.look>.pk{--c:var(--trail);color:var(--ink)}
+@media (max-width:767px){ .look{flex-direction:column;align-items:flex-start} }
 
 /* story: numbered section labels in a 160 px gutter, prose capped at 72 cells */
 .sec{display:grid;grid-template-columns:160px 704px;column-gap:32px;margin-top:64px}
@@ -209,6 +217,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
    before the case-nav, where it lines up with the story column */
 .dd-cta{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:16px;max-width:576px;margin-top:24px;padding:12px 16px;border:1px solid var(--accent);text-decoration:none;transition:border-color var(--t-ui) var(--ease-enter)}
 .dd-cta .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent)}
+.dd-cta .k .sep{color:var(--muted)}
 .dd-cta .t{display:block;font:500 15px/24px var(--sg);color:var(--ink)}
 .dd-cta .d{display:block;margin-top:4px;font:400 13px/20px var(--mono);color:var(--body)}
 .dd-cta .ar{font:500 15px/24px var(--sg);color:var(--accent)}
@@ -227,4 +236,6 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 /* the transitions live on .on only, so arming hides at once and arrival is the one thing that animates */
 .ig.armed.on .rv-x{transform:none;transition:transform 560ms var(--ease-enter) calc(var(--o,0) * var(--rv-step,360ms))}
 .ig.armed.on .rv-f{opacity:1;transition:opacity 320ms var(--ease-enter) calc(var(--o,0) * var(--rv-step,360ms) + 120ms)}
+/* a phone stacks a figure's parts and passes them sooner: its steps come 200 ms apart unless the figure sets its own */
+@media (max-width:767px){ .ig[data-reveal]{--rv-step:200ms} }
 /* reveal: end */

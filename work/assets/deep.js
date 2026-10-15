@@ -1,8 +1,8 @@
 /* deep.js: the Scene component for the deep dives, plus the contents rail's "you are here".
 
-   A scene is a timeline of whole ticks with named steps on it. It plays once on a clock when it arrives in the top 65%
-   of the screen, one figure at a time, holding each step until its words can be read (see holdAt); a stepper (prev, step n of m, next, one square per step) walks it at
-   the reader's pace; replay plays it again. Optional inputs switch it to a live mode. With reduced motion it shows its
+   A scene is a timeline of whole ticks with named steps on it. It plays once on a clock when it arrives on screen
+   (see onScreen), one figure at a time, holding each step until its words can be read (see holdAt); a stepper (prev,
+   step n of m, next, one square per step) walks it at the reader's pace; replay plays it again. Optional inputs switch it to a live mode. With reduced motion it shows its
    key frame and keeps the stepper. Native buttons only: no wheel, touch or key listeners.
 
    Usage, from a page script that runs after this file:
@@ -31,6 +31,12 @@
     if (text !== undefined) e.textContent = text;
     if (parent) parent.appendChild(e);
     return e;
+  }
+  /* trade the classes `from` named for the ones `to` names, keeping any other class on the element */
+  function swapClass(e, from, to) {
+    var a = from.split(" "), b = to.split(" ");
+    a.forEach(function (c) { if (c && b.indexOf(c) < 0) e.classList.remove(c); });
+    b.forEach(function (c) { if (c) e.classList.add(c); });
   }
 
   var scenes = [];
@@ -170,11 +176,14 @@
       /* a 1-device-pixel-inset cell, so neighbouring cells read as separate squares at large pitches */
       dot: function (x, y, n) { var g = S.ctx, p = S.dp, i = p >= 8 ? S.dpr : 0; g.fillStyle = api.tok(n); g.fillRect(x * p + i, y * p + i, p - i, p - i); },
       ww: function (grid, w, h, o) { root.WW.draw(o && o.inset ? api.dot : api.cell, grid, w, h, o); },
-      /* a DOM label at cell (x, y): o.align left|center|right, o.dy/o.dx in px, o.cls "" | "i" | "a" | "r" (13 px readout) */
+      /* a DOM label at cell (x, y): o.align left|center|right, o.dy/o.dx in px, o.cls "" | "i" | "a" | "r" (13 px readout).
+         The class follows o.cls on every call, so a label drawn muted lights when its step asks for ink; a class the page
+         adds to the element itself is left alone. */
       label: function (id, text, x, y, o) {
         o = o || {};
-        var L = S.labels[id];
-        if (!L) { L = S.labels[id] = { e: mk("span", o.cls === "r" ? "sc-r" : "sc-l" + (o.cls ? " " + o.cls : ""), S.art) }; L.e.setAttribute("aria-hidden", "true"); }
+        var L = S.labels[id], want = o.cls === "r" ? "sc-r" : "sc-l" + (o.cls ? " " + o.cls : "");
+        if (!L) { L = S.labels[id] = { e: mk("span", want, S.art), cls: want }; L.e.setAttribute("aria-hidden", "true"); }
+        else if (L.cls !== want) { swapClass(L.e, L.cls, want); L.cls = want; }
         L.x = x; L.y = y; L.o = o;
         if (text !== undefined && text !== null) { if (o.html) { if (L.e.innerHTML !== text) L.e.innerHTML = text; } else if (L.e.textContent !== String(text)) L.e.textContent = text; }
         S.placeLabel(L);
@@ -243,6 +252,25 @@
       h.e.style.width = W + "px"; h.e.style.height = H + "px";
     });
     S.drawnTick = -1;
+    S.dock();
+  };
+
+  /* phone: a scene whose art, words and stepper do not fit one screen under the strip docks its words and stepper to
+     the bottom of the screen while it is on screen, so the step being described and its words are always in view
+     together, and the try-it inputs move under the stepper */
+  function room() { var s = document.querySelector(".strip"); return root.innerHeight - (s ? s.offsetHeight : 0) - 16; }   // under the strip, less a margin
+  SP.reach = function () {
+    var a = (this.art || this.stage).getBoundingClientRect(), b = this.fig.querySelector(".sc-bar").getBoundingClientRect();
+    return b.bottom - a.top;
+  };
+  SP.dock = function () {
+    var S = this, fig = S.fig, bar = fig.querySelector(".sc-bar");
+    if (!bar || S.spec.ambient) return;
+    fig.classList.remove("docked");
+    if (root.innerWidth >= 768 || getComputedStyle(bar).display === "none") return;
+    if (S.reach() <= room()) return;
+    fig.classList.add("docked");                                      // the words sit right on top of the docked stepper
+    fig.style.setProperty("--dock-b", Math.floor(bar.getBoundingClientRect().height) + "px");
   };
 
   /* ---------- rendering one moment ---------- */
@@ -310,8 +338,8 @@
   };
   SP.finish = function () {
     var S = this, was = S.mode;
-    if (was === "auto" || was === "seg") { S.mode = "still"; S.render(true); }
-    if (was === "auto") { S.fig.dispatchEvent(new CustomEvent("scene:done", { bubbles: true })); kick(); }
+    if (was === "auto" || was === "seg") { S.mode = "still"; S.render(true); kick(); }   // a figure waiting its turn goes next
+    if (was === "auto") S.fig.dispatchEvent(new CustomEvent("scene:done", { bubbles: true }));
   };
   /* play the whole timeline from the start */
   SP.play = function () {
@@ -319,13 +347,13 @@
     if (REDUCE) { S.show(S.keys[S.restKey].at); return; }
     S.mode = "auto"; S.t = 0; S.target = S.T; S.holdLeft = S.keys[0].at === 0 ? S.holdAt(0) : 0; S.render(true); S.run();
   };
-  /* go to step i: forward plays the segment to it; back (or a square) snaps */
+  /* go to step i: forward plays the segment to it; back (or a square), or a figure off screen, snaps */
   SP.go = function (i, snap) {
     var S = this;
     i = Math.max(0, Math.min(S.keys.length - 1, i));
     var wasLive = S.mode === "live"; S.leaveLive(); S.stop(); S.arrived = true; S.queued = false; S.paused = false; S.played = true;
     var at = S.keys[i].at;
-    if (snap || REDUCE || wasLive || at <= S.t) { S.show(at); return; }
+    if (snap || REDUCE || wasLive || at <= S.t || !S.visible) { S.show(at); return; }
     S.mode = "seg"; S.target = at; S.holdLeft = 0; S.run();
   };
 
@@ -357,8 +385,8 @@
   };
 
   /* ---------- arrival: one figure at a time ----------
-     A figure arrives when half of it (or 60% of that band's height) sits in the top 65% of the screen, so it starts where
-     the reader is looking, not while its top edge is still under the prose above it. If another figure on screen is
+     A figure arrives when 40% of it (or a fifth of the screen, for a tall one) is on screen, as on the case studies, so
+     a reader who stops on it never waits over an unmoving first frame. If another figure on screen is
      still playing, the newcomer shows its first frame and waits, then starts a beat after that one ends or leaves the
      screen; the highest waiting figure goes first. A figure that has left the reading band while it plays does not hold
      up one that is in it: it pauses where it is and carries on when it comes back into the band. A figure with a hidden
@@ -373,7 +401,13 @@
     var vis = Math.max(0, Math.min(r.bottom, bh) - Math.max(r.top, 0));
     return { top: r.top, share: r.height > 0 ? vis / r.height : 0, vis: vis, bh: bh };
   }
-  function inBand(S) { var b = band(S); return b.share >= 0.5 || b.vis >= b.bh * 0.6; }
+  // arrival, as on the case studies: 40% of the stage on screen, or a fifth of the screen for a stage taller than that
+  function onScreen(S) {
+    var r = S.stage.getBoundingClientRect(), h = root.innerHeight;
+    var vis = Math.max(0, Math.min(r.bottom, h) - Math.max(r.top, 0));
+    return r.height > 0 && (vis / r.height >= 0.4 || vis >= h * 0.2);
+  }
+  function inBand(S) { return onScreen(S); }
   // a playing figure keeps the floor only while at least half of it is in the band and its top is still on screen
   function holds(S) { var b = band(S); return b.share >= 0.5 && b.top >= 0; }
   function kick() {
@@ -421,16 +455,16 @@
         else if (!S.visible) { S.stop(); if (was && S.mode === "auto") { S.away(); kick(); } }
       });
     }, { threshold: [0] }).observe(S.stage);
-    // in the reading band, the top 65% of the screen: the figure arrives, or starts if it is waiting
+    // on screen enough to start (see onScreen): the figure arrives, or starts if it is waiting
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        var h = e.rootBounds ? e.rootBounds.height : root.innerHeight * 0.65;
-        S.inZone = e.isIntersecting && (e.intersectionRatio >= 0.5 || e.intersectionRect.height >= h * 0.6);
+        var h = e.rootBounds ? e.rootBounds.height : root.innerHeight;
+        S.inZone = e.isIntersecting && (e.intersectionRatio >= 0.4 || e.intersectionRect.height >= h * 0.2);
         if (S.inZone && !S.arrived) S.arrive();
         else if (S.inZone && S.queued) kick();
         else if (!S.inZone && S.mode === "auto" && scenes.some(function (o) { return o.queued; })) kick();
       });
-    }, { rootMargin: "0px 0px -35% 0px", threshold: [0, 0.25, 0.5, 0.75, 1] }).observe(S.stage);
+    }, { threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.75, 1] }).observe(S.stage);
   };
 
   /* ---------- the contents rail: the chapter (and step) you are reading ---------- */
@@ -465,8 +499,9 @@
     clearTimeout(rz);
     rz = setTimeout(function () { scenes.forEach(function (s) { s.layout(); s.render(true); }); }, 120);
   });
-  /* text labels measure their own width, so place them again once the fonts are in */
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); }); });
+  /* text labels measure their own width, so place them again once the fonts are in (and the words' height, which
+     decides a phone scene's dock, is final) */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.dock(); }); });
 
   if (COARSE) [].forEach.call(document.querySelectorAll(".verb"), function (v) { v.textContent = "tap"; });
 
@@ -506,18 +541,38 @@
     scenes: function () { return scenes.map(function (s) { return { id: s.id, mode: s.mode, tick: Math.floor(s.t), key: s.keys[s.k].name, step: s.k + 1, of: s.keys.length, pitch: s.pitch, arrived: s.arrived, queued: !!s.queued, paused: !!s.paused, played: !!s.played, inZone: !!s.inZone }; }); },
     toc: function () { var a = document.querySelector(".dd-toc a.on[aria-current]"); return a ? a.getAttribute("href") : null; },
     readTime: readTime,
-    /* ok only when every figure.scene on the page passed its own check() and became a Scene with a stepper, so the
-       site's case-study contract (which runs every selfCheck it finds) fails a deep dive that hides a figure */
+    /* ok only when every figure.scene on the page passed its own check() and became a Scene with a stepper, every
+       caption and note is in sentence case, and on a phone every scene either fits one screen from its art to its
+       stepper or docks its stepper, so the site's case-study contract (which runs every selfCheck it finds) fails a
+       deep dive that breaks any of them */
     selfCheck: function () {
       var figs = [].slice.call(document.querySelectorAll("figure.scene")), built = {};
       scenes.forEach(function (s) { built[s.id] = s; });
       var failed = figs.filter(function (f) { return f.getAttribute("data-check") === "fail"; }).map(function (f) { return f.id; });
       var unbuilt = figs.filter(function (f) { return f.getAttribute("data-check") !== "fail" && !built[f.id]; }).map(function (f) { return f.id || "?"; });
       var nobar = scenes.filter(function (s) { return !s.fig.querySelector(".sc-bar"); }).map(function (s) { return s.id; });
-      return { ok: figs.length > 0 && !failed.length && !unbuilt.length && !nobar.length, figures: figs.length, scenes: scenes.length,
-               failed: failed, unbuilt: unbuilt, nobar: nobar };
+      var caps = lowerCaps(), fit = [];
+      if (root.innerWidth < 768) scenes.forEach(function (s) {
+        var bar = s.fig.querySelector(".sc-bar");
+        if (!bar || s.ambient || getComputedStyle(bar).display === "none") return;
+        if (s.fig.classList.contains("docked") ? getComputedStyle(bar).position !== "sticky" : s.reach() > room()) fit.push(s.id);
+      });
+      return { ok: figs.length > 0 && !failed.length && !unbuilt.length && !nobar.length && !caps.length && !fit.length,
+               figures: figs.length, scenes: scenes.length, failed: failed, unbuilt: unbuilt, nobar: nobar, caps: caps, fit: fit };
     }
   };
+  /* sentence case: the words after a caption's number, and after each sentence end in a caption or note, start with a
+     capital (or a digit or symbol). Reads the rendered text, so a verb capitalised in CSS counts as written. */
+  function lowerCaps() {
+    var bad = [];
+    [].forEach.call(document.querySelectorAll("figcaption, .sc-note"), function (c) {
+      if (c.closest(".sr-only") || !c.getClientRects().length) return;
+      var t = c.innerText.replace(/\s+/g, " ").trim().replace(/^fig \d+\s*/, "").replace(/\b(e\.g|i\.e|vs)\./g, "$1");
+      var starts = t.split(/[.?!]\s+/);
+      if (starts.some(function (x) { return /^[a-z]/.test(x); })) bad.push((c.id || c.parentNode.id || "?") + ": " + t.slice(0, 40));
+    });
+    return bad;
+  }
   /* the page scripts that build the scenes run before DOMContentLoaded */
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { spy(); readTime(); });
   else { spy(); readTime(); }

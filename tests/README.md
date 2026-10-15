@@ -7,9 +7,9 @@ once, to read the native figure layers' labels.
 | command | what it settles | time |
 |---|---|---|
 | `.venv/bin/python tests/contract.py` | the scroll and design contract, in headless Chromium | about 23 min (load-sensitive) |
-| `.venv/bin/python tests/contract.py --fast` | the subset a fix most often breaks, for use between edits | about 45 s |
+| `.venv/bin/python tests/contract.py --fast` | the subset a fix most often breaks, for use between edits | 45 s to 2.5 min (load-sensitive) |
 | `python3 tests/check-claims.py` | no retired claim or personal data is in a tracked file | 1 s |
-| `python3 tests/check-panels.py` | every figure is in the source line it cites | about 35 s; the first run fetches |
+| `python3 tests/check-panels.py` | every figure on index.html and every work/*.html is in the source line it cites | about 45 s; the first run fetches |
 | `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, every page has its own link-preview card, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
 | `.venv/bin/python tests/poster.py` | poster.jpg is a fresh render of its three lines beside the map after a full read-through, every bloom grown (`--render` writes it) | about 15 s |
 
@@ -232,6 +232,7 @@ with `--root`:
 | firstnotch | the earlier build | FAIL | custos 342 CSS px at 1440x900 against a 972 floor; at 390x844 it measured 326 against 247, so on a phone `custos` is the guard |
 | custos | the earlier build | FAIL | 'contradicted' 0.18 screen at 1440 and 0.16 at 390; the caption named pink 32 and 34 samples before the verdict |
 | places | the earlier build, at 360x740 DPR 1 | FAIL | 24 crossings from s 8.50: place row 1 over the custos card's meta and repo link; at DPR 2 the map pitch fits later and it passed, hence `phone-small-1x` |
+| maplabels | the build before the map caption row and the station-label search | FAIL | caption row at opacity 0 on all six viewports; at 844x390 '2024 · Carbon Hack' overlaps 'emergence' by 17x3 px, at 740x360 three label pairs overlap |
 | check-panels team_meta | the custos meta with 'September 2026 hackathon.' restored | FAIL | 'names the month September; cards carry no months' |
 
 The playback checks (`play*`) each open fresh contexts, since the shared view has already scrolled through every
@@ -316,15 +317,34 @@ Pattern controls also check what must *not* match: "21.05" and the drawdown figu
 
 ## check-panels.py
 
-**The deep dives.** Every `work/*-deep.html` is read as text with the same rules: each `data-src` element in
-`<main>` must hold the figure its line holds, and every prose figure outside navigation and furniture (contents rail,
-kickers, figure numbers, stepper, sources list, case-nav, fact labels) must sit inside a `data-src`, `data-derived`
-(computed in the page from cited inputs) or `data-live` (this visitor's random draw) element. A step's `.sc-keys li`
-carries `data-at` as its tick, so `data-at` is ignored on an element with `data-key`. This part is a
-ratchet: `DEEP_KNOWN` holds each page's (not in its line, uncovered) counts, now (0, 0) on every deep dive, so a page
-over either FAILS, a page under is told to lower them, and a deep dive not listed must be clean. Labels a scene draws as it steps are not
-read. **Falsified**: a cited 41 changed to 47 in `work/kronos-deep.html`, the same 41 with its `data-src` removed, and
-an unlisted copy of the freeflow deep dive each fail.
+**The work pages.** Every `work/*.html`, the six case studies and their five deep dives, is read as text with the
+same rules: each `data-src` element in `<main>` must hold the figure its line holds, and every figure in prose and in
+drawn SVG labels, outside navigation and furniture (contents rail, kickers, figure numbers, stepper, sources list,
+case-nav, fact labels), must sit inside a `data-src`, `data-derived` (computed in the page from cited inputs, such as
+scenarios counted by tag) or `data-live` (this visitor's random draw) element. Furniture inside a drawing:
+
+- number-only labels that line up (same x or same y) as an evenly spaced run: seat numbers 1 … 9, axis ticks
+  0 5 10 15 or 100 1,000 10,000. Cited labels count toward the run, so a '7' cited as the seat count completes 1 … 6;
+- a lone 0 (a zero line), and counted items numbered from 1 ('1 Merlin' … '7 Minion');
+- names that carry a number: `fig 5`, `arXiv 2605.29442`, `Player 3`, `seat 3`, `day 1`, `run 38482789778`, and
+  digits glued to `=` or `@` (`rf=0`, `recall@5`).
+
+A drawing's `<title>` and `<desc>` restate it for screen readers, so each of their figures must be shown by a cited
+element, or be in a line a cited element cites, within the same drawing, else its `<figure>`, else its `<section>`.
+A cited element that shows no figure and cites a recorded trace or results file (`.json`, `.csv`) is not held to share
+a word with it; its figures still are. A step's `.sc-keys li` carries `data-at` as its tick, so `data-at` is ignored
+on an element with `data-key`. Labels a script draws as a scene steps are not read.
+
+This part is a ratchet: `WORK_KNOWN` holds each page's (not in its line, uncovered) counts, (0, 0) on all eleven, so
+a page over either FAILS, a page under is told to lower them, and a page not listed must be clean.
+
+**Falsified** on copies of the pages, one mutation each, all FAIL and the restored copy passes: on
+`work/kronos.html`, a sentence with an uncited 42% added to the prose, the fig 5 description's Japan index drawdown
+changed from −32.7% to −31.7% (both drawings), a drawn label 'Japan' changed to 'Japan, 12 names', and the cited
+−15.6% label changed to −16.6%; on `work/freeflow.html`, the CI-cited 55 changed to 56 (which also leaves the fig 3
+description's 55 unbacked); on `work/ai-capabilities.html`, the seat header's 6 changed to 9, which breaks the run.
+Earlier, on the deep dives: a cited 41 changed to 47 in `work/kronos-deep.html`, the same 41 with its `data-src`
+removed, and an unlisted copy of the freeflow deep dive each fail.
 
 **What it reads.** It reads `index.html` as text:
 
@@ -341,8 +361,8 @@ The markup it keys on is in [HOOKS.md](HOOKS.md).
 
 **How it checks.**
 
-- **Sources.** A repo line is fetched read-only with `gh api` at its pinned SHA and cached in `.srccache/` at the repo root, which git ignores. A publication with no repo line may cite its page on doi.org, thinkmind.org or crossref, and an award its awarding body's own post on greensoftware.foundation, fetched read-only with GET and cached. A résumé line cites `public_resume.tex#Ln` and is read against the tracked `resume.pdf` with `pdftotext`. `page:<what>` marks a figure the page computes, which contract.py's self-checks verify. `--offline` reads only the cache.
-- **Matching.** The figure must appear in what it cites, after normalising minus signs, ×, thousands separators and number words. Magnitude is kept: `2.6M+` matches "more than 2.6 million" and nothing smaller. On a publication page the figure must sit within 200 characters of its context word. `at`/`data-at` covers a source that spells the number differently (−0.179 for −17.9%). An element with no figure must share a content word with its source; an element with only dates must find them there.
+- **Sources.** A repo line is fetched read-only with `gh api` at its pinned SHA and cached in `.srccache/` at the repo root, which git ignores. A publication with no repo line may cite its page on doi.org, thinkmind.org or crossref, and an award its awarding body's own post on greensoftware.foundation, fetched read-only with GET and cached. A résumé line cites `public_resume.tex#Ln` and is read against the tracked `resume.pdf` with `pdftotext`. `page:<what>` marks a figure the page computes, which contract.py's self-checks verify. A CI run, `https://github.com/Olivesz/<repo>/actions/runs/<id>`, is read as the logs of all its jobs, fetched read-only with `gh api` and cached in `.srccache/_ci/`; its element carries `data-at`, the log's own words for the figure (`Executed 55 tests`, `stream WER 0.143`). GitHub keeps run logs for a limited time, so a run that can no longer be read fails until its figure is re-cited. `--offline` reads only the cache.
+- **Matching.** The figure must appear in what it cites, after normalising minus signs, ×, thousands separators and number words. Magnitude is kept: `2.6M+` matches "more than 2.6 million" and nothing smaller. On a publication page the figure must sit within 200 characters of its context word. `at`/`data-at` covers a source that spells the number differently (−0.179 for −17.9%). An element with no figure must share a content word with its source (by stem, so 'claims' matches 'claim' and 'important' matches 'importance'), a number word ('two' against '**two primitives**'), or a word of the cited file's name ('ww_cells.py'); an element with only dates must find them there; an element with no text (a canvas the page draws) has nothing to compare.
 - **Coverage.** Every figure in a region must be covered: in the DOM by an enclosing `data-src`, in a script string by a FACTS entry whose `v` matches and whose `ctx` word is in the same string. Number words from three up count as figures.
 - **Team and role.** The custos card's meta line must state the team size and role that the custos entry states in `resume.pdf` and in the page's résumé block ('team of 3' against '3-person', 'Led', 'designed the core engine'). A missing meta, a different size or role, or 'Coded'/'Owned' in the meta fails. Falsified with each of those, and with the PDF's lines altered.
 - **What it refuses.** It reads no repo outside Olivesz, no web host outside the publication hosts, and no branch name in place of a SHA. It fails on a private source, because a reader can't check it.

@@ -125,7 +125,7 @@
             <li data-key="end" data-at="224">The clip ends at <span data-src="Olivesz/freeflow@19c0217:README.md#L15">11</span> s. A final pass reads the tail and finds nothing left to type.</li>
             <li data-key="rest" data-at="232"><span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">22 of 22</span> words typed, <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">0</span> errors, and nothing deleted.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-dictate-cap"><span class="n">fig 1</span>a real pass log · the JFK sample through the shipped streamer, <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">31</span> passes. top: each word where the log times it, violet once heard, blue once typed. bottom: each burst of typing, as tall as the words it carried. a line ties the latest burst to its words.</figcaption>
+          <figcaption class="sc-cap" id="sc-dictate-cap"><span class="n">fig 1</span>A real pass log · the JFK sample through the shipped streamer, <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">31</span> passes. Top: each word where the log times it, violet once heard, blue once typed. Bottom: each burst of typing, as tall as the words it carried. A line ties the latest burst to its words.</figcaption>
         </figure>
 
         <p>The words should show up while you talk, not after you stop. That is where it gets hard. Whisper only transcribes finished clips. To get words while you talk, the app runs it again every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms on <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L36">everything captured so far</span>. Each run is a pass, and a later pass often changes words an earlier one got wrong.</p>
@@ -141,7 +141,7 @@
             <li data-key="p420" data-at="10">By <span data-src="page:passlog">4.20</span> s retyping has sent <span data-src="page:passlog">122</span> backspaces and shown <span data-src="page:passlog">5</span> wrong words. Append-only: none of either.</li>
             <li data-key="rest" data-at="11">Same passes, same model. The only difference is when a word is allowed onto the screen.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-mind-cap"><span class="n">fig 2</span>the log’s first <span data-src="page:passlog">11</span> passes, typed two ways. top: retype each guess. bottom: type a word once two passes agree. under each, the backspaces it sends into the app.</figcaption>
+          <figcaption class="sc-cap" id="sc-mind-cap"><span class="n">fig 2</span>The log’s first <span data-src="page:passlog">11</span> passes, typed two ways. Top: retype each guess. Bottom: type a word once two passes agree. Under each, the backspaces it sends into the app.</figcaption>
         </figure>
 
         <p>Text already typed into another app can’t be quietly edited. Retyping gets the sentence right in the end, but wrong words flash on screen first, and every correction is a burst of backspaces sent into someone else’s app.</p>
@@ -155,7 +155,7 @@
             <li data-key="all" data-at="31">By the clip’s end the <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">31</span> passes would have read <span data-src="page:passlog">184</span> s of audio between them, for a clip of <span data-src="Olivesz/freeflow@19c0217:README.md#L15">11</span> s.</li>
             <li data-key="rest" data-at="32">The bars are seconds of audio read, not seconds of computer time. The trim, further down, cuts this back.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-stair-cap"><span class="n">fig 3</span>the same passes of the JFK log, drawn as if nothing were ever dropped: seconds of audio each would re-read.</figcaption>
+          <figcaption class="sc-cap" id="sc-stair-cap"><span class="n">fig 3</span>The same passes of the JFK log, drawn as if nothing were ever dropped: seconds of audio each would re-read.</figcaption>
         </figure>
       </section>
 
@@ -176,7 +176,7 @@
             <li data-key="agree" data-at="5">Words two passes agree on go through the text rules and out to the app. The rest wait for the next pass.</li>
             <li data-key="trim" data-at="6">Once enough typed audio piles up, the window’s start jumps forward. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms later the loop goes round again.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 4</span>a diagram of the mac app’s loop, one stage at a time. dashed: the way back round, every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms. each stage gets its own step below.</figcaption>
+          <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 4</span>A diagram of the Mac app’s loop, one stage at a time. Dashed: the way back round, every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms. Each stage gets its own step below.</figcaption>
         </figure>
 
         <p>The rest of the page builds this loop one stage at a time, in the order the audio meets them. The mac app is the one described. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L24-L25">The Python engine it was ported from</span> runs <span data-src="Olivesz/freeflow@19c0217:README.md#L98">the same fixtures</span> in its own tests.</p>
@@ -201,7 +201,7 @@
               <li data-key="grow" data-at="20">Blocks keep coming and the buffer keeps growing. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L24">8000</span> samples is half a second.</li>
               <li data-key="snap" data-at="40">When the loop wants audio it takes a snapshot. The model reads copies, never the mic.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-buffer-cap"><span class="n">fig 5</span>a diagram · the microphone, converted to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L3">16</span> kHz mono on arrival and appended to one buffer the loop copies.</figcaption>
+            <figcaption class="sc-cap" id="sc-buffer-cap"><span class="n">fig 5</span>A diagram · the microphone, converted to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L3">16</span> kHz mono on arrival and appended to one buffer the loop copies.</figcaption>
           </figure>
         </div>
 
@@ -219,7 +219,7 @@
               <li data-key="tail" data-at="3">When the clip ends, the final window ends in quiet. The gate finds the last <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L20">50</span> ms frame louder than <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L21">0.010</span>, keeps <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L25">0.2</span> s after it, and cuts the rest.</li>
               <li data-key="rest" data-at="4">Too short, too quiet, quiet tail cut. The app and the benchmark’s replays share these rules, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L20">so what gets measured is what ships</span>.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 6</span>the gates before every pass: too short, too quiet, and a quiet tail cut to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L25">0.2</span> s. <span class="verb">click</span> to make the speech quiet.</figcaption>
+            <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 6</span>The gates before every pass: too short, too quiet, and a quiet tail cut to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L25">0.2</span> s. <span class="verb cap">click</span> to make the speech quiet.</figcaption>
           </figure>
         </div>
 
@@ -238,7 +238,7 @@
               <li data-key="sieve" data-at="28">The sieve: sound annotations and lone punctuation never get through. The bracketed ones are the <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L15">annotations the code names</span>; the kept ones are words this log’s passes really heard.</li>
               <li data-key="rest" data-at="40">Dropped if it has [ ] ( ) ♪ * or no letter or digit. Words with stray quotes, hyphens or dots pass.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-times-cap"><span class="n">fig 7</span>two passes from the log · each word comes back on its own with a start and an end. annotations for sounds and lone punctuation never get through.</figcaption>
+            <figcaption class="sc-cap" id="sc-times-cap"><span class="n">fig 7</span>Two passes from the log · each word comes back on its own with a start and an end. Annotations for sounds and lone punctuation never get through.</figcaption>
           </figure>
         </div>
 
@@ -257,7 +257,7 @@
               <li data-key="p245" data-at="4">At <span data-src="page:passlog">2.45</span> s the pass starts “and soul my fellow”: a re-hearing of typed words, cut first. “Americans.” then matches and is typed.</li>
               <li data-key="rest" data-at="5">Typed by <span data-src="page:passlog">2.45</span> s: “And so my fellow Americans.” Every guess on the way was overturned before it reached the screen.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-agree-cap"><span class="n">fig 8</span>a word is typed once two passes in a row agree on it, counting from the front: the first passes of the JFK log. last step: filled, typed by that pass; outlined, waiting; struck, already typed and cut. <span class="verb">click</span> to be the next pass.</figcaption>
+            <figcaption class="sc-cap" id="sc-agree-cap"><span class="n">fig 8</span>A word is typed once two passes in a row agree on it, counting from the front: the first passes of the JFK log. Last step: filled, typed by that pass; outlined, waiting; struck, already typed and cut. <span class="verb cap">click</span> to be the next pass.</figcaption>
           </figure>
         </div>
 
@@ -275,7 +275,7 @@
               <li data-key="text" data-at="3">By text, “ask what” is found in the pass and the cut goes right after it. “you can do for you.” goes on to the agreement step.</li>
               <li data-key="rest" data-at="4">The agreement step types “you can”. Thrown away, they would have been the kind of dropped words the next chapter measures.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-twice-cap"><span class="n">fig 9</span>from the log · the pass at <span data-src="page:passlog">9.80</span> s, cut by text and by time. red: words the time rule would lose. <span class="verb">click</span> to cut by time only.</figcaption>
+            <figcaption class="sc-cap" id="sc-twice-cap"><span class="n">fig 9</span>From the log · the pass at <span data-src="page:passlog">9.80</span> s, cut by text and by time. Red: words the time rule would lose. <span class="verb cap">click</span> to cut by time only.</figcaption>
           </figure>
         </div>
 
@@ -292,7 +292,7 @@
               <li data-key="saw" data-at="2">Over the whole clip the window is trimmed <span data-src="page:passlog">4</span> times. It still grows while nothing agrees: it reached <span data-src="page:passlog">6.07</span> s before “what your country can do for you.” was typed.</li>
               <li data-key="rest" data-at="3">All <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">31</span> passes read <span data-src="page:passlog">102</span> s of audio between them, against <span data-src="page:passlog">184</span> s untrimmed.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-trim-cap"><span class="n">fig 10</span>every pass of the JFK log · once <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> s of typed audio piles up, the window restarts <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span> s before the last typed word. copper behind: the untrimmed staircase. <span class="verb">click</span> to switch the trim off.</figcaption>
+            <figcaption class="sc-cap" id="sc-trim-cap"><span class="n">fig 10</span>Every pass of the JFK log · once <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> s of typed audio piles up, the window restarts <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span> s before the last typed word. Copper behind: the untrimmed staircase. <span class="verb cap">click</span> to switch the trim off.</figcaption>
           </figure>
         </div>
 
@@ -310,7 +310,7 @@
               <li data-key="scratch" data-at="30">Say “scratch that” and the text rules backspace, but <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/TextProcessor.swift#L3-L5">only over what this utterance typed</span>. Text that was there before stays.</li>
               <li data-key="rest" data-at="40">Nothing else is ever deleted. A floating pill shows the live words <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/HUDView.swift#L3-L4">without stealing focus</span>, so they are <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/HUDView.swift#L5-L6">recoverable even if they had nowhere to land</span>.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-type-cap"><span class="n">fig 11</span>committed text goes out as key events of up to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> characters each, into whichever app has the cursor. the “scratch that” step is an example of the rule, not from the log.</figcaption>
+            <figcaption class="sc-cap" id="sc-type-cap"><span class="n">fig 11</span>Committed text goes out as key events of up to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> characters each, into whichever app has the cursor. The “scratch that” step is an example of the rule, not from the log.</figcaption>
           </figure>
         </div>
 
@@ -329,7 +329,7 @@
               <li data-key="hear" data-at="4">It hears “Ask what you can do for your country.” All of it is typed already, so the cut by text removes it all and nothing is left to type.</li>
               <li data-key="off" data-at="5">The microphone goes off. <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">22</span> words typed, none taken back.</li>
             </ol>
-            <figcaption class="sc-cap" id="sc-stop-cap"><span class="n">fig 12</span>the silence clock is the endpointer’s rule, tick by tick; the final pass is the log’s last row.</figcaption>
+            <figcaption class="sc-cap" id="sc-stop-cap"><span class="n">fig 12</span>The silence clock is the endpointer’s rule, tick by tick; the final pass is the log’s last row.</figcaption>
           </figure>
         </div>
       </section>
@@ -350,7 +350,7 @@
             <li data-key="all" data-at="4">Held out: <span data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span> against <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> offline, <span data-src="Olivesz/freeflow@19c0217:README.md#L60">3 of 523</span> dropped. All <span data-src="Olivesz/freeflow@19c0217:README.md#L51">41</span> clips: <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">5.8%</span> against <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">4.4%</span>.</li>
             <li data-key="rest" data-at="5">Once the commit rule is fixed, the windows tried land <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L107-L108">within about 1.5 points of each other</span> on the held-out speakers.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-skip-cap"><span class="n">fig 13</span>the benchmark, before and after the fix · word error streamed, against offline decoding of the same audio with the same model. <span class="verb">click</span> to switch the streamer.</figcaption>
+          <figcaption class="sc-cap" id="sc-skip-cap"><span class="n">fig 13</span>The benchmark, before and after the fix · word error streamed, against offline decoding of the same audio with the same model. <span class="verb cap">click</span> to switch the streamer.</figcaption>
         </figure>
 
         <p>The old rule kept a new word only if it started after the last typed word ended. whisper.cpp <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">re-times words by up to a second</span> between passes and stretches the last word of a pass toward the window’s end, so new words fell behind the line and were thrown away. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80">The pass logs show it</span>.</p>
@@ -365,7 +365,7 @@
         <ul class="stats">
           <li><span class="v" data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span><span class="k">streamed word error, held out</span><span class="b">offline <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> · was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span></span></li>
           <li><span class="v" data-src="Olivesz/freeflow@19c0217:README.md#L60">3 of 523</span><span class="k">words dropped, held out</span><span class="b">was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">78</span></span></li>
-          <li><span class="v" data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">787 ms</span><span class="k">median commit lag</span><span class="b">p95 <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">1,557</span> ms, with other work running</span></li>
+          <li><span class="v" data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">787 ms</span><span class="k">median commit lag, from a word’s end to its keystroke</span><span class="b">p95 <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">1,557</span> ms, with other work running</span></li>
         </ul>
 
         <figure class="scene" id="sc-tests" aria-labelledby="sc-tests-cap">
@@ -373,15 +373,17 @@
           <ol class="sc-keys">
             <li data-key="swift" data-at="0">The Swift tests fill in file by file: text processing, stream fixtures, session and endpointer, scoring.</li>
             <li data-key="python" data-at="20">Then the Python reference’s <span data-derived="CI run 38482789778, python job: 36 passed">36</span>, on the same stream fixtures.</li>
-            <li data-key="gate" data-at="30">The gate: the release build replays <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L38">JFK and every fifth speaker</span> through the real model, and fails if streamed word error exceeds offline by more than <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L39">2</span> points. It passed: <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">4.6%</span> against <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">3.8%</span>. The subset was picked after the dev runs, so it is <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L40-L41">a regression check, not a result</span>.</li>
+            <li data-key="gate" data-at="30">The gate: the release build replays <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L38">JFK and every fifth speaker</span> through the real model, and fails if streamed word error exceeds offline by more than <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L39">2</span> points. It passed: <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">4.6%</span> against <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">3.8%</span>.</li>
+            <li data-key="subset" data-at="31">The subset was picked after the dev runs, so it is <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L40-L41">a regression check, not a result</span>.</li>
             <li data-key="control" data-at="38">The control runs the same gate with a <span data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L49">0.5/0.2</span> s window, which must fail. It did: <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; jfk dropped 2 words">14.3%</span>, with JFK dropping <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; jfk dropped 2 words">2</span> words.</li>
             <li data-key="rest" data-at="46">A gate that cannot fail measures nothing; the control shows this one can.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-tests-cap"><span class="n">fig 14</span>the Swift and Python tests, the benchmark gate and its control, from one CI run. greedy decoding is pinned by its own test.</figcaption>
+          <figcaption class="sc-cap" id="sc-tests-cap"><span class="n">fig 14</span>The Swift and Python tests, the benchmark gate and its control, from one CI run. Greedy decoding is pinned by its own test.</figcaption>
         </figure>
 
         <p class="pull">The ideas fit on one card: copy the buffer every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, type only what two passes agree on, find the cut by text, never take a word back, and keep the window short.</p>
         <p>Every figure on this page is traced to a line listed below. Figures read from the pass log are computed by the page from the log’s rows; the rules are re-run over them first, and nothing draws unless they type exactly what the log says.</p>
+        <p>Not shown: other models or languages, since <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">the benchmark runs whisper.cpp base.en</span>, an English-only model; other kinds of speech, since its <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L24">41 clips</span> are <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L26-L28">public read speech</span>; and an idle machine, since <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L114-L116">the lag was timed with other work running</span>.</p>
         <details class="srcs-d" id="ch-sources"><summary>sources · 93 lines pinned to freeflow@19c0217</summary>
           <ol class="srcs">
             <li><span class="m">.github/workflows/ci.yml</span> <a href="https://github.com/Olivesz/freeflow/blob/19c0217/.github/workflows/ci.yml#L48-L50" target="_blank" rel="noopener noreferrer" aria-label=".github/workflows/ci.yml lines 48–50">lines 48–50</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/.github/workflows/ci.yml#L49" target="_blank" rel="noopener noreferrer" aria-label=".github/workflows/ci.yml line 49">line 49</a></li>

@@ -796,16 +796,16 @@ def a_landing(v):
 # CSS px inside the art region on each viewport; the last one lands on the main ant itself
 PLANT_CLICKS = {"desktop": [(680, 180), (1280, 180), (680, 720), (1280, 720), (960, 466)],
                 "phone": [(50, 80), (340, 80), (50, 360), (340, 360), (183, 229)]}
-# a visitor cell is a --muted world cell (the main ant never draws --muted), counted over the whole world
-PLANT_CENSUS_JS = r"""() => { const W = __walk, names = Object.keys(W.tokens()), M = names.findIndex(n => /muted/.test(n)) + 1;
-    let WW = 0, WH = 0; while (W.cellTokRaw(WW, 0) !== -1) WW++; while (W.cellTokRaw(0, WH) !== -1) WH++;
-    let n = 0; for (let y = 0; y < WH; y++) for (let x = 0; x < WW; x++) if (W.cellTokRaw(x, y) === M) n++;
-    return { cells: n, ants: W.plants().length, muted: M }; }"""
+# a visitor cell is a cell of the visitors' own world layer (plantCells); each visitor ant draws in one vivid hue,
+# never the main ant's pink family and never grey
+PLANT_CENSUS_JS = r"""() => { const W = __walk, P = W.plants();
+    return { cells: W.plantCells(), ants: P.length, toks: P.map(p => p.tok) }; }"""
+PLANT_VIVID = {"v-amber", "v-green", "v-cyan", "v-blue", "v-violet"}
 
 
 def a_planting(v):
     v.need_walk()
-    for k in ("plants", "cellTokRaw", "tokens"):
+    for k in ("plants", "plantCells"):
         if not v.js("k => typeof __walk[k] === 'function'", k):
             raise Missing(f"__walk.{k} is absent")
     v.scroll_s(0)
@@ -825,16 +825,18 @@ def a_planting(v):
     v.settle(2500)
     c3 = v.js(PLANT_CENSUS_JS)
     v.cur = None
-    ok = (c0["muted"] > 0 and c0["cells"] == 0 and max(ants) <= 1 and c1["ants"] == 1 and c1["cells"] > 0
+    hue_ok = bool(c1["toks"]) and all(t in PLANT_VIVID for t in c1["toks"])
+    ok = (c0["cells"] == 0 and max(ants) <= 1 and c1["ants"] == 1 and c1["cells"] > 0 and hue_ok
           and c2["ants"] == 0 and c2["cells"] == 0 and c3["ants"] == 0 and c3["cells"] == 0)
     return ok, (f"visitor ants after each of 5 landing clicks {ants}; visitor world cells before {c0['cells']}, "
-                f"2.6s after the 5th click {c1['cells']} ({c1['ants']} ant); at s 0.20 {c2['ants']} ants, {c2['cells']} cells; "
+                f"2.6s after the 5th click {c1['cells']} ({c1['ants']} ant, hue {','.join(c1['toks']) or 'none'}); at s 0.20 {c2['ants']} ants, {c2['cells']} cells; "
                 f"back at s 0 {c3['ants']} ants, {c3['cells']} cells")
 
 
 # all the work: the known answer is the explore taxonomy (projects.json, taxonomy B) and
 # the signature rule, restated here so the suite never reads the rule from the page it checks
 WORK_THEMES = ["llm", "verify", "systems", "data", "play"]
+WORK_READING = ["llm", "verify", "systems", "play", "data"]   # the buttons in reading order: top row, centre, bottom row left to right
 WORK_SHORT = {"llm": "agents & LLMs", "verify": "verification", "systems": "systems", "data": "markets & data", "play": "interactive"}
 WORK_MEMBERS = {"ai-capabilities": ["llm", "verify", "play"], "carbon-hack": ["systems"], "care": ["play"], "charity-screening": ["llm", "data"], "comic-extractor": ["data"], "comic-reader": ["play"], "custos-code": ["llm", "verify"], "emergence": ["verify", "systems", "play"], "freeflow": ["verify", "systems"], "iaria-green": ["systems", "data"], "ieee-ipccc": ["llm", "systems"], "inf-mem": ["llm"], "kronos": ["verify", "data"], "matmul": ["systems"], "x86-compiler": ["systems"]}
 WORK_NAMES = {"ai-capabilities": "ai-capabilities", "carbon-hack": "Carbon Hack", "care": "C.A.R.E.", "charity-screening": "charity screening", "comic-extractor": "comic-extractor", "comic-reader": "comic-reader", "custos-code": "custos-code", "emergence": "emergence", "freeflow": "freeflow", "iaria-green": "IARIA GREEN", "ieee-ipccc": "IEEE IPCCC", "inf-mem": "inf-mem", "kronos": "KRONOS", "matmul": "matrix multiplication", "x86-compiler": "x86-64 compiler"}
@@ -977,8 +979,8 @@ def a_work(v):
     v.js("() => { const p = document.querySelector('#work .k-blob[aria-pressed=true]'); if (p) p.click(); }")   # an earlier check may have picked one
     v.js("async () => { for (let i = 0; i < 40; i++) { const s = window.__workGrow && __workGrow.state(); if (s && s.grown && !s.growing) return; await new Promise(r => setTimeout(r, 100)); } }")
     st = v.js(WORK_STATE_JS)
-    # the field: five native buttons in order, each naming exactly its signatures and counting the rest
-    if [b["k"] for b in st["blobs"]] != WORK_THEMES or any(b["tag"] != "BUTTON" or b["ctl"] != "k-panel" for b in st["blobs"]):
+    # the field: five native buttons in reading order, each naming exactly its signatures and counting the rest
+    if [b["k"] for b in st["blobs"]] != WORK_READING or any(b["tag"] != "BUTTON" or b["ctl"] != "k-panel" for b in st["blobs"]):
         bad.append(f"the field holds {[(b['k'], b['tag'], b['ctl']) for b in st['blobs']]}, not five theme buttons in order")
     named = []
     for b in st["blobs"]:
@@ -1043,7 +1045,7 @@ def a_work(v):
             continue
         s = v.js(WORK_STATE_JS)
         if s["pane"] != k or [b["k"] for b in s["blobs"] if b["pressed"] == "true"] != [k] \
-                or [b["k"] for b in s["blobs"] if b["off"]] != [j for j in WORK_THEMES if j != k]:
+                or [b["k"] for b in s["blobs"] if b["off"]] != [j for j in WORK_READING if j != k]:
             bad.append(f"{k}: pane {s['pane']}, pressed {[b['k'] for b in s['blobs'] if b['pressed'] == 'true']}, off {[b['k'] for b in s['blobs'] if b['off']]}")
         if s["cards"] != sig[k]:
             bad.append(f"{k}: cards {s['cards']}, its signatures are {sig[k]}")
@@ -1492,8 +1494,8 @@ SWAP_READ = """() => { const L = document.querySelector('[data-native=kronos]');
   return { labels, lit: lit / (w * h), instr: __walk.instrAt(scrollY / __walk.S()) }; }"""
 # each phone view's own labels (numbers masked); a settled frame shows all of one view's and none of another's
 SWAP_SIG = [{"planted answer · synthetic · EM fit"}, {"# gates", "# of #", "# real-market calibration", "# synthetic, planted answer"},
-            {"KRONOS", "SPY", "real prices · shipped run · log scale"}]
-SWAP_INSTR = {"shaded": 0, "a gate": 1, "KRONOS": 2}
+            {"KRONOS", "SPY", "# of # gates pass · real prices · log scale"}]
+SWAP_INSTR = {"Shaded": 0, "A gate": 1, "KRONOS": 2}
 
 
 def a_swaps(v):
@@ -1975,7 +1977,7 @@ def a_custos(v):
         for k in seen:
             if r["out"].get(k):
                 seen[k].append(s)
-        if "pink" in r["cap"] and not seen["contradicted"]:
+        if "pink" in r["cap"].lower() and not seen["contradicted"]:
             early_pink.append(round(s, 3))             # the caption promises pink before the claim is drawn pink
         s += 0.01
     v.cur = None
@@ -2106,6 +2108,61 @@ def a_places(v):
     v.cur = None
     return not hits, (f"{len(hits)} place-row/card text crossings over {n} samples of s {a:.2f}-{b:.2f} (rows shown at {shown})"
                       + (": " + "; ".join(hits[:3]) if hits else ""))
+
+
+MAPLABELS_JS = r"""async () => { await new Promise(r => setTimeout(r, 400));          // the places' 200ms fade runs on real time
+    const P = document.getElementById('places'), C = document.getElementById('mapcap');
+    if (!P) return null;
+    const boxes = (el, name) => { const out = [], w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let nd;
+      while ((nd = w.nextNode())) { const pe = nd.parentElement;
+        if (!nd.nodeValue.trim() || !pe.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+        const rg = document.createRange(); rg.selectNodeContents(nd);
+        for (const q of rg.getClientRects()) if (q.width > 1 && q.height > 1) out.push({ name, q: [q.left, q.top, q.right, q.bottom] }); }
+      return out; };
+    const op = +getComputedStyle(P).opacity, L = [];
+    [...P.querySelectorAll('.place')].forEach(e => boxes(e, e.textContent.trim().slice(0, 30)).forEach(b => L.push(b)));
+    const cap = C ? boxes(C, 'caption row') : [];
+    return { op, capOp: C ? +getComputedStyle(C).opacity : 0, labels: L, cap, vw: document.documentElement.clientWidth, vh: innerHeight, n: P.querySelectorAll('.place').length }; }"""
+
+
+def a_maplabels(v):
+    """At the map, every place label's text is whole on screen, no two labels' text overlap, and none overlaps the caption row."""
+    g = v.geometry()
+    if g["MAPS"] is None:
+        raise Missing("__walk.MAPS is absent")
+    y, t = 0, round((g["MAPS"] + 0.01) * v.S)
+    while y < t:                                   # walk down so the camera and the places arrive as a visitor's do
+        y = min(t, y + 300); v.js("y => __ct.scrollTo(0, y)", y); v.page.wait_for_timeout(40)
+    v.cur = None
+    v.settle(2000)
+    r = v.js(MAPLABELS_JS)
+    if r is None:
+        raise Missing("no #places")
+    bad = []
+    if r["op"] < 0.99 or r["capOp"] < 0.99:
+        bad.append(f"places opacity {r['op']}, caption row opacity {r['capOp']} at the map")
+    L, W, H = r["labels"], r["vw"], r["vh"]
+    names = {b["name"] for b in L}
+    if len(names) < r["n"]:
+        bad.append(f"{r['n'] - len(names)} of {r['n']} labels show no text")
+    for b in L:
+        q = b["q"]
+        if q[0] < 0 or q[2] > W or q[1] < 0 or q[3] > H:
+            bad.append(f"'{b['name']}' at {[round(x) for x in q]} is cut by the viewport")
+    def ov(a, c):
+        return min(a[2], c[2]) - max(a[0], c[0]), min(a[3], c[3]) - max(a[1], c[1])
+    for i in range(len(L)):
+        for j in range(i + 1, len(L)):
+            if L[i]["name"] == L[j]["name"]:
+                continue
+            w, h = ov(L[i]["q"], L[j]["q"])
+            if w > 0.5 and h > 0.5:
+                bad.append(f"'{L[i]['name']}' overlaps '{L[j]['name']}' by {round(w)}x{round(h)}")
+        for c in r["cap"]:
+            w, h = ov(L[i]["q"], c["q"])
+            if w > 0.5 and h > 0.5:
+                bad.append(f"'{L[i]['name']}' overlaps the caption row by {round(w)}x{round(h)}")
+    return not bad, "; ".join(bad[:4]) if bad else f"{len(names)} labels whole on screen, no two overlapping, clear of the caption row"
 
 
 def station_samples(g):
@@ -2993,6 +3050,73 @@ def a_phonetext(v):
     return not bad, m
 
 
+PHRASES = [   # each chapter card's phrase line, exactly as the copy deck has it, lowercase included
+    "a truth table. every rung verified, up to the CPU.",
+    "a second pass. Whisper re-reads the recent audio every 350 ms.",
+    "a planted answer. no estimator touches a real price until it finds one.",
+    "the log. the harness\u2019s record of what the agent did.",
+]
+
+
+def a_phrases(v):
+    """The chapter cards' phrase lines are the copy deck's, character for character."""
+    got = v.js("() => [...document.querySelectorAll('.card .np')].map(e => e.textContent.trim())")
+    ok = got == PHRASES
+    return ok, f"{len(got)} phrase lines" + ("" if ok else f"; got {got}")
+
+
+NATIVE_ONLY_CSS = ("body > :not(#native) { opacity: 0 !important; transition: none !important; }"
+                   " html, body { background: #0a0b14 !important; }")
+UNDER_BAND_JS = r"""
+async ([a, tol]) => {
+  const r = await fetch('data:image/png;base64,' + a), bm = await createImageBitmap(await r.blob());
+  const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
+  const d = x.getImageData(0, 0, bm.width, bm.height).data;
+  let n = 0, bb = [1e9, 1e9, -1, -1];
+  for (let i = 0; i < d.length; i += 4) {
+    if (Math.abs(d[i] - 10) + Math.abs(d[i + 1] - 11) + Math.abs(d[i + 2] - 20) <= tol) continue;
+    const p = i >> 2, px = p % bm.width, py = (p / bm.width) | 0; n++;
+    bb = [Math.min(bb[0], px), Math.min(bb[1], py), Math.max(bb[2], px), Math.max(bb[3], py)];
+  }
+  return { n, bbox: bb };
+}"""
+
+
+def a_nativeclip(v):
+    """A phone's native layers draw only in the art band, at any scroll position and at any speed: from the
+    first native station's approach to the pull-back, every 0.03 screen, two frames after the scroll and with
+    no settling, everything but the native host is made transparent and the strip from the caption row to the
+    viewport's bottom must be bare --void."""
+    g = v.geometry()
+    nat = [st for st in g["stations"] if st[0] in ("freeflow", "kronos", "custos")]
+    if not nat:
+        raise Missing("no native station in __walk.stations")
+    import base64
+    y0 = v.band - 44                      # the caption row starts here; the card text starts at the band's foot
+    clip = {"x": 0, "y": y0, "width": v.vw, "height": v.vh - y0}
+    s, s1, n, bad = min(st[1] for st in nat) - 1.0, g["PULL"], 0, []
+    v.js("() => __ct.scrollTo(0, 0)")
+    v.settle(1500)
+    while s <= s1:
+        v.js("y => __ct.scrollTo(0, y)", round(s * v.S))
+        v.js("async () => { await __ct.raf(); await __ct.raf(); }")
+        v.js("css => { const e = document.createElement('style'); e.id = '__ct_natonly'; e.textContent = css; document.head.appendChild(e); }", NATIVE_ONLY_CSS)
+        v.js("async () => { await __ct.raf(); }")
+        shot = base64.b64encode(v.page.screenshot(clip=clip)).decode()
+        v.js("() => { const e = document.getElementById('__ct_natonly'); if (e) e.remove(); }")
+        d = v.js(UNDER_BAND_JS, [shot, 24])
+        n += 1
+        if d["n"]:
+            bb = [round(q / v.dpr) for q in d["bbox"]]
+            bad.append(f"s {s:.2f}: {d['n']} px at css {bb[0]},{bb[1] + y0:.0f}-{bb[2]},{bb[3] + y0:.0f}")
+        s += 0.03
+    v.cur = None
+    m = f"{len(bad)} of {n} frames draw native pixels under the art band (y >= {y0:.0f}), s {min(st[1] for st in nat) - 1.0:.2f} to {s1:.2f}"
+    if bad:
+        m += "; " + "; ".join(bad[:3])
+    return not bad, m
+
+
 def a_figclip(v):
     """Every figure cell, and every native layer with everything it draws, inside the art box at each held
     phone frame. A native layer stands for its station's cells once they have resolved into it. The ant is
@@ -3463,7 +3587,7 @@ def a_deep(v):
 ASSERTIONS = [
     ("selfchecks", ("desktop",), a_selfchecks, "every __walk.selfChecks() entry ok, and nand/em/kronos-dd/lock equal answers known outside the page"),
     ("landing", ("desktop", "phone"), a_landing, "sceneId never 'landing' after s 0.04 (every 0.0005) and stepAt never decreases; landing below 0.03 as control"),
-    ("planting", ("desktop", "phone"), a_planting, "5 clicks on the landing leave at most 1 visitor ant; past the landing (s 0.20) and back, 0 visitor ants and 0 visitor world cells"),
+    ("planting", ("desktop", "phone"), a_planting, "5 clicks on the landing leave at most 1 visitor ant, in a vivid hue; past the landing (s 0.20) and back, 0 visitor ants and 0 visitor world cells"),
     ("notches", ("desktop", "phone"), a_notches, "every 100px wheel notch advances scrollY, top to the last résumé line and on to the bottom"),
     ("length", ("desktop", "phone"), a_length, "notches to the last résumé line <= 140 desktop and phone (all the work sits before the résumé)"),
     ("pan", ("desktop", "desktop-1280", "desktop-1024"), a_pan, "in every transit one 100px notch moves the drawn art at most 250 CSS px (world origin read from frames 25px apart)"),
@@ -3483,11 +3607,14 @@ ASSERTIONS = [
     ("playwalk", ("desktop", "phone"), a_playwalk, "a visitor at a normal pace (110px every 120ms): stopping 1.5s at each hold, every station plays from p 0 to done; never stopping, no clock advances out of frame or runs ahead of itself to its end"),
     ("playreduced", ("desktop", "phone"), a_playreduced, "reduced motion: done at p 1 in every frame from each arrival, never playing; replay hidden and refused"),
     ("places", PHONES + ("phone-small-1x",), a_places, "pull-back to the résumé every 0.02 screen: no shown place row's text crosses a card's text"),
+    ("maplabels", ("desktop", "desktop-1024") + PHONES + LANDS, a_maplabels, "at the map every place label's text is whole on screen, no two labels' text overlap and none overlaps the caption row (landscape included)"),
     ("readable", ("desktop", "phone"), a_readable, "each chapter card first fits whole no earlier than its station's arrival - 0.05"),
     ("station", ("desktop", "phone"), a_station, "at holds, built() == the card stuck at its sticky top == sceneId, and the drawn step == stepAt(shown)"),
     ("pink", ("desktop", "phone"), a_pink, "chaos >= 95% trail-family or the ant's own vivid cells over world cells (cellTok/cellAt); at holds, no vivid ant cell; bright --trail <= 1.5% of the viewport's pixels, ant head trail included"),
     ("vivid", ("desktop", "phone"), a_vivid, "at every hold sample the vivid-token pixels in the art region are at most half of the figure's own ink: colour serves the figure being read"),
     ("phonetext", PHONES, a_phonetext, "screenshot diffs with text made transparent: 0 DOM text pixels in the phone art band, native figure labels only inside their own box"),
+    ("phrases", ("desktop",), a_phrases, "each chapter card's phrase line is the copy deck's, character for character"),
+    ("nativeclip", PHONES, a_nativeclip, "a phone's native layers draw nothing under the art band at any s from the first native approach to the pull-back, two frames after the scroll with no settling"),
     ("figclip", PHONES + LANDS, a_figclip, "every figure cell and every native layer inside the art band at every held phone frame, and the ant's whole cell with them"),
     ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
     ("handoff", ("desktop",), a_handoff, "the bookend square's centre lands within 1 device px of the canvas ant's; the canvas stops drawing the ant there"),
@@ -3534,6 +3661,7 @@ FAST = {
     "errors": ("desktop", "phone", "phone-small"),
     "cases": ("phone",),
     "newtab": ("desktop",),
+    "phrases": ("desktop",),
 }
 
 

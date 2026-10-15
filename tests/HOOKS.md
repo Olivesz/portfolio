@@ -23,7 +23,7 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 | `drawn()` | fn → array | Canvas text drawn in the last frame, as `[text, x, y, alpha]`. |
 | `instrAt(s)` | fn → string | The caption row's instruction for scroll position `s` (screens). The caption lines drawn below `figure().art`, joined with spaces, must equal it at every hold. |
 | `running()` | fn → bool | True while the rAF loop is alive. It must turn false once nothing moves, because the suite uses it to know a frame has settled. |
-| `plants()` | fn → array | Visitor ants, `[{n, x, y}]`. At most one; it runs 500 steps and stops. Planting works only on the landing (s < 0.03). |
+| `plants()` | fn → array | Visitor ants, `[{n, x, y, tok}]`; `tok` is the token name its cells draw in, one of the vivid hues other than red. At most one; it runs 500 steps and stops. Planting works only on the landing (s < 0.03). |
 | `plantCells()` | fn → int | Visitor cells currently lit on the visitor layer. 0 once the visitor has left the landing. |
 | `fading()` | fn → int | Retired visitor trails still dissolving (Bayer dropout over 240 ms). |
 | `landing()` | fn → object | `{cue, left, pEnd, pOn}`: whether the scroll cue still runs, whether the visitor has left the landing, the step bound and the s where planting stops. |
