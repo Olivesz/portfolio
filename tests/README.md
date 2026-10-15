@@ -256,6 +256,9 @@ the colour and work checks, each run at 1440x900 against a copy with one rule pu
 | vivid | the old bloom rule (a bloom grows on the way into its station and is whole halfway through the hold) | FAIL | 10.45x the figure's ink at custos s 8.65 (485,376 vivid against 46,448 ink device px); emergence 1.49x |
 | work | every blob drawn at one size | FAIL | 338 to 343 cells for 4 to 7 projects: systems (7) no larger than verify (5) |
 | work | the build before the section opened on its first theme at 1024px and wider | FAIL | at rest: pane rest, nothing pressed, no cards, no status; the picked theme pressed again went back to an empty column |
+| work | the themes not picked filled in `--copper` with a rim of their hue | FAIL | at rest: verify, systems, play and data not in their own hue, and no ring on agents & LLMs |
+| work | every theme wearing the ring, not only the picked one | FAIL | at rest: ring cells on all five (35 to 45 each), want only agents & LLMs |
+| workland | (at 844x390) a tap keeps the scroll where it was, so the panel opens below the screen | FAIL | agents & LLMs: status at 488, first project ends 693 |
 
 Harness defects found by the first runs of these, and fixed: the shot a third of the way in waited for the page to
 settle, which under a clock means the end, so custos read 0px apart; the done time was read by the same loop that

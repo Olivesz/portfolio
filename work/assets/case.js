@@ -23,16 +23,43 @@
 })();
 
 /* arrival builds: a figure marked [data-build] draws its marks (.bld grow from their start, .bld-o fade in, staggered
-   by --i) the first time a sixth of it is on screen. Without IntersectionObserver, under reduced motion or with no
-   script it is simply drawn whole. */
+   by --i) the first time a sixth of it is on screen. A figure seen approaching faster than 2 px/ms, within half a
+   screen below the fold (a skim or a flick), is marked .quick and starts drawing before it arrives, its marks almost
+   together, so a skimming reader is not shown it half built. Without IntersectionObserver, under reduced motion or
+   with no script it is simply drawn whole. */
 (function () {
   "use strict";
   var figs = document.querySelectorAll("[data-build]");
   if (!figs.length || !("IntersectionObserver" in window) || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
-  var io = new IntersectionObserver(function (es) {
-    for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) { io.unobserve(es[i].target); es[i].target.setAttribute("data-build", "go"); }
-  }, { threshold: 0.15 });
-  for (var i = 0; i < figs.length; i++) { figs[i].setAttribute("data-build", "pre"); io.observe(figs[i]); }
+  var seen = typeof WeakMap === "function" ? new WeakMap() : null, near, io;
+  // fast: more than 200 px travelled since first seen, above 2 px/ms, so one eased wheel notch never counts
+  function fast(e) {
+    var f = seen && seen.get(e.target), dt = f ? e.time - f.t : 0, dy = f ? Math.abs(f.y - e.boundingClientRect.top) : 0;
+    return dt > 0 && dy > 200 && dy / dt > 2;
+  }
+  function go(el, quick) {
+    near.unobserve(el); io.unobserve(el);
+    if (el.getAttribute("data-build") !== "pre") return;
+    if (quick) el.classList.add("quick");
+    el.setAttribute("data-build", "go");
+  }
+  near = new IntersectionObserver(function (es) {
+    for (var i = 0; i < es.length; i++) {
+      var e = es[i];
+      if (!e.isIntersecting || !seen) continue;
+      if (!seen.has(e.target)) seen.set(e.target, { t: e.time, y: e.boundingClientRect.top });
+      else if (fast(e)) go(e.target, true);
+    }
+  }, { rootMargin: "0px 0px 50% 0px", threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5] });
+  io = new IntersectionObserver(function (es) {
+    for (var i = 0; i < es.length; i++) {
+      var e = es[i], r = e.intersectionRect;
+      if (!e.isIntersecting || (e.intersectionRatio < 0.15 && r.height < innerHeight * 0.15)) continue;
+      // met this far in on its first sighting, it came faster than a reading notch
+      go(e.target, seen && seen.has(e.target) ? fast(e) : r.height > 140);
+    }
+  }, { threshold: [0, 0.05, 0.1, 0.15] });
+  for (var i = 0; i < figs.length; i++) { figs[i].setAttribute("data-build", "pre"); near.observe(figs[i]); io.observe(figs[i]); }
 })();
 
 /* inline figures marked data-reveal: armed while still below the fold, drawn once when 40% of the figure is on screen,

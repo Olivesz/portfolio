@@ -7,7 +7,7 @@ missing hook fails its assertion; it is never skipped.
 Units: `s` is scroll position in screens (`scrollY / S()`). Pixel boxes are
 CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 
-## Kept from the earlier build (same names, same meaning)
+## Stable hooks (same names, same meaning)
 
 | hook | type | contract |
 |---|---|---|
@@ -56,6 +56,7 @@ every beat, since beats no longer have scroll positions.
 | `play()` | fn → object | The per-station table, `{id: {keys, ms, lead, hold, live, on0, vis}}`. `keys` are `[ms, p]` pairs, piecewise linear; `hold` is the hold's length in screens; `live` the `p` window per layout (`desk`, `phone`) in which the station's input is live; `on0` the scroll position, in screens, where the station builds; `vis` the in-frame share that starts its clock. |
 | `figVis(id, s)` | fn → number | The share of station `id`'s figure box inside the art region at scroll position `s`, by the projection the frame draws with; 0 unless the camera is at the station pitch. |
 | `ZOOM` | number | Where the pull-back's zoom starts: from `PULL` to here the camera rests on the last station while its card leaves. |
+| `stationInk(id)` | fn → object or null | `{cells, labels}` for the last drawn frame: `cells` is whether any of a cell figure's cells are drawn in the art region at the station pitch (always false for a native station), `labels` how many of its canvas labels were painted at alpha 0.5 or more. |
 | `resolveLevel(id)` | fn → number or null | A native station's resolve level as last drawn: 1 its native layer, 0 its cells; between only while a clip runs (build, unbuild, or the 300ms pull-back dissolve that starts as the camera crosses `ZOOM` and reverses on the way back). Null for a cell figure. |
 
 Rules the page keeps:
@@ -154,9 +155,9 @@ restated in the suite, never read from the page:
 
 | element | contract |
 |---|---|
-| `#work .k-field .k-blob[data-k]` | one native `<button aria-pressed aria-controls="k-panel">` per theme (`llm verify systems data play`), in the tab order. Its `.k-bs` SVG holds the blob's cells as `<path>` stages (`.k-hid` while hidden), its `.k-bn` lines name the theme's signature projects, and `.k-bm b` counts the rest. Only the cells take the pointer. A picked theme's blob is `aria-pressed="true"`; the others carry `.off`. |
+| `#work .k-field .k-blob[data-k]` | one native `<button aria-pressed aria-controls="k-panel">` per theme (`llm verify systems data play`), in the tab order. Its `.k-bs` SVG holds the blob's cells as `<path>` stages (`.k-hid` while hidden), its `.k-bn` lines name the theme's signature projects, and `.k-bm b` counts the rest. Only the cells take the pointer. Every blob's cells fill in its own hue (`--h`). A picked theme's blob is `aria-pressed="true"` and shows its `.k-rs` SVG, a ring of ink cells that never takes the pointer; the others carry `.off` and keep `.k-rs` hidden. |
 | `#work .k-pane[data-pane]` | `rest` (a key, no projects), and one per theme key; the shown pane has `.cur`. At rest the shown pane is the first theme's (picked) where `.k-panel` sits beside `.k-field` (1024 px and wider), and `rest` where it sits under it. A theme pane holds `.k-hi .k-card[data-p]` (its signatures) and `.k-rest .k-mrow[data-p]` (every other member, shown). |
-| `#work .k-msg`, `#work .k-ask` | the status line (hidden while no theme is picked), and the prompt (`.k-a1` pointer, `.k-a2` touch). |
+| `#work .k-msg`, `#work .k-ask` | the status line (hidden while no theme is picked), and the prompt (`.k-a1` pointer, `.k-a2` touch; `.k-a3`, which names the ringed theme as open, only where the panel sits beside the field). |
 | `window.__workGrow.state()` | `{picked, grown, growing, mode}`: read-only; the blobs grow once, the first time the field is in view. |
 
 ## Résumé viewer (markup the suite reads)

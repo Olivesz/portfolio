@@ -88,6 +88,9 @@
 .scene.js :is(text.ghost,.ghost text){fill:var(--copper)}
 .scene.js :is(.ghost,.ghost *):is(.bx,.bx-a,.ln,.ln-a,.ln-2,.ln-b,.ln-ref){stroke:var(--rule)}
 .scene.js :is(.ghost,.ghost *):is(.hd,.hd-a,.cell,.cell-i,.bx-f,.ww-h,.ww-t,.ww-w,[class^="c-"]){fill:var(--rule)}
+/* the same preview for a DOM label drawn over a canvas (a page toggles .gh on it until its step): words copper, a
+   boxed or struck word keeps its shape in the rule */
+.scene.js .sc-art .sc-l.gh,.scene.js .sc-art .sc-l.gh *{color:var(--copper);outline-color:var(--rule);text-decoration-color:var(--rule)}
 
 /* the progress rule: 1 px in the accent over the stage's bottom edge, filling while the scene plays on its own */
 .sc-prog{position:relative;z-index:1;height:1px;margin-top:-1px;pointer-events:none}
@@ -115,6 +118,10 @@
 .sc-tg:hover,.sc-tg:focus-visible{border-color:var(--ink)}
 .sc-tg .v{color:var(--muted)}
 .sc-tg[aria-pressed="true"] .v{color:var(--accent)}
+/* an input the figure's current step does not use */
+.sc-tg:disabled{color:var(--muted);border-color:var(--rule);cursor:default}
+.sc-tg:disabled::before{background:var(--rule)}
+.sc-tg:disabled .v{color:var(--muted)}
 
 /* the stepper: prev, step n of m, next, one square per step, and replay at the end of the row. Its colours change at
    once, never by transition: the page flips them itself as a scene plays, and a colour caught halfway is not a token */
@@ -175,13 +182,38 @@
   .sc-pips{grid-column:1 / -1;grid-row:2;margin-left:-8px}
 }
 @media (max-width:767px) and (pointer:coarse){ .sc-pips{margin-left:-12px} }
-/* phone, a scene taller than one screen (deep.js marks it docked): its words and stepper stay at the bottom of the screen
-   on a void backing while the scene is on screen, and its try-it inputs follow the stepper */
-@media (max-width:767px){
+/* a scene with more steps than squares fit in a row: neighbouring targets overlap (deep.js sets --pip-ov) */
+@media (max-width:767px){ .sc-pips>li{margin-right:var(--pip-ov,0px)} .sc-pips>li:last-child{margin-right:0} }
+/* phone, upright or sideways (a screen under 500 px tall), a scene taller than one screen (deep.js marks it docked): its
+   words and stepper stay at the bottom of the screen on a void backing while the scene is on screen, and its try-it
+   inputs follow the stepper */
+@media (max-width:767px),(max-height:499px){
   .scene.js.docked>*{order:3}
   .scene.js.docked>.sc-stage,.scene.js.docked>.sc-prog{order:0} .scene.js.docked>.sc-keys{order:1} .scene.js.docked>.sc-bar{order:2} .scene.js.docked>.sc-cap{order:4}
-  .scene.js.docked>.sc-keys{position:sticky;bottom:var(--dock-b,72px);z-index:2;margin-top:-1px;padding-top:12px;border-top:1px solid var(--rule);background:var(--void)}
+  .scene.js.docked>.sc-keys{position:sticky;bottom:var(--dock-b,72px);z-index:2;margin-top:-1px;pointer-events:none}
+  /* every step keeps its slot in the flow, but the void backing and its rule rise only as high as the current step's
+     words, which sit on the stepper; the art shows through the rest of the slot */
+  .scene.js.docked>.sc-keys::before{content:"";position:absolute;left:0;right:0;bottom:0;z-index:-1;height:var(--dock-h,100%);border-top:1px solid var(--rule);background:var(--void)}
+  /* the backing runs 4 px of void above its rule, so a line of the art cut by the dock never shows a sliver of its
+     tops over the rule */
+  .scene.js.docked>.sc-keys::after{content:"";position:absolute;left:0;right:0;bottom:var(--dock-h,100%);z-index:-1;height:4px;background:var(--void)}
+  .scene.js.docked>.sc-keys li{align-self:end;padding-top:12px}
+  /* the backing spans the column (a phone on its side is wider than the words' measure), the words keep their measure */
+  .scene.js.docked>.sc-keys{max-width:none} .scene.js.docked>.sc-keys li{max-width:576px}
+  .scene.js.docked>.sc-keys li.on{pointer-events:auto}
   .scene.js.docked>.sc-bar{position:sticky;bottom:0;z-index:2;margin-top:0;padding:8px 0;background:var(--void)}
+  /* while a scene comes up from the foot of the screen, its words are held at the scene's top: the stepper is held
+     under them (its margin keeps it a words-height below the scene's top, the words' negative margin gives the space
+     back), so it never covers their last lines */
+  .scene.js.docked>.sc-keys{margin-bottom:calc(-1 * var(--keys-h,0px))} .scene.js.docked>.sc-bar{margin-top:var(--keys-h,0px)}
+}
+
+/* a 360px phone: a grid scene that needs the gutters (deep.js marks it bleed) runs its stage edge to edge; the rules
+   above and below it stay at the column's edges */
+@media (max-width:767px){
+  .scene.bleed>.sc-stage{margin-left:calc(-1 * var(--gut));margin-right:calc(-1 * var(--gut));border-top-width:0;border-bottom-width:0;padding-top:17px;padding-bottom:17px}
+  .scene.bleed>.sc-stage::before,.scene.bleed>.sc-stage::after{content:"";position:absolute;left:var(--gut);right:var(--gut);height:1px;background:var(--rule)}
+  .scene.bleed>.sc-stage::before{top:0} .scene.bleed>.sc-stage::after{bottom:0}
 }
 
 @media (prefers-reduced-motion:reduce){ .scene.js .draw{stroke-dashoffset:0} .scene.js .tip{opacity:1} }

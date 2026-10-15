@@ -71,6 +71,8 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .facts dd{min-width:0;overflow-wrap:anywhere}
 .facts .dot{color:var(--muted)}
 .facts .q{display:block;color:var(--muted)}
+/* a repo link breaks after the owner, never inside the repo's name */
+.facts .slug{white-space:nowrap}
 /* arrival: on a case study (a header followed by its hero) the header rises in once, kicker first, facts last;
    CSS only, so it runs without script, and reduced motion (below) shows it at rest */
 @keyframes case-rise{from{opacity:0;transform:translateY(12px)}}
@@ -109,6 +111,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .srcs-d summary{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);cursor:pointer;min-height:24px;padding:4px 0}
 .srcs-d summary:hover,.srcs-d summary:focus-visible{color:var(--ink)}
 .srcs-d[open] summary{margin-bottom:16px}
+@media (pointer:coarse){ .srcs-d summary{min-height:32px;padding:8px 0;box-sizing:border-box} }
 @media (pointer:coarse){ .replay{min-height:32px} }
 /* inline links: padding grows the hit area without moving a line box */
 .srcs a,.facts dd a,main p a{padding:5px 0}
@@ -174,6 +177,9 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig .bld-o{transition:opacity 360ms var(--ease-enter) calc(var(--i, 0) * 60ms)}
 .ig[data-build="pre"] .bld{transform:scaleX(0)}
 .ig[data-build="pre"] .bld-o{opacity:0}
+/* .quick (case.js): the figure was met at a skim, so its marks follow 10 ms apart and land within a third of a second */
+.ig.quick .bld{transition-duration:240ms;transition-delay:calc(var(--i, 0) * 10ms)}
+.ig.quick .bld-o{transition-duration:200ms;transition-delay:calc(var(--i, 0) * 10ms)}
 @media print{ .ig .bld{transform:none!important} .ig .bld-o{opacity:1!important} }
 
 /* results: a stat row (each number with its baseline under it) and the index page's proof table */

@@ -36,9 +36,22 @@
 .ck .g{margin-left:auto;padding-left:16px;font-size:11px;letter-spacing:.04em;color:var(--muted)}
 @media (max-width:767px){ .ck{line-height:20px} .ck li{padding:6px 0 5px} }
 @media (max-width:767px){ .k5 .kv{display:none} .k5 th,.k5 td{padding-left:12px} .k5 th:first-child{padding-left:0} }
+/* the head's result: three rows, Sharpe and worst fall side by side, so the comparison reads at a glance */
+.rt{border-collapse:collapse;margin:0 0 4px;font:400 13px/24px var(--mono);font-variant-numeric:tabular-nums;color:var(--body)}
+.rt th,.rt td{padding:0 0 0 12px;text-align:right;font-weight:400;white-space:nowrap}
+.rt thead th{font-size:11px;letter-spacing:.04em;color:var(--muted)}
+.rt th:first-child{padding-left:0;text-align:left;white-space:normal}
+.rt tbody th{color:var(--body)} .rt .k th,.rt .k td{color:var(--ink)}
+@media (max-width:400px){ .rt th,.rt td{padding-left:8px} }
+.rt + .q>span{white-space:nowrap}
 @media (pointer:coarse){ .k-switch{min-height:32px} } @media print{ .k-switch{display:none} }
 /* phone: the hero's caption keeps the full width; its two buttons sit on their own line under it */
 @media (max-width:767px){ .hero-fig .cap-row{flex-wrap:wrap;row-gap:8px} .hero-fig .cap-row .instr{flex:1 1 100%} }
+/* where the layout is one view at a time (under 1024px) the toggle keeps its room while hidden, so its arrival moves
+   nothing; on a narrow phone the two buttons wrap inside the column rather than run into the gutter */
+@media (max-width:1023px){ .k-switch[hidden]{display:inline-block;visibility:hidden} }
+.k-btns{display:flex;flex:none;gap:8px}
+@media (max-width:767px){ .k-btns{flex:1 1 100%;flex-wrap:wrap;row-gap:8px} }
 </style>
 </head>
 <body>
@@ -62,8 +75,8 @@
       <dl class="facts">
         <div><dt>year</dt><dd><span data-src="Olivesz/kronos-quant@c19c5ca:LICENSE#L3">2026</span></dd></div>
         <div><dt>stack</dt><dd data-src="Olivesz/kronos-quant@c19c5ca:README.md#L5">Python <span class="dot">·</span> NumPy <span class="dot">·</span> pandas <span class="dot">·</span> SciPy</dd></div>
-        <div><dt>result</dt><dd><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">Sharpe 1.12 at rf=0, 0.97 over cash; max drawdown −18.7%</span> <span class="dot">·</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">equal weight 1.10, −29.5%</span> <span class="dot">·</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">SPY 0.91, −33.7%</span><span class="q"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample</span> <span class="dot">·</span> after costs <span class="dot">·</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span></span></dd></div>
-        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">github.com/Olivesz/kronos-quant</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>result</dt><dd><table class="rt" aria-label="result: Sharpe at rf=0 and over cash, and max drawdown"><thead><tr><th scope="col"><span class="sr-only">strategy</span></th><th scope="col">Sharpe</th><th scope="col">max DD</th></tr></thead><tbody><tr class="k" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151"><th scope="row">KRONOS</th><td>1.12/0.97</td><td>−18.7%</td></tr><tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154"><th scope="row">equal weight</th><td>1.10/0.98</td><td>−29.5%</td></tr><tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155"><th scope="row">SPY</th><td>0.91/0.81</td><td>−33.7%</td></tr></tbody></table><span class="q"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">Sharpe at rf=0/over cash</span> <span class="dot">·</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample</span> <span class="dot">·</span> after costs <span class="dot">·</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span></span></dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">github.com/Olivesz/<wbr><span class="slug">kronos-quant</span></a>&nbsp;<span aria-hidden="true">→</span></dd></div>
         <div><dt>themes</dt><dd>
           <ul class="chips" aria-label="themes">
             <li class="chip t-data">markets &amp; data</li>
@@ -82,7 +95,7 @@
     <p class="look"><span class="lk">look for</span><span style="--c:var(--v-amber)">the regime KRONOS estimates, then its run</span><span style="--c:var(--v-green)">a gate that passed</span><span class="pk">a drawdown, not yet recovered</span></p>
     <figcaption class="cap-row">
       <p class="instr" id="hero-cap"><span class="n">fig 0</span><span id="hero-instr">KRONOS in amber, SPY in grey. Drawdowns hang below; a dashed line marks each one’s worst.</span></p>
-      <span style="display:flex;flex:none;gap:8px"><button class="replay" type="button" hidden>replay the test and the run</button><button class="k-switch" id="hero-switch" type="button" hidden>try the switch</button></span>
+      <span class="k-btns"><button class="replay" type="button" hidden>replay the test and the run</button><button class="k-switch" id="hero-switch" type="button" hidden>try the switch</button></span>
     </figcaption>
   </figure>
 
@@ -122,7 +135,7 @@
     <h2 id="s-hard"><span class="n">03</span>the sign bug</h2>
     <div class="body">
       <p class="np">Realized volatility sat at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24-L26">6.9%</span> against a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24-L26">13%</span> target.</p>
-      <p>Tracing where the return went found the drawdown throttle inverted. Its multiplier sat at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">0.50</span> at the high-water mark, rose to fully open by a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L21">−8%</span> drawdown and stayed open through <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">−20%</span>, the wrong side hidden by a clip at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">1.0</span>. It braked on <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">93.6%</span> of days, at a mean multiplier of <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">0.64</span>, and none of the <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">30</span> gates then in the suite tested its direction.</p>
+      <p>Tracing the missing return led to the drawdown throttle, which was inverted. Its multiplier sat at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">0.50</span> at the high-water mark, rose to fully open by a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L21">−8%</span> drawdown and stayed open through <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">−20%</span>, the wrong side hidden by a clip at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">1.0</span>. It braked on <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">93.6%</span> of days, at a mean multiplier of <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">0.64</span>, and none of the <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">30</span> gates then in the suite tested its direction.</p>
       <figure class="ig" aria-labelledby="fig2-cap" data-reveal>
         <svg class="ig-w" id="fig2-w" width="704" height="344" viewBox="0 0 704 344" role="img" aria-labelledby="fig2-w-t fig2-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig2-w-t">The drawdown throttle, as found and as fixed</title><desc id="fig2-w-d">Exposure multiplier against drawdown depth from the high-water mark. As found, the multiplier was 0.50 at the high-water mark, rose to 1.0 by −8% and stayed at 1.0 through −20% and beyond, so it braked at highs and released into crashes; measured, it bound on 93.6% of days at a mean of 0.64. As fixed, it is 1 down to −8%, falls linearly to a 0.25 floor at −20%, and gate X27 pins that direction.</desc><rect class="bx-f" x="248" y="48" width="288" height="200"/><line class="ax" x1="56" y1="48.5" x2="656" y2="48.5"/><line class="ax" x1="56" y1="148.5" x2="656" y2="148.5"/><line class="ax" x1="56" y1="198.5" x2="656" y2="198.5"/><line class="ax" x1="56" y1="248.5" x2="656" y2="248.5"/><line class="ax" x1="56.5" y1="248" x2="56.5" y2="252"/><line class="ax" x1="248.5" y1="248" x2="248.5" y2="252"/><line class="ax" x1="536.5" y1="248" x2="536.5" y2="252"/><text class="lb" x="48" y="52" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">1.0</text><text class="lb" x="48" y="152" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">0.50</text><text class="lb" x="48" y="202" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L30-L31">0.25</text><text class="lb" x="48" y="252" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L17">0</text><text class="lb" x="56" y="268">high-water mark</text><text class="lb" x="236" y="268" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L21">−8%</text><text class="lb" x="520" y="268" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L21">−20%</text><text class="lb" x="656" y="284" text-anchor="end">drawdown depth →</text><text class="lb" x="256" y="240">designed de-risk zone</text><polygon class="c-ref rv-x" style="--o:0" points="56,148 248,48 656,48 656,50 248,50 56,150"/><polygon class="cell rv-x" style="--o:2" points="56,48 248,48 536,198 656,198 656,200 536,200 248,50 56,50"/><g class="rv-f" style="--o:1"><text class="lb" x="64" y="172" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">as found: 0.50 at the high-water mark</text></g><g class="rv-f" style="--o:1"><text class="lb" x="472" y="40" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">as found: 1.0 at −20%</text></g><g class="rv-f" style="--o:3"><text class="rd-a" x="64" y="40" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L30-L31">fixed: 1 at the high-water mark</text></g><g class="rv-f" style="--o:3"><text class="rd-a" x="544" y="222" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L30-L31">fixed: 0.25 floor</text></g><g class="rv-f" style="--o:1"><text class="rd" x="0" y="312" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">as found: bound on 93.6% of days, mean 0.64</text></g><g class="rv-f" style="--o:3"><rect class="c-verify" x="0" y="324" width="8" height="8"/><text class="lb" x="16" y="332" data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L1">fixed: direction and floor pinned by gate X27</text></g></svg>
         <svg class="ig-n" id="fig2-n" width="328" height="304" viewBox="0 0 328 304" role="img" aria-labelledby="fig2-n-t fig2-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig2-n-t">The drawdown throttle, as found and as fixed</title><desc id="fig2-n-d">Exposure multiplier against drawdown depth from the high-water mark. As found, the multiplier was 0.50 at the high-water mark, rose to 1.0 by −8% and stayed at 1.0 through −20% and beyond, so it braked at highs and released into crashes; measured, it bound on 93.6% of days at a mean of 0.64. As fixed, it is 1 down to −8%, falls linearly to a 0.25 floor at −20%, and gate X27 pins that direction.</desc><rect class="bx-f" x="128" y="32" width="132" height="160"/><line class="ax" x1="40" y1="32.5" x2="315" y2="32.5"/><line class="ax" x1="40" y1="112.5" x2="315" y2="112.5"/><line class="ax" x1="40" y1="152.5" x2="315" y2="152.5"/><line class="ax" x1="40" y1="192.5" x2="315" y2="192.5"/><line class="ax" x1="40.5" y1="192" x2="40.5" y2="196"/><line class="ax" x1="128.5" y1="192" x2="128.5" y2="196"/><line class="ax" x1="260.5" y1="192" x2="260.5" y2="196"/><text class="lb" x="32" y="36" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">1.0</text><text class="lb" x="32" y="116" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">0.50</text><text class="lb" x="32" y="156" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L30-L31">0.25</text><text class="lb" x="32" y="196" text-anchor="end" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L17">0</text><text class="lb" x="40" y="212">peak</text><text class="lb" x="116" y="212" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L21">−8%</text><text class="lb" x="244" y="212" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L21">−20%</text><polygon class="c-ref rv-x" style="--o:0" points="40,112 128,32 315,32 315,34 128,34 40,114"/><polygon class="cell rv-x" style="--o:2" points="40,32 128,32 260,152 315,152 315,154 260,154 128,34 40,34"/><g class="rv-f" style="--o:1"><text class="lb" x="136" y="24">as found</text></g><g class="rv-f" style="--o:3"><text class="rd-a" x="264" y="172">fixed</text></g><g class="rv-f" style="--o:1"><text class="lb" x="0" y="232" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">as found: 0.50 at the peak, 1.0 at −20%</text></g><g class="rv-f" style="--o:1"><text class="rd" x="0" y="248" data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">bound on 93.6% of days, mean 0.64</text></g><g class="rv-f" style="--o:3"><text class="rd-a" x="0" y="272" data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L30-L31">fixed: 1 at the peak, 0.25 floor</text></g><g class="rv-f" style="--o:3"><rect class="c-verify" x="0" y="284" width="8" height="8"/><text class="lb" x="16" y="292" data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L1">pinned by gate X27</text></g></svg>
@@ -401,8 +414,9 @@ function fitFor(sw) { return fits[sw] || (fits[sw] = fit(sw)); }
 function lockText(m, k, room) {
   var lk = m.lock[k], d = lk - m.day, n = Math.abs(d), t;
   if (lk < 0) return "not locked";
-  t = "locked on day " + lk + ", " + n + (n === 1 ? " day " : " days ") + (d < 0 ? "before" : "after") + " the switch";
-  return room && t.length * CW13 > room ? "locked on day " + lk + ", " + n + (n === 1 ? " day " : " days ") + (d < 0 ? "early" : "late") : t;
+  // one wording at every width, as on the index station: the long form ('3 days after the switch') does not fit a phone
+  t = "locked on day " + lk + ", " + n + (n === 1 ? " day " : " days ") + (d < 0 ? "early" : "late");
+  return t;
 }
 function accText(m, k) { return (m.acc[k] * 100).toFixed(1) + "%"; }
 
@@ -523,7 +537,9 @@ function colOf(day, g) { return Math.round(day * g.PA / T); }
 function sizeFor(bandW, c, phone) {
   var W = phone ? Math.min(bandW, 54 * c) : Math.min(760, bandW);
   var cols = Math.floor(W / c), g = geo(cols * c, 0, c, phone);
-  return { w: cols, h: Math.ceil(g.need / c), px: [cols * c, Math.ceil(g.need / c) * c] };
+  // ink: the width the drawing uses; every view's plots end at PA, and on a wide box the end labels (6 characters) pass it
+  var ink = g.wide ? Math.min(cols * c, Math.ceil(g.PA + 6 + 6 * CW11)) : g.PA;
+  return { w: cols, h: Math.ceil(g.need / c), px: [cols * c, Math.ceil(g.need / c) * c], ink: ink };
 }
 
 /* ---------- marks: each painter calls P.rect(x, y, w, h, token) in box CSS px ---------- */
@@ -580,7 +596,7 @@ function paintRealFrame(P, g) {
   if (!g.wide) { P.rect(0, D.leg - 4, 10, 2, "v-amber"); P.rect(64, D.leg - 4, 10, 1, "muted"); }
 }
 // quarter i owns x in [LG + i*qp, LG + (i+1)*qp): a clip at LG + n*qp shows exactly the first n quarters
-function paintRealSeries(P, g, n) {
+function paintRealSeries(P, g, n, ghost) {
   var D = g.D, qp = g.qp, bw = Math.max(2, qp - 4), pk = ey(g, 1), ps = ey(g, 1), pds = 0;
   for (var i = 0; i < n; i++) {
     var x = g.LG + i * qp, yk = ey(g, Q.nav[i]), ys = ey(g, Q.spy[i]), hk = dy(g, Q.dd[i]), hs = dy(g, Q.spyDd[i]);
@@ -593,9 +609,13 @@ function paintRealSeries(P, g, n) {
     P.rect(x, Math.min(pk, yk), 2, Math.abs(yk - pk) + 2, "v-amber");
     pk = yk; ps = ys; pds = hs;
   }
+  if (ghost) return;
   if (n > SPY_TROUGH) dashes(P, g, D.z + dy(g, Q.spyDd[SPY_TROUGH]), "muted");
   if (n > TROUGH) dashes(P, g, D.z + 1 + dy(g, Q.dd[TROUGH]), "v-amber");
 }
+// a case page's first frame: both runs and the drawdowns as a faint ghost ahead of the quarters drawn so far, so the
+// chart shows its subject before its beat (lines in copper, the drawdown bars in residue; no worst-fall marks)
+function paintRealGhost(P, g) { paintRealSeries({ rect: function (x, y, w, h, tok) { P.rect(x, y, w, h, tok === "trail" ? "residue" : "copper"); } }, g, NQ, true); }
 // a worst-drawdown line: 2px dashes every 4px across the band, so each series can be read against the other's worst
 function dashes(P, g, y, tok) { for (var x = g.LG; x < g.PA; x += 4) P.rect(x, y, 2, 1, tok); }
 
@@ -608,7 +628,8 @@ function textPlanted(g, m, s) {
   heads = heads.concat(["planted answer · synthetic · EM fit in the browser", "planted answer · synthetic · EM fit"]);
   out.push(T_(0, g.A.hdr, [[heads.filter(function (h) { return h.length * CW11 <= g.PA; })[0] || heads[heads.length - 1], 11, "muted"]]));
   // the lock is named once the fit settles; while EM is still passing, the readout counts the passes
-  if (k >= 0) out.push(T_(0, g.B.foot, s.locked ? [[lockText(m, k, g.PA), 13, "ink", SRC.em]] : [["fitting · pass " + (k + 1) + " of " + m.pend, 13, "muted", SRC.em]]));
+  if (s.idle) out.push(T_(0, g.B.foot, [["switch planted on day " + m.day, 13, "muted", SRC.em]]));
+  else if (k >= 0) out.push(T_(0, g.B.foot, s.locked ? [[lockText(m, k, g.PA), 13, "ink", SRC.em]] : [["EM fit · pass " + (k + 1) + " of " + m.pend, 13, "muted", SRC.em]]));
   return out;
 }
 function textGates(g, s) {
@@ -628,8 +649,10 @@ function textReal(g, s) {
   for (i = 0; i < NQ; i++) if (/Q1$/.test(Q.q[i]) && (Q.q[i].slice(0, 4) === "2014" || Q.q[i].slice(0, 4) === "2026")) out.push(T_(g.LG + i * g.qp, D.yl, [[Q.q[i].slice(0, 4), 11, "muted", SRC.quarters]]));
   if (!g.wide) { out.push(T_(16, D.leg, [["KRONOS", 11, "v-amber"]])); out.push(T_(80, D.leg, [["SPY", 11, "muted"]])); }
   MULTS.forEach(function (v) { out.push(T_(g.LG - 6, ey(g, v) + 4, [[v + "×", 11, "muted", SRC.scale]], "end")); });
-  if (n > SPY_TROUGH) out.push(T_(g.PA + 6, D.z + dy(g, Q.spyDd[SPY_TROUGH]) + 4, [[pct(Q.spyDd[SPY_TROUGH]), 11, "muted", SRC.spy]]));
-  if (n > TROUGH) out.push(T_(g.PA + 6, D.z + 1 + dy(g, Q.dd[TROUGH]) + 4, [[pct(Q.dd[TROUGH]), 11, "v-amber", SRC.run]]));
+  // the worst-fall labels at the dashed lines' ends need room past the plot that only a wide box has; a narrow one
+  // names both in the readout row under the axis instead, so nothing runs past the box
+  if (g.wide && n > SPY_TROUGH) out.push(T_(g.PA + 6, D.z + dy(g, Q.spyDd[SPY_TROUGH]) + 4, [[pct(Q.spyDd[SPY_TROUGH]), 11, "muted", SRC.spy]]));
+  if (g.wide && n > TROUGH) out.push(T_(g.PA + 6, D.z + 1 + dy(g, Q.dd[TROUGH]) + 4, [[pct(Q.dd[TROUGH]), 11, "v-amber", SRC.run]]));
   // the beat's readout, once the run is whole: each one's worst fall, the risk control the chapter is about.
   // Wide: centred between the year labels; narrow: the row under them, from the left edge
   if (n === NQ) {
@@ -697,7 +720,7 @@ var BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5], ORG = [0, 0]
 function rank(cx, cy) { return BAYER[(((cy + ORG[1]) & 3) << 2) | ((cx + ORG[0]) & 3)]; }
 var PRI = ["ink", "signal", "trail", "muted", "copper", "residue"];
 // a dimmed block paints every mark and word one token down; muted, signal-2, trail-3 and the chrome tokens are floors
-var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3" }; var DN = false;
+var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3" }; var DN = false, GHOST = false;
 
 /* ---------- runtime ---------- */
 var doc = null, wrap = null, cv = null, c2 = null, svg = null, inp = null, TOK = {}, RGB = {}, onChange = [], ver = 0, sw = SW0;
@@ -748,6 +771,7 @@ function paintView(dst, view, g, m, s, dpr) {
     var y = g.phone ? 0 : g.yR;
     blit(dst, layer(gk + "|Df", 0, y, g.W, g.H - y, dpr, function (P) { paintRealFrame(P, g); }));
     var Ls = layer(gk + "|Ds", 0, y, g.W, g.H - y, dpr, function (P) { paintRealSeries(P, g, NQ); });
+    if (GHOST && s.nq < NQ) blitFrom(dst, layer(gk + "|Dg", 0, y, g.W, g.H - y, dpr, function (P) { paintRealGhost(P, g); }), Math.round((g.LG + s.nq * g.qp) * dpr));
     blit(dst, Ls, s.nq >= NQ ? undefined : Math.round((g.LG + s.nq * g.qp) * dpr));
   }
 }
@@ -945,9 +969,10 @@ function draw(u, box, ctx) {
   var pv = b.phone ? phoneView(u) : null; u = viewU(u, pv);
   var g = geoFor(b), m = fitFor(sw), s = stateAt(u, m), R = regions(u, g, b.r, pv, b.pre);
   if (b.dim) R.forEach(function (r) { r.dim = true; });        // the station is behind you: every block dims
+  GHOST = b.pre; s.idle = b.pre && b.atRest && u === 0;        // a case page before its first play: the frame names the planted switch
   phoneNow = b.phone;
   // the pixels are a function of the discrete state and the regions' dither levels, not of u itself: redraw only when those move
-  var key = [sw, b.atRest ? 1 : 0, geoKey, b.x, b.y, ORG, s.pass, s.sweep >= 1 ? -1 : sweepX(g, s), s.passed, s.testing, s.nq, s.beat].concat(R.map(function (r) { return r.out + r.inn + r.k + (r.dim ? "d" : ""); })).join("|");
+  var key = [sw, b.atRest ? 1 : 0, s.idle ? 1 : 0, geoKey, b.x, b.y, ORG, s.pass, s.sweep >= 1 ? -1 : sweepX(g, s), s.passed, s.testing, s.nq, s.beat].concat(R.map(function (r) { return r.out + r.inn + r.k + (r.dim ? "d" : ""); })).join("|");
   if (wrap.style.display) wrap.style.display = "";
   if (key === last) return s;
   last = key;
@@ -959,7 +984,7 @@ function draw(u, box, ctx) {
     svg.setAttribute("width", b.w); svg.setAttribute("height", b.h); svg.setAttribute("viewBox", "0 0 " + b.w + " " + b.h);
   }
   c2.clearRect(0, 0, DW, DH);
-  var tkey = [geoKey, sw, s.pass, s.gatesOn, s.passed, s.testing, s.nq, ORG].concat(R.map(function (r) { return r.inn + r.k + (r.dim ? "d" : ""); })).join("|");
+  var tkey = [geoKey, sw, s.idle ? 1 : 0, s.pass, s.gatesOn, s.passed, s.testing, s.nq, ORG].concat(R.map(function (r) { return r.inn + r.k + (r.dim ? "d" : ""); })).join("|");
   for (var i = 0; i < R.length; i++) {
     var r = R[i];
     DN = !!r.dim;                                              // dimmed: one token down, every cell kept
@@ -1065,7 +1090,7 @@ function stSize(ctx) {
 function stBox(x, y, ctx) { var z = stSize(ctx), c = ctx.cell || 8; return { x: x, y: y, w: z.w * c, h: z.h * c }; }
 api.station = {
   id: "kronos",
-  size: function (ctx) { var z = stSize(ctx || {}); return { w: z.w, h: z.h }; },
+  size: function (ctx) { var z = stSize(ctx || {}); return { w: z.w, h: z.h, ink: z.ink }; },
   cells: function (u, ctx) { var out = []; ctx = ctx || {}; cells(u, stBox(0, 0, ctx), ctx, function (i, j, t) { out.push([i, j, t]); }); return out; },
   // a string that changes whenever cells(u, ctx) can: "none" while every region is native, else the state the cells are cut from
   cellsKey: function (u, ctx) {
@@ -1115,7 +1140,7 @@ root.FigKronos = api;
   if (!stage || !S) return;
   var host = stage.querySelector(".k-host"), instr = document.getElementById("hero-instr"), btn = document.getElementById("hero-switch");
   var row = stage.parentNode.querySelector(".cap-row");
-  var u = 0, raf = 0, sraf = 0, t0 = 0, playing = false, focusNext = false, DUR = 6000, HOLD = 1200, m = null;
+  var u = 0, raf = 0, sraf = 0, t0 = 0, playing = false, shown = false, focusNext = false, DUR = 6000, HOLD = 1200, m = null;
   // a phone shows one view at a time, so the clock holds the settled lock for HOLD ms before the gates take the frame
   function uAt(ms) {
     if (innerWidth >= 1024) return Math.min(1, ms / DUR);
@@ -1128,15 +1153,26 @@ root.FigKronos = api;
   }
   function draw() {
     var cx = ctx(), z = S.size(cx), c = cx.cell, w = z.w * c;
-    var x = Math.max(0, Math.floor((cx.band.r - w) / 2 / c) * c), y = Math.max(0, Math.floor((cx.band.b - z.h * c) / 2 / c) * c);
+    // centre what is drawn, not the box: a wide box keeps empty room right of its end labels
+    var x = Math.max(0, Math.min(Math.round((cx.band.r - (z.ink || w)) / 2 / c), Math.floor((cx.band.r - w) / c)) * c), y = Math.max(0, Math.floor((cx.band.b - z.h * c) / 2 / c) * c);
     S.draw(u, { x: x, y: y, w: w, h: z.h * c }, cx);
     var t = S.instruction(u);
     if (instr.textContent !== t) instr.textContent = t;
-    if (btn) { btn.hidden = playing || !cx.phone; var t2 = F.phoneView() === 0 ? "show the run" : "try the switch"; if (btn.textContent !== t2) btn.textContent = t2; }
+    // the phone toggle waits for the first run to end (or rest), so it never shows and vanishes before the play starts
+    if (btn) { btn.hidden = playing || !shown || !cx.phone; var t2 = F.phoneView() === 0 ? "show the run" : "try the switch"; if (btn.textContent !== t2) btn.textContent = t2; }
     if (F.swapping && F.swapping()) { if (!sraf) sraf = requestAnimationFrame(function () { sraf = 0; draw(); }); }
     else if (focusNext && m && m.input && !m.input.hidden) { focusNext = false; m.input.focus(); }
   }
-  function finish() { playing = false; cancelAnimationFrame(raf); draw(); stage.dispatchEvent(new CustomEvent("case:done")); }
+  // the caption holds the height of its tallest wording at this width, so the page below does not move as the beats change
+  var resW = -1;
+  function reserve() {
+    var p = instr.parentNode, w = p.clientWidth, seen = {}, keep = instr.textContent, h = 0, k, t;
+    if (!w || w === resW) return;
+    resW = w; p.style.minHeight = "";
+    for (k = 0; k <= 100; k++) { t = S.instruction(k / 100); if (seen[t]) continue; seen[t] = 1; instr.textContent = t; h = Math.max(h, p.offsetHeight); }
+    instr.textContent = keep; p.style.minHeight = h + "px";
+  }
+  function finish() { playing = false; shown = true; cancelAnimationFrame(raf); draw(); stage.dispatchEvent(new CustomEvent("case:done")); }
   function tick(t) {
     if (!playing) return;
     if (!t0) t0 = t;
@@ -1149,9 +1185,10 @@ root.FigKronos = api;
   // the view is set afresh, not swapped back across its boundary: hide() clears the held view, so beat 1 shows at once
   if (btn) btn.addEventListener("click", function () { var back = F.phoneView() !== 0; cancelAnimationFrame(raf); playing = false; F.hide(); u = back ? S.rest(0) : 1; focusNext = back; draw(); });
   stage.addEventListener("case:play", function () { cancelAnimationFrame(raf); F.reset(); u = 0; t0 = 0; playing = true; draw(); raf = requestAnimationFrame(tick); });
-  stage.addEventListener("case:rest", function () { playing = false; u = 1; draw(); });
-  window.addEventListener("resize", draw);
-  draw();
+  stage.addEventListener("case:rest", function () { playing = false; shown = true; u = 1; draw(); });
+  window.addEventListener("resize", function () { reserve(); draw(); });
+  reserve(); draw();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { resW = -1; reserve(); });
 })();
 </script>
 <script src="assets/case.js" defer></script>

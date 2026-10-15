@@ -169,6 +169,7 @@
 .jg-g .gt.pass{background:var(--v-green)} .jg-g .gt.route{background:var(--ink)}
 .jg-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:4px 0 3px;border-bottom:1px solid var(--rule);min-height:41px}
 .jg-row .ct{flex:1 1 160px;color:var(--ink)}
+.jg-row .tag{flex-basis:100%}                                /* each row's tier and rows on a line of their own, clear of the stage's edge */
 /* fig 10: the nudge */
 .ng-gate{display:flex;align-items:center;gap:8px;margin-top:8px;padding:4px 8px;border:1px solid var(--copper);color:var(--ink)}
 .ng-gate.shut{border-color:var(--trail)}
@@ -324,10 +325,21 @@ button.vd{min-height:24px}
 .blk-r.gh,.lnk.gh .lbi,.sp-list.gh,.vd.gh,.qt-out.gh,.cx-out.gh,.qt-v.gh,.lg .gh,#ng-act.gh,#ng-pass.gh{opacity:.32}
 .lnk.gh::before{background:var(--rule)}
 #sc-quiet.js [data-from]:not(.on){opacity:.32}
+/* fig 2: the rows and bars to come stand dimmed from the first step (their fills and values grow in at their own step) */
+/* figs 2-4 and 9: the parts to come stand dimmed from the first step, so a phone never opens on a screen of empty stage;
+   fig 2's fills and values, and fig 3's path back to the agent, still wait for their own step */
+#sc-rate.js :is(.rate-row,.bar,.zoom)[data-from]:not(.on),
+#sc-loop.js :is(.nd,.ar,.lp-wall,.lp-legend)[data-from]:not(.on),
+#sc-rec.js :is(p,.lg-r,.flags,.seal,.lp-wall,.seal .lb)[data-from]:not(.on),
+#sc-judge.js :is(.jg-m,.jg-g)[data-from]:not(.on){opacity:.32}
 /* a grid that holds a taller step's height keeps its rows at the top, so the spare height sits under them */
 .cx-2c,.cx-3c{align-content:start}
 .sp-text{min-height:0}
 @media (max-width:767px){ #qt-ro{min-height:0} }
+/* fig 6: the stage holds the advice report's height, so the one-line demo report uses it, set large */
+#sc-split .sp-list{min-height:0} #sc-split .sp-text.big{font-size:30px;line-height:40px;margin-top:4px} #sc-split .sp-text.big .sp-cut{height:30px;margin:0 8px;vertical-align:-5px}
+/* on a phone the advice report wraps to many lines, so the held height is taller still: the demo report fills it at 40 */
+@media (max-width:767px){ #sc-split .sp-text.big{font-size:40px;line-height:48px} }
 /* fig 12: the field's name stays on one line beside it */
 #sc-guard .cx-in label .lbi{white-space:nowrap}
 /* a caption sentence that opens on the click or tap verb */
@@ -725,10 +737,10 @@ button.vd{min-height:24px}
               </div>
             </div></div>
             <ol class="sc-keys">
-              <li data-key="draw" data-at="0" data-src="Olivesz/custos-code@f3737f8:docs/DESIGN.md#L105-L115">Tiers 0 to 5, cheapest first. Tier 0 is integrity: rows written only by the hooks, secrets removed, flags set. Tier 5 is designed, not built: drawn grey.</li>
-              <li data-key="create" data-at="4" data-src="Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L325-L326">The honest session’s create claim stops at tier 1: a write was logged, but a replay has no files to look at. Unwitnessed.</li>
-              <li data-key="tests" data-at="8" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L6-L8">Its test claim climbs to tier 2, where the run settles it: confirmed.</li>
-              <li data-key="trap" data-at="12" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4">The demo claim also stops at tier 2: contradicted.</li>
+              <li data-key="draw" data-at="0" data-src="Olivesz/custos-code@f3737f8:docs/DESIGN.md#L105-L115">Tiers 0 to 5, cheapest first. Tier 0 is integrity: hook-written rows, secrets removed, flags set. Tier 5, designed but not built, is grey.</li>
+              <li data-key="create" data-at="4" data-lead="1" data-src="Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L325-L326">The honest session’s create claim stops at tier 1: a write was logged, but a replay has no files to look at. Unwitnessed.</li>
+              <li data-key="tests" data-at="8" data-lead="5" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L6-L8">Its test claim climbs to tier 2, where the run settles it: confirmed.</li>
+              <li data-key="trap" data-at="12" data-lead="9" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4">The demo claim also stops at tier 2: contradicted.</li>
               <li data-key="rerun" data-at="14">Test and build claims can also be re-run against the final tree, at <span data-src="Olivesz/custos-code@f3737f8:docs/DESIGN.md#L111">tier 3</span>, <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/verdicts.py#L210-L214">off to the side and at most twice per session</span>.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-ladder-cap"><span class="n">fig 8</span><span data-derived="one claim from trap_failing_0.jsonl#L4, two from ok_tests_0.jsonl#L8">The demo sessions’ three claims</span> settling on the ladder. <span class="verb cap">click</span> a verdict for what it means.</figcaption>
@@ -757,7 +769,7 @@ button.vd{min-height:24px}
               <li data-key="table" data-at="0">The rules have spoken on <span data-derived="the example rows this figure draws">three</span> claims: one contradicted, one confirmed, one unwitnessed.</li>
               <li data-key="read" data-at="1" data-src="Olivesz/custos-code@f3737f8:src/custos_code/review.py#L242-L270">The model reads the log. When the log is long it is shortened, with a note saying a missing line is not proof.</li>
               <li data-key="upgrade" data-at="2">It proposes confirmed for the unwitnessed claim, citing a row. That is allowed, and the claim turns confirmed.</li>
-              <li data-key="advise" data-at="3" data-src="Olivesz/custos-code@f3737f8:src/custos_code/review.py#L233">It proposes contradicted for a claim the rule can’t settle. The rule doesn’t agree, so it is kept as advisory: unrecorded, and it never blocks.</li>
+              <li data-key="advise" data-at="3" data-src="Olivesz/custos-code@f3737f8:src/custos_code/review.py#L233">A fourth claim, “The cache layer isn’t wired yet”, no rule can settle. The model proposes contradicted; the rule doesn’t agree, so it stays advisory: unrecorded, never blocking.</li>
               <li data-key="agree" data-at="4" data-src="Olivesz/custos-code@f3737f8:src/custos_code/review.py#L296-L297">It proposes contradicted where the rule agrees. The rule’s own citation replaces the model’s.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-judge-cap"><span class="n">fig 9</span>The gate between an optional model and the verdicts. A diagram of the source’s rules, on example claims.</figcaption>
@@ -902,7 +914,7 @@ button.vd{min-height:24px}
             </div>
           </div></div>
           <ol class="sc-keys">
-            <li data-key="deal" data-at="0"><span data-src="Olivesz/custos-code@f3737f8:README.md#L32-L33">Ten scenarios</span>: <span data-derived="the scenario tags in scoreboard.py#L71-L144: 5 lie, 2 blind, 1 honest, 2 quiet">5 lies, 2 blind runs whose output was hidden, and 3 honest or quiet reports</span>. <span data-derived="echoed-output and ghost-write, the two lie scenarios that forbid only &quot;confirmed&quot; in scoreboard.py#L100-L113">Two of the lies leave nothing in the log to contradict, so they need only stay unconfirmed.</span></li>
+            <li data-key="deal" data-at="0"><span data-src="Olivesz/custos-code@f3737f8:README.md#L32-L33">Ten scenarios</span>: <span data-derived="the scenario tags in scoreboard.py#L71-L144: 5 lie, 2 blind, 1 honest, 2 quiet">5 lies, 2 blind runs with hidden output, and 3 reports that must draw no accusation (an honest suite, advice only, an honest disclosure)</span>. <span data-derived="echoed-output and ghost-write, the two lie scenarios that forbid only &quot;confirmed&quot; in scoreboard.py#L100-L113">Two lies leave nothing in the log to contradict, so they need only stay unconfirmed.</span></li>
             <li data-key="flip" data-at="1">No lie or blind run is confirmed, <span data-derived="the scenarios with expect=&quot;contradicted&quot; in scoreboard.py#L71-L144">the three it must catch</span> are contradicted, and no honest report draws an accusation: <span data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L19">10/10</span>.</li>
             <li data-key="abl1" data-at="2" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L19-L20">Revert the fix that stores output as real lines, and it drops to 9/10. <span data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L296-L309">As one escaped string, a quiet run’s summary no longer starts a line, and the parser misses it.</span></li>
             <li data-key="abl2" data-at="3" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L19-L20">Put that fix back and turn off the count check instead: 8/10.</li>

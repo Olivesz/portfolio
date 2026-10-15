@@ -90,7 +90,7 @@ a.xr{color:inherit}
         <div><dt>short</dt><dd><a href="emergence.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
         <div><dt>stack</dt><dd><span data-src="Olivesz/emergence@910b296:README.md#L78-L79">JavaScript <span class="dot">·</span> canvas</span> <span class="dot">·</span> <span data-src="Olivesz/emergence@910b296:README.md#L42">Python</span></dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer">github.com/Olivesz/emergence</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 17 minutes</dd></div>
+        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 18 minutes</dd></div>
       </dl>
     </div>
     <figure class="scene hero" id="sc-hero" aria-label="The NAND cell in the exact rule, cycling its inputs: the output lights for 00, 01 and 10, and stays dark for 11.">
@@ -465,7 +465,7 @@ a.xr{color:inherit}
               <li data-key="o2" data-at="80">Each pass of the loop prints a, then makes a, b the next pair.</li>
               <li data-key="o5" data-at="260">…<span data-src="page:sap-out">2, 3, 5</span>.</li>
               <li data-key="o21" data-at="400">…<span data-src="page:sap-out">8, 13, 21</span>.</li>
-              <li data-key="o89" data-at="500">…<span data-src="page:sap-out">34, 55, 89</span>.</li>
+              <li data-key="o89" data-at="610">…<span data-src="page:sap-out">34, 55, 89</span>.</li>
               <li data-key="o144" data-at="600">…<span data-src="page:sap-out">144</span>, the last number that fits in <span data-src="Olivesz/emergence@910b296:cpu/README.md#L59">8-bit</span> data.</li>
               <li data-key="halt" data-at="686">The next sum passes <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L64">255</span>, the carry flag trips, and JC jumps to HLT.</li>
             </ol>
@@ -636,22 +636,28 @@ a.xr{color:inherit}
 
         <p>A larger SAP-2 runs on the same two parts: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L104">18,895 NAND gates and 2,118 flip-flops</span>, a stack and <span data-src="Olivesz/emergence@910b296:cpu/README.md#L93">256 bytes</span> of memory, the memory built from flip-flops too. It runs multiply, divide, GCD, primes and bubble sort.</p>
         <p>In Conway’s Life, the same project builds gates from glider collisions. That is a separate build; the CPU does not run on it.</p>
-        <p class="pull">Proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L25">the NAND cell and the memory loop in the raw rule</span>; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">a full adder, a 4-bit counter and a D flip-flop compiled to it, matching the netlist on every clock</span>; the CPU and its <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five programs</span> at netlist level. Not proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L55">the whole CPU in the raw rule; the router handles about a dozen gates so far</span>.</p>
+        <p class="pull">Proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L25">the NAND cell and the memory loop in the raw rule</span>; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">a full adder, a 4-bit counter and a D flip-flop compiled to it, matching the netlist on every clock</span>; the CPU and its <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five programs</span> at netlist level. Not proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L55">the whole CPU in the raw rule. Every gate’s inputs must arrive together, so the router that lays the netlist out as Wireworld cells has to plan delay lines, and so far it manages that for about a dozen gates</span>.</p>
 
         <details class="srcs-d">
-          <summary>sources · 10 lines and 1 file pinned to emergence@910b296</summary>
+          <summary>sources · 16 lines and 1 file pinned to emergence@910b296</summary>
           <ol class="srcs">
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/docs/acts.md?plain=1#L15" target="_blank" rel="noopener noreferrer">docs/acts.md#L15</a> the rule, the page’s gates and their tables</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/index.html#L919-L1048" target="_blank" rel="noopener noreferrer">index.html#L919-L1048</a> the wire, memory, OR, XOR and AND layouts and their launch</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/README.md?plain=1#L42" target="_blank" rel="noopener noreferrer">README.md#L42</a> the parity check: the browser engines match the Python netlists on every register, every cycle</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/README.md?plain=1#L78-L79" target="_blank" rel="noopener noreferrer">README.md#L78-L79</a> the browser page and its canvas</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/ww_cells.py#L19-L30" target="_blank" rel="noopener noreferrer">cpu/ww_cells.py#L19-L30</a> 3 heads suppress; the loop register’s set and synchronized clear</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/ww_cells.py#L124-L125" target="_blank" rel="noopener noreferrer">cpu/ww_cells.py#L124-L125</a> the diode</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/ww_cells.py#L165-L188" target="_blank" rel="noopener noreferrer">cpu/ww_cells.py#L165-L188</a> the NAND cell</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/ww_cells.py#L252-L274" target="_blank" rel="noopener noreferrer">cpu/ww_cells.py#L252-L274</a> the loop register (not a D flip-flop, L22-L23), and its checks at L302-L370</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/ww_cells.py#L342-L368" target="_blank" rel="noopener noreferrer">cpu/ww_cells.py#L342-L368</a> the clear checks: on time, 2 ticks late, and the empty-loop violation</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/wwlogic.py#L13-L24" target="_blank" rel="noopener noreferrer">cpu/wwlogic.py#L13-L24</a> the clocked netlist; derived gates at L63-L94</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/sap1.py#L8-L132" target="_blank" rel="noopener noreferrer">cpu/sap1.py#L8-L132</a> the CPU, its bus and its control</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/wwcpu.js#L1-L3" target="_blank" rel="noopener noreferrer">cpu/wwcpu.js</a> the gate-level port this page runs</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/run_cpu.py#L61-L103" target="_blank" rel="noopener noreferrer">cpu/run_cpu.py#L61-L103</a> the programs and their expected output</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/traces/sap1_fib.json" target="_blank" rel="noopener noreferrer">cpu/traces/sap1_fib.json</a> the recorded netlist trace of the Fibonacci run, under fig 15</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/README.md?plain=1#L3-L4" target="_blank" rel="noopener noreferrer">cpu/README.md#L3-L4</a> SAP-1+, the teaching CPU it builds</li>
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/README.md?plain=1#L10-L87" target="_blank" rel="noopener noreferrer">cpu/README.md#L10-L87</a> the counts, the instruction set, SAP-2</li>
+            <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/README.md?plain=1#L93-L104" target="_blank" rel="noopener noreferrer">cpu/README.md#L93-L104</a> SAP-2: 256 bytes of memory, 18,895 NAND gates and 2,118 flip-flops</li>
           </ol>
         </details>
       </section>

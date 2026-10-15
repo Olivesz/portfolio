@@ -17,6 +17,13 @@
       var k = li.getAttribute("data-key"); if (k in ats) li.setAttribute("data-at", Math.round(ats[k]));
     });
   }
+  /* where a step's action starts, for a step keyed to its end: its words come up then (deep.js, data-lead) */
+  function setLead(id, leads) {
+    var fig = document.getElementById(id); if (!fig) return;
+    [].forEach.call(fig.querySelectorAll(".sc-keys li"), function (li) {
+      var k = li.getAttribute("data-key"); if (k in leads) li.setAttribute("data-lead", Math.round(leads[k]));
+    });
+  }
   function nHeads(g, W, H, x, y) {
     var c = 0;
     for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
@@ -136,7 +143,9 @@
       var lim = Math.min(nk, S.target), quick = S.mode === "auto" && lim - S.t > 4;
       var nt = S.t + dt * S.tps * (quick ? 3 : 1) / 1000;
       if (quick && nt > lim - 4) nt = lim - 4;
-      if (S.mode === "auto") for (var j = 0; j < S.keys.length; j++) { var a = S.keys[j].at; if (a > S.t + 1e-9 && a <= nt && a < S.target) { nt = a; S.holdLeft = S.holdAt(j); break; } }
+      // as in deep.js: summed frame times can leave the clock a hair under a step's tick, so a step within 1e-6 of the
+      // clock still holds unless it was the last one held
+      if (S.mode === "auto") for (var j = 0; j < S.keys.length; j++) { var a = S.keys[j].at; if (a <= nt && a < S.target && (a > S.t + 1e-9 || (a > S.t - 1e-6 && S.heldAt !== a))) { nt = a; S.heldAt = a; S.holdLeft = S.holdAt(j); break; } }
       if (nt >= S.target) { S.t = S.target; return false; }
       S.t = nt; return true;
     };
@@ -160,7 +169,7 @@
       if (crowd) ring(api, 1, 1);
       lbl(api, "b", "now", 1, 0, { align: "center", dy: -24 });
       lbl(api, "a", "one tick later", 7, 0, { align: "center", dy: -24 });
-      lbl(api, "ar", "→", 4, 1, { align: "center", dy: 8, cls: "i" });
+      lbl(api, "ar", "→", 4, 1, { align: "center", dy: Math.round(api.pitch / 2) - 12, cls: "r" });
       var fires = w.isHead(1, 1);
       var ro = lbl(api, "ro", "heads: " + c + " → " + (fires ? "fires" : "stays wire"), 4, 3, { align: "center", dy: 8, cls: "r" });
       ro.setAttribute("data-src", "page:rule-count");
@@ -170,7 +179,7 @@
         var r = [0, 1, 2, 3].map(function (k) { var w = world(["nw", "e", "s"].slice(0, k)); w.step(); return w.isHead(1, 1); });
         return ok("rule 1 or 2 fires, 0 and 3 do not", !r[0] && r[1] && r[2] && !r[3]) && WW.selfTest().ok;
       },
-      grid: { cols: 9, rows: 3, pitch: 32, pitchPhone: 32 }, space: { top: 24, bottom: 40 },
+      grid: { cols: 9, rows: 3, pitch: 48, pitchPhone: 32 }, space: { top: 24, bottom: 40 },
       ticks: 3, tps: 1, rest: 3,
       draw: function (api, tick) { draw(api, CFG[Math.min(3, tick)]); },
       inputs: NB.map(function (n) { return { id: n[0], label: n[0], cell: [1 + n[1], 1 + n[2], 1, 1] }; }),
@@ -192,7 +201,7 @@
     function hx(g, y, x0, x1) { var r = []; for (var x = x0; x <= x1; x++) if (g[y * COLS + x] === HD) r.push(x); return r; }
     var tapT = -1; for (var t = 56; t < TK; t++) if (frames[t][10 * COLS + 35] === HD) { tapT = t; break; }
     var TICKS = Math.min(TK, tapT + 7);                                // end with the copy still on the tap, not after it has gone
-    setAt("sc-wire", { move: 0, oneway: 6, lone: TB + 4, loop: 48, tap: tapT });
+    setAt("sc-wire", { move: 0, oneway: 6, lone: TB + 4, loop: 48, tap: tapT }); setLead("sc-wire", { lone: TB });
     function paintF(api, g) {
       paint(api, g, COLS, ROWS);
       lbl(api, "la", "a wire", 1, 2, { dy: 4 }); lbl(api, "lb", "a lone head", 1, 6, { dy: 4 }); lbl(api, "lc", "a lone head at a dead end", 1, 10, { dy: 4 });
@@ -221,7 +230,8 @@
   /* ================= fig 4: what the rule doesn't give you ================= */
   (function () {
     var OR = ART.or, XOR = ART.xor, MEM = ART.memory;
-    var L = PHONE ? { cols: 31, rows: 31, or: [2, 2], xor: [2, 8], mem: [1, 22] } : { cols: 74, rows: 15, or: [2, 4], xor: [21, 3], mem: [45, 4] };
+    // desktop: the two gates side by side and the loop under them, at the diode's pitch; a phone stacks all three
+    var L = PHONE ? { cols: 31, rows: 31, or: [2, 2], xor: [2, 8], mem: [1, 22] } : { cols: 44, rows: 22, or: [2, 4], xor: [22, 1], mem: [2, 14] };
     var COLS = L.cols, ROWS = L.rows, base = WW.world(COLS, ROWS);
     var pO = parseArt(base, OR, L.or[0], L.or[1]), pX = parseArt(base, XOR, L.xor[0], L.xor[1]);
     parseArt(base, MEM, L.mem[0], L.mem[1]);
@@ -250,14 +260,14 @@
       crowdsRecent(frames, Math.min(tick, TICKS), COLS, ROWS, act).forEach(function (c) { ring(api, c[0], c[1]); });
       var bk = PHONE ? lbl(api, "bk", "backward copy", pO.B[0] + 7, pO.B[1], { dx: 4, dy: -3, cls: "am" }) : lbl(api, "bk", "backward copy", pO.B[0], pO.B[1] + 1, { dy: 2, cls: "am" }); bk.hidden = api.key !== "leak";
       if (api.key === "leak") bWire.concat([[pO.B[0] + 6, pO.B[1]], [pO.B[0], pO.B[1]]]).forEach(function (c) { if (g[c[1] * COLS + c[0]] === HD) back(api, c[0], c[1]); });
-      var top = Math.min(rO[1], rX[1], rM[1]);                         // side by side, the three names share one row
+      var top = Math.min(rO[1], rX[1]);                                // side by side, the two gates' names share one row
       lbl(api, "l1", "or, a only", rO[0] + 1, PHONE ? rO[1] : top, { dy: -16, cls: act === rO ? "i" : "" });
       lbl(api, "l2", "xor, a and b", rX[0] + 1, PHONE ? rX[1] : top, { dy: -16, cls: act === rX ? "i" : "" });
-      lbl(api, "l3", "a stored bit", rM[0] + 1, PHONE ? rM[1] : top, { dy: -16, cls: act === rM ? "i" : "" });
+      lbl(api, "l3", "a stored bit", rM[0] + 1, rM[1], { dy: -16, cls: act === rM ? "i" : "" });
     }
     fast(Deep.scene("sc-gaps", {
       check: function () { return ok("or fires on a alone, leaks back up b; xor both is dark; memory keeps one electron", tOut > 0 && tLeak > 0 && tThree > 0 && !xorOut && tHold > 0); },
-      grid: { cols: COLS, rows: ROWS, pitch: 9, pitchPhone: 11 }, space: { top: 16, bottom: 8 },
+      grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 11 }, space: { top: 16, bottom: 8 },
       ticks: TICKS, tps: 8, pause: 1400, rest: "three",
       draw: draw
     }));
@@ -274,7 +284,7 @@
     var F0 = 128, F1 = 168, TICKS = 172, frames = WW.record(base, F0, at);
     var rN = [L.n[0], L.n[1], L.n[0] + NAND.W - 1, L.n[1] + NAND.H - 1], rM = [L.m[0], L.m[1], L.m[0] + REG.W - 1, L.m[1] + REG.H - 1];
     var NN = 1446, ND = 175;
-    setAt("sc-plan", { nand: 0, mem: 64, field: F0 + 16, count: TICKS });
+    setAt("sc-plan", { nand: 0, mem: 64, field: F0 + 16, count: TICKS }); setLead("sc-plan", { field: F0, count: F0 + 17 });
     function draw(api, tick) {
       api.clear();
       var hideW = tick >= F0;
@@ -290,7 +300,8 @@
       }
       var n = Math.min(NN + ND, Math.round((NN + ND) * Math.min(1, (tick - F0) / (F1 - F0))));
       for (var i = 0; i < n; i++) api.dot(i % COLS, (i / COLS) | 0, i < NN ? "v-green" : "v-amber");
-      lf.innerHTML = '<span class="g">■</span> nand gates  <span class="am">■</span> flip-flops';
+      var cs = '<span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">';      // the counts the field draws
+      if (lf.getAttribute("data-n") !== "1") { lf.innerHTML = '<span class="g">■</span> ' + cs + '1,446</span> nand gates  <span class="am">■</span> ' + cs + '175</span> flip-flops'; lf.setAttribute("data-n", "1"); }
     }
     fast(Deep.scene("sc-plan", {
       check: function () { return ok("field draws one square per part", COLS * ROWS >= NN + ND); },
@@ -315,6 +326,7 @@
     }
     var TICKS = Math.min(TK, tGone + 4);
     setAt("sc-diode", { layout: 0, split: tSplit, out: tOut, dies: tDie, gone: tGone });
+    setLead("sc-diode", { split: 1, out: tSplit + 1, dies: TB, gone: tDie + 1 });
     function paintF(api, g) {
       paint(api, g, COLS, ROWS);
       lbl(api, "in", "in", 1, 2, { dy: -24 }); lbl(api, "out", "out", 32, 2, { align: "right", dy: -24 });
@@ -387,11 +399,13 @@
       paint(api, g, COLS, ROWS, { rings: !frs });
       if (frs) crowdsRecent(frs, tk, COLS, ROWS).forEach(function (c) { ring(api, c[0], c[1]); });
       lamp(api, lit);
-      if (o.leak && api.key === "leak") o.leak.forEach(function (c) { if (g[c[1] * COLS + c[0]] === HD) back(api, c[0], c[1]); });
+      if (o.leak && api.words === "leak") o.leak.forEach(function (c) { if (g[c[1] * COLS + c[0]] === HD) back(api, c[0], c[1]); });
       if (o.J) lbl(api, "jj", "J", o.J[0] + ox, o.J[1] + oy - 1, { dx: 4, dy: -12, cls: "i" });
       if (o.marks) o.marks.forEach(function (m, i) { lbl(api, "mk" + i, m[0], m[1] + ox, m[2] + oy, { dx: m[3] || 0, dy: m[4] || 0, cls: m[5] || "" }); });
       var pd = api.pitch, ly = Math.round((pd - 16) / 2); lbl(api, "a", "a", pp.A[0] - 1, pp.A[1], { dx: -14, dy: ly, cls: "i" }); lbl(api, "b", "b", pp.B[0] - 1, pp.B[1], { dx: -14, dy: ly, cls: "i" });
-      lbl(api, "o", "out", lampX, pp.O[1], { dx: 0, dy: -20 });
+      // the long AND on a phone runs a wire down past its lamp, so its "out" sits to the lamp's left, on its row
+      if (o.outLeft && PHONE) lbl(api, "o", "out", lampX, pp.O[1], { align: "right", dx: -(lampX - pp.O[0] + 1) * api.pitch - 4, dy: Math.round((api.pitch - 16) / 2) });
+      else lbl(api, "o", "out", lampX, pp.O[1], { dx: 0, dy: -20 });
       var tx = PHONE ? 0 : COLS, ty = PHONE ? ROWS : 0;
       var tb = lbl(api, "tt", null, tx, ty, { dx: PHONE ? 0 : 24, dy: PHONE ? 8 : 0, cls: "r", html: true });
       tb.innerHTML = '<span class="m">a b  out</span><br>' + lampsHTML(tbl.rows, TABLE_ORDER.indexOf(tbl.cur));
@@ -402,6 +416,7 @@
     var ats = o.keys(res, P);
     var TICKS = o.ticks ? o.ticks(res, P) : TK;
     setAt(id, ats);
+    if (o.leads) setLead(id, o.leads(res, P));
     var live0 = null;
     return fast(Deep.scene(id, {
       check: function () { var got = [0, 1, 2, 3].map(function (c) { return c in PRE ? PRE[c] : res[CASES.indexOf(c)].out; }); return ok(id + " truth table " + got.join("") + (o.skew ? " (wanted 0001)" : ""), got.join("") === (o.got || o.want).join("") && (!o.extraCheck || o.extraCheck(res, frames, pp, COLS, ROWS, base))); },
@@ -432,11 +447,13 @@
       var leak = -1;
       return { a: r[0].fire, b: r[1].fire, both: r[2].fire, leak: r[3].fire + 3 };
     },
+    leads: function (r, P) { return { b: P, both: 2 * P, leak: 3 * P }; },
     extraCheck: function (res, frames, pp, W) { var t = res[3].fire + 3; return frames[t][pp.B[1] * W + pp.B[0] + 3] === HD || frames[t][pp.B[1] * W + pp.B[0] + 2] === HD || frames[t][pp.B[1] * W + pp.B[0] + 4] === HD; }
   });
   gateScene("sc-xor", ART.xor, 30, {
     want: [0, 1, 1, 0], pitch: 20, pitchPhone: 12, tps: 8, pause: 1100, rest: "both", J: [13, 7],
     keys: function (r, P) { return { a: r[0].jf - 1, b: r[1].jf - 1, both: r[2].crowd, tuned: r[2].crowd + 3 }; },
+    leads: function (r, P) { return { b: P, both: 2 * P }; },
     extraCheck: function (res) { return res[2].crowd > 0 && res[0].jf > 0 && res[1].jf > 0; }
   });
 
@@ -463,6 +480,7 @@
     });
     var TICKS = res[4].fire + 4;
     setAt("sc-nand", { clock: cstar, n00: res[0].fire, na: res[1].fire, nb: res[2].fire, nab: res[3].crowd, rec: res[4].fire });
+    setLead("sc-nand", { n00: cstar + 1, na: cstar + P - LW, nb: cstar + 2 * P - LW, nab: cstar + 3 * P - LW, rec: cstar + 4 * P - LW });
     var ORDER = [0, 2, 1, 3], WANT = [1, 1, 1, 0];   // rows a b: 00, 01, 10, 11
     function tableAt(tick) {
       var k = Math.max(0, Math.min(4, Math.floor((tick - cstar + 4) / P)));
@@ -548,6 +566,7 @@
     var empty = empty0() === true;
     var TICKS = Math.min(TK, again + 8);
     setAt("sc-mem", { layout: 0, set: tSet, hold: reads[0], clear: tStar, silent: tStar + 40, again: again });
+    setLead("sc-mem", { set: 1, hold: tSet + 1, clear: tInj, silent: tStar + 1, again: tRe });
     function readLit(g, t, list) { return list.some(function (x) { return t >= x && t < x + 8; }); }
     function paintF(api, g, lit, note) {
       paint(api, g, COLS, ROWS, { rings: false });
@@ -654,6 +673,11 @@
         drawGate(api, name, ROWSET[name][row], row);
       },
       inputs: [{ id: "a", label: "a" }, { id: "b", label: "b" }, { id: "sel", label: "sel" }],
+      // only the inputs the gate on screen has can be set: NOT takes a, the two-input gates a and b, MUX all three
+      onKey: function (api, k, name) {
+        var used = name === "not" ? ["a"] : name === "mux" ? ["a", "b", "sel"] : ["a", "b"], bs = api.scene.inputBtns;
+        for (var id in bs) bs[id].b.disabled = used.indexOf(id) < 0;
+      },
       live: { start: function () { return {}; }, step: function () { return false; },
         draw: function (api) { drawGate(api, ORDER[api.keyIndex], { a: api.inputs.a ? 1 : 0, b: api.inputs.b ? 1 : 0, sel: api.inputs.sel ? 1 : 0 }); } }
     });
@@ -948,7 +972,9 @@
       var e = document.createElement("span"); e.className = "sc-l" + (cls ? " " + cls : ""); e.textContent = text; el.appendChild(e);
       labels.push({ e: e, x: x, y: y, align: align }); return e;
     }
-    span("", "recorded netlist trace: register a, " + N + " clocks", 0, 0, "left");
+    // the title is one line where the strip is wide enough for it, else two (a 360px phone folds the run into three bands)
+    var T1 = "recorded netlist trace: register a, " + N + " clocks", T2 = "recorded netlist trace:\nregister a, " + N + " clocks";
+    var title = span("", T1, 0, 0, "left"); title.style.whiteSpace = "pre";
     var outL = outs.map(function (c, k) { return span("", String(TR.header.out_tape[k]), c, null, "center"); });
     var carL = span("", "carry", carry, null, "right");
     function place() {
@@ -963,6 +989,8 @@
     function layout(avail) {
       dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
       per = avail >= N ? N : Math.ceil(N / Math.ceil(N / avail)); bands = Math.ceil(N / per);
+      title.textContent = T1; HEAD = 24;
+      if (title.offsetWidth > per) { title.textContent = T2; HEAD = 40; }
       var h = bandTop(bands) - GAPB;
       cv.width = per * dpr; cv.height = h * dpr; cv.style.width = per + "px"; cv.style.height = h + "px";
       el.style.width = per + "px"; el.style.height = h + "px"; el.style.marginLeft = Math.max(0, Math.floor((avail - per) / 2)) + "px";
@@ -990,9 +1018,13 @@
   (function () {
     var S = FIB.snaps, last = S.length - 1, CUR = curAddrs(S), PL = progLines(PROGS.fib);
     var fig15 = document.getElementById("sc-sap"), strip = TRACE_OK && fig15 && TR.rows.length === S.length ? Strip(fig15) : null;
-    var pick = [0, 1, 4, 7, 9, 11];
+    var pick = [0, 1, 4, 7, 10, 11];                                  // the prints each step's words end on: 1, 1, 5, 21, 89, 144
     var ats = {}; ["o1", "o2", "o5", "o21", "o89", "o144"].forEach(function (k, i) { ats[k] = FIB.at[pick[i]]; }); ats.halt = last;
     setAt("sc-sap", ats);
+    // each run of prints comes up under its own words: they change as the machine leaves the last print
+    var leads = {}, names = ["o1", "o2", "o5", "o21", "o89", "o144", "halt"];
+    names.forEach(function (k, i) { if (i) leads[k] = ats[names[i - 1]] + 1; });
+    setLead("sc-sap", leads);
     function tapeAt(cy) { return FIB.outs.filter(function (v, k) { return FIB.at[k] <= cy; }); }
     fast(Deep.scene("sc-sap", {
       check: function () { return ok("fibonacci tape on the netlist", SAPOK && TRACE_OK && !!strip && FIB.outs.join(",") === WANT_OUT.fib.join(",") && S[last].halt === 1); },
@@ -1013,14 +1045,14 @@
   /* ================= fig 16: the asynchronous wall: the act's AND ================= */
   var AND_MARKS = [];
   gateScene("sc-and", ART.and, 170, {
-    want: [0, 0, 0, 1], pitch: 6, pitchPhone: 3, tps: 48, pause: 1000, rest: "both", oy: 1, marks: AND_MARKS,
+    want: [0, 0, 0, 1], pitch: 6, pitchPhone: 3, tps: 48, pause: 1000, rest: "both", oy: 1, marks: AND_MARKS, outLeft: true,
     keys: function (r, P) { return { a: r[0].lastCrowd > 0 ? r[0].lastCrowd : 40, b: r[1].lastCrowd > 0 ? r[1].lastCrowd : P + 40, both: r[2].fire }; },
     ticks: function (r, P) { return r[2].fire + 12; }
   });
   var SKEW = 1;
   (function () { var ks = document.querySelectorAll('[data-src="page:skew-k"]'); [].forEach.call(ks, function (e) { e.textContent = SKEW === 1 ? "one cell" : SKEW + " cells"; }); })();
   gateScene("sc-skew", ART.and, 170, {
-    want: [0, 0, 0, 1], got: [0, 0, 0, 0], skew: SKEW, cases: [1, 3], pitch: 6, pitchPhone: 3, tps: 48, pause: 1000, rest: "wrong", oy: 1, marks: AND_MARKS,
+    want: [0, 0, 0, 1], got: [0, 0, 0, 0], skew: SKEW, cases: [1, 3], pitch: 6, pitchPhone: 3, tps: 48, pause: 1000, rest: "wrong", oy: 1, marks: AND_MARKS, outLeft: true,
     keys: function (r, P) { return { a: r[0].lastCrowd > 0 ? r[0].lastCrowd : 40, both: P + 120, wrong: 2 * P - 4 }; },
     ticks: function (r, P) { return 2 * P; },
     extraCheck: function (res, frames, pp, COLS, ROWS, base) {
@@ -1073,6 +1105,7 @@
     var tLate = tipsAt(starts[0], 2), tEarly = tipsAt(starts[1], -2), tEmpty = tipsAt(starts[2], 0);
     if (tLate < 0) tLate = starts[0] + lead + 3; if (tEarly < 0) tEarly = starts[1] + lead - 1; if (tEmpty < 0) tEmpty = starts[2] + lead + 1;
     setAt("sc-slack", { late: tLate, early: tEarly, empty: tEmpty + 1, flood: TK });
+    setLead("sc-slack", { early: starts[1], empty: starts[2], flood: tEmpty + 2 });
     var off = 2;
     function words(o) { return o === 0 ? "on time" : Math.abs(o) + (Math.abs(o) === 1 ? " tick " : " ticks ") + (o > 0 ? "late" : "early"); }
     function names(api, k) {
@@ -1091,7 +1124,7 @@
       check: function () { return ok("clear only on time: offsets -2..+2 clear only at 0; empty-loop clear floods", sw.join() === "false,false,true,false,false" && flood > 2); },
       grid: { cols: COLS, rows: ROWS, pitch: 8, pitchPhone: 8 }, space: { top: 24, bottom: 8 },
       ticks: TK, tps: 14, pause: 1400, rest: "late",
-      draw: function (api, tick) { paintF(api, frames[Math.min(tick, TK)], api.key); },
+      draw: function (api, tick) { paintF(api, frames[Math.min(tick, TK)], api.words); },
       inputs: [{ id: "go", label: "clear", momentary: true }, { id: "empty", label: "clear an empty loop", momentary: true }],
       live: {
         start: function () { return { w: null }; },

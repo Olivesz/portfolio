@@ -874,7 +874,10 @@ WORK_STATE_JS = r"""() => { const w = document.getElementById('work'); if (!w ||
     return { pane: cur && cur.dataset.pane,
       blobs: q('.k-blob').map(b => ({ k: b.dataset.k, tag: b.tagName, ctl: b.getAttribute('aria-controls'), pressed: b.getAttribute('aria-pressed'),
         off: b.classList.contains('off'), names: [...b.querySelectorAll('.k-bn')].map(e => e.textContent.trim()),
-        more: (b.querySelector('.k-bm b') || { textContent: '' }).textContent.trim(), cells: cells(b, '.k-bs path'), shown: cells(b, '.k-bs path:not(.k-hid)') })),
+        more: (b.querySelector('.k-bm b') || { textContent: '' }).textContent.trim(), cells: cells(b, '.k-bs path'), shown: cells(b, '.k-bs path:not(.k-hid)'),
+        hued: (() => { const sv = b.querySelector('.k-bs'), t = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); t.style.fill = 'var(--h)'; sv.appendChild(t);
+          const h = getComputedStyle(t).fill; t.remove(); return [...b.querySelectorAll('.k-bs path')].every(p => getComputedStyle(p).fill === h); })(),
+        ring: (() => { const r = b.querySelector('.k-rs'); return r && getComputedStyle(r).visibility === 'visible' ? cells(b, '.k-rs path') : 0; })() })),
       cards: cur ? [...cur.querySelectorAll('.k-hi .k-card')].map(c => c.dataset.p) : [],
       rows: cur ? [...cur.querySelectorAll('.k-rest .k-mrow')].map(c => c.dataset.p) : [],
       unseen: cur ? [...cur.querySelectorAll('.k-card, .k-mrow')].filter(e => !seen(e)).length : 0,
@@ -973,6 +976,34 @@ def work_grow(v, reduced):
     return before, seq
 
 
+def a_workland(v):
+    """a phone on its side: the field is taller than the screen and the panel sits under it, so a tap on a theme must
+    bring its status line and first project into view, below the strip (the page scrolls inside the tap)"""
+    if v.js(WORK_STATE_JS) is None:
+        raise Missing("section#work with its field of theme blobs is absent")
+    bad, done = [], []
+    for k in WORK_READING:
+        work_to(v, "#work .k-field", -56)
+        v.js("async () => { for (let i = 0; i < 40; i++) { const s = window.__workGrow && __workGrow.state(); if (s && s.grown && !s.growing) return; await new Promise(r => setTimeout(r, 100)); } }")
+        a = v.js(WORK_AIM_JS, k)
+        if not a or a["y"] > v.vh - 8 or a["hit"] != k:
+            continue                                         # this theme's cells are below the fold from here
+        v.page.touchscreen.tap(a["x"], a["y"])
+        v.page.wait_for_timeout(120)
+        if v.js(WORK_STATE_JS)["pane"] != k:
+            bad.append(f"{k}: the tap did not pick it")
+            continue
+        g = v.js(WORK_FOLD_JS, k)
+        if g["card"] > v.vh or g["msg"] < 40:
+            bad.append(f"{k}: status at {g['msg']:.0f}, first project ends {g['card']:.0f} on a {v.vh}px screen")
+        done.append(k)
+        v.js("() => { const p = document.querySelector('#work .k-blob[aria-pressed=true]'); if (p) p.click(); }")
+    if len(done) < 2:
+        bad.append(f"only {done} could be tapped from the field's top")
+    v.cur = None
+    return not bad, f"{len(done)} themes tapped ({', '.join(done)}): status and first project in view after each" + ("; " + "; ".join(bad[:3]) if bad else "")
+
+
 def a_work(v):
     st = v.js(WORK_STATE_JS)
     if st is None:
@@ -1050,10 +1081,18 @@ def a_work(v):
             bad.append(f"page:work-{key} reads {txt!r}, the taxonomy says {want!r}")
     if {k for k, _ in got_figs} != set(figs):
         bad.append(f"page:work-* figures missing {sorted(set(figs) - {k for k, _ in got_figs})}")
+    def ringed(s, k, when):
+        # every theme keeps its own hue, picked or not; only the picked one wears its ring
+        if not all(b["hued"] for b in s["blobs"]):
+            bad.append(f"{when}: blobs not filled in their own hue: {[b['k'] for b in s['blobs'] if not b['hued']]}")
+        rg = {b["k"]: b["ring"] for b in s["blobs"]}
+        if any(rg[j] for j in rg if j != k) or (k and rg.get(k, 0) < 12):
+            bad.append(f"{when}: ring cells {rg}, want only {k or 'none'} ringed")
+    ringed(st, first if rest_pane != "rest" else None, "at rest")
     paints = [("rest", v.js(WORK_PAINT_JS))]
     small = set(v.js(WORK_SMALL_JS, 32 if v.phone else 24))
     # a pick opens every project in the theme: its signatures as cards, the rest as rows, all shown, all sourced; the
-    # other blobs step down; the status names the theme and its count
+    # picked blob wears a ring and the others keep their hue; the status names the theme and its count
     geo0 = None
     for k in WORK_THEMES:
         work_field(v)
@@ -1064,6 +1103,7 @@ def a_work(v):
         if s["pane"] != k or [b["k"] for b in s["blobs"] if b["pressed"] == "true"] != [k] \
                 or [b["k"] for b in s["blobs"] if b["off"]] != [j for j in WORK_READING if j != k]:
             bad.append(f"{k}: pane {s['pane']}, pressed {[b['k'] for b in s['blobs'] if b['pressed'] == 'true']}, off {[b['k'] for b in s['blobs'] if b['off']]}")
+        ringed(s, k, f"{k} picked")
         if s["cards"] != sig[k]:
             bad.append(f"{k}: cards {s['cards']}, its signatures are {sig[k]}")
         if s["rows"] != rest[k]:
@@ -1526,10 +1566,13 @@ def a_swaps(v):
     n = int(round((h - a) / 0.01))
     seq = [a + 0.005 + 0.01 * i for i in range(n)]
     seq += seq[::-1]
+    # the first sample reaches the station by a jump, so it waits out the whole first play: its lead and clock, with margin
+    pk = (v.js("() => __walk.play()") or {}).get("kronos") or {}
+    wait = max(3000, int((pk.get("lead") or 0) + (pk.get("ms") or 0) + 500))
     bad, unsettled, lit_max, seen = [], 0, 0.0, 0
     for s in seq:
         v.scroll_s(s)
-        if v.settle(3000) < 0:
+        if v.settle(wait) < 0:
             unsettled += 1
         r = v.js(SWAP_READ)
         if not r:
@@ -1809,7 +1852,8 @@ def a_quotes(v):
 
 def a_stripname(v):
     """The strip takes the name as the hero's name goes: within 0.03 screen of the s at which the h1's bottom passes
-    under the strip (desktop) or the art band (phone), the strip is unnamed just before and named just after."""
+    under the strip (desktop), or its top reaches the art band (phone, where the name leaves a row at a time and is
+    hidden from then on), the strip is unnamed just before and named just after."""
     v.need_walk()
     edge = v.band if v.phone else 40
     y0 = v.js("() => { const h = document.querySelector('.hero h1'); return h.getBoundingClientRect().bottom + scrollY; }")
@@ -1821,7 +1865,7 @@ def a_stripname(v):
     for _ in range(14):
         mid = (lo + hi) / 2
         v.scroll_s(mid); v.settle(300)
-        if v.js("() => document.querySelector('.hero h1').getBoundingClientRect().bottom") > edge:
+        if v.js("p => document.querySelector('.hero h1').getBoundingClientRect()[p ? 'top' : 'bottom']", v.phone) > edge:
             lo = mid
         else:
             hi = mid
@@ -2005,7 +2049,7 @@ def a_custos(v):
     return not bad and not early_pink, m
 
 
-TR_NAMES = ("IEEE", "Azure", "Carbon Hack")    # a word every layout's label for each chapter-I trail carries
+TR_NAMES = ("IEEE", "IARIA", "Carbon Hack")    # a word every layout's label for each chapter-I trail carries
 
 
 def a_trlabels(v):
@@ -3225,6 +3269,33 @@ def a_figclip(v):
     return not bad, m
 
 
+def a_heldlabels(v):
+    """A cell figure keeps its names while its cells are on screen: at hold + 0.1 and hold + 0.2 screen (the visitor
+    has scrolled one or two notches on), every station drawn as cells that still has cells in the art region also has
+    at least one of its labels painted. Labels once vanished a notch past the hold, leaving a field of bare dots."""
+    g = v.geometry()
+    if not v.hook("stationInk"):
+        raise Missing("__walk.stationInk() is absent")
+    bad, n = [], 0
+    for sid, a, e, *_ in g["stations"]:
+        if v.js("id => __walk.resolveLevel(id)", sid) is not None:
+            continue                      # a native layer carries its own labels
+        for off in (0.1, 0.2):
+            s = e + off
+            v.scroll_s(s)
+            v.settle(4000)
+            q = v.js("id => __walk.stationInk(id)", sid)
+            if not q or not q.get("cells"):
+                continue
+            n += 1
+            if not q.get("labels"):
+                bad.append(f"{sid} s {s:.2f}: cells on screen, no label painted")
+    v.cur = None
+    if not n:
+        raise Missing("no cell-figure station with cells on screen past its hold")
+    return not bad, f"{n} frames past a hold with a cell figure on screen, {len(bad)} without a label" + ("; " + "; ".join(bad[:3]) if bad else "")
+
+
 def a_caption(v):
     """The caption row draws its instruction whole. The canvas text drawn below the art box at a hold, joined in
     line order, must equal the instruction for that scroll position: a line cut to fit the row fails here."""
@@ -3663,6 +3734,7 @@ ASSERTIONS = [
     ("phrases", ("desktop",), a_phrases, "each chapter card's phrase line is as written, character for character"),
     ("nativeclip", PHONES, a_nativeclip, "a phone's native layers draw nothing under the art band at any s from the first native approach to the pull-back, two frames after the scroll with no settling"),
     ("figclip", PHONES + LANDS, a_figclip, "every figure cell and every native layer inside the art band at every held phone frame, and the ant's whole cell with them"),
+    ("heldlabels", ("desktop", "phone"), a_heldlabels, "one and two notches past each hold (hold + 0.1, + 0.2) a cell figure with cells on screen has its labels painted"),
     ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
     ("handoff", ("desktop",), a_handoff, "the bookend square's centre lands within 1 device px of the canvas ant's; the canvas stops drawing the ant there"),
     ("settle", ("desktop",), a_settle, "a 600px jump is drawn within 1px of the scroll position by 600ms"),
@@ -3682,7 +3754,8 @@ ASSERTIONS = [
     ("targets", ("desktop", "phone", "phone-small"), a_targets, "every link, button and input on screen is at least 24 CSS px a side with a fine pointer, 32 on touch"),
     ("pitch", ("desktop", "phone", "desktop-125"), a_pitch, "every blit and cell rect lands on whole device pixels at an integer scale, every frame"),
     ("fills", ("desktop", "phone"), a_fills, "canvas fill/stroke styles and bitmap values are packed tokens; no glow, no filter"),
-    ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: five theme blobs in order, each naming its signature projects by the binding rule (each named once, the chapters in their own themes) and counting the rest, its area following its count; at rest the first theme open and picked where the panel has its own column (1024px and wider), else no list, line or chip; a pick opens every project in the theme, signatures first, all shown and sourced, the other blobs stepped down; the picked blob again rests, a tag picks its theme, a click between blobs picks nothing; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status and first project in view with the blobs still; keyboard (desktop) and taps (phone) pick; the blobs grow once on arrival without moving anything, whole at once under reduced motion"),
+    ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: five theme blobs in order, each naming its signature projects by the binding rule (each named once, the chapters in their own themes) and counting the rest, its area following its count; at rest the first theme open and picked where the panel has its own column (1024px and wider), else no list, line or chip; a pick opens every project in the theme, signatures first, all shown and sourced, every blob in its own hue and only the picked one ringed; the picked blob again rests, a tag picks its theme, a click between blobs picks nothing; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status and first project in view with the blobs still; keyboard (desktop) and taps (phone) pick; the blobs grow once on arrival without moving anything, whole at once under reduced motion"),
+    ("workland", ("land",), a_workland, "all the work on a phone on its side: a tap on a theme brings its status line and first project into view below the strip"),
     ("eggs", ("desktop", "phone"), a_eggs, "three hidden ants after chapter I, none within 24px of text; each plants exactly one ant that runs on a clock and settles at its last step; one runs at a time; reduced motion plants the end state at once; the map's tally counts them"),
     ("listeners", ("desktop", "phone"), a_listeners, "no wheel, touch or key listener at all, hooked before load"),
     ("scrollto", ("desktop", "phone"), a_scrollto, "no page-initiated scroll outside a click (a resize may restore the place, see resize)"),

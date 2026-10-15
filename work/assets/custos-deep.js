@@ -169,7 +169,7 @@
         if (plaus.indexOf(n) < 0) { walk.push([8, "no: " + n + " claimed"]); return R("contradicted", 2, ev, p.runner + " at #" + res.seq + " reports " + plaus.join(" or ") + ", not " + n + ".", 8); }
       }
       walk.push([8, ms.length ? "yes" : "no count claimed"]);
-      return R("confirmed", 2, ev, p.runner + " at #" + res.seq + ": " + p.passed + " passed, 0 failed.", 9);
+      return R("confirmed", 2, ev, p.runner + " at #" + res.seq + ": " + p.passed + " passed, 0 failed.", 8);
     }
     walk.push([4, "no: falls back to the exit code"]);
     if (!(res.exit === null || res.exit === undefined || res.exit === 0)) { walk.push([9, "exit " + res.exit]); return R("contradicted", 2, ev, label + " at #" + call.seq + " failed (exit " + res.exit + ").", 9); }
@@ -190,6 +190,7 @@
   var okRule = [
     fx("rule.A", [wr[0].verdict, wr[0].tier, wr[0].evidence, wr[0].why], ["contradicted", 2, [1, 2], "pytest at #2: 7 passed, 2 failed, 0 errors."]),
     fx("rule.B", [wr[1].verdict, wr[1].tier, wr[1].evidence], ["confirmed", 2, [5, 6]]),
+    fx("rule.B.exit", wr[1].exit, 8),                       // a parsed run whose count fits exits at question 9, not the unparsed fallback
     fx("rule.C", [wr[2].verdict, wr[2].tier], ["unwitnessed", 1]),
     fx("rule.D", [wr[3].verdict, wr[3].why], ["contradicted", "pytest at #2 reports 86, not 120."]),
     fx("pipe.presets", ["pytest tests/", "pytest tests/ | tail -1", "pytest tests/ > out.txt", "pytest -q 2>/dev/null", "echo '86 passed in 1.20s'"].map(function (c) { return !!pipedBy(c); }), [false, true, true, true, false]),
@@ -318,7 +319,8 @@
     show("pytest -q");
     scene("sc-rec", {
       ticks: 6, tps: 1, inputsLabel: Deep.coarse ? "tap a command" : "click a command",
-      focus: { before: ".hk-b, .seal", after: ".hk-a, .seal", stop: ".hk-s" },
+      // the wall step names the agent's sentence and the wall in the log; a short phone keeps the wall alone
+      focus: { before: ".hk-b, .seal", after: ".hk-a, .seal", stop: ".hk-s", wall: ".say, .lp-wall | .lp-wall" },
       inputs: PRE.map(function (c, i) { return { id: "p" + i, label: c, momentary: true }; }),
       onInput: function (api, id) { show(PRE[+id.slice(1)]); }
     });
@@ -358,6 +360,7 @@
       }
       if (bad >= 0) html += '<p style="margin-top:16px"><span class="badge"><span class="mk r"></span>chain broken at #' + bad + '</span> <span class="lbi"><span class="lgi"><span class="mk a"></span> the edited row</span> <span class="lgi"><span class="mk r"></span> the first row that no longer checks</span></span></p>';
       else if (shown === 4) html += '<p style="margin-top:16px"><span class="vd ok">every link checks</span></p>';
+      else html += '<p style="margin-top:16px"><span class="vd gh">chain not checked yet</span></p>';   // a dimmed verdict slot until then
       $("chain-art").innerHTML = html;
     }
     var before = "export GITHUB_TOKEN=abcd1234efgh5678";
@@ -381,8 +384,9 @@
     var SPSRC = { trap: "Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/trap_failing_0.jsonl#L4", ok: "Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L8",
       honest: "Olivesz/custos-code@f3737f8:eval/scoreboard.py#L137-L143", advice: "Olivesz/custos-code@f3737f8:eval/scoreboard.py#L129-L136", title: "Olivesz/custos-code@f3737f8:src/custos_code/claims.py#L84" };
     var BYNAME = {}; Object.keys(REPORTS).forEach(function (k) { BYNAME[REPORTS[k][0]] = k; });
-    function paint(name, report, stage) {
+    function paint(name, report, stage, big) {
       $("sp-name").textContent = "report · " + name;
+      $("sp-text").classList.toggle("big", !!big);                // the one-line demo report reads large
       var src = SPSRC[BYNAME[name]];
       if (src) { $("sp-text").setAttribute("data-src", src); $("sp-list").setAttribute("data-src", src); }
       else { $("sp-text").removeAttribute("data-src"); $("sp-list").setAttribute("data-src", "Olivesz/custos-code@f3737f8:src/custos_code/claims.py#L104-L151"); }
@@ -414,7 +418,7 @@
     S = scene("sc-split", {
       ticks: 4, tps: 1, inputsLabel: Deep.coarse ? "tap a report" : "click a report",
       inputs: Object.keys(REPORTS).map(function (k) { return { id: k, label: REPORTS[k][0], momentary: true }; }),
-      draw: function (api) { if (custom && api.mode !== "auto" && api.mode !== "seg") return paint(custom[0], custom[1], "lift"); var s = STEP[api.key]; paint(REPORTS[s[0]][0], REPORTS[s[0]][1], s[1]); },
+      draw: function (api) { if (custom && api.mode !== "auto" && api.mode !== "seg") return paint(custom[0], custom[1], "lift"); var s = STEP[api.key]; paint(REPORTS[s[0]][0], REPORTS[s[0]][1], s[1], s[0] === "trap"); },
       onKey: function (api, i) { if (custom && custom[2] !== i) custom = null; },
       onInput: function (api, id) { custom = [REPORTS[id][0], REPORTS[id][1], api.keyIndex]; hold(S); }
     });
@@ -609,8 +613,9 @@
       $("au-read").innerHTML = rd;
     }
     var COLS = 72, G = { cols: COLS, rows: 18, pitch: 8, pitchPhone: 4 };
-    /* the claims block starts low enough that its label clears the sessions above it: row 11 at pitch 8, 13 at pitch 4 */
-    function rowsFor() { G.rows = window.innerWidth < 768 ? 20 : 18; }
+    /* the claims block starts low enough that its label clears the sessions above it: row 11 at pitch 8, 13 at pitch 4;
+       two label lines sit under the grid, one for the three false accusations and one for the task title */
+    function rowsFor() { G.rows = window.innerWidth < 768 ? 24 : 20; }
     rowsFor(); window.addEventListener("resize", rowsFor);
     scene("sc-audit", {
       grid: G,
@@ -621,7 +626,7 @@
         api.clear();
         var RC = api.pitch < 8 ? 13 : 11;
         for (var s = 0; s < 93; s++) api.dot((s % 31) * 2, 2 + Math.floor(s / 31) * 2, "copper");
-        var shownClaims = Math.min(122, Math.max(0, Math.round((t / 8) * 122)));
+        var shownClaims = 122;                                       // step 1's words name all 122, so they stand from its first frame
         var accused = t >= 10;
         for (var c = 0; c < shownClaims; c++) {
           if (accused && c >= 118) continue;
@@ -630,12 +635,17 @@
         if (accused) for (var a = 0; a < 4; a++) {
           var x = 64 + a * 2, y = RC;
           if (t >= 32 && a < 3) api.rect(x - 0, y + 2, 1, 1, "v-red");
+          if (t >= 34 && a === 3) api.rect(x, y + 2, 1, 1, "muted");     // the fourth: not one of the false three
           api.dot(x, y, a === 0 && t >= 12 ? "ink" : "trail");
         }
         api.label("ses", "93 sessions", 0, 2, { dy: -20 }).setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L58-L59");
         api.label("cl", (shownClaims) + " claims", 0, RC, { dy: -20, cls: "" }).setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L61-L63");
         var la = api.label("acc", "4 accused", 64, RC, { dy: -20, cls: "i" }); la.hidden = !accused; la.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65");
-        var lf = api.label("fal", t >= 34 ? "≥3 false · 1 task title" : t >= 32 ? "≥3 false, one cause" : "", 71, RC + 7, { align: "right", dy: 4 }); lf.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L67-L70");
+        // under the grid: the three false accusations' label ends at the third square, the task title's at the fourth,
+        // a line below, with a leader up to its own mark
+        var lf = api.label("fal", t >= 32 ? "≥3 false, one cause" : "", 68, RC + 7, { align: "right", dy: 4 }); lf.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L67-L69");
+        var lt = api.label("ttl", t >= 34 ? "task title" : "", 70, RC + 7, { align: "right", dy: 20 }); lt.setAttribute("data-src", "Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L69-L70");
+        api.lead("ttlL", 70, RC + 3, (RC + 7) * api.pitch + 20); api.scene.labels.ttlL.e.hidden = t < 34;
         paintClaim(t, api.key);
       }
     });

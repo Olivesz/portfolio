@@ -37,7 +37,7 @@
 .ig .s-ink{fill:none;stroke:var(--ink);stroke-width:1px} .ig .s-mut{fill:none;stroke:var(--muted);stroke-width:1px}
 /* dimming steps a colour down a token, never an alpha: words to muted, boxes and copper to rule, a settled blue to residue */
 .ig .dim text{fill:var(--muted)} .ig .dim .bx{stroke:var(--rule)} .ig .dim .f-cop,.ig .dim .f-res{fill:var(--rule)}
-.ig .settled.f-blue{fill:var(--residue)} .ig .settled.f-res{fill:var(--rule)}
+.ig .settled.f-blue{fill:var(--residue)} .ig .settled.f-res{fill:var(--rule)} .ig rect.pv{fill:var(--residue)}
 .ig .l-blue{fill:none;stroke:var(--v-blue);stroke-width:1px} .ig .l-violet{fill:none;stroke:var(--v-violet);stroke-width:1px}
 .ig .l-cyan{fill:none;stroke:var(--v-cyan);stroke-width:1px} .ig .l-amber{fill:none;stroke:var(--v-amber);stroke-width:1px}
 .ig .l-ink{fill:none;stroke:var(--ink);stroke-width:1px} .ig .l-green{fill:none;stroke:var(--v-green);stroke-width:1px} .ig .l-red{fill:none;stroke:var(--v-red);stroke-width:1px}
@@ -93,6 +93,10 @@
 .tg-out{min-height:48px;margin-top:16px;font:400 13px/24px var(--mono);color:var(--ink);max-width:576px}
 .tg-out .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .scene .stats{margin-top:24px}
+/* fig 14's numbers wait as their slots: the rules and labels faint, no figure drawn until their step */
+.scene.js .stats.ghost li{border-top-color:var(--copper)}
+.scene.js .stats.ghost :is(.v,.b){visibility:hidden}
+.scene.js .stats.ghost .k,.scene.js .stats.ghost .k *{color:var(--copper)}
 .sc-tg .v{display:none}
 .head>.scene{margin-top:40px;max-width:704px}
 .head>.lgd{margin-top:16px}
@@ -200,9 +204,9 @@
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="t1" data-at="8">The first thread on chatgpt.com: background first, then the question.</li>
-            <li data-key="t2" data-at="14">The conversation ends. The next thread opens empty.</li>
-            <li data-key="t3" data-at="22">The same background gets typed again.</li>
-            <li data-key="t4" data-at="30">On claude.ai the thread is empty too: a third time.</li>
+            <li data-key="t2" data-at="12">The conversation ends. The next thread opens empty.</li>
+            <li data-key="t3" data-at="22" data-lead="13">The same background gets typed again.</li>
+            <li data-key="t4" data-at="30" data-lead="23">On claude.ai the thread is empty too: a third time.</li>
             <li data-key="t5" data-at="36">Every thread pays the same cost before the real question.</li>
           </ol>
           <figcaption class="sc-cap" id="s-blank-cap"><span class="n">fig 2</span>Each new thread starts blank, on either site. The background lines are <span data-src="Olivesz/inf-mem@c6579f9:docs/make_popup_screenshot.py#L23-L28">memories of the repo’s invented demo user</span>. <span class="verb cap">click</span> to open another thread.</figcaption>
@@ -271,7 +275,7 @@
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="model" data-at="6">Memory and prompt both go through the model, on this machine.</li>
-              <li data-key="vec" data-at="12">Each comes out as <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> numbers. The prompt’s are only compared.</li>
+              <li data-key="vec" data-at="12" data-lead="7">Each comes out as <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> numbers. The prompt’s are only compared.</li>
               <li data-key="files" data-at="18">On disk, one SQLite file. In memory, an <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L144">N × 384</span> matrix and the IDs.</li>
               <li data-key="align" data-at="24">Matrix row i goes with the ID in row i: a lookup.</li>
               <li data-key="add" data-at="30">Only the memory is stored: one row, with its vector inside.</li>
@@ -289,7 +293,7 @@
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="cards" data-at="0">The gate at <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, and one stored memory of each type.</li>
-              <li data-key="bars" data-at="8">Each memory’s cosine with the prompt. The values are examples.</li>
+              <li data-key="bars" data-at="8" data-lead="1">Each memory’s cosine with the prompt. The values are examples.</li>
               <li data-key="gate" data-at="14">Two fall under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> and are never offered.</li>
               <li data-key="pass" data-at="20">Two survive. Only now does importance count.</li>
             </ol>
@@ -306,7 +310,7 @@
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="claim" data-at="0">B ranks above A, though A is closer. Here is why.</li>
-              <li data-key="sim" data-at="6">By similarity alone, A (<span data-ex data-derived="an example value this figure sets to show the rule; the rule is retriever.py#L157">0.90</span>) ranks above B (<span data-ex data-derived="an example value this figure sets to show the rule; the rule is retriever.py#L157">0.62</span>).</li>
+              <li data-key="sim" data-at="6" data-lead="1">By similarity alone, A (<span data-ex data-derived="an example value this figure sets to show the rule; the rule is retriever.py#L157">0.90</span>) ranks above B (<span data-ex data-derived="an example value this figure sets to show the rule; the rule is retriever.py#L157">0.62</span>).</li>
               <li data-key="imp" data-at="12">Importance <span data-ex data-derived="an example value this figure sets to show the rule; the rule is retriever.py#L157">1</span> and <span data-ex data-derived="an example value this figure sets to show the rule; the rule is retriever.py#L157">10</span> make multipliers <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L134-L135">×1.1 and ×2.0</span>.</li>
               <li data-key="swap" data-at="20">Scores <span data-derived="similarity × (1 + importance / 10), retriever.py#L157">0.99 and 1.24</span>: B moves above A.</li>
               <li data-key="cut" data-at="26">Only the <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L124">top 5</span> go back.</li>
@@ -468,7 +472,7 @@
           <div class="sc-stage"><div class="sc-art">
             <ol class="tg" id="tg" aria-label="ci jobs at c6579f9"></ol>
             <p class="tg-out" id="tg-out" aria-live="polite"><span class="k">pick a tier to see what it checks</span></p>
-            <ul class="stats" data-from="stats">
+            <ul class="stats" data-from="stats" data-ghost>
               <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span><span class="k">off-topic prompts still inject memories</span><span class="b" data-src="Olivesz/inf-mem@c6579f9:README.md#L34">was 100% with the old 0.35 gate</span></li>
               <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5&nbsp;ms</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">/retrieve p50 at 10,000 memories, Apple M5</span><span class="b">p95 <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">7&nbsp;ms</span>; on the CI runner <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">15&nbsp;/&nbsp;19&nbsp;ms</span></span></li>
               <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5, held out</span><span class="b" data-src="Olivesz/inf-mem@c6579f9:README.md#L29">776 questions the gate never saw</span></li>
@@ -484,7 +488,7 @@
         <p class="pull">Proven: held-out off-topic rate <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span> at recall@5 <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span>; /retrieve <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> memories. Not proven: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L81-L85">the live Groq model (every tier mocks or fakes it)</span>; on the live sites <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">only ChatGPT’s composer has been checked</span>.</p>
 
         <details class="srcs-d" id="s-src">
-          <summary>sources · 97 lines pinned to inf-mem@c6579f9, 7 of them to the earlier 2f86999</summary>
+          <summary>sources · 98 lines pinned to inf-mem@c6579f9, 7 of them to the earlier 2f86999</summary>
           <ol class="srcs" id="srcs">
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/.github/workflows/ci.yml#L16-L17" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · .github/workflows/ci.yml#L16-L17</a> lint · ruff</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/.github/workflows/ci.yml#L43-L44" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · .github/workflows/ci.yml#L43-L44</a> coverage gate</li>
@@ -552,6 +556,7 @@
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L157" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L157</a> similarity × (1 + importance / 10)</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/backend/retriever.py#L161" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · backend/retriever.py#L161</a> each one returned counts one more access</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/docs/make_popup_screenshot.py#L23-L28" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · docs/make_popup_screenshot.py#L23-L28</a> memories of the repo’s invented demo user</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/eval/calibration.md?plain=1#L76-L77" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · eval/calibration.md#L76-L77</a> recall@5: the share of a question’s evidence in the 5 memories returned</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L7-L8" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L7-L8</a> The page’s script cannot reach localhost itself, so the extension’s ser…</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L11" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L11</a> Compression is off by default.</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/extension/background.js#L16" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · extension/background.js#L16</a> off</li>
@@ -788,19 +793,25 @@
   s1 = make("s-blank", "Two chat sites. Each new thread starts empty, and the same three background lines are typed into it again.", function (L, p) {
     var W = L.W, sw = L.n ? 328 : 344, tw = sw - 16, th = 48 + rowsFor(tw + 8 - 16).length * 16, sh = 2 * th + 68;
     var ax = 0, ay = 0, bxp = L.n ? 0 : 360, by = L.n ? sh + 16 : 0, t2y = 28 + th + 28;
+    // a phone stacks the two sites, so the next thread's place on claude.ai is one row, and the figure fits one screen
+    var slotH = L.n ? 32 : th, sh2 = L.n ? 28 + th + 12 + slotH + 12 : sh, sy0 = L.n ? 28 + th + 12 : t2y;
     bx(p, ax, ay, sw, sh, "s-violet"); tx(p, ax + 8, ay + 16, "chatgpt.com", "lb");
-    bx(p, bxp, by, sw, sh, "s-violet"); tx(p, bxp + 8, by + 16, "claude.ai", "lb");
+    bx(p, bxp, by, sw, sh2, "s-violet"); tx(p, bxp + 8, by + 16, "claude.ai", "lb");
     thread(L, p, ax + 8, ay + 28, tw, 1, 0, null);
     var r = kg(p, "from", "t2"); ln(r, "M" + (ax + 8) + " " + (ay + 28 + th + 16.5) + "H" + (ax + sw - 8), "l-dash"); tx(r, ax + sw / 2, ay + 28 + th + 12, "conversation ends", "lb", { a: "middle" });
     win(L, thread(L, p, ax + 8, ay + t2y, tw, 2, 14, "t3"), 12);
     var fl2 = kg(p, "only", "t2"); bx(fl2, ax + 8, ay + t2y, tw, th, "s-ink");
     win(L, thread(L, p, bxp + 8, by + 28, tw, 3, 22, "t4"), 22);
     // the next thread's place: a dashed outline that says it starts empty, until a click opens it
-    var ph = kg(p, "from", "t5"), px0 = bxp + 4, pw = tw + 8, py0 = by + t2y; L.r.ph = ph;
-    ln(ph, "M" + (px0 + 0.5) + " " + (py0 + 0.5) + "H" + (px0 + pw - 0.5) + "V" + (py0 + th - 0.5) + "H" + (px0 + 0.5) + "Z", "l-dash");
-    tx(ph, px0 + 8, py0 + 16, "thread 4", "lb"); tx(ph, px0 + pw / 2, py0 + Math.round(th / 2) + 4, "starts empty again", "lb", { a: "middle" });
-    var t4 = thread(L, p, bxp + 8, by + t2y, tw, 4, null, null); L.r.t4 = t4; t4.classList.add("fd"); t4.style.opacity = "0";
-    var b = kg(p, "from", "t5"), yb = L.n ? 2 * (sh + 16) : sh + 16;
+    var ph = kg(p, "from", "t5"), px0 = bxp + 4, pw = tw + 8, py0 = by + sy0; L.r.ph = ph;
+    ln(ph, "M" + (px0 + 0.5) + " " + (py0 + 0.5) + "H" + (px0 + pw - 0.5) + "V" + (py0 + slotH - 0.5) + "H" + (px0 + 0.5) + "Z", "l-dash");
+    if (L.n) tx(ph, px0 + 8, py0 + 20, "thread 4 · starts empty again", "lb");
+    else { tx(ph, px0 + 8, py0 + 16, "thread 4", "lb"); tx(ph, px0 + pw / 2, py0 + Math.round(th / 2) + 4, "starts empty again", "lb", { a: "middle" }); }
+    var t4;
+    if (L.n) { t4 = g(p); bx(t4, px0, py0, pw, slotH, "bx"); tx(t4, px0 + 8, py0 + 20, "thread 4 · the same 3 lines, again", "lt"); }
+    else t4 = thread(L, p, bxp + 8, by + t2y, tw, 4, null, null);
+    L.r.t4 = t4; t4.classList.add("fd"); t4.style.opacity = "0";
+    var b = kg(p, "from", "t5"), yb = L.n ? by + sh2 + 16 : sh + 16;
     ln(b, "M0.5 " + (yb - 6) + "V" + (yb + 0.5) + "H" + (W - 0.5) + "V" + (yb - 6), "l-mut");
     tx(b, W / 2, yb + 20, "typed again in every thread", "lb", { a: "middle" });
     return yb + 28;
@@ -833,8 +844,9 @@
     // the 384 numbers, 24 by 16, schematic; blue, computed on this machine, as in scene 5
     var G = g(p), cells = [], seed = 7;
     tx(p, 0, GY - 8, "384 numbers · schematic", "lb", { src: "backend/retriever.py#L52" });
-    for (var i = 0; i < 384; i++) { seed = (seed * 1103515245 + 12345) & 0x7fffffff; var c = fl(G, (i % 24) * 6, GY + ((i / 24) | 0) * 6, 5, 5, (seed >> 8) % 3 ? "f-res" : "f-blue"); c.style.opacity = "0"; cells.push(c); }
-    L.fx.push(function (t) { var k = Math.round(384 * frac(t, 0, 7)); cells.forEach(function (c, j) { c.style.opacity = j < k ? "1" : "0"; c.classList.toggle("settled", t >= 8); }); });
+    for (var i = 0; i < 384; i++) { seed = (seed * 1103515245 + 12345) & 0x7fffffff; var c = fl(G, (i % 24) * 6, GY + ((i / 24) | 0) * 6, 5, 5, (seed >> 8) % 3 ? "f-res" : "f-blue"); c.classList.add("pv"); cells.push(c); }
+    // the 24 by 16 slots stand faint from the start; the numbers fill them in, blue where they are large
+    L.fx.push(function (t) { var k = Math.round(384 * frac(t, 0, 7)); cells.forEach(function (c, j) { c.classList.toggle("pv", j >= k); c.classList.toggle("settled", t >= 8); }); });
     var k1 = kg(p, "from", "vec");
     if (!n) ar(k1, [[152, 168.5], [O[0] - 8, 168.5]], "ln", "hd");
     else ar(k1, [[72.5, 128], [72.5, 160]], "ln", "hd");
@@ -1064,12 +1076,14 @@
   var g1gate = GATE, g1manual = false, s6, g1rg, g1cnt;
   function g1pass(gt) { return G1.filter(function (c) { return c[2] >= gt; }).map(function (c) { return c[0]; }); }
   checks["s-gate1"] = g1pass(GATE).join() === "PROJECT,PREFERENCE" && g1pass(0.35).length === 4;
-  s6 = make("s-gate1", "Four stored memories, each with an example cosine against the prompt. The gate at 0.61 drops the two below it before importance is considered.", function (L, p) {
+  s6 = make("s-gate1", "The prompt “" + EX.prompt + "” and four stored memories, each with an example cosine against it. The gate at 0.61 drops the two below it before importance is considered.", function (L, p) {
     /* each memory whole, its similarity as a bar under it; on desktop the text and the bars share one left edge, so the
        eye reads type, memory, score down a single column; on a phone the text wraps beside its type and the row grows */
-    var n = L.n, W = n ? 328 : 704, X0 = n ? 0 : 112, BW = n ? 328 : 560, RH = n ? 64 : 52, rows = [], y = 24;
-    tx(p, W, 12, "example values", "lb", { a: "end" });
-    if (!n) { tx(p, X0, 12, "0", "lb"); }
+    var n = L.n, W = n ? 328 : 704, X0 = n ? 0 : 112, BW = n ? 328 : 560, RH = n ? 64 : 52, rows = [], y = 44;
+    // the prompt the cosines are taken against, the same example fig 8 sends; it lights when the bars start
+    var pr = tx(p, 0, 12, "prompt · " + EX.prompt, "lb", { w: W });
+    tx(p, W, 32, "example values", "lb", { a: "end" });
+    if (!n) { tx(p, X0, 32, "0", "lb"); }
     G1.forEach(function (c) {
       var tx0 = n ? Math.round(c[0].length * CH) + 28 : X0, lines = n ? wrap(c[1], W - tx0 - 4) : [c[1]], more = 16 * (lines.length - 1);
       var by = y + (n ? 28 : 26) + more, R = { c: c, by: by };
@@ -1087,6 +1101,7 @@
     var glab = tx(gl, 0, top - 4, "", "lb f-amber", { a: "middle" });
     glab.setAttribute("y", rows[rows.length - 1].by + 36);
     L.fx.push(function (t) {
+      pr.setAttribute("class", g1manual || t >= 1 ? "lb-i" : "lb");
       var gt = g1manual ? g1gate : GATE, gx = Math.round(X0 + BW * gt);
       var shown = true;
       glines.forEach(function (e) { e.style.opacity = shown ? "1" : "0"; e.setAttribute("x", Math.min(X0 + BW - 1, gx)); }); glab.style.opacity = shown ? "1" : "0";
@@ -1461,8 +1476,12 @@
     return ly[3] + LH + (n ? 8 : 36);
   }, {
     ticks: 42, rest: "write", align: "left", pause: 2000,
-    // on a phone, what a step changes is its crossing on the lanes and its row in the list
-    focus: function (api, i, name) { return api.fig.querySelectorAll('.ig-n [data-from="' + name + '"], .ldg tr[data-from="' + name + '"]'); },
+    // on a phone, what a step changes is its crossing on the lanes and its row in the list; when the two together are
+    // taller than a short screen shows between the strip and the dock, its row in the list, which says it in words
+    focus: function (api, i, name) {
+      var both = '.ig-n [data-from="' + name + '"], .ldg tr[data-from="' + name + '"]';
+      return both + ' | .ldg tr[data-from="' + name + '"]';
+    },
     inputs: [{ id: "comp", label: "prompt compression" }, { id: "with", label: "send with memory", momentary: true }, { id: "skip", label: "skip memory", momentary: true }],
     onInput: function (api, id, on) {
       if (id === "comp") { lgComp = on; document.getElementById("ldg-comp").textContent = on ? "the prompt" : "off by default"; replay(s12, "rank", "compress"); return; }

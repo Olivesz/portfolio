@@ -135,6 +135,13 @@
     this.c = this.c.concat(rest); return { heard: rest, got: rest, trimmed: false };
   };
   function words(a) { return a.map(function (w) { return w.w.trim(); }); }
+  /* a word as the app puts it on screen: the text rules capitalise the first word of each sentence (on by default) */
+  var SHOWN = null;
+  function shown(w) {
+    if (!SHOWN) { SHOWN = new Map(); var start = true;
+      BURSTS.forEach(function (r) { r.typed.forEach(function (x) { var t = x.w.trim(); if (start && t) t = t.charAt(0).toUpperCase() + t.slice(1); SHOWN.set(x, t); start = /[.!?]$/.test(t); }); }); }
+    return SHOWN.has(w) ? SHOWN.get(w) : w.w.trim();
+  }
   function text(st) { return words(st.c).join(" "); }
 
   /* replay the log's passes through the rules: each pass gets the log's own hypothesis, made relative to the window */
@@ -271,6 +278,9 @@
   (function () {
     function T(tick) { return (tick - 4) * 5; }                         // hundredths of a second
     var GAP0 = row(455).ae, GAP1 = row(735).ae;                         // the longest stretch with nothing typed
+    // the words for the sample come up as it starts to play, and the gap's words as the gap opens (deep.js, data-lead)
+    var lead = { words: 5, phrase: Math.ceil(GAP0 / 5 + 4) + 1 };
+    [].forEach.call(document.querySelectorAll("#sc-dictate .sc-keys li"), function (li) { var k = li.getAttribute("data-key"); if (k in lead) li.setAttribute("data-lead", lead[k]); });
     scene("sc-dictate", [90, 94], {
       ticks: 232, tps: 20, pause: 900,
       draw: function (api, tick) {
@@ -282,7 +292,7 @@
         box(api, 0, 7, W, 24, "copper"); api.rect(1, 8, W - 2, 3, "residue");
         lab(api, "win", "mail draft · another app", 2, 8, { dy: -1 });
         var done = BURSTS.filter(function (r) { return r.ae <= t; });
-        var typed = done.map(function (r) { return words(r.typed).join(" "); }).join(" ");
+        var typed = done.map(function (r) { return r.typed.map(shown).join(" "); }).join(" ");
         wrap(api, "txt", '<span class="k-t">' + esc(typed) + '</span><span class="caret"></span>', 2, 13, W - 4, { cls: "i" });
         var down = tick >= 4 && tick <= 6;
         lab(api, "key", '<span class="' + (down ? "cap on" : "cap") + '">' + SRC.key + "</span> " + (tick < 4 ? "tap to start" : t < 1100 ? "tapped: listening" : "the clip ended: final pass"), 0, 33, { cls: "i" });
@@ -331,7 +341,7 @@
   /* ================= S2 · the model changes its mind: retype against append-only, the first eleven passes ================= */
   (function () {
     var COMM = [];
-    ROWS.slice(0, 11).forEach(function (r, i) { COMM.push((i ? COMM[i - 1] : []).concat(words(r.typed))); });
+    ROWS.slice(0, 11).forEach(function (r, i) { COMM.push((i ? COMM[i - 1] : []).concat(r.typed.map(shown))); });   // as typed on screen
     var BSMAX = RETYPE[RETYPE.length - 1].bs;
     // a meter under each box: backspaces sent so far, on one scale; retype's jumps are its bursts, append-only stays at 0
     function meter(api, y, bs) {
@@ -446,7 +456,7 @@
   /* ================= S5 · one growing buffer ================= */
   (function () {
     function hash(k) { var x = Math.sin(k * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
-    scene("sc-buffer", 54, {
+    scene("sc-buffer", 58, {
       ticks: 40, tps: 10, pause: 1200,
       draw: function (api, tick) {
         var W = api.cols, nb = Math.min(8, Math.floor(tick / 4) + 1), blockW = Math.floor((W - 2) / 8);
@@ -458,19 +468,21 @@
           for (var x = bx; x < bx + blockW - 1; x++) { var a = 0.15 + 0.85 * hash(x * 3 + b), h = Math.max(1, Math.round(a * 8)); api.rect(x, 5 + (8 - h) / 2 | 0, 1, h, fresh ? "v-violet" : "copper"); }
         }
         lab(api, "cv", "converted on arrival → " + SRC.khz + " kHz · mono · float", 0, 15, { cls: "i" });
+        // the newest block's converted samples drop from under the converter's line to the buffer, never across its words
         var cx = 1 + (nb - 1) * blockW + (blockW >> 1);
-        if (tick < 36) { vline(api, cx, 14, 21, "ink"); api.rect(cx - 1, 21, 3, 1, "ink"); }
-        var lock = tick % 4 === 1 && tick < 36;
-        lab(api, "bl", "buffer " + (lock ? '<span class="k-a">locked: appending</span>' : "· one buffer, append only"), 0, 23, {});
-        box(api, 0, 28, W, 8, "copper");
+        if (tick < 36) { vline(api, cx, 20, 25, "ink"); api.rect(cx - 1, 25, 3, 1, "ink"); }
+        // each block is appended under the lock on the tick after its conversion step (step 2 is keyed to tick 3)
+        var lock = tick % 4 === 3 && tick < 36;
+        lab(api, "bl", "buffer " + (lock ? '<span class="k-a">locked: appending</span>' : "· one buffer, append only"), 0, 27, {});
+        box(api, 0, 32, W, 8, "copper");
         var fill = Math.round((W - 2) * Math.min(1, (tick + 1) / 36));
-        for (var x2 = 1; x2 <= fill; x2++) { var a2 = 0.2 + 0.8 * hash(x2 * 5), h2 = Math.max(1, Math.round(a2 * 6)); api.rect(x2, 29 + (6 - h2) / 2 | 0, 1, h2, "v-violet"); }
+        for (var x2 = 1; x2 <= fill; x2++) { var a2 = 0.2 + 0.8 * hash(x2 * 5), h2 = Math.max(1, Math.round(a2 * 6)); api.rect(x2, 33 + (6 - h2) / 2 | 0, 1, h2, "v-violet"); }
         var x05 = Math.round((W - 2) / 4);
-        api.rect(x05, 26, 1, 12, "v-amber");
-        lab(api, "rl", n("8000", SE + "24") + " samples = " + SRC.min + " s", x05, 38, { cls: "" }).style.color = "var(--v-amber)";
+        api.rect(x05, 31, 1, 11, "v-amber");                         // from under the buffer's line, clear of its words
+        lab(api, "rl", n("8000", SE + "24") + " samples = " + SRC.min + " s", x05, 42, { cls: "" }).style.color = "var(--v-amber)";
         var snap = tick >= 38;
-        if (snap) { box(api, 0, 46, fill + 2, 6, "muted"); for (var x3 = 1; x3 <= fill; x3++) api.rect(x3, 48, 1, 2, "copper"); }
-        var s = lab(api, "sn", "snapshot: the model reads this copy, never the mic", 0, 42, { cls: "i" }); s.hidden = !snap;
+        if (snap) { box(api, 0, 50, fill + 2, 6, "muted"); for (var x3 = 1; x3 <= fill; x3++) api.rect(x3, 52, 1, 2, "copper"); }
+        var s = lab(api, "sn", "snapshot: the model reads this copy, never the mic", 0, 46, { cls: "i" }); s.hidden = !snap;
       }
     });
   })();
@@ -496,7 +508,7 @@
       var quiet = w[3] || o.soft, ws = k >= 3 ? LASTW : WORDS;
       if (!w[3]) spans(api, 1, x1, 6, 8, t0, t1, { words: ws, tint: function (t) { return o.soft ? "copper" : cut !== undefined && t > cut ? "residue" : "v-violet"; } });
       else hline(api, 1, x1, 10, "copper");
-      if (cut !== undefined) { var xc = 1 + Math.round((cut - t0) / (t1 - t0) * (x1 - 1)); api.rect(xc, 4, 1, 12, "ink"); lab(api, "cut", "cut here: last voiced " + n("50", EP + "20") + " ms frame + " + SRC.keep02 + " s", Math.min(xc, W - 1), 16, { align: xc > W / 2 ? "right" : "left", cls: "i" }); }
+      if (cut !== undefined) { var xc = 1 + Math.round((cut - t0) / (t1 - t0) * (x1 - 1)); api.rect(xc, 4, 1, 12, "ink"); lab(api, "cut", "cut here: last " + n("50", EP + "20") + " ms frame over " + n("0.010", EP + "21") + ", + " + SRC.keep02 + " s", Math.min(xc, W - 1), 16, { align: xc > W / 2 ? "right" : "left", cls: "i" }); }
       else hide(api, "cut");
       var g1 = (t1 - t0) >= MINW, g2 = g1 && !quiet, g3 = g2;
       var gates = [[g1, "≥ " + SRC.min + " s", "8,000 samples"], [g2, "rms ≥ " + SRC.floor, "not silent"], [g3, "quiet tail cut", "keep +" + SRC.keep02 + " s"]];
@@ -564,10 +576,11 @@
         cl.style.color = "var(--v-red)"; cl.style.whiteSpace = "normal"; cl.style.width = W * C + "px";
         var ys = YA + 7 + hRows(cl) + 2;
         var set = lab(api, "set", SRC.base + " · " + SRC.greedy + " · " + n("english", D + "153") + " · " + n("one word per segment", D + "155") + " · " + n("word timestamps", D + "154"), 0, ys, { cls: "i" });
-        set.hidden = tick < 8; set.style.whiteSpace = "normal"; set.style.width = (W * C) + "px";
+        set.classList.toggle("gh", tick < 8); set.style.whiteSpace = "normal"; set.style.width = (W * C) + "px";
         // the pass at 4.55 s: the window starts at 1.28 s, and the decoder times words from there
         var y2 = ys + hRows(set) + 3, on2 = tick >= 16, off = B.ws, slide = Math.max(0, Math.min(1, (tick - 18) / 6)), tt1 = 470;
-        lab(api, "h2", "pass at " + pl("4.55") + " s · the window starts at " + pl(s2(off)) + " s", 0, y2, { cls: on2 ? "i" : "" }).hidden = !on2;
+        lab(api, "h2", "pass at " + pl("4.55") + " s · the window starts at " + pl(s2(off)) + " s", 0, y2, { cls: on2 ? "i" : "" }).classList.toggle("gh", !on2);
+        if (!on2) api.rect(0, y2 + 9, W, 1, "residue");                                      // its track, waiting
         if (on2) {
           var wx0 = tx(x0, x1, 0, tt1, off), wx1 = tx(x0, x1, 0, tt1, 455);
           api.rect(0, y2 + 9, W, 1, "copper");
@@ -582,11 +595,11 @@
           fr.style.whiteSpace = "normal"; fr.style.width = W * C + "px";
         } else { hide(api, "fr"); hide(api, "z1"); }
         var y3 = y2 + 18 + (on2 ? hRows(api.scene.labels.fr.e) : 4) + 3, on3 = tick >= 28;
-        lab(api, "h3", "the sieve", 0, y3, { cls: on3 ? "i" : "" }).hidden = !on3;
+        lab(api, "h3", "the sieve", 0, y3, { cls: on3 ? "i" : "" }).classList.toggle("gh", !on3);
         SIEVE.forEach(function (s, i) {
           var drop = !!s[1], col = nar ? (i < 5 ? 0 : 46) : (i < 5 ? 0 : 92), r = drop ? i : i - 5;
           var e = lab(api, "sv" + i, drop ? '<span class="k-x">' + (s[0] === "" ? "(empty)" : esc(s[0])) + '</span> <span class="k-a">' + esc(s[1]) + "</span>" : '<span class="k-c">' + esc(s[0]) + "</span> kept", col, y3 + 5 + r * 4, {});
-          e.hidden = !on3 || tick < 28 + (drop ? i : i - 5);
+          e.classList.toggle("gh", !on3 || tick < 28 + (drop ? i : i - 5));
         });
       }
     });
@@ -672,8 +685,9 @@
       api.rect(0, YX, W, 1, "copper");
       for (var s = 7; s <= 10; s++) { var xs = tx(x0, x1, t0, t1, s * 100); api.rect(xs, YX, 1, 2, "muted"); lab(api, "ax" + s, rl(s) + " s", xs, YX + 2, { align: s === 10 ? "right" : "center" }); }
       // row 1: the last typed words
-      lab(api, "rt", "typed so far, as the passes that typed them timed them", 0, 0, {}).style.whiteSpace = "nowrap";
-      if (nar) api.scene.labels.rt.e.textContent = "typed so far";
+      // the streamer's committed words, matched without case: lowercase as heard, not as the app typed them
+      lab(api, "rt", "committed so far, as the passes that committed them timed them", 0, 0, {}).style.whiteSpace = "nowrap";
+      if (nar) api.scene.labels.rt.e.textContent = "committed so far";
       typedTail.forEach(function (w, i) {
         var a = tx(x0, x1, t0, t1, Math.max(t0, w.s)), b = tx(x0, x1, t0, t1, w.e), match = byText && i >= 2;
         api.rect(a + 1, YT, Math.max(1, b - a - 1), 3, match ? "v-green" : "v-blue");
@@ -697,9 +711,9 @@
       // the time line: the last typed word's end, less 0.1 s
       var showLine = k === 0 || old;
       if (showLine) vdash(api, xl, 3, YX - 1, "v-amber");
-      var ln = lab(api, "ln", "time line: “what” ends " + pl(s2(LAST)) + " s, less " + n("0.1", ST + "131") + " s", xl - 1, YX + 6, { align: "right" });
+      var ln = lab(api, "ln", (narrow(api) ? "line: " : "time line: ") + "“what” ends " + pl(s2(LAST)) + " s, less " + n("0.1", ST + "131") + " s = " + pl(s2(LAST - 10)) + " s", xl - 1, YX + 6, { align: "right" });
       ln.style.color = "var(--v-amber)"; ln.hidden = !showLine;
-      var res = k === 0 ? "typed so far ends “… ask what”. the next pass hears those words again" :
+      var res = k === 0 ? "they end “… ask what” · the next pass hears those words again" :
         k === 1 ? "it hears “ask what” again, timed earlier, and starts “you” at " + pl(s2(R.raw[2].s)) + " s, before “what” ends" :
         old ? 'by time: keep only words that start after the line → <span class="k-c">do for you.</span> · <span class="k-r">“you can” is lost</span>' :
         'by text: find <span class="k-g">ask what</span> in the pass and cut after it → <span class="k-c">you can do for you.</span>';
@@ -788,7 +802,7 @@
         } else {
           hide(api, "sx");
           var shown = long ? groups.slice(0, landed).join("") : (landed ? SHORT : "");
-          html = (long ? '<span class="k-t">And so my fellow Americans. ask not</span>' : "") + '<span class="k-t">' + esc(shown) + "</span>";
+          html = (long ? '<span class="k-t">And so my fellow Americans. Ask not</span>' : "") + '<span class="k-t">' + esc(shown) + "</span>";
         }
         wrap(api, "d", html + '<span class="caret"></span>', 2, 42, W - 4, { cls: "i" });
         var ev = lab(api, "ev", scratch ? "backspace only on a command · " + n("bounded to this dictation", PIN + "mac/Sources/FreeflowCore/TextProcessor.swift#L3-L8") :
@@ -802,12 +816,12 @@
   /* ================= S12 · stopping cleanly ================= */
   (function () {
     var FIN = ROWS[ROWS.length - 1];
-    function paint(api, k) {
+    function paint(api, k, q) {
       var W = api.cols, nar = narrow(api);
       api.clear();
       // the endpointer, tick by tick after the last word: the rule, not a recording
       lab(api, "md", "after the last word · one quiet tick every " + SRC.tick + " ms", 0, 0, { cls: "i" });
-      var q = Math.min(5, [1, 4, 5, 5, 5, 5][k]), cw = nar ? W - 2 : 100, by = 6;
+      var cw = nar ? W - 2 : 100, by = 6;
       for (var i = 0; i < 5; i++) { var x = Math.round(cw * (i + 1) * 350 / 1750) - 2; api.rect(x, by - 2, 1, 2, i < q ? "v-amber" : "copper"); }
       api.rect(0, by, cw, 3, "residue"); api.rect(0, by, Math.round(cw * Math.min(q * 350, 1750) / 1750), 3, "v-amber");
       var xl = Math.round(cw * 1500 / 1750); api.rect(xl, by - 2, 1, 7, "ink");
@@ -816,19 +830,22 @@
       sl.style.whiteSpace = "normal"; sl.style.width = W * C + "px";
       // the final pass of the JFK replay: the clip ends at 11 s
       var y = 26, on = k >= 3, t0 = FIN.ws, t1 = 1100, x0 = 0, x1 = W - 1;
-      lab(api, "h1", "the replay’s final pass · window " + pl(s2(FIN.ws)) + "–" + pl("11.00") + " s", 0, y, { cls: on ? "i" : "" }).hidden = !on;
-      if (on) {
-        spans(api, x0, x1, y + 6, 8, t0, t1, { words: FIN.raw, tint: function () { return "v-violet"; } });
-        api.rect(0, y + 15, W, 1, "copper");
-      }
+      lab(api, "h1", "the replay’s final pass · window " + pl(s2(FIN.ws)) + "–" + pl("11.00") + " s", 0, y, { cls: on ? "i" : "" }).classList.toggle("gh", !on);
+      spans(api, x0, x1, y + 6, 8, t0, t1, { words: FIN.raw, quiet: function () { return on ? "copper" : "residue"; }, tint: function () { return on ? "v-violet" : "residue"; } });
+      api.rect(0, y + 15, W, 1, on ? "copper" : "residue");
       var h2 = lab(api, "h2", "it hears " + chips(FIN.raw, "k-x") + ": all of it already typed, so nothing new is typed", 0, y + 18, {});
       h2.hidden = k < 4; h2.style.whiteSpace = "normal"; h2.style.width = W * C + "px";
       var off = lab(api, "off", "the microphone goes off · " + pl("22") + " words typed, " + pl("0") + " taken back", 0, y + 18 + hRows(h2) + 1, { cls: "i" });
       off.hidden = k < 5; off.style.whiteSpace = "normal"; off.style.width = W * C + "px";
     }
+    /* one timeline tick per quiet tick, at the loop's own 350 ms: the clock climbs 700, 1,050, 1,400 under the words
+       that name them, reads 1,750 at the fifth, then the final pass and the stop take a tick each */
     scene("sc-stop", [54, 64], {
-      ticks: 5, tps: 1, pause: 1300,
-      draw: function (api, tick) { paint(api, Math.min(5, tick)); }
+      ticks: 8, tps: 20 / 7, pause: 1300,
+      draw: function (api, tick) {
+        var q = tick <= 0 ? 1 : tick >= 5 ? 5 : Math.min(4, tick + 1), k = tick <= 0 ? 0 : tick < 5 ? 1 : Math.min(5, tick - 3);
+        paint(api, k, q);
+      }
     });
   })();
 

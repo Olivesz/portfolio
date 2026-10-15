@@ -65,7 +65,9 @@ a{color:inherit}
 #world,#snap{position:fixed;left:0;top:0;width:100%;height:100lvh;pointer-events:none;display:block}
 #world{z-index:2}
 #native{position:fixed;left:0;top:0;width:100%;height:100lvh;overflow:hidden;pointer-events:none;z-index:3}
-#snap{z-index:7;opacity:0;visibility:hidden}
+/* the dissolving snapshot covers the art and its native layers (it follows #native at the same level) and stays under
+   the DOM that reads over the art: the step count, the map's places and caption, the strip and the document */
+#snap{z-index:3;opacity:0;visibility:hidden}
 #hit{position:fixed;z-index:2;left:0;top:0;width:0;height:0;cursor:crosshair;-webkit-tap-highlight-color:transparent}
 #step{position:fixed;z-index:3;right:var(--gut);bottom:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);font-variant-numeric:tabular-nums;pointer-events:none;white-space:nowrap}
 
@@ -101,7 +103,12 @@ a{color:inherit}
 .hero .hl a:hover,.hero .hl a:focus-visible{text-decoration-color:var(--ink)}
 .hero .date{margin:16px 0 0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);opacity:0;transition:opacity var(--t-ui) var(--ease-enter)}
 .hero .date.on{opacity:1}
-@media (max-width:1023px){ .hero{width:auto} .hero h1{font-size:44px;line-height:48px} .hero .rec{margin-top:16px;font-size:13px;line-height:20px} .hero .hl{margin-top:12px;line-height:20px} .hero .date{margin-top:12px} }
+/* the landing's plant line and chapter I's kicker share one slot: the line goes as planting ends and the kicker arrives */
+.hero .hk{display:grid}
+.hero .hk>p{grid-area:1/1}
+.hero .pl{margin:16px 0 0;font:400 13px/16px var(--mono);color:var(--body);transition:opacity var(--t-ui) var(--ease-enter),visibility 0s}
+.hero .pl.off{opacity:0;visibility:hidden;transition:opacity var(--t-ui) var(--ease-enter),visibility 0s var(--t-ui)}
+@media (max-width:1023px){ .hero{width:auto} .hero h1{font-size:44px;line-height:48px} .hero .rec{margin-top:16px;font-size:13px;line-height:20px} .hero .hl{margin-top:12px;line-height:20px} .hero .date,.hero .pl{margin-top:12px} }
 #emergence,.place[data-ch=emergence]{--accent:var(--v-green)} #freeflow,.place[data-ch=freeflow]{--accent:var(--v-blue)}
 #kronos,.place[data-ch=kronos]{--accent:var(--v-amber)} #custos,.place[data-ch=custos]{--accent:var(--v-violet)}
 .card .date{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent,var(--muted));margin:0}
@@ -113,6 +120,9 @@ a{color:inherit}
 .card .pt th:first-child{padding-left:0;text-align:left;color:var(--ink)}
 .card .pt thead th{font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--muted)} .card .pt thead th:first-child{color:var(--muted)}
 .card .cv{margin:0;font:400 13px/24px var(--mono);color:var(--body)} .card .cv .nw{white-space:nowrap} .card .cv .kl{display:none}
+/* the result the table is about: KRONOS's drawdown against the others, and the line that says what it buys */
+.card .cv .kr,.card .pt tbody tr:first-child td:first-of-type{color:var(--ink)}
+@media (max-width:767px) and (max-height:660px){ .card .cv .kr0{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)} }   /* the shortest phones keep the card to its band */
 .card .meta{margin:16px 0 0;font:400 13px/24px var(--mono);color:var(--body)}
 .card .lk{margin:16px 0 0;font:400 13px/24px var(--mono)}
 .card .lk a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
@@ -239,7 +249,8 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 #mapcap.ph .mc-t span{display:block}
 #mapcap .egg-tally{right:var(--gut);top:var(--mc-y,52px);display:flex;align-items:center;gap:8px;color:var(--muted)}
 #mapcap.ph .egg-tally{left:auto;right:var(--gut)}
-#mapcap.lo .egg-tally{right:auto;left:var(--gut)}
+#mapcap.lo .egg-tally{right:auto;left:var(--gut);transition:opacity 200ms var(--ease-enter)}
+#mapcap.lo.tg .egg-tally{opacity:0}   /* on the bottom row the rising document would cover it: it goes before the document reaches it */
 body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the step counter's place; the bookend row below carries the count */
 .egg-tally .egg-tm{display:flex;gap:4px}
 .egg-tally .egg-tm i{display:block;width:8px;height:8px;box-sizing:border-box;border:1px solid var(--eh)}
@@ -305,12 +316,14 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
 #work .k-lede b{font-weight:500;color:var(--ink)}
 
 /* the ask, then the five theme blobs: a pick opens every project in the theme */
-#work .k-ask{margin-top:24px;font:400 13px/24px var(--mono);color:var(--ink)}
+#work .k-ask{margin-top:24px;font:400 13px/24px var(--mono);color:var(--ink);text-wrap:balance}   /* a narrow phone breaks it in two even lines, never a lone word */
 #work .k-a2{display:none}
 @media (hover:none){ #work .k-a1{display:none} #work .k-a2{display:inline} }
+/* where the panel has its own column the section opens on a theme already picked: the prompt says which one is open */
+@media (max-width:1023px){ #work .k-a3{display:none} }
 
 /* the stage: the blob field, with the panel beside it on desktop and under it on phone */
-#work .k-stage{display:grid;grid-template-columns:560px 304px;column-gap:32px;margin-top:16px;align-items:start;container-type:inline-size}
+#work .k-stage{display:grid;grid-template-columns:560px 304px;column-gap:32px;margin-top:24px;align-items:start;container-type:inline-size}   /* room above the first disc for its ring */
 #work .k-field{position:relative;height:416px}
 /* the field's narrow layout below 560px of width, as the script picks it, so a rotation reflows it before the page keeps its line */
 @container (width < 560px){ #work .k-field{height:468px} }
@@ -330,9 +343,12 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
 @media (hover:hover){ #work .k-blob:hover .k-bm{text-decoration:underline 1px;text-underline-offset:3px} }
 #work .k-blob:focus-visible .k-bm{text-decoration:underline 1px;text-underline-offset:3px}
 #work .k-blob:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;border-radius:50%}   /* a ring inside the blob's own circle, clear of its neighbours */
-#work .k-blob.off{color:var(--body)}
-#work .k-blob.off .k-bs path{fill:var(--copper)}
-#work .k-blob.off .k-bs path.k-edge{fill:var(--h)}   /* a theme not picked keeps its hue on its outermost cells, the growth front while it grows */
+/* every theme keeps its full hue, picked or not; the picked one wears a ring of ink cells one cell clear of its edge,
+   drawn round once its disc is whole. The ring never takes the pointer */
+#work .k-rs{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;shape-rendering:crispEdges;pointer-events:none;visibility:hidden}
+#work .k-rs path{fill:var(--ink)}
+#work .k-rs path.k-hid{visibility:hidden}
+#work .k-blob[aria-pressed=true]:not(.k-pre) .k-rs{visibility:visible}
 
 /* the panel: a status line, then the overview or the pick */
 #work .k-panel{min-width:0}
@@ -489,6 +505,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
 <div class="probe" id="pl"></div><div class="probe" id="ps"></div><div class="probe" id="pb"></div>
 <canvas id="world" aria-hidden="true"></canvas>
 <div id="native" aria-hidden="true"></div>
+<canvas id="snap" aria-hidden="true"></canvas>
 <div id="hit" aria-hidden="true"></div>
 <div id="step" aria-hidden="true"></div>
 <header id="strip">
@@ -511,7 +528,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <h1>Oliver <em>Zhang</em></h1>
       <p class="rec"><span class="f" data-src="public_resume.tex#L34-L35">CS at UT&nbsp;Austin, Turing Scholars ’28</span><span class="sep"> · </span><span class="f" data-src="public_resume.tex#L41-L51">SWE intern at tradeInsight.ai (fall&nbsp;2026) and&nbsp;IBM&nbsp;(summer&nbsp;2026)</span></p>
       <p class="hl"><a href="https://github.com/Olivesz" target="_blank" rel="noopener noreferrer">github</a> · <a href="https://www.linkedin.com/in/oliver-zhang1" target="_blank" rel="noopener noreferrer">linkedin</a> · <a href="mailto:oliver.zhang@utexas.edu" target="_blank" rel="noopener noreferrer">email</a> · <a href="resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a></p>
-      <p class="date" id="ch1">chapter i · 2023 to 2024</p>
+      <div class="hk"><p class="pl" id="plant" aria-hidden="true">Click anywhere to plant an ant.</p><p class="date" id="ch1">chapter i · 2023 to 2024</p></div>
       <p class="sr-only">One Langton’s ant walks the grid as the page scrolls: right on a dark cell, left on a lit one. Scrolling up runs it backward.</p>
       <p class="sr-only">Chapter one: dated trails from 2023 and 2024 beside the ant’s early chaos, until it falls into a repeating cycle and lays a straight road.</p>
     </div>
@@ -555,7 +572,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
           <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155"><th>SPY</th> <td>−33.7%</td> <td>0.91</td> <td>0.81</td> <td>15.0%</td></tr>
         </tbody>
       </table>
-      <p class="cv"><span class="sr-only"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">about equal weight’s Sharpe at 64% of its drawdown</span> · <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">Sharpe at rf=0, excess over cash</span> · </span><span class="nw" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample on today’s large caps</span><span class="kd"> · <span class="kw">up to </span><span class="kl">≤</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5× leverage</span></span></p>
+      <p class="cv"><span class="kr0"><span class="nw kr" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31"><span class="sr-only">about </span>equal weight’s Sharpe at 64% of its drawdown</span> · </span><span class="sr-only"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">Sharpe at rf=0, excess over cash</span> · </span><span class="nw" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample<span class="sr-only"> on today’s large caps</span></span><span class="kd"> · <span class="nw"><span class="kw">up to </span><span class="kl">≤</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5× leverage</span></span></span></p>
       </div>
       <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">A self-audit found a sign bug all 30 gates then in CI had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate.</span> There are <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span> gates now, all run in CI on real prices.</p></div>
       <p class="sr-only">A regime switch planted in synthetic returns; the fit locks onto it, and a slider moves it. Then the gates, then the run against SPY.</p>
@@ -596,7 +613,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <p class="k-lede"><b data-src="page:work-total">15</b> projects and papers in <b data-src="page:work-themes">5</b> themes.</p>
     </header>
     <p class="sr-only"><span data-src="page:work-themes">Five</span> theme buttons follow. Each names the projects to start with and counts the rest; picking one shows every project in that theme, with its links.</p>
-    <p class="k-ask" aria-hidden="true"><span class="k-a1">pick a theme</span><span class="k-a2">tap a theme</span> <span class="k-arr">↓</span> · the names inside are its best</p>
+    <p class="k-ask" aria-hidden="true"><span class="k-a1">pick a theme</span><span class="k-a2">tap a theme</span> <span class="k-arr">↓</span><span class="k-a3"> · the ringed one is open <span class="k-arr">→</span></span></p>
     <div class="k-stage">
       <div class="k-field" role="group" aria-label="themes">
         <button type="button" class="k-blob" data-k="llm" aria-pressed="false" aria-controls="k-panel" aria-label="agents &amp; LLMs, 5 projects: custos-code, inf-mem and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">agents &amp; LLMs</span><span class="k-bn">custos-code</span><span class="k-bn">inf-mem</span><span class="k-bm">+<b data-src="page:work-more-llm">3</b> more</span></span></button><button type="button" class="k-blob" data-k="verify" aria-pressed="false" aria-controls="k-panel" aria-label="verification, 5 projects: emergence and 4 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">verification</span><span class="k-bn">emergence</span><span class="k-bm">+<b data-src="page:work-more-verify">4</b> more</span></span></button><button type="button" class="k-blob" data-k="systems" aria-pressed="false" aria-controls="k-panel" aria-label="systems, 7 projects: freeflow, IEEE IPCCC and 5 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">systems</span><span class="k-bn">freeflow</span><span class="k-bn">IEEE IPCCC</span><span class="k-bm">+<b data-src="page:work-more-systems">5</b> more</span></span></button><button type="button" class="k-blob" data-k="play" aria-pressed="false" aria-controls="k-panel" aria-label="interactive, 4 projects: ai-capabilities and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">interactive</span><span class="k-bn">ai-capabilities</span><span class="k-bm">+<b data-src="page:work-more-play">3</b> more</span></span></button><button type="button" class="k-blob" data-k="data" aria-pressed="false" aria-controls="k-panel" aria-label="markets &amp; data, 4 projects: KRONOS and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">markets &amp; data</span><span class="k-bn">KRONOS</span><span class="k-bm">+<b data-src="page:work-more-data">3</b> more</span></span></button>
@@ -617,7 +634,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <p class="rv-hint" aria-hidden="true"><span class="rv-hint-f">click the page to zoom, move to pan</span><span class="rv-hint-c">tap to zoom, drag to pan</span></p>
     </header>
     <div class="rv-fig" role="group" aria-label="résumé page, full text follows">
-      <div class="rv-page" data-state="idle"><div class="rv-zoom"><img class="rv-img" src="resume-page.svg" alt="" width="612" height="792" decoding="async"></div><canvas class="rv-cv" aria-hidden="true"></canvas></div>
+      <div class="rv-page" data-state="idle"><div class="rv-zoom"><noscript><img class="rv-img" src="resume-page.svg" alt="" width="612" height="792"></noscript><img class="rv-img" data-src="resume-page.svg" alt="" width="612" height="792" decoding="async"></div><canvas class="rv-cv" aria-hidden="true"></canvas></div>
     </div>
     <div class="rv-text sr-only">
     <p class="cv-name">OLIVER ZHANG</p>
@@ -970,9 +987,14 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
 
   // the intro waits for the page image: an intro that ends on an empty box would be worse than none
   function decoded(ok) { ready = true; if (!ok) { if (state !== "done") finish(); } else if (want && state === "idle") play(); }
-  if (img.complete && img.naturalWidth) ready = true;
-  else if (img.decode) img.decode().then(function () { decoded(true); }, function () { decoded(false); });
-  else img.addEventListener("load", function () { decoded(true); });
+  // the page image is requested once the page has loaded, so it never shares the landing's first load (the markup gives
+  // it no src; a page without scripts has the noscript copy); it is in long before anyone scrolls this far
+  function fetchImg() {
+    img.src = img.getAttribute("data-src");
+    if (img.decode) img.decode().then(function () { decoded(true); }, function () { decoded(false); });
+    else img.addEventListener("load", function () { decoded(true); });
+  }
+  if (document.readyState === "complete") fetchImg(); else addEventListener("load", fetchImg);
 
   // zoom: a click, tap or the zoom button scales the page about a point; the box clips, so nothing scrolls inside
   // it. While zoomed, a mouse pans by moving over the page and touch or pen pans by dragging (touch-action:none then).
@@ -1028,14 +1050,15 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
   if (state === "idle") {
     draw(0);
     if (window.IntersectionObserver) {
-      // an arrival faster than a screen a second (a jump, an anchor, a flick) is someone who came to read: the sheet is
-      // shown done at once and the build waits behind replay; a slower scroll in plays it
+      // an arrival faster than a screen and a half a second (a jump, an anchor, a flick, a skim) is someone who came to
+      // read: the sheet is shown done at once and the build waits behind replay; a reading-pace scroll in (about a screen
+      // a second on a phone) plays it
       var enT = -1, enY = 0;
       new IntersectionObserver(function (es) {
         var e = es[es.length - 1], seen = e.intersectionRatio >= 0.35 || e.intersectionRect.height >= 0.5 * Math.min(vh(), H);
         if (state === "idle" && e.isIntersecting && !seen && enT < 0) { enT = performance.now(); enY = window.scrollY; }
         if (state === "idle" && seen) {
-          var dt = enT < 0 ? 0 : performance.now() - enT, fast = dt <= 0 || Math.abs(window.scrollY - enY) * 1000 / dt > vh();
+          var dt = enT < 0 ? 0 : performance.now() - enT, fast = dt <= 0 || Math.abs(window.scrollY - enY) * 1000 / dt > 1.5 * vh();
           enT = -1;
           if (fast) finish(); else if (ready) play(); else want = true;
         }
@@ -1058,7 +1081,6 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
   };
 })();
 </script>
-<canvas id="snap" aria-hidden="true"></canvas>
 <script type="application/json" id="facts">{
 "iaria_vms": {"v": "2.6M+", "src": "https://www.thinkmind.org/index.php?view=article&articleid=green_2023_1_10_80006", "ctx": "Azure", "note": "abstract: data from more than 2.6 million VMs"},
 "carbon_u18": {"v": "18", "src": "https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement", "ctx": "Under", "note": "award name 'Best Under 18'"},
@@ -1310,7 +1332,8 @@ function draw(F, u, L, sc) {
   if (!CHECK.ok) return;
   var T = G.tab;
   L("a b  out", T.x, T.y, 1);
-  for (var k = 0; k < 4; k++) if (s.rows[k] >= 0) L(CASES[k][0] + " " + CASES[k][1] + "  " + s.rows[k], T.x, T.y + (k + 1) * T.dy, 1);
+  // the four cases stand from the first frame; each output fills in as the cell answers it
+  for (var k = 0; k < 4; k++) L(CASES[k][0] + " " + CASES[k][1] + (s.rows[k] >= 0 ? "  " + s.rows[k] : ""), T.x, T.y + (k + 1) * T.dy, 1);
 }
 
 /* ---------- DOM inputs ---------- */
@@ -1795,8 +1818,10 @@ var MIN_WIN = 0.5;                 // Session.swift minWindowSamples 8000: no pa
 var WORDS = [];                    // what was typed, in order, with the times the pass that typed it gave
 LOG.forEach(function (p) { p[4].forEach(function (w) { WORDS.push(w); }); });
 var T_STOP = LOG[LOG.length - 1][0];
-// the scrub: key tap, recording from U_REC; the speech runs to U_SIL, the tail to U_DONE, then the stopped state
-var U_KEY = 0.01, U_REC = 0.03, U_SIL = 0.84, U_DONE = 0.97;
+// the scrub opens on the first pass that hears words (the key was tapped and the pill is listening), so a visitor who
+// arrives at speed already sees speech being heard; the speech runs to U_SIL, the tail to U_DONE, then the stopped state
+var T_HEARD = LOG.filter(function (p) { return p[3].length; })[0][0];
+var U_KEY = 0, U_REC = 0, U_SIL = 0.84, U_DONE = 0.97;
 
 function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 function norm(s) { return String(s).toLowerCase().replace(/[^a-z0-9']/g, ""); }
@@ -1892,9 +1917,16 @@ function env(t) {                  // speech loudness 0..1 at t, deterministic
   }
   return 0.04;
 }
+// each audio column's half-height in cells, once per column count: the clip's loudness never changes, only how much is shown
+var ENVC = {};
+function envCols(n, half) {
+  var key = n + "|" + half;
+  if (!ENVC[key]) { ENVC[key] = []; for (var k = 0; k < n; k++) ENVC[key].push(Math.round(env((k + 0.5) * T_STOP / n) * half)); }
+  return ENVC[key];
+}
 function tOf(u) {
   if (u < U_REC) return -1;
-  if (u < U_SIL) return (u - U_REC) / (U_SIL - U_REC) * SIM.tA;
+  if (u < U_SIL) return T_HEARD + (u - U_REC) / (U_SIL - U_REC) * (SIM.tA - T_HEARD);
   if (u < U_DONE) return SIM.tA + (u - U_SIL) / (U_DONE - U_SIL) * (T_STOP - SIM.tA);
   return T_STOP;
 }
@@ -1919,11 +1951,12 @@ function bay(x, y) { return BAYER[((y & 3) << 2) | (x & 3)]; }
 function lev(r) { return Math.min(16, Math.floor(cl(r) * 16 + 1e-9)); }   // a cell is native when bay < lev
 
 /* ---------- layout, box-local CSS px; every frame edge sits on a cell boundary ---------- */
-var SIZE = { desk: { w: 72, h: 45, c: 8 }, phone: { w: 54, h: 42, c: 6 } };
+// a short phone (an art box under 43 cells, 360x640) keeps every row in 40 cells: the audio strip is 3 cells tall, not 5
+var SIZE = { desk: { w: 72, h: 45, c: 8 }, phone: { w: 54, h: 42, c: 6 }, short: { w: 54, h: 40, c: 6 } };
 function layoutFor(phone) {
-  var z = phone ? SIZE.phone : SIZE.desk, c = z.c, W = z.w * c, H = z.h * c;
-  if (phone) return { phone: true, c: c, W: W, H: H, pad: 12, head: 18, fld: { x: 12, y: 24, lh: 24, fs: 15, lines: 2, mw: 300 }, panel: 78,
-    hud: { y: 84, kh: 18, ph: 24, kpad: 9, pw: 18 }, rule: 114, hdr: 117, rows: [134, 158], lab: 54, aud: { y0: 204, rows: 5, x0: 54, x1: W - 3 * c }, brk: 198, trl: 182, leg: 234 };
+  var sh = phone === "short", z = sh ? SIZE.short : phone ? SIZE.phone : SIZE.desk, c = z.c, W = z.w * c, H = z.h * c;
+  if (phone) return { phone: true, short: sh, c: c, W: W, H: H, pad: 12, head: 18, fld: { x: 12, y: 24, lh: 24, fs: 15, lines: 2, mw: 300 }, panel: 78,
+    hud: { y: 84, kh: 18, ph: 24, kpad: 9, pw: 18 }, rule: 114, hdr: 117, rows: [134, 158], lab: 54, aud: { y0: 204, rows: sh ? 3 : 5, x0: 54, x1: W - 3 * c }, brk: 198, trl: 182, leg: sh ? 222 : 234 };
   return { phone: false, c: c, W: W, H: H, pad: 16, head: 24, fld: { x: 16, y: 32, lh: 32, fs: 30, lines: 2, mw: 544 }, panel: 112,
     hud: { y: 128, kh: 24, ph: 32, kpad: 12, pw: 18 }, rule: 176, hdr: 184, rows: [208, 232], lab: 64, aud: { y0: 280, rows: 5, x0: 64, x1: W - 4 * c }, brk: 272, trl: 256, leg: 336 };
 }
@@ -1981,13 +2014,18 @@ function scene(u, L) {
     kx += w + c;
   });
   if (S.t >= 0) {
-    var pw = H.pw * c, px = Math.round((L.W - pw) / 2 / c) * c;
-    if (px < kx + c) px = kx + c;
+    // once stopped the pill is the app's stopped HUD: its dot stays lit, it keeps the newest words (head-truncated) and
+    // a copy button (HUDView.swift L11-L50); it widens into the free room beside the keys to hold them
+    var cw = lbW("copy") + 6 + 3 * c, tail = "", pw = S.rec ? H.pw * c : Math.ceil((4 * c + sgW("…for your country.", 13) + 8 + cw) / c) * c;
+    var px = Math.max(kx + c, Math.round((L.W - pw) / 2 / c) * c), tx0 = px + 4 * c;
+    pw = Math.min(pw, L.W - px);
+    if (!S.rec) for (var ti = APP.length - 1; ti >= 0; ti--) { var cand = "…" + APP.slice(ti).join(" "); if (tx0 + sgW(cand, 13) + 8 + cw > px + pw) break; tail = cand; }
     rects.push({ k: "pill", x: px, y: H.y, w: pw, h: H.ph, tok: "copper", fill: "residue" });
     var dz = S.rec ? c + 2 * Math.round(env(S.t) * 2) : c, dcx = px + 2 * c, dcy = H.y + (H.ph >> 1);
-    rects.push({ k: "dot", x: dcx - (dz >> 1), y: dcy - (dz >> 1), w: dz, h: dz, tok: S.rec ? "signal" : "copper", cell: [px + c + (c >> 1), H.y + (H.ph >> 1) - (c >> 1)] });
-    if (S.rec) run(px + 4 * c, H.y + ((H.ph - 24) >> 1), "listening", "pl", SRC.hud, 24);
-    else {                             // stopped: the app's copy button, named so the glyph reads (HUDView, once stopped)
+    rects.push({ k: "dot", x: dcx - (dz >> 1), y: dcy - (dz >> 1), w: dz, h: dz, tok: "signal", cell: [px + c + (c >> 1), H.y + (H.ph >> 1) - (c >> 1)] });
+    if (S.rec) run(tx0, H.y + ((H.ph - 24) >> 1), "listening", "pl", SRC.hud, 24);
+    else {
+      if (tail) run(tx0, H.y + ((H.ph - 24) >> 1), tail, "pl", SRC.script, 24);
       rects.push({ k: "copy", x: px + pw - 3 * c, y: dcy - (c >> 1) - 2, s: c, tok: "signal" });
       run(px + pw - 3 * c - 6 - lbW("copy"), H.y + ((H.ph - 16) >> 1), "copy", "lb");
     }
@@ -2049,6 +2087,7 @@ function scene(u, L) {
     if (!P) return;
     if (P.skip) { run(L.lab, y, 'under <span data-src="' + SRC.minWin + '">0.5</span> s of audio · no pass', "lb l24", null, 24); return; }
     run(0, y, typeof P.n === "number" ? 'pass <span data-src="' + SRC.script + '">' + P.n + "</span>" : P.n, "lb l24", null, 24);
+    if (!P.full.length) run(L.lab, y, "heard no words", "lb l24", null, 24);     // a pass that returned nothing says so
     var newer = rowP[1] && !rowP[1].skip ? rowP[1].full : [], nw = {};
     newer.forEach(function (w) { nw[w.i] = w.w; });
     rowsW[r].forEach(function (w) {
@@ -2060,11 +2099,11 @@ function scene(u, L) {
     });
   });
   // audio in whole cells: in question (signal-2), typed and still in the window (muted), trimmed (copper)
-  var A = L.aud, ncol = Math.floor((A.x1 - A.x0) / c), dt = T_STOP / ncol, mid = A.y0 + (A.rows >> 1) * c, resW = 0;
+  var A = L.aud, ncol = Math.floor((A.x1 - A.x0) / c), dt = T_STOP / ncol, mid = A.y0 + (A.rows >> 1) * c, resW = 0, eh = envCols(ncol, A.rows >> 1);
   for (var k = 0; k < ncol; k++) {
     var tb = (k + 0.5) * dt;
     if (S.t < 0 || tb > S.t) continue;
-    var hh = Math.round(env(tb) * (A.rows >> 1)), gx = A.x0 + k * c, tok;
+    var hh = eh[k], gx = A.x0 + k * c, tok;
     if (tb < S.offset) {
       var tr = null;
       for (var m = 0; m < S.trims.length; m++) if (tb < S.trims[m].offset) { tr = S.trims[m]; break; }
@@ -2091,9 +2130,9 @@ function scene(u, L) {
 /* ---------- the cell footprint: the same scene drawn as whole cells (what the engine stamps) ---------- */
 var FP = { key: null, out: null, map: {}, n: 0 };   // footprints by the scene they are cut from: u moves faster than the marks
 function footprint(u, phone) {
-  var fk = u + "|" + !!phone;
+  var fk = u + "|" + (phone || false);
   if (FP.key === fk) return FP.out;
-  var sc = scene(u, layoutFor(phone)), sk = !!phone + "|" + sig(sc) + "|" + sc.bars.map(function (b) { return [b.x, b.y, b.w, b.lh, b.row, b.tok, b.a]; }).join(";");
+  var sc = scene(u, layoutFor(phone)), sk = (phone || false) + "|" + sig(sc) + "|" + sc.bars.map(function (b) { return [b.x, b.y, b.w, b.lh, b.row, b.tok, b.a]; }).join(";");
   var out = FP.map[sk];
   if (!out) { if (++FP.n > 24) { FP.map = {}; FP.n = 1; } out = FP.map[sk] = footprintOf(u, phone, sc); }
   FP.key = fk; FP.out = out;
@@ -2187,26 +2226,15 @@ function mount(host, opts) {
   el.setAttribute("data-native", "freeflow");
   tx.className = "tx";
   el.appendChild(cv); el.appendChild(tx); host.appendChild(el);
-  M = { host: host, el: el, cv: cv, tx: tx, style: st, phone: !!opts.phone, L: layoutFor(!!opts.phone), tok: tokens(), html: null, key: null };
+  M = { host: host, el: el, cv: cv, tx: tx, style: st, phone: opts.phone || false, L: layoutFor(opts.phone || false), tok: tokens(), html: null, key: null };
   return M;
 }
 function unmount() {
   if (!M) return;
   M.el.remove(); M.style.remove(); M = null;
 }
-function setPhone(phone) { if (M && M.phone !== !!phone) { M.phone = !!phone; M.L = layoutFor(M.phone); M.el.className = "ff" + (M.phone ? " ph" : ""); M.key = null; } }
+function setPhone(phone) { if (M && M.phone !== (phone || false)) { M.phone = phone || false; M.L = layoutFor(M.phone); M.el.className = "ff" + (M.phone ? " ph" : ""); M.key = M.ik = null; } }
 
-// clears every cell whose Bayer rank is at or above lv, as one cached path cut out in one fill
-var RANKP = {}, rankN = 0;
-function clearRanks(g, w, h, pp, ox, oy, lv, col) {
-  var key = [w, h, pp, ox & 3, oy & 3, lv].join("|"), p = RANKP[key];
-  if (!p) {
-    if (++rankN > 64) { RANKP = {}; rankN = 1; }
-    p = RANKP[key] = new Path2D();
-    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) if (bay(ox + x, oy + y) >= lv) p.rect(x * pp, y * pp, pp, pp);
-  }
-  g.save(); g.globalCompositeOperation = "destination-out"; g.fillStyle = col; g.fill(p); g.restore();     // any opaque token: only its alpha cuts
-}
 function sig(sc) {
   var o = [];
   sc.rects.forEach(function (q) { o.push(q.k, q.x, q.y, q.w, q.h, q.tok, q.fill, q.s, q.cell && q.cell.join(",")); });
@@ -2226,10 +2254,13 @@ function draw(u, box, ctx) {
   var pos = [box[0], box[1], L.W, L.H].join(), vis = r > 0 && Math.abs(s - 1) < 0.01 && Math.abs(bh / L.H - 1) < 0.01 ? "visible" : "hidden";
   if (pos !== M.pos) { M.pos = pos; M.el.style.left = box[0] + "px"; M.el.style.top = box[1] + "px"; M.el.style.width = L.W + "px"; M.el.style.height = L.H + "px"; }
   if (M.el.style.visibility !== vis) M.el.style.visibility = vis;
+  var ik = [u, L.W, dn, org[0] & 3, org[1] & 3, dpr].join("|");
+  if (ik === M.ik) return M.sc;                           // the scene is a pure function of u and the layout: nothing to redo
+  M.ik = ik;
   // the scene's marks and runs, not u, key the redraw: a frame that moves u without moving a mark draws nothing
   if (M.el.classList.contains("dim") !== (dn === 1)) M.el.classList.toggle("dim", dn === 1);
   if (M.el.classList.contains("dim2") !== (dn === 2)) M.el.classList.toggle("dim2", dn === 2);
-  var sc = scene(u, L), T = M.tok, cv = M.cv, g, key = [org[0] & 3, org[1] & 3, dpr, L.W, dn, sig(sc)].join("|");
+  var sc = M.sc = scene(u, L), T = M.tok, cv = M.cv, g, key = [org[0] & 3, org[1] & 3, dpr, L.W, dn, sig(sc)].join("|");
   if (key === M.key) return sc;
   M.key = key;
   var CW = L.W / c * pp, CH = L.H / c * pp;
@@ -2255,10 +2286,15 @@ function draw(u, box, ctx) {
       fr(q.x, q.y + 3, a, 1, q.tok); fr(q.x, q.y + 3 + a - 1, a, 1, q.tok); fr(q.x, q.y + 3, 1, a, q.tok); fr(q.x + a - 1, q.y + 3, 1, a, q.tok);
     }
   });
+  // a column's run of same-token cells is one fill (the cells tile exactly, so the pixels are the same)
+  var run0 = null;
   sc.cells.forEach(function (q) {
     var t = q.mask != null && bay(org[0] + q.x / c, org[1] + q.y / c) >= q.mask ? q.alt : q.tok;
-    fr(q.x, q.y, c, c, t);
+    if (run0 && run0.x === q.x && run0.t === t && run0.y + run0.h === q.y) { run0.h += c; return; }
+    if (run0) fr(run0.x, run0.y, c, run0.h, run0.t);
+    run0 = { x: q.x, y: q.y, h: c, t: t };
   });
+  if (run0) fr(run0.x, run0.y, c, run0.h, run0.t);
   // every run is on from the first frame: the layer builds in by colour, never by dither
   var html = "";
   sc.runs.forEach(function (q) {
@@ -2275,13 +2311,13 @@ function selfCheck() {
   function need(name, cond, got) { d[name] = { ok: !!cond, got: got }; if (!cond) ok = false; }
   var fin = SIM.fin.text.join(" ");
   need("final text is the log's streamed text", fin === STREAMED.replace(/\s+/g, " ").trim(), fin);
-  [false, true].forEach(function (ph) {
+  [false, true, "short"].forEach(function (ph) {
     var L = layoutFor(ph), F = L.fld;
-    need((ph ? "phone" : "desktop") + " field shows its last lines inside the panel", F.y + F.lines * F.lh <= L.panel - 6 &&
+    need((ph ? (ph === "short" ? "short phone" : "phone") : "desktop") + " field shows its last lines inside the panel", F.y + F.lines * F.lh <= L.panel - 6 &&
       APP.every(function (w) { return sgW(w, F.fs) <= F.mw; }), F.lines);
     // the end state's pair fits the box: every column from the excerpt's first word to its last, and the key beside the header
     var sc = scene(1, L), mo = textW("0", 13, "mono"), rr = sc.runs.filter(function (q) { return /^w[ao]\b/.test(q.cls); });
-    need((ph ? "phone" : "desktop") + " heard-first pair fits the box", rr.length > 3 && rr.every(function (q) { return q.x >= 0 && q.x + q.t.length * mo <= L.W + 0.5; }) &&
+    need((ph ? (ph === "short" ? "short phone" : "phone") : "desktop") + " heard-first pair fits the box", rr.length > 3 && rr.every(function (q) { return q.x >= 0 && q.x + q.t.length * mo <= L.W + 0.5; }) &&
       textW("whisper.cpp base.en", 11, "mono") + 0.44 * 19 + 8 <= sc.runs.filter(function (q) { return q.cls === "kk"; })[0].x, rr.map(function (q) { return q.t; }).join(" "));
   });
   // TextProcessor capitalises a word after . ! or ?, so the app shows "Ask" where the pass log has "ask"
@@ -2335,10 +2371,13 @@ function beat(res, instruction) {
 /* ---------- the station facade the three native figures share ---------- */
 // ctx: {cell, phone, band, dpr, r, org}. The composition follows the station pitch: 8px cells get the 72-cell layout
 // (desktop, and the stacked layout from 768 to 1023), 6px cells the 54-cell one.
-function compact(ctx) { return (ctx && ctx.cell || 8) < 8; }
+function compact(ctx) {
+  if ((ctx && ctx.cell || 8) >= 8) return false;
+  var b = ctx.band; return b && b.b - b.t < (SIZE.phone.h + 1) * SIZE.phone.c ? "short" : true;
+}
 var station = {
   id: "freeflow",
-  size: function (ctx) { var z = compact(ctx) ? SIZE.phone : SIZE.desk; return { w: z.w, h: z.h }; },
+  size: function (ctx) { var k = compact(ctx), z = k === "short" ? SIZE.short : k ? SIZE.phone : SIZE.desk; return { w: z.w, h: z.h }; },
   cells: function (u, ctx) { ctx = ctx || {}; return cells(u, ctx.r || 0, ctx.org, compact(ctx)).map(function (q) { return [q[0], q[1], q[2]]; }); },
   cellsKey: function (u, ctx) { return ((ctx || {}).r || 0) > 0 ? "none" : null; },
   footprint: function (u, ctx) { return footprint(u, compact(ctx)); },
@@ -2361,7 +2400,7 @@ var station = {
 
 root.FigFreeflow = {
   version: function () { return "ff1"; }, station: station,
-  size: function (phone) { var z = phone ? SIZE.phone : SIZE.desk; return { w: z.w, h: z.h, cell: z.c }; },
+  size: function (phone) { var z = phone === "short" ? SIZE.short : phone ? SIZE.phone : SIZE.desk; return { w: z.w, h: z.h, cell: z.c }; },
   mount: mount, draw: draw, unmount: unmount, setPhone: setPhone,
   footprint: footprint, cells: cells, beat: beat, selfCheck: selfCheck,
   bay: bay, lev: lev, stateAt: stateAt, layout: layoutFor,
@@ -2537,7 +2576,9 @@ function stateAt(u, m) {
   var s = { u: u };
   var cp = u < TL.p0 ? -1 : (u - TL.p0) / (TL.p1 - TL.p0) * m.pend;
   s.pass = cp < 0 ? -1 : Math.min(m.pend - 1, Math.floor(cp));
-  s.sweep = cp < 0 ? 0 : cp >= m.pend ? 1 : cp - s.pass;      // how far this pass's estimate has replaced the last one, left to right
+  // how far this pass's estimate has replaced the last one, left to right; the first pass stands whole from the start,
+  // so the figure opens on an estimate under the planted answer, never on an empty row
+  s.sweep = cp < 0 ? 0 : cp >= m.pend || s.pass === 0 ? 1 : cp - s.pass;
   s.locked = cp >= m.pend - 1e-4;                            // the last pass has swept in: pass 4 of 4 is read before the lock
   s.gatesOn = u >= TL.b2;
   s.passed = u < TL.g0 ? 0 : Math.min(GATES.count, Math.floor((u - TL.g0) / (TL.g1 - TL.g0) * GATES.count + 1e-9));
@@ -2579,8 +2620,15 @@ function regions(u, g, r, pv) {
     // the rows stack: each beat comes in below the last, and the blocks above it step their colours down one token
     var yC = Math.floor((g.B.foot + 12) / g.c) * g.c;
     R.push({ y0: 0, y1: yC, out: "top", inn: "top", k: lk, st: rs, dim: u >= TL.b2 });
-    if (u >= TL.b2) R.push({ y0: yC, y1: g.yR, out: null, inn: "top", k: nat ? 48 : Math.min(lk, 16 + lv(u, TL.b2, TL.x2, 32)), st: nat ? stIn(TL.b2, TL.x2) : 0, dim: u >= TL.b3 });
-    if (u >= TL.b3) R.push({ y0: g.yR, y1: g.H, out: null, inn: "real", k: nat ? 48 : Math.min(lk, 16 + lv(u, TL.b3, TL.x3, 32)), st: nat ? stIn(TL.b3, TL.x3) : 0 });
+    if (nat) {
+      // the native layer stands the rows below the beat from its first frame, a token down, so the stage is whole at
+      // arrival: the gates unrun, the real-price frame without its quarters. Each brightens as its beat arrives
+      R.push({ y0: yC, y1: g.yR, out: null, inn: "top", k: 48, st: u >= TL.b2 ? Math.max(rs, Math.min(1, stIn(TL.b2, TL.x2))) : rs, dim: u < TL.b2 || u >= TL.b3, pre: u < TL.b2 });
+      R.push({ y0: g.yR, y1: g.H, out: null, inn: "real", k: 48, st: u >= TL.b3 ? Math.max(rs, Math.min(1, stIn(TL.b3, TL.x3))) : rs, dim: u < TL.b3, pre: u < TL.b3 });
+    } else {
+      if (u >= TL.b2) R.push({ y0: yC, y1: g.yR, out: null, inn: "top", k: Math.min(lk, 16 + lv(u, TL.b2, TL.x2, 32)), st: 0, dim: u >= TL.b3 });
+      if (u >= TL.b3) R.push({ y0: g.yR, y1: g.H, out: null, inn: "real", k: Math.min(lk, 16 + lv(u, TL.b3, TL.x3, 32)), st: 0 });
+    }
   } else {
     var q = { y0: 0, y1: g.H, st: rs }, V = ["planted", "gates", "real"];
     pv = pv || { view: viewFor(u, -1), from: -1 };              // without the live state (hooks, footprints): the settled view
@@ -2610,14 +2658,15 @@ function geo(W, H, c, phone) {
   g.PA = g.LG + 54 * g.qp;                                  // the right edge every plot shares
   g.gp = Math.max(4, Math.floor((g.PA + 3) / (phone ? Math.ceil(GATES.count / 2) : GATES.count))); g.gs = g.gp - (g.gp >= 10 ? 3 : 2);
   // the real-prices view: growth (log) in a short panel, the drawdown each quarter in the tall one under it
-  var hA = phone ? 80 : g.wide ? 56 : 48, hB = phone ? 40 : 36, hE = phone ? 36 : g.wide ? 40 : 32, dd = (phone ? 96 : g.wide ? 100 : 88) + 48 - hE, y;
+  // the growth panel stands on its own baseline, a gap above the drawdown panel's zero line, so the two read apart
+  var hA = phone ? 80 : g.wide ? 56 : 48, hB = phone ? 40 : 36, hE = phone ? 36 : g.wide ? 48 : 40, gap = phone ? 10 : 12, dd = phone ? 96 : g.wide ? 108 : 96, y;
   g.A = { hdr: 14, trk: 24, top: 32, h: hA };
   y = 32 + hA;
   g.B = { hdr: y + 24, top: y + 32, h: hB, foot: y + 32 + hB + 18 };
   if (phone) {                                              // view 2 is set on its own, centred later once H is known
     g.C = { hdr: 14, sq: 26, rows: 2 };
     g.C.tick = g.C.sq + 2 * g.gp; g.C.tk = g.C.tick + 20; g.C.sp = [g.C.tk + 24, g.C.tk + 40]; g.C.h = g.C.sp[1] + 4;
-    g.D = { y0: 0, hdr: 14, leg: 32, top: 42, h: hE, dd: dd };
+    g.D = { y0: 0, hdr: 14, leg: 32, top: 48, h: hE, dd: dd };
   } else {
     y = g.B.foot + 28;
     g.C = { hdr: y, sq: y + 8, rows: 1 };
@@ -2627,7 +2676,7 @@ function geo(W, H, c, phone) {
     y = g.yR;
     g.D = { y0: y, hdr: y + 20, leg: y + 36, top: y + 44, h: hE, dd: dd };
   }
-  g.D.z = g.D.top + g.D.h; g.D.yt = g.D.z + dd + 4; g.D.yl = g.D.z + dd + 20; g.D.co = g.D.yl + 20;
+  g.D.gz = g.D.top + g.D.h; g.D.z = g.D.gz + gap; g.D.yt = g.D.z + dd + 4; g.D.yl = g.D.z + dd + 20; g.D.co = g.D.yl + 20;
   var need = g.wide ? g.D.yl + 4 : g.D.co + 4;
   if (phone) need = Math.max(g.B.foot + 4, g.C.h, need);
   g.need = need;
@@ -2683,19 +2732,18 @@ function gateXY(g, i) {
   var per = Math.ceil(GATES.count / 2), r = Math.floor(i / per);
   return [(i % per) * g.gp, g.C.sq + r * g.gp];
 }
-function tickGate(s) { return s.testing >= 0 ? s.testing : s.passed === GATES.count ? GATE_LIST.map(function (q) { return q.f; }).indexOf(GATES.missing) : -1; }
 function paintGates(P, g, s) {
   for (var i = 0; i < GATES.count; i++) {
     var xy = gateXY(g, i);
     P.rect(xy[0], xy[1], g.gs, g.gs, i < s.passed ? "ink" : i === s.testing ? "signal" : "copper");
   }
 }
-function ey(g, v) { return g.D.z - Math.round(Math.log(v) / LOGTOP * g.D.h); }
+function ey(g, v) { return g.D.gz - Math.round(Math.log(v) / LOGTOP * g.D.h); }
 function dy(g, v) { return Math.round(-v / DDMAX * g.D.dd); }
 function paintRealFrame(P, g) {
   var D = g.D, i;
   if (!g.phone) P.rect(0, D.y0, g.PA, 1, "copper");
-  for (i = 1; i < MULTS.length; i++) P.rect(g.LG, ey(g, MULTS[i]), g.PA - g.LG, 1, "rule");
+  for (i = 0; i < MULTS.length; i++) P.rect(g.LG, ey(g, MULTS[i]), g.PA - g.LG, 1, "rule");
   P.rect(g.LG, D.z, g.PA - g.LG, 1, "copper");
   for (i = 0; i < DDGRID.length; i++) P.rect(g.LG, D.z + dy(g, DDGRID[i]), g.PA - g.LG, 1, "rule");
   for (i = 0; i < NQ; i++) if (/Q1$/.test(Q.q[i])) P.rect(g.LG + i * g.qp, D.yt, 1, 3, "copper");
@@ -2706,8 +2754,11 @@ function keyX(g) { return g.wide ? Math.round((g.PA - 104) / 2) : 0; }
 // quarter i owns x in [LG + i*qp, LG + (i+1)*qp): a clip at LG + n*qp shows exactly the first n quarters
 // The underwater curves lead: SPY's drawdown as a grey area with its edge, KRONOS's as a 2px amber edge over it, both
 // hanging from the zero line; growth sits above as two 1px lines on a log scale
-function paintRealSeries(P, g, n) {
+// ghost: the whole run one token down (SPY's area residue, its edges copper, KRONOS muted), the axes' first frame; the
+// live series then draws over it quarter by quarter in its own tones
+function paintRealSeries(P, g, n, ghost) {
   var D = g.D, qp = g.qp, pk = ey(g, 1), ps = ey(g, 1), pds = 0, pdk = 0;
+  if (ghost) { var P0 = P, GH = { copper: "residue", muted: "copper", "v-amber": "muted" }; P = { rect: function (x, y, w, h, t) { P0.rect(x, y, w, h, GH[t] || t); } }; }
   for (var i = 0; i < n; i++) {
     var x = g.LG + i * qp, yk = ey(g, Q.nav[i]), ys = ey(g, Q.spy[i]), hk = dy(g, Q.dd[i]), hs = dy(g, Q.spyDd[i]);
     P.rect(x, D.z + 1, qp, hs - 1, "copper");
@@ -2732,7 +2783,7 @@ function textPlanted(g, m, s) {
   heads = heads.concat(["planted answer · synthetic · EM fit in the browser", "planted answer · synthetic · EM fit"]);
   out.push(T_(0, g.A.hdr, [[heads.filter(function (h) { return h.length * CW11 <= g.PA; })[0] || heads[heads.length - 1], 11, "muted"]]));
   // the lock is named once the fit has settled; until then the row counts the passes, so no day is shown and replaced
-  if (k >= 0) out.push(T_(0, g.B.foot, s.locked ? [[lockText(m, k, g.PA), 13, "ink", SRC.em]] : [["fitting · pass " + (k + 1) + " of " + m.pend, 13, "muted", SRC.em]]));
+  if (k >= 0) out.push(T_(0, g.B.foot, s.locked ? [[lockText(m, k, g.PA), 13, "ink", SRC.em]] : [[k === 0 ? "EM fit · first estimate" : "EM fit · pass " + (k + 1) + " of " + m.pend, 13, "muted", SRC.em]]));
   return out;
 }
 function textGates(g, s) {
@@ -2863,10 +2914,12 @@ function sweepX(g, s) { return Math.round(s.sweep * g.PA / g.c) * g.c; }    // t
 function blitFrom(dst, L, x0) { var w = L.c.width - x0; if (w > 0) dst.drawImage(L.c, x0, 0, w, L.c.height, L.X0 + x0, L.Y0, w, L.c.height); }
 function blit(dst, L, cw) { if (cw === undefined) dst.drawImage(L.c, L.X0, L.Y0); else if (cw > 0) dst.drawImage(L.c, 0, 0, cw, L.c.height, L.X0, L.Y0, cw, L.c.height); }
 
-// one view's native marks into a device-px context; no ground: cells() never emits a cell where the native layer shows
-function paintView(dst, view, g, m, s, dpr) {
+// one view's native marks into a device-px context; no ground: cells() never emits a cell where the native layer shows.
+// With a region (desktop rows share the "top" view), only the parts that reach into its rows are painted
+function paintView(dst, view, g, m, s, dpr, rg) {
   var gk = geoKey + (DN ? "|dn" + DN : "");
-  if (view === "planted" || view === "top") {
+  var gy0 = g.C.sq, gy1 = g.C.sq + g.C.rows * g.gp;
+  if ((view === "planted" || view === "top") && (!rg || rg.y0 < g.B.top + g.B.h + 1)) {
     blit(dst, layer(gk + "|A|" + m.sw, 0, 0, g.W, g.B.top + g.B.h + 1, dpr, function (P) { paintPlanted(P, g, m, s); }));
     if (s.pass >= 0) {
       var est = function (k) { return layer(gk + "|B|" + m.sw + "|" + k, 0, g.B.top, g.PA, g.B.h, dpr, function (P) { paintEstimate(P, g, m, k); }); };
@@ -2875,12 +2928,14 @@ function paintView(dst, view, g, m, s, dpr) {
       blit(dst, est(s.pass), sx);
     }
   }
-  if (view === "gates" || view === "top") paintGates(painter(dst, dpr, 0, 0), g, s);
+  if (view === "gates" || (view === "top" && (!rg || (rg.y0 < gy1 && rg.y1 > gy0)))) paintGates(painter(dst, dpr, 0, 0), g, s);
   if (view === "real") {
     var y = g.phone ? 0 : g.yR;
     blit(dst, layer(gk + "|Df", 0, y, g.W, g.H - y, dpr, function (P) { paintRealFrame(P, g); }));
-    var Ls = layer(gk + "|Ds", 0, y, g.W, g.H - y, dpr, function (P) { paintRealSeries(P, g, NQ); });
-    blit(dst, Ls, s.nq >= NQ ? undefined : Math.round((g.LG + s.nq * g.qp) * dpr));
+    var Ls = layer(gk + "|Ds", 0, y, g.W, g.H - y, dpr, function (P) { paintRealSeries(P, g, NQ); }), qx = s.nq >= NQ ? undefined : Math.round((g.LG + s.nq * g.qp) * dpr);
+    // the quarters not yet drawn stand as the dim run, so the panel is never an empty frame
+    if (qx !== undefined) blitFrom(dst, layer(gk + "|Dg", 0, y, g.W, g.H - y, dpr, function (P) { paintRealSeries(P, g, NQ, true); }), qx);
+    blit(dst, Ls, qx);
   }
 }
 // the text items a view shows in one state
@@ -2977,10 +3032,21 @@ function masked(view, g, m, s, dpr, pp, r, level, invert) {
   var whole = invert ? level <= 0 : level >= 16, y0 = Math.round(r.y0 * dpr), y1 = Math.round(r.y1 * dpr);
   c2.save(); c2.beginPath();
   if (whole) { c2.rect(0, y0, cv.width, y1 - y0); c2.clip(); } else c2.clip(clipFor(g, r, level, invert, pp));
-  paintView(c2, view, g, m, s, dpr);
+  paintView(c2, view, g, m, s, dpr, r);
   c2.restore();
 }
 
+// a row waiting for its beat does not change until it arrives: it is painted once per layout and token step, then blitted
+function preRow(r, g, m, s, dpr) {
+  var key = geoKey + "|pre|" + r.inn + "|" + r.y0 + "|" + DN, L = caches[key];
+  if (!L) {
+    var Y0 = Math.round(r.y0 * dpr), cnv = offscreen(cv.width, Math.round(r.y1 * dpr) - Y0), x = cnv.getContext("2d");
+    x.translate(0, -Y0);
+    paintView(x, r.inn, g, m, s, dpr, r);
+    L = caches[key] = { c: cnv, X0: 0, Y0: Y0 };
+  }
+  c2.drawImage(L.c, L.X0, L.Y0);
+}
 function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function svgText(items, c) {
   return items.map(function (t) {
@@ -3078,26 +3144,30 @@ function draw(u, box, ctx) {
   var g = geoFor(b), m = fitFor(sw), s = stateAt(u, m), R = regions(u, g, b.r, pv);
   if (b.dim) R.forEach(function (r) { r.dim = true; });        // the station is behind you: every block dims
   phoneNow = b.phone;
-  // the pixels are a function of the discrete state and the regions' dither levels, not of u itself: redraw only when those move
-  var key = [sw, geoKey, b.x, b.y, ORG, s.pass, s.sweep >= 1 ? -1 : sweepX(g, s), s.passed, s.testing, s.nq, s.beat].concat(R.map(function (r) { return r.out + r.inn + r.k + (r.dim ? "d" : "") + (r.st || 0); })).join("|");
-  if (wrap.style.display) wrap.style.display = "";
-  if (key === last) return s;
-  last = key;
+  // the pixels are a function of the discrete state and the regions' dither levels, not of u itself: redraw only when those move.
+  // They are drawn in the box's own coordinates, so a box that only moves (a transit) moves the root and repaints nothing
+  var key = [sw, geoKey, ORG, s.pass, s.sweep >= 1 ? -1 : sweepX(g, s), s.passed, s.testing, s.nq, s.beat].concat(R.map(function (r) { return r.out + r.inn + r.k + (r.dim ? "d" : "") + (r.st || 0); })).join("|");
   var pos = [b.x, b.y, b.w, b.h].join(",");                     // the root occupies the station box, which is the layer's own box
+  if (wrap.style.display) wrap.style.display = "";
+  if (key === last && pos === posKey) return s;
   if (pos !== posKey) { wrap.style.left = b.x + "px"; wrap.style.top = b.y + "px"; wrap.style.width = b.w + "px"; wrap.style.height = b.h + "px"; posKey = pos; }
-  var DW = Math.round(b.w * b.dpr), DH = Math.round(b.h * b.dpr);
-  if (cv.width !== DW || cv.height !== DH) {
-    cv.width = DW; cv.height = DH; cv.style.width = b.w + "px"; cv.style.height = b.h + "px";
-    svg.setAttribute("width", b.w); svg.setAttribute("height", b.h); svg.setAttribute("viewBox", "0 0 " + b.w + " " + b.h);
-  }
-  c2.clearRect(0, 0, DW, DH);
   var tkey = [geoKey, sw, s.pass, s.locked, s.gatesOn, s.passed, s.testing, s.nq, ORG].concat(R.map(function (r) { return r.inn + r.k + (r.dim ? "d" : "") + (r.st || 0); })).join("|");
-  for (var i = 0; i < R.length; i++) {
-    var r = R[i];
-    DN = Math.min(2, (r.dim ? 1 : 0) + (r.st || 0));           // dimmed: one token down, every cell kept; building in: up to two
-    if (r.k < 16 && r.out) masked(r.out, g, m, s, b.dpr, b.pp, r, r.k, true);
-    if (r.k >= 32) masked(r.inn, g, m, s, b.dpr, b.pp, r, r.k - 32, false);
-    DN = 0;
+  if (key !== last) {
+    last = key;
+    var DW = Math.round(b.w * b.dpr), DH = Math.round(b.h * b.dpr);
+    if (cv.width !== DW || cv.height !== DH) {
+      cv.width = DW; cv.height = DH; cv.style.width = b.w + "px"; cv.style.height = b.h + "px";
+      svg.setAttribute("width", b.w); svg.setAttribute("height", b.h); svg.setAttribute("viewBox", "0 0 " + b.w + " " + b.h);
+    }
+    c2.clearRect(0, 0, DW, DH);
+    for (var i = 0; i < R.length; i++) {
+      var r = R[i];
+      DN = Math.min(2, (r.dim ? 1 : 0) + (r.st || 0));           // dimmed: one token down, every cell kept; building in: up to two
+      if (r.k < 16 && r.out) masked(r.out, g, m, s, b.dpr, b.pp, r, r.k, true);
+      if (r.pre && r.k >= 48) preRow(r, g, m, s, b.dpr);
+      else if (r.k >= 32) masked(r.inn, g, m, s, b.dpr, b.pp, r, r.k - 32, false);
+      DN = 0;
+    }
   }
   if (tkey !== textKey) {                                      // each item switches whole at its anchor's rank
     var items = [];
@@ -3459,17 +3529,6 @@ function footprintOf(name, u, D) {                      // [[i, j, token]] or [i
   return out;
 }
 
-// clears every cell whose Bayer rank is at or above lv, as one cached path cut out in one fill
-var RANKP = {}, rankN = 0;
-function clearRanks(g, w, h, pp, ox, oy, lv, col) {
-  var key = [w, h, pp, ox & 3, oy & 3, lv].join("|"), p = RANKP[key];
-  if (!p) {
-    if (++rankN > 64) { RANKP = {}; rankN = 1; }
-    p = RANKP[key] = new Path2D();
-    for (var y = 0; y < h; y++) for (var x = 0; x < w; x++) if (bay(ox + x, oy + y) >= lv) p.rect(x * pp, y * pp, pp, pp);
-  }
-  g.save(); g.globalCompositeOperation = "destination-out"; g.fillStyle = col; g.fill(p); g.restore();     // any opaque token: only its alpha cuts
-}
 function ctrlOrder(C) { return C.claims.slice().sort(function (a, b) { return (a.verdict === "confirmed" ? 0 : 1) - (b.verdict === "confirmed" ? 0 : 1); }); }
 function ctrlBody(cm, short) {
   var ev = cm.evidence.map(function (e) { return "#" + e; }).join(" ");
@@ -4013,7 +4072,8 @@ var NV = { pp: 0, k: 1 };                                       // the pitch thi
 function stationR(ch, now) {
   if (NV.k !== 1 || NV.pp !== devP(cssP("station"))) return 0;
   var st = chT(ch), mine = clip && clip.ch === ch ? clip : null, ct = mine ? now - mine.t0 : 0;
-  if (mine && mine.kind === "build") return Math.max(1e-3, clamp01(ct / 480));  // the layer from the first frame, stepping up its colours
+  // the layer from the first frame, stepping up its colours; a portrait phone, whose clock waits only 150ms, steps up in half the time
+  if (mine && mine.kind === "build") return Math.max(1e-3, clamp01(ct / (wide ? 480 : 240)));
   if (mine && mine.kind === "unbuild") return 1 - clamp01(ct / 240);
   // once a later station arrives, a dimmed one goes back to its cells (stepped down one token), so only the
   // held station is native; the later station's build or unbuild clip times the 240ms crossfade
@@ -4103,9 +4163,10 @@ function emergenceKeys(phone) {
 // needs no scroll for it.
 var PLAY = {
   emergence: { keys: emergenceKeys(), phone: emergenceKeys(true), live: { desk: [0, 1], phone: [0, 0.4] } },
-  // freeflow: the key press, the first passes brisk, then slow on pass 6, where 'Fry' is struck for 'Friday,' and the
-  // word waits; pass 7 agrees and types it; the rest runs out to the stop
-  freeflow:  { keys: [[0, 0], [120, 0.03], [450, 0.335], [700, 0.459], [1250, 0.513], [1450, 0.578], [1850, 0.84], [2050, 1]] },
+  // freeflow opens on the first words heard ("And so am I!"); the passes run brisk through the first sentence (to
+  // 3.99 s of audio), then slow from pass 15, which hears "watch the video." where "what your country" is said, through
+  // the passes that overturn it (to 6.32 s), and on to pass 19, which agrees; the rest runs out to the stop
+  freeflow:  { keys: [[0, 0], [450, 0.2587], [700, 0.4014], [1250, 0.4636], [1450, 0.5384], [1850, 0.84], [2050, 1]] },
   // KRONOS, for a visitor who sees it once: EM's four passes (p 0.08 each) are each read for 250 ms, pass 4 of 4
   // included, and the station holds still on the lock, its key moment, for 0.45 s. Each row below comes in by colour
   // in under 0.1 s while its count is already running: the gates run and rest briefly on 47 of 47 (the row stays
@@ -4114,16 +4175,16 @@ var PLAY = {
   kronos:    { keys: [[0, 0], [250, 0.08], [500, 0.16], [750, 0.24], [1000, 0.32], [1450, 0.32],
                       [1480, 1 / 3], [1540, 0.36], [1740, 0.65], [1780, 2 / 3],
                       [1860, 0.7], [2280, 0.93], [2400, 1]],
-  // a phone swaps views: the lock, the beat the card's phrase names, holds 1.2 s on its own view, and stays read
-  // through the 160 ms its view takes to step out. The gates run as their view steps in and rest on 47 of 47, a count
-  // the chart's header then keeps; the chart draws as it steps in, done with the swap. 2.8 s in all, so a station
-  // reached by a jump is still and finished within 3.5 s
-               phone: [[0, 0], [170, 0.08], [340, 0.16], [510, 0.24], [680, 0.32], [1880, 0.32],
-                       [1910, 1 / 3], [2040, 0.34], [2230, 0.65], [2330, 0.66],
-                       [2360, 2 / 3], [2460, 0.7], [2700, 0.93], [2780, 1]], live: { desk: [0, 1 / 3], phone: [0, 1 / 3] },
-  // its phone hold is longer than HOLD_PH: its clock is the longest on a phone, and a visitor who stops at the card
-  // and scrolls on still has the figure in frame well past its end
-               holdPh: 1.85 },
+  // a phone swaps views: each pass is read for 250 ms, as on a desktop, and the lock, the beat the card's phrase names,
+  // holds 0.5 s on its own view and stays read through the 160 ms its view takes to step out. The gates run as their
+  // view steps in and rest on 47 of 47, a count the chart's header then keeps; the chart draws as it steps in, done
+  // with the swap. 2.4 s in all, so a visitor scrolling on steadily through the hold still sees the drawdown drawn
+               phone: [[0, 0], [250, 0.08], [500, 0.16], [750, 0.24], [1000, 0.32], [1500, 0.32],
+                       [1530, 1 / 3], [1660, 0.34], [1850, 0.65], [1950, 0.66],
+                       [1980, 2 / 3], [2080, 0.7], [2320, 0.93], [2400, 1]], live: { desk: [0, 1 / 3], phone: [0, 1 / 3] },
+  // its phone hold (CSS px of scroll) is longer than HOLD_PH: its clock is the longest on a phone, and a visitor who
+  // stops at the card for 1.5 s and scrolls on sees it finish about half a second before the figure leaves the frame
+               holdPh: 1100 },
   // custos, read off its figure's phases: the claim stands unread, the rule reads the log a line at a time and narrows
   // onto the failing count, the wire runs to the claim, and the verdict holds alone before the stop; the passing control
   // comes last, once the point has landed
@@ -4135,12 +4196,15 @@ var PLAY = {
 // past the card's rise was dead scroll: the station plays on its clock, so once it had finished, scrolling through the
 // rest of the hold changed nothing. HOLD_TAIL is under one 100px notch; HOLD_MIN keeps a hold whose card barely rises
 // (a phone on its side) long enough to stop in. A phone's card never rises (it sits in the band under the art), so its
-// hold is HOLD_PH: long enough that a visitor who stops to read the card for a second and a half, then scrolls on at a
-// normal pace, sees a phone clock of up to about 2.6 s finish while the figure is still in frame (KRONOS, whose lock
-// holds on its own view, sets a longer hold of its own).
-var HOLD_TAIL = 90, HOLD_MIN = 0.34, HOLD_PH = 0.95;
+// hold is HOLD_PH CSS px of scroll: long enough that a visitor who stops to read the card for a second and a half, then
+// scrolls on at a normal pace, sees a phone clock of up to about 2.6 s finish while the figure is still in frame
+// (KRONOS, whose lock holds on its own view, sets a longer hold of its own). It is counted in px, not screens, because
+// the clock runs in time and a visitor's scroll covers px: a short phone gets the same time as a tall one.
+var HOLD_TAIL = 90, HOLD_MIN = 0.34, HOLD_PH = 800;
 // each layout plays its own key table (a phone's holds each moment on its own view)
-function setPlayKeys() { CHAPTERS.forEach(function (ch) { var k = PF ? ch.play.pk : ch.play.dk; ch.play.keys = k; ch.play.ms = k[k.length - 1][0]; }); }
+// a portrait phone's native layer steps up in 240ms and plays once its whole box is in the band (see updStation), so
+// its clock waits 300ms, not a desktop's 540: the first beat lands about where the figure does
+function setPlayKeys() { CHAPTERS.forEach(function (ch) { var k = PF ? ch.play.pk : ch.play.dk; ch.play.keys = k; ch.play.ms = k[k.length - 1][0]; ch.lead = !ch.beats[0].native ? 150 : wide ? 540 : 300; }); }
 // steps the ant walks on across a desktop hold, so every notch there still moves the road; a phone frames the ant at
 // the edge of its art box, where any walk would carry it out, so there it stands
 var CREEP = Math.round(PERIOD / 2);
@@ -4153,11 +4217,12 @@ CHAPTERS.forEach(function (ch) {
 });
 
 /* ---------- chapter I: three dated trails, each a three-state turmite (RLR) that never finds a highway ---------- */
-// a and b are main-ant steps on the step clock (2023 is about 0-3.3k, 2024 about 3.3k-6.6k); each runs 400 steps of its own
+// a and b are main-ant steps, in date order; each runs 400 steps of its own. The first starts once the landing's
+// close-up has unwound (about eight notches in), so every trail is born inside chapter I's frame
 var TR = [
-  { id: "ipccc",  label: "2023 · IEEE paper · LLM inference energy", short: "IEEE paper ’23",     cx: -22, cy: -30, dir: 1, a: 1400, b: 2300, side: "l" },
-  { id: "iaria",  label: "2023 · IARIA paper · 2.6M+ Azure VMs",     short: "Azure paper ’23",    cx: 24,  cy: -28, dir: 2, a: 2400, b: 3300, side: "r" },
-  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Carbon Hack ’24 · best under 18", ph: ["Carbon Hack ’24", "best U18"], ph2: ["Carbon Hack", "’24", "best U18"], cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
+  { id: "ipccc",  label: "2023 · IEEE IPCCC · LLM inference energy", short: "IEEE IPCCC ’23", ph3: ["IEEE IPCCC", "’23"], cx: -22, cy: -30, dir: 1, a: 2600, b: 3500, side: "l" },
+  { id: "iaria",  label: "2023 · IARIA GREEN · 2.6M+ Azure VMs",     short: "IARIA GREEN ’23",    cx: 24,  cy: -28, dir: 2, a: 3100, b: 4000, side: "r" },
+  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Carbon Hack ’24 · best under 18", ph: ["Carbon Hack ’24", "best under 18"], ph2: ["Carbon Hack ’24", "best U18"], ph3: ["Carbon Hack", "’24 · U18"], cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
 ];
 var TR_LEN = 400;
 // '2.6M+' and 'Under 18' are covered by FACTS iaria_vms and carbon_u18 (https sources: no repo line holds them)
@@ -4350,7 +4415,8 @@ function placeStations(wideL) {
       // the ant's cell needs to stay a cell inside the art; where both cannot fit, the figure stays whole
       var P = cssP("station"), fb = figureBand(P), an = wide ? [(ART_L + ART_R) / 2, (STRIP + VH - CAP) / 2] : [VW / 2, (STRIP + BAND - CAP) / 2];
       var b0 = fb.b, cx = ch.F[0] + w / 2 - ((fb.l + fb.r) / 2 - an[0]) / P;
-      var cy = wide ? ch.F[1] + h / 2 - ((fb.t + b0) / 2 - an[1]) / P : ch.F[1] + h - (b0 - 2 * P - an[1]) / P;
+      // a band too short for that two-cell gap (360x640) centres the figure instead, so its top row never meets the strip
+      var cy = wide || (h + 2) * P > b0 - fb.t ? ch.F[1] + h / 2 - ((fb.t + b0) / 2 - an[1]) / P : ch.F[1] + h - (b0 - 2 * P - an[1]) / P;
       // per axis: the figure's range in its band (centred when wider than the band), narrowed to keep the ant's cell
       // inside the art with a cell to spare, or flush; failing that the figure may use the whole art box; failing
       // that too the figure alone decides
@@ -4584,7 +4650,19 @@ function zoomBusy(now) { return !RM && now - ZD.t0 < ZD_MS + 32; }
 function updStation(ch, s, now) {
   var st = chT(ch), mine = clip && clip.ch === ch ? clip : null, ct = mine ? now - mine.t0 : 0;
   // as the pull-back starts, the last native layer dissolves into its cells on a 300ms clock (zoomR), never scrubbed
-  if (ch.beats[0].native) ch.r = stationR(ch, now) * zoomR(s, now);
+  if (ch.beats[0].native) {
+    var rr = stationR(ch, now) * zoomR(s, now);
+    // a portrait phone shows a layer only while its whole box is in the art region, so no line of it is ever cut at
+    // the band's edge: crossing an edge it is its cells, which slide under the edge as any figure's do, and once whole
+    // again it resolves back in over 240ms
+    if (!wide && rr > 0) {
+      var whole = figVis(ch, s) >= 0.999;
+      if (whole !== ch.whole) { ch.wT = ch.whole === false ? now : -1e9; ch.whole = whole; }   // only a return from crossing an edge resolves back in
+      if (!whole) rr = 0;
+      else if (!RM && now - ch.wT < 240) { rr *= clamp01((now - ch.wT) / 240); fadesBusy = true; }
+    }
+    ch.r = rr;
+  }
   var showing = st.on || (mine && mine.kind === "unbuild");
   if (st.dim !== (stDimL[ch.k] === 8) || (mine && (mine.kind === "dim" || mine.kind === "undim"))) {
     var lvl = mine && mine.kind === "dim" ? Math.round(8 * clamp01(ct / 240)) : mine && mine.kind === "undim" ? 8 - Math.round(8 * clamp01(ct / 240)) : st.dim ? 8 : 0;
@@ -4666,7 +4744,7 @@ function updStation(ch, s, now) {
 
 /* ---------- layout: one screen is the fixed 100lvh probe; section heights come from the chapter table ---------- */
 var $ = function (q) { return d0.querySelector(q); };
-var cv = $("#world"), ctx = cv.getContext("2d"), ch1El = $("#ch1");
+var cv = $("#world"), ctx = cv.getContext("2d"), ch1El = $("#ch1"), plantEl = $("#plant");
 var snapCv = $("#snap"), hit = $("#hit"), stepEl = $("#step"), strip = $("#strip"), placesEl = $("#places");
 var dpr = 1, VW = 0, VH = 0, S = 900, SVH = 900, BAND = 900, wide = true, PF = false, land = false, STRIP = 40, CAP = 40, ART_L = 576, EDGE_L = 480, ART_R = 1376, ABW = 0, ABH = 0;
 // a phone on its side: the words keep a column at the left and the art the rest, with the phone's figures and pitches
@@ -4677,8 +4755,8 @@ var PULL_NPL = 4.6, PULL_MIN = 600;  // the pull-back: 100px notches per e-fold 
 var LOCK_CAM = 0.30;              // the camera settles on the lock frame over three notches, eased: never inside one
 var ZSPAN = 800;                  // the landing's close-up unwinds over eight notches, eased: the camera steps back, it does not jump
 var CH_LIN = 0.17;                // the chaos curve's linear share: about one step per px from the first notch, not a flat start
-var PULL = 0, ZOOM = 0, MAPS = 0, DOCS = 0, NAME_S = 2.6, heroH = 0, heroTop = 96, cardTop = 96, laidWide = null, laidNative = null;
-var lastW = -1, lastS = -1, HALO = {}, BB = [0, 0, 0, 0], MAPC = [0, 0], C8 = [0, 0], C16 = [0, 0], LOCKC = [0, 0], LOCKP = 1, CI = [0, 0], PLAND = 1;
+var PULL = 0, ZOOM = 0, MAPS = 0, DOCS = 0, NAME_S = 2.6, PROOM = 0, heroH = 0, heroTop = 96, cardTop = 96, laidWide = null, laidNative = null;
+var lastW = -1, lastS = -1, HALO = {}, BB = [0, 0, 0, 0], MAPC = [0, 0], C8 = [0, 0], LOCKC = [0, 0], LOCKP = 1, CI = [0, 0], PLAND = 1;
 /* ---------- blooms: the pull-back grows each visited station's themes, in their vivid tokens, around its place ---------- */
 // Colour never competes with a figure being read: no bloom shows at a station or on the way to it. Once the camera
 // pulls back, every station the visitor reached grows its themes' lace around its place on the map, in the same hues
@@ -4806,8 +4884,39 @@ function bloomPool(b, k) {
   c3.putImageData(im, 0, 0);
   return (b.pool[k] = { cv: cv3, bx0: bx0, by0: by0, w: PW, h: PH });
 }
+// a label's dark plate on the map hides the bloom under it; the few cells it cuts off from their body beside it would read
+// as crumbs, so while the labels show, each bloom draws from a copy without them: every cell under a plate (and one
+// block round it) is dropped, then any 8-connected piece under 16 cells that touched a dropped cell goes too
+var MAPPL = null;
+function bloomPoolM(b, k) {
+  var key = "m" + k + ":" + MAPPL.v;
+  if (b.pool[key]) return b.pool[key];
+  var P = bloomPool(b, k), W = P.w, H = P.h, cv3 = d0.createElement("canvas"); cv3.width = W; cv3.height = H;
+  var c3 = cv3.getContext("2d"); c3.drawImage(P.cv, 0, 0);
+  var im = c3.getImageData(0, 0, W, H), o = new Uint32Array(im.data.buffer), cut = new Uint8Array(W * H), seen = new Uint8Array(W * H);
+  MAPPL.R.forEach(function (r) {
+    for (var y = Math.max(0, r[1] - 1 - P.by0); y < Math.min(H, r[3] + 1 - P.by0); y++)
+      for (var x = Math.max(0, r[0] - 1 - P.bx0); x < Math.min(W, r[2] + 1 - P.bx0); x++) { var i = y * W + x; if (o[i]) { cut[i] = 1; o[i] = 0; } }
+  });
+  for (var i0 = 0; i0 < W * H; i0++) {
+    if (!o[i0] || seen[i0]) continue;
+    var st = [i0], comp = [], touch = false; seen[i0] = 1;
+    while (st.length) {
+      var j = st.pop(), jx = j % W, jy = (j / W) | 0; comp.push(j);
+      for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) {
+        var nx = jx + dx, ny = jy + dy; if ((!dx && !dy) || nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
+        var q = ny * W + nx; if (cut[q]) touch = true;
+        if (o[q] && !seen[q]) { seen[q] = 1; st.push(q); }
+      }
+    }
+    if (touch && comp.length < 16) comp.forEach(function (c) { o[c] = 0; });
+  }
+  c3.putImageData(im, 0, 0);
+  return (b.pool[key] = { cv: cv3, bx0: P.bx0, by0: P.by0, w: W, h: H });
+}
 function drawBlooms(s, Ox, Oy, pp, k, R) {
   if (!BL.length) return;
+  var plates = MAPPL && placesLive && k === MAPPL.k && pp === MAPPL.pp && Ox === MAPPL.Ox && Oy === MAPPL.Oy;   // the map's own frame, labels showing
   var ins = Math.round(B_TEXT * dpr);                // never within 24 CSS px of an art-box edge that faces text or the nav
   var rx = R.x + (R.side === "l" || !wide ? ins : 0), ry = R.y + ins, rx1 = R.x1 - (wide ? 0 : ins), ry1 = R.y1 - ins;   // a phone's full-width box: both sides
   rx = Ox + Math.ceil((rx - Ox) / pp) * pp; ry = Oy + Math.ceil((ry - Oy) / pp) * pp;   // on whole cells of the frame's grid
@@ -4817,7 +4926,8 @@ function drawBlooms(s, Ox, Oy, pp, k, R) {
     var b = BL[i], stg = bloomStage(b, s);
     if (stg < 0) continue;
     var src = b.cv, sx = 0, sy = stg * b.h, sw = b.w, sh = b.h, x = Ox + Math.floor((b.x0 - X0) / k) * pp, y = Oy + Math.floor((b.y0 - Y0) / k) * pp;
-    if (k !== 1) {
+    if (plates && stg === BLOOM_K - 1) { var PM = bloomPoolM(b, k); src = PM.cv; sy = 0; sw = PM.w; sh = PM.h; x = Ox + PM.bx0 * pp; y = Oy + PM.by0 * pp; }
+    else if (k !== 1) {
       if (stg !== BLOOM_K - 1) continue;              // a zoomed-out frame only ever shows whole blooms
       var P = bloomPool(b, k); src = P.cv; sy = 0; sw = P.w; sh = P.h; x = Ox + P.bx0 * pp; y = Oy + P.by0 * pp;
     }
@@ -4884,9 +4994,13 @@ function layout() {
   var hero = $("#b-hero"), hs = hero.firstElementChild;
   hs.style.top = heroTop + "px"; hero.style.paddingTop = heroTop + "px";
   heroH = hs.offsetHeight;
+  PROOM = heroTop + heroH + 24;                                      // a wide landing's plant room starts under the hero's lines
   hero.style.height = Math.round(heroTop + heroH + LOCK_END * S) + "px";
   var h1 = hs.querySelector("h1");
-  NAME_S = (LOCK_END * S + heroTop + h1.offsetHeight - (wide ? STRIP : BAND)) / S;   // the name's bottom passes under the strip, or the phone's art band
+  // the strip takes the name as the hero's goes: on a wide screen as its bottom passes under the strip; on a phone, where
+  // the name leaves a row at a time under the art band, as that row steps to half, so the two cross over and the name
+  // is never off screen in both places
+  NAME_S = (LOCK_END * S + heroTop + (wide ? h1.offsetHeight - STRIP : -BAND - 20)) / S;
   function gr(b, x0, y0, x1, y1) { if (x0 < b[0]) b[0] = x0; if (y0 < b[1]) b[1] = y0; if (x1 > b[2]) b[2] = x1; if (y1 > b[3]) b[3] = y1; }
   // transit k is long enough for card k-1 to pass under the strip before card k sticks, for card k to rise from below
   // the fold only once the figure before it has dimmed (no card fades in), and for the camera to move at most 250 CSS px
@@ -4898,6 +5012,13 @@ function layout() {
   C8 = [(tb[0] + tb[2]) / 2, (tb[1] + tb[3]) / 2];
   // a phone art band is too small for chapter I at its 6px pitch: the chaos pitch drops to whatever fits it, with a label line above and below
   CHAOS_FIT = !PF ? 1e9 : Math.max(1, Math.floor(Math.min((ABW - 32) * dpr / (tb[2] - tb[0]), (ABH - 48) * dpr / (tb[3] - tb[1]))));
+  // chapter I's last frame: a wide art box holds the whole of it at the largest whole pitch that leaves the dated labels
+  // their room (never under the 8px chaos pitch); a phone's at CHAOS_FIT. The frames before it scale from this one
+  var fw = PF ? (ABW - 32) * dpr : CH_FILL[0] * ABW * dpr, fh = PF ? (ABH - 48) * dpr : CH_FILL[1] * ABH * dpr;
+  var tfit = Math.min(fw / (tb[2] - tb[0]), fh / (tb[3] - tb[1]));
+  PCH = PF ? CHAOS_FIT : Math.max(devP(cssP("chaos")), Math.floor(tfit));
+  var sc1 = Math.min(1, PCH / tfit);                                  // never a frame the box has no room for
+  CHM = [fw * sc1, fh * sc1, Math.max(PCH, devP(cssP("close")))]; CHT = null;
   // the lock frames chapter I whole, with the road's first periods leaving it, at no more than the chaos pitch: nothing
   // of the chaos or its trails is cut while the road appears. A phone fits it; a desktop whose art box is too narrow
   // for it at the chaos pitch (1024px) steps in only to the station pitch, so the lock never zooms out and back in
@@ -4905,7 +5026,7 @@ function layout() {
   for (q = LOCK; q <= LOCK + LOCK_RUN + PERIOD; q++) gr(bl, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
   LOCKC = [(bl[0] + bl[2]) / 2, (bl[1] + bl[3]) / 2];
   var lfit = Math.max(1, Math.floor(Math.min((ABW - (wide ? 64 : 32)) * dpr / (bl[2] - bl[0]), (ABH - 48) * dpr / (bl[3] - bl[1]))));
-  LOCKP = Math.min(devP(cssP("chaos")), CHAOS_FIT, PF ? lfit : Math.max(devP(cssP("station")), lfit));
+  LOCKP = Math.min(PCH, PF ? lfit : Math.max(devP(cssP("station")), lfit));
   var prevH = heroH, t = LOCK_END, prevC = LOCKC, cpx = devP(cssP("station")) / dpr, fold = (SVH - cardTop) / S + 0.05;
   CHAPTERS.forEach(function (ch) {
     var blk = $("#b-" + ch.id), card = blk.firstElementChild;
@@ -4921,7 +5042,8 @@ function layout() {
     // card k beside station k-1 (or a phone's art band mid-transit); it then rises to its sticky top, and the hold
     // ends HOLD_TAIL later
     ch.lift = Math.max(0, SVH - 16 - ch.cardH - ch.ctop);
-    ch.hold = ch.arrive + Math.max(PF && !land ? ch.play.holdPh || HOLD_PH : HOLD_MIN, (ch.lift + HOLD_TAIL) / S); t = ch.hold; prevH = ch.cardH;
+    // a phone on its side gets a px floor too (0.6 of the portrait hold), so its clock is not left behind in 0.2 s
+    ch.hold = ch.arrive + Math.max(PF ? (land ? 0.6 : 1) * (ch.play.holdPh || HOLD_PH) / S : HOLD_MIN, (ch.lift + HOLD_TAIL) / S); t = ch.hold; prevH = ch.cardH;
     ch.btop = Math.round(ch.arrive * S + cardTop + ch.lift);
     card.style.position = "sticky"; card.style.top = ch.ctop + "px";
     blk.style.top = ch.btop + "px";
@@ -4939,8 +5061,6 @@ function layout() {
   var lc0 = CHAPTERS[CHAPTERS.length - 1];
   PULL = t; ZOOM = PULL + Math.min(0.8, Math.max(0, lc0.ctop + lc0.cardH - (wide ? STRIP : BAND)) / S + 0.02);
   // camera poses
-  var b6 = [1e9, 1e9, -1e9, -1e9]; for (q = 0; q <= 600; q++) gr(b6, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
-  C16 = [(b6[0] + b6[2]) / 2, (b6[1] + b6[3]) / 2];
   // the landing frames its whole walk (to INTRO_MAX) at the largest whole device pitch that keeps it inside LAND_FILL
   // of the art box: the chaos grows into the frame while the name is read, and then owns it
   var bI = [1e9, 1e9, -1e9, -1e9]; for (q = 0; q <= INTRO_MAX; q++) gr(bI, posX[q], posY[q], posX[q] + 1, posY[q] + 1);
@@ -5026,21 +5146,29 @@ function measureRows(c) {
     var cr = rg.getClientRects();
     // the name is kept whole where it slides under the strip, which takes it over, so it is never hidden early; under a
     // phone's art band nothing takes it over, so it steps out like any other row
-    var keep = wide && n.parentElement.closest("h1") ? 1 : 0, link = n.parentElement.closest("a,button") ? 1 : 0;
-    for (var i = 0; i < cr.length; i++) if (cr[i].width > 0 && cr[i].height > 0) rs.push([cr[i].top - er.top, cr[i].bottom - er.top, keep, link]);
+    var keep = wide && n.parentElement.closest("h1") ? 1 : 0, link = n.parentElement.closest("a,button") ? 1 : 0, ttl = n.parentElement.closest("h1,h2") ? 1 : 0;
+    for (var i = 0; i < cr.length; i++) if (cr[i].width > 0 && cr[i].height > 0) rs.push([cr[i].top - er.top, cr[i].bottom - er.top, keep, link, ttl]);
   }
   rs.sort(function (a, b) { return a[0] - b[0]; });
   var rows = [];                         // runs on one line (a link, a table row's cells) share a row
-  rs.forEach(function (r) { var l = rows[rows.length - 1]; if (l && r[0] < (l[0] + l[1]) / 2) { if (r[1] > l[1]) l[1] = r[1]; l[2] |= r[2]; l[3] |= r[3]; } else rows.push(r.slice()); });
+  rs.forEach(function (r) { var l = rows[rows.length - 1]; if (l && r[0] < (l[0] + l[1]) / 2) { if (r[1] > l[1]) l[1] = r[1]; l[2] |= r[2]; l[3] |= r[3]; l[4] |= r[4]; } else rows.push(r.slice()); });
   // a card's closing row of links leaves with the line above it: no row of links is ever left without its card's text
   var lr = rows[rows.length - 1];
   if (rows.length > 1 && lr[3] && !lr[2] && !rows[rows.length - 2][2]) { rows[rows.length - 2][1] = Math.max(rows[rows.length - 2][1], lr[1]); rows.pop(); }
+  c.ti = -1; for (var t = 0; t < rows.length; t++) if (rows[t][4]) { c.ti = t; break; }
   c.rows = rows; c.h = er.height; c.stale = false;
   c.bot = c.blk.getBoundingClientRect().bottom + window.scrollY;
 }
 function maskOf(c, Y, E) {
   var rs = c.rows, top = Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y), a = -1, b = -1;
   if (top > c.T - 0.5) return "";        // at its sticky top or on its way up: a card being read is never dimmed
+  // a phone's card leaves as one piece: from its sticky top until its title reaches the edge every row fades together,
+  // so no row is ever on screen without its title (a card whose title already sits past the edge at rest keeps the rows rule)
+  if (PF && c.ti >= 0 && c.T + rs[c.ti][0] > E) {
+    var tt = top + rs[c.ti][0], al = Math.round(clamp01((tt - E) / (c.T + rs[c.ti][0] - E)) * 100) / 100, A0 = c.h;
+    for (var k = 0; k < rs.length; k++) if (top + rs[k][0] >= E) { A0 = rs[k][0]; break; }
+    return al >= 1 && A0 <= 0 ? "" : "linear-gradient(transparent " + A0 + "px, rgba(0,0,0," + al + ") " + A0 + "px)";
+  }
   for (var j = 0; j < rs.length && b < 0; j++) {
     var rt = top + rs[j][0];
     if (rs[j][2] && top + rs[j][1] <= E) continue;          // a kept row already past the edge is under it anyway
@@ -5087,7 +5215,55 @@ function frameHead(k, pp) {
 /* ---------- the camera and the step are pure functions of scroll ---------- */
 function lerp2(a, b, e) { return [a[0] + (b[0] - a[0]) * e, a[1] + (b[1] - a[1]) * e]; }
 function logP(pa, pb, e) { return pa === pb ? pa : Math.exp(Math.log(pa) + (Math.log(pb) - Math.log(pa)) * e); }
-function chaosPitchE(step) { return ss((step - 600) / 1400); }           // 16 until step 600, then 16 -> 8 by step 2,000
+// chapter I's camera holds what is drawn and what is about to be: the walk to CH_LA steps past the current one, and each
+// dated trail from TR_IN steps before it starts, eased in. The frame's edges move linearly between lattice points
+// CH_Q steps apart, so the camera steps back smoothly as the chaos grows, the chaos is never small in its box, and no
+// trail is born outside the band. It ends on chapter I whole at PCH, the lock's starting pose
+var CH_LA = 400, CH_Q = 200, TR_IN = 900, CH_FILL = [0.92, 0.82], PCH = 8, CHM = [1, 1, 1], CHB = null;
+function chBox(q) {                     // the walk's bounding box to step q, from a table built once
+  if (!CHB) {
+    CHB = new Int16Array(4 * (LOCK + 1));
+    for (var i = 0, b = [1e9, 1e9, -1e9, -1e9]; i <= LOCK; i++) {
+      b = [Math.min(b[0], posX[i]), Math.min(b[1], posY[i]), Math.max(b[2], posX[i] + 1), Math.max(b[3], posY[i] + 1)];
+      CHB.set(b, 4 * i);
+    }
+  }
+  return 4 * Math.max(0, Math.min(LOCK, q));
+}
+function chFrame(st) {
+  var q0 = Math.floor(st / CH_Q) * CH_Q, f = clamp01((st - q0) / CH_Q), i0 = chBox(q0 + CH_LA), i1 = chBox(q0 + CH_Q + CH_LA), b = [0, 0, 0, 0], j;
+  for (j = 0; j < 4; j++) b[j] = CHB[i0 + j] + (CHB[i1 + j] - CHB[i0 + j]) * f;
+  for (var t = 0; t < TR.length; t++) {
+    var w = ss((st - (TR[t].a - TR_IN)) / TR_IN), bb = TR[t].bb;
+    if (w > 0) for (j = 0; j < 4; j++) b[j] += ((j < 2 ? Math.min(b[j], bb[j]) : Math.max(b[j], bb[j])) - b[j]) * w;
+  }
+  return { c: [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2], pf: Math.max(PCH, Math.min(CHM[2], CHM[0] / (b[2] - b[0]), CHM[1] / (b[3] - b[1]))) };
+}
+function chRaw(s) {
+  var st = stepAt(s), F = chFrame(st), zw = 1 - ss(clamp01(s * S / ZSPAN)), cz = lerp2(F.c, CI, zw);
+  return [cz, Math.min(logP(F.pf, PLAND, zw), chHold(st, cz))];
+}
+// the camera only ever steps back through chapter I: the pitch is held to its running least, read from a table over s
+// built once per layout and landing step (the landing's clock has stopped by the first scroll)
+var CHT = null, CHT_N = 400;
+function chMono(s) {
+  var key = introStep();
+  if (!CHT || CHT.key !== key) {
+    CHT = { key: key, m: new Float32Array(CHT_N + 1) };
+    for (var i = 0, m = 1e9; i <= CHT_N; i++) { m = Math.min(m, chRaw(LAND_CHAOS * i / CHT_N)[1]); CHT.m[i] = m; }
+  }
+  return CHT.m[Math.min(CHT_N, Math.floor(s / LAND_CHAOS * CHT_N))];
+}
+// the largest pitch about centre c that keeps the walk so far and every trail about to start inside the landing's fill
+// of the art box: while the close-up unwinds, a trail's coming steps the camera back instead of starting off frame
+function chHold(st, c) {
+  var i = chBox(st), b = [CHB[i], CHB[i + 1], CHB[i + 2], CHB[i + 3]];
+  for (var t = 0; t < TR.length; t++) {
+    var w = ss((st - (TR[t].a - TR_IN)) / TR_IN), bb = TR[t].bb;
+    if (w > 0) for (var j = 0; j < 4; j++) b[j] += ((j < 2 ? Math.min(b[j], bb[j]) : Math.max(b[j], bb[j])) - b[j]) * w;
+  }
+  return Math.min(LAND_FILL * ABW * dpr / 2 / Math.max(c[0] - b[0], b[2] - c[0], 0.5), LAND_FILL * ABH * dpr / 2 / Math.max(c[1] - b[1], b[3] - c[1], 0.5));
+}
 function mapPitch() { return mapHalf ? 0.5 : mapP; }
 function chaosF(q) { return CH_LIN * q + (1 - CH_LIN) * Math.pow(q, 2.2); }   // 0 to 1, increasing
 // the landing is not a still: on load the one ant walks its first INTRO steps on a clock, so its multi-hue chaos is on
@@ -5143,14 +5319,13 @@ function stepAt(s) {
 function poseLock() { return [LOCKC, LOCKP]; }
 function poseSt(k) { return [CHAPTERS[k].C, devP(cssP("station"))]; }
 function camAt(s) {
-  var ps = devP(cssP("station")), pc = Math.min(devP(cssP("chaos")), CHAOS_FIT), p16 = devP(cssP("close")), a, b, e, key;
+  var a, b, e, key;
   if (s < LAND_CHAOS) {
-    if (RM) return s < LAND ? { c: CI, pf: PLAND, key: 0 } : { c: C8, pf: pc, key: 1 };
-    e = chaosPitchE(stepAt(s));
-    var zw = 1 - ss(clamp01(s * S / ZSPAN));
-    return { c: lerp2(lerp2(C16, C8, e), CI, zw), pf: logP(logP(p16, pc, e), PLAND, zw) };
+    if (RM) return s < LAND ? { c: CI, pf: PLAND, key: 0 } : { c: C8, pf: PCH, key: 1 };
+    var r = chRaw(s);
+    return { c: r[0], pf: s < LAND ? r[1] : Math.min(r[1], chMono(s)) };
   }
-  if (s < LOCK_END) { a = [C8, pc]; b = poseLock(); e = (s - LAND_CHAOS) / LOCK_CAM; key = 2; }
+  if (s < LOCK_END) { a = [C8, PCH]; b = poseLock(); e = (s - LAND_CHAOS) / LOCK_CAM; key = 2; }
   else {
     var k = 0;
     while (k < CHAPTERS.length && s >= CHAPTERS[k].hold) k++;
@@ -5192,20 +5367,26 @@ function mapMix(s) { return RM ? (s >= (ZOOM + MAPS) / 2 ? 1 : 0) : ss((s - ZOOM
 var LOCK_TXT = "", MAP_TXT = "The whole walk. " + (TOUCH ? "Tap" : "Click") + " a label to go back there.";
 // the landing says 'scroll ↓' first; its three-cell cue steps down on a 400ms clock and stops for good on the first scroll
 var SCROLL_TXT = "scroll ↓", PLANT_TXT = TOUCH ? "Tap anywhere to plant an ant." : "Click anywhere to plant an ant.";
+plantEl.textContent = PLANT_TXT;  // the hero's own line, worded for the pointer in hand
 var LAND_TXT = SCROLL_TXT;       // what the landing row draws, joined in line order
 var cueOn = true, cueT0 = -1, cueTimer = 0, CUE_MS = 400, leftLanding = false;
 function instrAt(s) {
-  if (s < T0_ON) return leftLanding ? PLANT_TXT : LAND_TXT;
+  if (s < T0_ON) return LAND_TXT;
   if (s < LAND_CHAOS) return "Scrolling walks the ant. Scroll up and it runs backward.";   // sentence case, like the lock line after it
   if (s < LOCK_END) return LOCK_TXT;
   for (var i = 0; i < CHAPTERS.length; i++) {
     // from the moment the figure builds (on0, before the arrival on a desktop), so the line arrives with what it describes
     var ch = CHAPTERS[i], st = chT(ch), a0 = ch.on0 === undefined ? ch.arrive : Math.min(ch.on0, ch.arrive);
-    if (s >= a0 && s < (i === CHAPTERS.length - 1 ? ZOOM : ch.hold + 0.05)) {   // the last: through the rest
+    // it ends where the next figure starts building (its on0), so the figure it describes is never left uncaptioned;
+    // the last runs through the rest
+    var nx = CHAPTERS[i + 1], end = nx ? Math.max(ch.hold + 0.05, nx.on0 === undefined ? nx.arrive : Math.min(nx.on0, nx.arrive)) : ZOOM;
+    if (s >= a0 && s < end) {
       var bt = ch.beats[Math.max(0, st.bi)], lw = ch.play.live && ch.play.live[PF ? "phone" : "desk"];
       var said = bt.instructionAt ? bt.instructionAt(nativeU(bt.native, beatU(ch, 0, s))) : bt.instruction;
       // a later beat whose figure keeps an earlier beat's input live says so, so the end state still invites the touch
-      return ch.tryClause && st.bi > 0 && lw && ch.pb.p > lw[0] && ch.pb.p <= lw[1] ? said + " " + ch.tryClause : said;
+      // once the station is left behind its inputs are parked, so the line stops inviting the touch
+      if (st.dim && ch.tryClause) said = said.replace(" " + ch.tryClause, "");
+      return ch.tryClause && !st.dim && st.bi > 0 && lw && ch.pb.p > lw[0] && ch.pb.p <= lw[1] ? said + " " + ch.tryClause : said;
     }
   }
   return "";                         // the map's caption is the DOM row #mapcap, shown with the places
@@ -5310,8 +5491,11 @@ function render(s, now) {
   NV.pp = sc.pp; NV.k = sc.k;
   // the pull-back steps through whole device pitches; below 6 each step is a 17-50% jump in scale, so the frame before
   // it dissolves over the new one (the jumps' own dissolve, shorter) and the zoom reads as one move, not a run of pops
-  if (!RM && s > ZOOM && s < MAPS && lastPP && (sc.k !== lastK || (sc.pp !== lastPP && Math.min(sc.pp, lastPP) < 6)) && now >= snapEnd)
-    snapFade(sc.k !== lastK || Math.min(sc.pp, lastPP) * 3 <= Math.max(sc.pp, lastPP) * 2 ? POP_BIG_MS : POP_MS);   // a step of a third or more dissolves longer
+  // a step of a fifth or more (5 to 4 and below) dissolves longer, and starts its own dissolve even while the last one
+  // runs (snapFade takes the snapshot afresh from the canvas): only the small steps wait for a running dissolve to end
+  var popBig = lastPP && (sc.k !== lastK || Math.min(sc.pp, lastPP) * 5 <= Math.max(sc.pp, lastPP) * 4);
+  if (!RM && s > ZOOM && s < MAPS && lastPP && (sc.k !== lastK || (sc.pp !== lastPP && Math.min(sc.pp, lastPP) < 6)) && (now >= snapEnd || popBig))
+    snapFade(popBig ? POP_BIG_MS : POP_MS);
   lastPP = sc.pp; lastK = sc.k;
   if (RM && sc.key !== undefined && sc.key !== rmKey) { if (rmKey !== -1) snapFade(200); rmKey = sc.key; }
   seekMain(sc.step); seekTrails(sc.step);
@@ -5333,6 +5517,13 @@ function render(s, now) {
     var row = Math.floor((Math.round(sc.artB * dpr) - Oy) / pp), coreB = Oy + row * pp;
     R = { x: 0, y: top, x1: W, y1: Math.max(top, coreB), bandR: row - 4, side: "b" };
   }
+  // a wide landing also draws a visitor's ant planted in the empty column under the hero's lines, left of the art, so
+  // a click there plants where it lands; the chaos never reaches that room, which is open only while a visitor's ant is
+  var R2 = null;
+  if (wide && !land && !sc.m && (plants.length || fading.length)) {
+    var r2y = Oy + Math.ceil((Math.round(PROOM * dpr) - Oy) / pp) * pp;
+    if (r2y < R.y1 && R.x > 0) R2 = { x: 0, y: r2y, x1: R.x, y1: R.y1 };
+  }
   view = { Ox: Ox, Oy: Oy, pp: pp, k: k, R: R, sc: sc };
   ctx.clearRect(0, 0, W, H);
   ctx.globalAlpha = 1;
@@ -5341,13 +5532,13 @@ function render(s, now) {
   var capY = wide ? H - capD : R.y1, capB = wide ? H : Math.round((sc.artB + CAP) * dpr);
   ctx.fillRect(wide ? Math.round(sc.artL * dpr) : 0, capY, W, capB - capY);
   ctx.save();
-  ctx.beginPath(); ctx.rect(R.x, R.y, R.x1 - R.x, R.y1 - R.y); ctx.clip();
+  ctx.beginPath(); ctx.rect(R.x, R.y, R.x1 - R.x, R.y1 - R.y); if (R2) ctx.rect(R2.x, R2.y, R2.x1 - R2.x, R2.y1 - R2.y); ctx.clip();
   drawBlooms(s, Ox, Oy, pp, k, R);                                  // the blooms go under the halo and the world
   // the ant's halo goes under the world, so it tints only empty cells and every lit cell keeps its token
   var st = sc.step, axC = cX(posX[st]), ayC = cY(posY[st]), antOn = !(HAND && targetS * S >= HAND.y - 0.25);
   if (antOn && !RM && k === 1 && pp >= 2) ctx.drawImage(haloFor(pp), axC - 3 * pp, ayC - 3 * pp);
   var sw = src.width, sh = src.height;
-  var sx0 = Math.max(0, Math.floor((R.x - Ox) / pp)), sy0 = Math.max(0, Math.floor((R.y - Oy) / pp));
+  var sx0 = Math.max(0, Math.floor(((R2 ? R2.x : R.x) - Ox) / pp)), sy0 = Math.max(0, Math.floor((R.y - Oy) / pp));
   var sx1 = Math.min(sw, Math.ceil((R.x1 - Ox) / pp)), sy1 = Math.min(sh, Math.ceil((R.y1 - Oy) / pp));
   if (sx1 > sx0 && sy1 > sy0) ctx.drawImage(src, sx0, sy0, sx1 - sx0, sy1 - sy0, Ox + sx0 * pp, Oy + sy0 * pp, (sx1 - sx0) * pp, (sy1 - sy0) * pp);
   // the ant's own cell, then the visitors' heads
@@ -5397,7 +5588,7 @@ function render(s, now) {
     for (c4 = 0; c4 < 3; c4++) {
       x = Ox + (R.bandC + c4) * pp; if (x + pp <= 0) continue;
       th = (c4 + 1) * 4;
-      for (var ry = Math.floor((R.y - Oy) / pp); Oy + ry * pp < R.y1; ry++) if (bay(R.bandC + c4, ry) >= th) ctx.fillRect(x, Oy + ry * pp, pp, pp);
+      for (var ry = Math.floor((R.y - Oy) / pp); Oy + ry * pp < (R2 ? R2.y : R.y1); ry++) if (bay(R.bandC + c4, ry) >= th) ctx.fillRect(x, Oy + ry * pp, pp, pp);
     }
   } else if (!wide && sc.m < 1) {
     for (c4 = 0; c4 < 4; c4++) {
@@ -5427,14 +5618,26 @@ function render(s, now) {
       if (al <= 0) continue;
       // the label sits beside its own turmite, which is the box it is placed around rather than an obstacle
       var lines = !PF ? [t.label] : t.ph || [t.short], own = t.n > 0 ? obst.splice(1 + trIx(i), 1) : null;
-      var r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), t.side === "l" ? ["l", "tl", "bl", "t", "b", "r"] : ["r", "tr", "br", "t", "b", "l", "lb", "lt"], bounds, obst);
-      if (!r2 && PF && t.ph2) { lines = t.ph2; r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), ["tz"], bounds, obst); }   // a narrower phone: three short lines
+      var r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), t.side === "l" ? ["l", "tl", "bl", "t", "b", "r", "tg"] : ["r", "tr", "br", "t", "b", "l", "lb", "lt", "tg"], bounds, obst);
+      if (!r2 && PF && t.ph2) { lines = t.ph2; r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), t.side === "l" ? ["l", "tl", "bl", "t", "b", "r", "tg"] : ["r", "tr", "br", "t", "b", "l", "lb", "lt", "tg", "tz"], bounds, obst); }   // a narrower phone: the shorter award, the name and year never split
+      if (!r2 && PF && t.ph3) { lines = t.ph3; r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), ["b", "t", "tg", "bl", "tl", "br", "tr", "l", "r", "tz"], bounds, obst); }   // its slot taken (a small phone's lock): the year alone, under or over its trail
       if (own) obst.splice(1 + trIx(i), 0, own[0]);
       // a label that changes sides, or comes back after finding no slot, fades in at its new place: it never jumps
       // across its trail at full opacity
       var sig = r2 ? labSide["tr" + i] + "|" + lines.length : "";
       if (labSig[i] !== undefined && sig !== labSig[i] && sig && !RM) { FADES["tr" + i] = { on: true, a: 0, t: now, a0: 0 }; al = 0; fadesBusy = true; }
       labSig[i] = sig;
+      // a label that loses its slot fades where it stood beside its trail (moving with it), without its plate, so whatever
+      // took the slot is never covered
+      var hold = fade("trh" + i, !!r2, now, 200), tx0 = cX(t.bb[0]), ty0 = cY(t.bb[1]), LL = labLast[i];
+      if (!r2 && hold > 0 && LL && !RM) {
+        for (var lq = 0; lq < LL.l.length; lq++) {
+          var lqy = LL.r[1] + ty0 - LL.y + 16 * lq * dpr;
+          if (lqy < R.y + 4 * dpr) continue;                    // a line the band's top edge would cut is not drawn
+          txt(LL.l[lq], LL.r[0] + tx0 - LL.x, lqy + 11 * dpr, 11, TOKCSS[T_BODY], al * hold, "left");
+        }
+      }
+      if (r2) labLast[i] = { r: r2.slice(), l: lines.slice(), x: tx0, y: ty0 };
       if (r2) {
         labR.push(r2);
         var px4 = Math.round(4 * dpr), py2 = Math.round(2 * dpr);
@@ -5469,13 +5672,21 @@ function render(s, now) {
     if (r3 && r3[4] === 1) obst.push([Math.round(r3[2]), (lockOb[1] + lockOb[3]) / 2 - 3 * dpr, lockOb[0], (lockOb[1] + lockOb[3]) / 2 + 3 * dpr]);
     if (r3 && r3[4] === 2) obst.push([(lockOb[0] + lockOb[2]) / 2 - 3 * dpr, Math.round(r3[3]), (lockOb[0] + lockOb[2]) / 2 + 3 * dpr, lockOb[1]]);
   }
+  for (i = 0; i < CHAPTERS.length; i++) { CHAPTERS[i].inkOn = false; CHAPTERS[i].inkLab = 0; }
   if (pcss >= 4 && sc.m < 0.5) {
+    var atStP = k === 1 && pp === devP(cssP("station"));
     for (i = 0; i < CHAPTERS.length; i++) {
-      var ch = CHAPTERS[i], cst = chT(ch), sa = fade("st" + i, cst.on && !cst.dim, now, 200);
+      // a figure's names stay with its cells for as long as they are drawn at the station pitch: left behind, both step
+      // down one token together (ink to body, the accent to muted); a phone drops them with the cells once the next is up
+      var ch = CHAPTERS[i], cst = chT(ch), sa = fade("st" + i, cst.on && !stFar[ch.k] && atStP, now, 200);
+      ch.inkOn = !ch.beats[0].native && !!ch.cb && cst.on && !stFar[ch.k] && atStP && figVis(ch, s) > 0; ch.inkLab = sa >= 0.5 ? ch.labels.length : 0;
       if (sa <= 0) continue;
+      var lDim = stDimL[ch.k] >= 4;
       for (var q = 0; q < ch.labels.length; q++) {
-        var L = ch.labels[q];
-        txt(L[0], cX(ch.F[0] + L[1]), cY(ch.F[1]) + L[2] * pp - 2 * dpr, L[3] ? 13 : 11, L[3] === "accent" ? TOKCSS[CH_ACCENT[ch.id]] : L[3] ? TOKCSS[T_INK] : TOKCSS[T_MUTED], sa * L[4], "left");
+        var L = ch.labels[q], ly = cY(ch.F[1]) + L[2] * pp - 2 * dpr;
+        if (ly - (L[3] ? 13 : 11) * dpr < R.y || ly > R.y1) continue;           // a name the art's edge would cut is not drawn
+        txt(L[0], cX(ch.F[0] + L[1]), ly, L[3] ? 13 : 11,
+            lDim ? TOKCSS[L[3] && L[3] !== "accent" ? T_BODY : T_MUTED] : L[3] === "accent" ? TOKCSS[CH_ACCENT[ch.id]] : L[3] ? TOKCSS[T_INK] : TOKCSS[T_MUTED], sa * L[4], "left");
       }
     }
   }
@@ -5572,7 +5783,7 @@ function placeCtl(sc) {
     });
   });
 }
-var labSide = {}, labSig = [];
+var labSide = {}, labSig = [], labLast = [];
 function trIx(i) { var n = 0; for (var j = 0; j < i; j++) if (TR[j].n > 0) n++; return n; }
 // the dated labels speak in chapter I only: they fade as the first station arrives, with the trails receding, so none
 // hangs over a figure later in the walk
@@ -5622,7 +5833,8 @@ function placeLabel(key, lines, bx0, by0, bx1, by1, pref, B, obst) {
   var C = { l: [bx0 - g - w, cy2], r: [bx1 + g, cy2], t: [cx2, by0 - g - h], b: [cx2, by1 + g],
     tl: [bx0 - w, by0 - g - h], tr: [bx1, by0 - g - h], bl: [bx0 - w, by1 + g], br: [bx1, by1 + g],
     lb: [bx0 - g - w, Math.min(B[3], by1) - h], lt: [bx0 - g - w, Math.max(B[1], by0)],   // beside it, flush with its foot or its head
-    tz: [B[2] - w, by0 - g - h] };                                // above it, flush with the band's far edge
+    tz: [B[2] - w, by0 - g - h],                                  // above it, flush with the band's far edge
+    tg: [cx2, by0 - Math.round(2 * dpr) - h] };                   // just over it, where the band leaves no more room
   function fits(side) {
     var c = C[side], r = [c[0], c[1], c[0] + w, c[1] + h];
     if (r[0] < B[0] || r[1] < B[1] || r[2] > B[2] || r[3] > B[3]) return null;
@@ -5673,17 +5885,11 @@ function phoneMarkers(cX, cY, R, now) {
   ctx.globalAlpha = 1;
 }
 var drawn = [], wrapOver = {};
-// the landing's caption row: 'scroll ↓' (13, ink) and its cue alone; once the landing has been left, the row is the plant line, drawn as an ordinary line.
-// A phone sets it on the step counter's baseline (from the band, not the cell grid); where the plant hint would run into
-// the counter, the row takes two lines, as a two-line caption does, and the hint goes under 'scroll ↓'
-var PLANT_HINT = TOUCH ? "or tap to plant an ant." : "or click anywhere to plant an ant.";
+// the landing's caption row: 'scroll ↓' (13, ink) and its cue. The plant line is the hero's own (#plant), on screen from
+// the first paint. A phone sets the row on the step counter's baseline (from the band, not the cell grid)
 function landLine(ia, now) {
-  var H = cv.height, ix = Math.round((wide ? ART_L : 16) * dpr), two = false, bB = Math.round((BAND - CAP) * dpr);
-  if (!wide) {
-    var hx0 = ix + textW(SCROLL_TXT, 13) + Math.round(12 * dpr) + devP(4) + Math.round(12 * dpr);
-    two = hx0 + textW("· " + PLANT_HINT, 11) > Math.round((VW - 16) * dpr) - textW(stepEl.textContent || "step 0,000", 11) - Math.round(12 * dpr);
-  }
-  var b1 = wide ? H - Math.round(16 * dpr) : bB + Math.round((two ? 18 : 26) * dpr);
+  var H = cv.height, ix = Math.round((wide ? ART_L : 16) * dpr), bB = Math.round((BAND - CAP) * dpr);
+  var b1 = wide ? H - Math.round(16 * dpr) : bB + Math.round(26 * dpr);
   txt(SCROLL_TXT, ix, b1, 13, TOKCSS[T_INK], ia, "left");
   ctx.font = Math.round(13 * dpr) + 'px "JetBrains Mono", ui-monospace, monospace';
   var cx = ix + Math.round(ctx.measureText(SCROLL_TXT).width) + Math.round(12 * dpr), c = devP(4), g = devP(2), cy = b1 - Math.round(12 * dpr);
@@ -5695,11 +5901,7 @@ function landLine(ia, now) {
     for (var r = 0; r < 3; r++) { ctx.fillStyle = TOKCSS[r === ph ? T_INK : T_COPPER]; ctx.fillRect(cx, cy + r * (c + g), c, c); }
     if (!RM) { clearTimeout(cueTimer); cueTimer = setTimeout(wake, CUE_MS - (now - cueT0) % CUE_MS + 4); }   // one frame per step: the rAF loop still stops between steps
   }
-  var hOn = introT0 >= 0 && now - introT0 >= INTRO_MS + 500 && targetS === 0 && !leftLanding, ha = fade("plant", hOn, now, 400) * ia;
-  if (!hOn && introT0 >= 0 && targetS === 0 && !plantWake) plantWake = setTimeout(function () { plantWake = 0; wake(); }, Math.max(16, introT0 + INTRO_MS + 520 - now));
-  if (ha > 0) { if (two) txt(PLANT_HINT, ix, bB + Math.round(34 * dpr), 11, TOKCSS[T_MUTED], ha, "left"); else txt("· " + PLANT_HINT, cx + c + Math.round(12 * dpr), b1, 11, TOKCSS[T_MUTED], ha, "left"); }
 }
-var plantWake = 0;
 function txt(t, X, Y, size, col, alpha, align) {
   drawn.push([t, Math.round(X / dpr), Math.round(Y / dpr), +alpha.toFixed(2)]);
   ctx.globalAlpha = alpha; ctx.font = Math.round(size * dpr) + 'px "JetBrains Mono", ui-monospace, monospace';
@@ -5743,7 +5945,7 @@ function settleClipsFor(s) {
 }
 
 /* ---------- the map: every place is a link that teleports ---------- */
-var PLACES = [], mapCap = $("#mapcap"), mapCapOn = false;
+var PLACES = [], mapCap = $("#mapcap"), mapCapOn = false, capLoY = -1, capTg = false;
 // the caption: two sentences, one line on a wide screen; a phone sets one per line and points at its list of names
 function setMapCap() {
   var t = mapCap.firstElementChild, i = MAP_TXT.indexOf(". ") + 1, b = MAP_TXT.slice(i + 1);
@@ -5808,6 +6010,7 @@ function layoutPlacesLive() {
   var ROW = STRIP + 12, minX = 12, minY = ROW + 24, maxX = VW - 12, maxY = (wide ? VH : BAND) - CAP - 8, taken = [], segs = [];
   // where the art took the label columns' room it reaches the caption row's right end: the tally moves to the bottom row's left
   var lo = wide && !land && MAPROOM[1] < 64;
+  capLoY = lo ? VH - CAP + 12 : -1;
   mapCap.classList.toggle("ph", !wide); mapCap.classList.toggle("lo", lo); setMapCap(); taken.push([0, ROW, VW, ROW + 16]);
   mapCap.style.setProperty("--mc-t", (wide ? ROW : BAND - CAP + 6) + "px"); mapCap.style.setProperty("--mc-y", (lo ? VH - CAP + 12 : wide ? ROW : BAND - CAP + 6) + "px");
   PLACES.forEach(function (p) {
@@ -5819,6 +6022,7 @@ function layoutPlacesLive() {
   });
   while (leaders.firstChild) leaders.removeChild(leaders.firstChild);
   if (!wide) {
+    MAPPL = null;
     PLACES.forEach(function (p, i) { p.el.style.transform = "translate(16px," + Math.round(BAND + 16 + 32 * i) + "px)"; });
     taken.push([0, BAND - CAP, VW, BAND]);                         // the caption, two lines in the band's caption row
     eggMapLayout(toCss, [minX, minY, maxX, maxY], taken, segs);
@@ -5881,6 +6085,11 @@ function layoutPlacesLive() {
     var lb = [pos[0] - 2, pos[1] - 2, pos[0] + w + 2, pos[1] + h + 2]; lb.lab = 1; p.pos = pos; taken.push(lb);
   });
   PLACES.forEach(function (p) { p.el.style.transform = "translate(" + Math.round(p.pos[0]) + "px," + Math.round(p.pos[1]) + "px)"; });
+  // each label's plate in the map frame's blocks, for the blooms (bloomPoolM)
+  MAPPL = { v: (MAPPL ? MAPPL.v : 0) + 1, k: k, pp: pp, Ox: Ox, Oy: Oy, R: PLACES.map(function (p) {
+    var x0 = Math.round(p.pos[0]), y0 = Math.round(p.pos[1]);
+    return [Math.floor((x0 * dpr - Ox) / pp), Math.floor((y0 * dpr - Oy) / pp), Math.ceil(((x0 + p.el.offsetWidth) * dpr - Ox) / pp), Math.ceil(((y0 + p.el.offsetHeight) * dpr - Oy) / pp)];
+  }) };
   leaders.setAttribute("width", VW); leaders.setAttribute("height", VH);
   segs.forEach(function (sg) {
     var ln = d0.createElementNS(SVGNS, "line");
@@ -5950,11 +6159,16 @@ d0.addEventListener("click", function (e) {
   teleport(go === "top" ? 0 : docS("#" + go));
   landFocus(go === "top" ? $(".hero") : $("#" + go));
 });
-// the whole landing plants: a click beside or below the art (the hero column, a phone's thumb zone) plants on the
-// art cell nearest to it
+// the whole landing plants, at the pointer wherever the art can draw it: in the art, or on a wide screen in the column
+// under the hero's lines (two cells in from its top, so the ant is not born at the room's edge). Elsewhere (the hero's
+// lines, a phone's thumb zone under its band) it plants on the drawable cell nearest the pointer
 function plantClick(e) {
   if (!view || targetS >= P_ON) return;          // planting lives on the landing only
-  var v = view, X = Math.min(v.R.x1 - 1, Math.max(v.R.x, e.clientX * dpr)), Y = Math.min(v.R.y1 - 1, Math.max(v.R.y, e.clientY * dpr));
+  var v = view, R = v.R, px = e.clientX * dpr, py = e.clientY * dpr;
+  function near(r) { var x = Math.min(r.x1 - 1, Math.max(r.x, px)), y = Math.min(r.y1 - 1, Math.max(r.y, py)); return [x, y, Math.hypot(x - px, y - py)]; }
+  var q = near(R);
+  if (wide && !land && !v.sc.m && R.x > 0) { var q2 = near({ x: 0, y: Math.round(PROOM * dpr) + 2 * v.pp, x1: R.x, y1: R.y1 }); if (q2[2] < q[2]) q = q2; }
+  var X = q[0], Y = q[1];
   var cx = Math.floor((X - v.Ox) / v.pp) * v.k + X0, cy = Math.floor((Y - v.Oy) / v.pp) * v.k + Y0;
   var now = performance.now();
   plantAt(cx, cy, now); acks.push({ x: cx, y: cy, t: now }); if (acks.length > 8) acks.shift();
@@ -5966,7 +6180,7 @@ var acks = [];
 
 /* ---------- one smoothing stage: shown += d * (1 - exp(-dt / 100ms)); stalls and jumps snap ---------- */
 var TAIL = 0.75;
-var running = false, lastT = 0, targetS = 0, shownS = 0, named = false, placesOn = false, placesLive = null, parkT = 0, placesTop = 0, docTop = 1e9;
+var running = false, lastT = 0, targetS = 0, shownS = 0, named = false, placesOn = false, placesWait = false, placesWaitT = 0, placesLive = null, parkT = 0, placesTop = 0, docTop = 1e9;
 // a phone lists the places in rows under its art band: only once the last card has left that column (its foot at or
 // above the first row) and the camera rests on the map pose (within 2 CSS px), so every row's marker is in the band
 function phoneMapClear(s, slack) {
@@ -5975,12 +6189,19 @@ function phoneMapClear(s, slack) {
   return cbot <= BAND + 16 + slack && d <= 2 + slack;
 }
 function syncDom() {
-  ch1El.classList.toggle("on", targetS >= LAND);                     // chapter I's kicker arrives with the chaos and leaves with the hero
+  ch1El.classList.toggle("on", targetS >= LAND && targetS < LOCK_END);   // chapter I's kicker arrives with the chaos and goes at the lock, so it never hangs alone over chapter II
+  plantEl.classList.toggle("off", targetS >= P_ON);                  // in the same slot, the plant line holds while planting lives
   if (!named && targetS >= NAME_S) { named = true; strip.classList.add("named"); }
   else if (named && targetS < NAME_S - 0.005) { named = false; strip.classList.remove("named"); }
   var fitNow = Math.round(camAt(targetS).pf) <= (mapHalf ? 1 : mapP) && targetS >= PULL;
   var fitOff = targetS < PULL || Math.round(camAt(targetS).pf) > (mapHalf ? 1 : mapP) + 1;
   if (!wide) { if (!phoneMapClear(targetS, 0)) fitNow = false; if (!phoneMapClear(targetS, 4)) fitOff = true; }
+  // the places come in over the map as drawn, never over a larger pitch or a dissolve still running: until then the
+  // frame loop asks again each frame
+  var tn = performance.now(), drawnFit = NV.pp > 0 && NV.pp <= (mapHalf ? 1 : mapP) && tn >= snapEnd;
+  if (!placesWait) placesWaitT = tn;
+  placesWait = !placesOn && fitNow && !drawnFit && tn - placesWaitT < 1200;      // bounded: the places never wait on a frame that will not come
+  if (placesWait) fitNow = false;
   if (!placesOn && fitNow) placesOn = true;
   else if (placesOn && fitOff) placesOn = false;
   // the rising document slides over the places: they stay live until it reaches the highest one, and a place leaves
@@ -5991,10 +6212,13 @@ function syncDom() {
     placesLive = live; clearTimeout(parkT);
     if (live) { placesEl.classList.remove("park"); placesEl.classList.add("on"); }
     else { placesEl.classList.remove("on"); parkT = setTimeout(function () { placesEl.classList.add("park"); }, 200); }   // park once faded out
+    if (MAPPL) wake();                                               // the blooms trade their crumbs with the plates (drawBlooms)
   }
   PLACES.forEach(function (p) { var hid = live && p.vb > dv; if (p.hid !== hid) { p.hid = hid; p.el.style.visibility = hid ? "hidden" : ""; } });
   var cOn = live;
   if (cOn !== mapCapOn) { mapCapOn = cOn; mapCap.classList.toggle("on", cOn); }
+  var tg = capLoY >= 0 && dv < capLoY + 16 + 24;                  // a bottom-row tally leaves 24px before the document's edge
+  if (tg !== capTg) { capTg = tg; mapCap.classList.toggle("tg", tg); }
 }
 function wake() { if (!running) { running = true; lastT = 0; requestAnimationFrame(frame); } }
 function frame(now) {
@@ -6016,7 +6240,8 @@ function frame(now) {
   // once the document covers the whole viewport the art is out of sight: no redraw until it shows again
   var pBusy = shownS * S >= docTop && targetS * S >= docTop ? false : render(shownS, now);
   var iBusy = shownS < LAND && introT0 >= 0 && introEnd < 0 && introLive(now) < INTRO_MAX;
-  if (clip || pBusy || cBusy || plBusy || iBusy || fadesBusy || zoomBusy(now) || FigKronos.swapping() || shownS !== targetS) requestAnimationFrame(frame);
+  if (placesWait) syncDom();
+  if (clip || pBusy || cBusy || plBusy || iBusy || fadesBusy || placesWait || zoomBusy(now) || FigKronos.swapping() || shownS !== targetS) requestAnimationFrame(frame);
   else running = false;
 }
 addEventListener("scroll", function () {
@@ -6092,11 +6317,32 @@ var ric = window.requestIdleCallback ? function (f) { return window.requestIdleC
 var warmGen = 0;
 function warmStations() {
   var ch = chById("kronos"), M = ch && ch.beats[0].native, gen = ++warmGen;
+  warmHalos(gen);
   if (!M || !M.warm) return;
   ric(function step(dl) {
     if (gen !== warmGen) return;                                       // a newer layout started its own pass
     var ms = Math.max(2, Math.min(8, (dl && dl.timeRemaining ? dl.timeRemaining() : 6) - 1));
     if (!M.warm(stationCtx(1, nativeOrg(ch)), ms)) ric(step);
+  });
+}
+// the ant's halo sprite for every device pitch the camera passes through on the way to the map, in the order the walk
+// meets them, so no frame of a zoom stops to build one
+function warmHalos(gen) {
+  if (RM) return;
+  ric(function () {
+    if (gen !== warmGen) return;
+    var list = [], seen = {}, prev = 0;
+    for (var s = 0; s <= MAPS; s += 0.01) {
+      var pp = Math.max(1, Math.round(camAt(s).pf)), q0 = prev ? Math.min(prev, pp) : pp, q1 = prev ? Math.max(prev, pp) : pp;
+      for (var q = q0; q <= q1; q++) if (q >= 2 && !seen[q]) { seen[q] = 1; list.push(q); }
+      prev = pp;
+    }
+    ric(function step(dl) {
+      if (gen !== warmGen) return;
+      var t0 = performance.now(), ms = Math.max(2, Math.min(8, (dl && dl.timeRemaining ? dl.timeRemaining() : 6) - 1));
+      while (list.length && performance.now() - t0 < ms) haloFor(list.shift());
+      if (list.length) ric(step);
+    });
   });
 }
 
@@ -6191,6 +6437,9 @@ window.__walk = {
   get ZOOM() { return ZOOM; },
   // a native station's resolve level as last drawn: 1 its native layer, 0 its cells, between only while a clip runs
   resolveLevel: function (id) { var ch = chById(id); return ch && ch.beats[0].native ? +(ch.r || 0).toFixed(4) : null; },
+  // a station's figure in the last drawn frame: whether any of its cells are drawn in the art region, and how many of
+  // its labels were painted at alpha >= 0.5
+  stationInk: function (id) { var ch = chById(id); return ch ? { cells: !!ch.inkOn, labels: ch.inkLab || 0 } : null; },
   // a beat-local cell of chapter id, beat b, as a CSS-px box in the last drawn frame (for controls registered over cells)
   cellRect: function (id, b, x, y) {
     var ch = CHAPTERS.filter(function (c) { return c.id === id; })[0]; if (!ch || !view || !ch.beats[b]) return null;
@@ -6233,20 +6482,43 @@ window.__walk = {
   work.setAttribute("data-js", "");
 
   function hh(i) { var x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
+  // the disc's edge at angle t: radius r wobbled by three hashed sines
+  function edgeR(r, seed, t) {
+    return r * (1 + 0.03 * Math.sin(2 * t + 6.28 * hh(seed + 1)) + 0.02 * Math.sin(5 * t + 6.28 * hh(seed + 2)) + 0.01 * Math.sin(9 * t + 6.28 * hh(seed + 3)));
+  }
   // a ragged disc of radius r on a c-px grid: solid inside, a rim under two cells deep dithered out by the page's Bayer
-  // matrix, the edge wobbled by three hashed sines. Each cell carries its growth order: centre first, edge last
+  // matrix. Each cell carries its growth order: centre first, edge last
   function discCells(r, c, seed) {
-    var p1 = 6.28 * hh(seed + 1), p2 = 6.28 * hh(seed + 2), p3 = 6.28 * hh(seed + 3);
     var n = Math.ceil(r * 1.07 / c) + 1, out = [];
     for (var y = -n; y < n; y++) for (var x = -n; x < n; x++) {
-      var px = (x + 0.5) * c, py = (y + 0.5) * c, d = Math.sqrt(px * px + py * py), t = Math.atan2(py, px);
-      var rr = r * (1 + 0.03 * Math.sin(2 * t + p1) + 0.02 * Math.sin(5 * t + p2) + 0.01 * Math.sin(9 * t + p3));
+      var px = (x + 0.5) * c, py = (y + 0.5) * c, d = Math.sqrt(px * px + py * py), rr = edgeR(r, seed, Math.atan2(py, px));
       var e = (rr - d) / (1.6 * c);
       if (e < -0.25) continue;
       if (e < 1 && BAY[((y & 3) << 2) | (x & 3)] >= Math.round((e + 0.25) / 1.25 * 16)) continue;
       out.push([x, y, d / rr + 0.12 * hh(seed * 97 + x * 31 + y * 7)]);
     }
     return { cells: out, n: n };
+  }
+  // the ring a picked theme wears: a dotted line of cells, one cell clear of the disc's outermost cells, following its wobble,
+  // cut into RK stages by angle from twelve o'clock, clockwise. A ring cell within a cell and a half of another theme's
+  // cell is left out, so where two blobs nearly touch the ring breaks rather than running into the neighbour
+  var RK = 8;
+  function ringCells(r, c, seed, n, at, others) {
+    var out = [], m = n + 3;
+    for (var y = -m; y < m; y++) for (var x = -m; x < m; x++) {
+      var px = (x + 0.5) * c, py = (y + 0.5) * c, d = Math.sqrt(px * px + py * py), t = Math.atan2(py, px), u = (d - edgeR(r, seed, t)) / c;
+      if (u < 1.4 || u >= 2.4) continue;
+      out.push([x, y, (t + 2.5 * Math.PI) % (2 * Math.PI), at[0] + px, at[1] + py]);
+    }
+    // every other cell round the ring, in order of angle: a marquee, lighter than the disc it marks
+    out.sort(function (a, b) { return a[2] - b[2]; });
+    return out.filter(function (e, k) {
+      if (k & 1) return false;
+      var lim = 1.5 * c;
+      for (var j = 0; j < others.length; j++) for (var i = 0; i < others[j].length; i += 2)
+        if (Math.abs(others[j][i] - e[3]) < lim && Math.abs(others[j][i + 1] - e[4]) < lim) return false;
+      return true;
+    }).map(function (e) { return [e[0], e[1], Math.min(RK - 1, Math.floor(e[2] / (2 * Math.PI) * RK))]; });
   }
 
   // the state at rest: the first theme where the panel sits beside the field, none where it sits under it
@@ -6263,8 +6535,15 @@ window.__walk = {
     if (w === lastW && m === mode) return;
     lastW = w; mode = m;
     var ox = Math.max(0, Math.round((w - L.W) / 2));
+    // each disc first, with its cells' centres in field px, so a ring can keep clear of every other theme
+    var Q = blobs.map(function (b) {
+      var k = b.getAttribute("data-k"), r = L.R * Math.sqrt(D.members[k].length / 7), seed = 11 * D.order.indexOf(k) + 3, q = discCells(r, L.c, seed);
+      var at = [ox + L.at[k][0], L.at[k][1]], ctr = [];
+      q.cells.forEach(function (e) { ctr.push(at[0] + (e[0] + 0.5) * L.c, at[1] + (e[1] + 0.5) * L.c); });
+      return { r: r, seed: seed, q: q, at: at, ctr: ctr };
+    });
     blobs.forEach(function (b, i) {
-      var k = b.getAttribute("data-k"), n = D.members[k].length, r = L.R * Math.sqrt(n / 7), q = discCells(r, L.c, 11 * D.order.indexOf(k) + 3);
+      var k = b.getAttribute("data-k"), q = Q[i].q;
       var box = 2 * q.n * L.c, svg = b.querySelector(".k-bs");
       b.style.width = box + "px"; b.style.height = box + "px";
       b.style.transform = "translate(" + Math.round(ox + L.at[k][0] - box / 2) + "px," + Math.round(L.at[k][1] - box / 2) + "px)";
@@ -6283,16 +6562,36 @@ window.__walk = {
       });
       b._cells = order.length;
       if (!grown && !reduce) b.classList.add("k-pre");
+      var rs = b.querySelector(".k-rs");
+      if (!rs) { rs = document.createElementNS(NS, "svg"); rs.setAttribute("class", "k-rs"); rs.setAttribute("aria-hidden", "true"); rs.setAttribute("focusable", "false"); svg.after(rs); }
+      rs.setAttribute("viewBox", "0 0 " + box + " " + box);
+      var others = Q.filter(function (o, j) { return j !== i; }).map(function (o) { return o.ctr; }), rd = [];
+      for (s = 0; s < RK; s++) rd.push("");
+      ringCells(Q[i].r, L.c, Q[i].seed, q.n, Q[i].at, others).forEach(function (e) {
+        rd[e[2]] += "M" + ((e[0] + q.n) * L.c) + " " + ((e[1] + q.n) * L.c) + "h" + L.c + "v" + L.c + "h-" + L.c + "z";
+      });
+      while (rs.firstChild) rs.removeChild(rs.firstChild);
+      rd.forEach(function (dd) { var p = document.createElementNS(NS, "path"); p.setAttribute("d", dd); rs.appendChild(p); });
     });
     if (grown && !growing) show(K);
   }
   function show(upTo, b) {
     (b ? [b] : blobs).forEach(function (x) {
-      [].forEach.call(x.querySelectorAll(".k-bs path"), function (p) { var st = +p.getAttribute("data-st"); p.classList.toggle("k-hid", st >= upTo); p.classList.toggle("k-edge", st === Math.min(upTo, K) - 1); });
+      [].forEach.call(x.querySelectorAll(".k-bs path"), function (p) { p.classList.toggle("k-hid", +p.getAttribute("data-st") >= upTo); });
       x.classList.toggle("k-pre", upTo < K);
     });
   }
-  // the blobs grow once, the first time the field is within a screen of view: centre out, a stage every 50ms, one theme after another;
+  // the picked theme's ring draws round from twelve o'clock in about a quarter second, once its disc is whole
+  var ringTs = [];
+  function ringDraw(b) {
+    ringTs.forEach(clearTimeout); ringTs = [];
+    var ps = [].slice.call(b.querySelectorAll(".k-rs path"));
+    if (reduce) { ps.forEach(function (p) { p.classList.remove("k-hid"); }); return; }
+    ps.forEach(function (p) { p.classList.add("k-hid"); });
+    ps.forEach(function (p, s) { ringTs.push(setTimeout(function () { p.classList.remove("k-hid"); }, 30 * (s + 1))); });
+  }
+  // the blobs grow once, the first time the field is within a screen and a half of view: centre out, a stage every 32ms,
+  // one theme after another 60ms apart, so all five are whole with their names within 0.6s, before a skimmer has passed;
   // nothing moves while they do, and reduced motion shows them whole
   function grow() {
     if (grown) return;
@@ -6301,7 +6600,11 @@ window.__walk = {
     growing = true;
     D.order.forEach(function (k, i) {
       var b = work.querySelector('.k-blob[data-k="' + k + '"]');
-      for (var s = 1; s <= K; s++) (function (s) { timers.push(setTimeout(function () { show(s, b); if (i === D.order.length - 1 && s === K) growing = false; }, 120 * i + 50 * s)); })(s);
+      for (var s = 1; s <= K; s++) (function (s) { timers.push(setTimeout(function () {
+        show(s, b);
+        if (s === K && picked === k) ringDraw(b);
+        if (i === D.order.length - 1 && s === K) growing = false;
+      }, 60 * i + 32 * s)); })(s);
     });
   }
 
@@ -6327,11 +6630,13 @@ window.__walk = {
     var text = status(k);
     if (announce) live.textContent = k ? text : "all themes";
     work.setAttribute("data-pick", k || "");
+    var pb = k && work.querySelector('.k-blob[data-k="' + k + '"]');
+    if (pb && announce && !pb.classList.contains("k-pre")) ringDraw(pb);
   }
   function keepInView() {
-    // phone: the panel sits under the field; bring the first project up, but never the status line (the theme picked,
-    // in its hue) past the strip
-    if (mode !== "narrow") return;
+    // wherever the panel sits under the field (a phone, upright or on its side): bring the first project up, but never
+    // the status line (the theme picked, in its hue) past the strip
+    if (restK()) return;
     var first = work.querySelector(".k-pane.cur .k-card") || work.querySelector(".k-pane.cur");
     if (!first) return;
     var strip = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--strip")) || 40;
@@ -6354,7 +6659,7 @@ window.__walk = {
   if ("IntersectionObserver" in window && !reduce) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting) { grow(); io.disconnect(); } });
-    }, { threshold: [0], rootMargin: "0px 0px 100% 0px" });     // a screen early, so every blob is whole when the header lands
+    }, { threshold: [0], rootMargin: "0px 0px 150% 0px" });     // a screen and a half early, so every blob is whole when the header lands
     io.observe(field);
   } else grown = true;
   window.addEventListener("resize", layout);
