@@ -211,18 +211,21 @@
       // desktop: into the top-left corner, heading down and to the left as on the index; below 1280 the figure spans
       // the column, so into the top-right corner, heading down and to the right, through the room beside the title
       var dir = wd ? [-1, 1] : [1, 1], cx = wd ? fb.left : fb.right, cy = fb.top;
-      var top = stripB() + 4, H = cy - top, Wd = H;
-      // the band must stay clear of the title's words: each line of the kicker and the title is an obstacle
+      var H = cy - (stripB() + 4), Wd;
+      // the band is the largest square on the corner kept 12 px clear of the title's words: each line of the kicker, the
+      // title and the one-liner is an obstacle, and a line ends the band's height unless it ends short of the band's
+      // width on the side away from the corner
       var obs = [];
       [].forEach.call(host.querySelectorAll(".lx-hero-t > *"), function (el) {
         var rg = D.createRange(); rg.selectNodeContents(el);
         [].forEach.call(rg.getClientRects(), function (r) { if (r.width > 0) obs.push(r); });
       });
-      for (var it = 0; it < 3; it++) {
-        var x0 = wd ? cx : cx - Wd, x1 = wd ? cx + Wd : cx, tp = stripB() + 4;
-        obs.forEach(function (r) { if (r.right > x0 && r.left < x1 && r.bottom < cy) tp = Math.max(tp, r.bottom + 12); });
-        top = tp; H = cy - top; Wd = Math.max(0, H);
-      }
+      obs.forEach(function (r) {
+        if (r.bottom >= cy) return;
+        var side = wd ? (r.right <= cx ? Infinity : r.left - cx - 12) : (r.left >= cx ? Infinity : cx - r.right - 12);
+        H = Math.min(H, Math.max(side, cy - r.bottom - 12));
+      });
+      Wd = Math.max(0, H);
       if (H < 48) { A.box = null; cv.style.display = "none"; return; }
       cv.style.display = "";
       var rows = Math.floor(H / cc), cols = Math.floor((Wd + 8) / cc);

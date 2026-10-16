@@ -404,13 +404,14 @@
       var pcs = extract(report);
       $("sp-list").classList.toggle("gh", stage === "full");
       // dropped pieces that share a reason share one row, so a report full of plans stays short; rows keep report order
+      // once the cuts fall, a dropped row's pieces are the muted ones in the report above (a phone shows only the reason)
       function rows(fn) {
         var seen = {};
         return pcs.map(function (p) {
           if (p.type) return fn(p);
           if (seen[p.why]) return ""; seen[p.why] = 1;
           var q = pcs.filter(function (o) { return !o.type && o.why === p.why; });
-          return '<div class="sp-it"><span class="tag">' + (stage === "full" ? "not a claim?" : "not a claim · " + esc(p.why) + (q.length > 1 ? " · " + q.length + " pieces" : "")) + '</span><span class="lbi">' + q.map(function (o) { return "“" + esc(o.text) + "”"; }).join(" ") + "</span></div>";
+          return '<div class="sp-it' + (stage === "full" ? "" : " no") + '"><span class="tag">' + (stage === "full" ? "not a claim?" : "not a claim · " + esc(p.why) + (q.length > 1 ? " · " + q.length + " pieces" : "")) + '</span><span class="lbi">' + q.map(function (o) { return "“" + esc(o.text) + "”"; }).join(" ") + "</span></div>";
         }).join("");
       }
       blanks(0);
@@ -470,7 +471,10 @@
         n.classList.toggle("lit", !!step); n.querySelector(".ans").textContent = step ? step[1] : "";
         var isExit = leaf && r.exit === i; n.classList.toggle("exit", isExit); n.style.setProperty("--mk", isExit ? VC[r.verdict] : "");
       }
-      $("tr-leaf").innerHTML = leaf ? vchip(r.verdict, "tier " + r.tier + (r.evidence.length ? " · rule · " + r.evidence.map(function (s) { return "#" + s; }).join(" ") : "")) + '<span class="tr-why">' + esc(r.why) + "</span>" : "";
+      // until the walk ends, the leaf holds an empty verdict chip where the answer will land; the answer and its reason
+      // are written only when the walk gets there
+      $("tr-leaf").classList.toggle("gh", !leaf);
+      $("tr-leaf").innerHTML = leaf ? vchip(r.verdict, "tier " + r.tier + (r.evidence.length ? " · rule · " + r.evidence.map(function (s) { return "#" + s; }).join(" ") : "")) + '<span class="tr-why">' + esc(r.why) + "</span>" : '<span class="vd">verdict</span>';
     }
     function sessionFromForm() {
       var cmd = $("tr-cmd").value, o = $("tr-out").value;
@@ -796,11 +800,15 @@
     STEADY.forEach(function (id) {
       var S = BUILT[id]; if (!S || S.mode !== "still") return;
       // each block of the stage holds its own tallest step (fig 10's nudge box as well as its columns)
-      var els = [].slice.call(S.art.querySelectorAll(":scope > .cx")), t = S.t, max = [];
+      var els = [].slice.call(S.art.querySelectorAll(":scope > .cx")), t = S.t;
       if (!els.length) els = [S.art];
-      els.forEach(function (el, i) { el.style.minHeight = ""; max[i] = 0; });
-      S.keys.forEach(function (k) { S.show(k.at); els.forEach(function (el, i) { max[i] = Math.max(max[i], el.getBoundingClientRect().height); }); });
-      els.forEach(function (el, i) { el.style.minHeight = Math.ceil(max[i]) + "px"; });
+      // a part marked data-hold keeps its own tallest step first, so the rows under it hold still too; then each block
+      [[].slice.call(S.art.querySelectorAll("[data-hold]")), els].forEach(function (set) {
+        var max = [];
+        set.forEach(function (el, i) { el.style.minHeight = ""; max[i] = 0; });
+        S.keys.forEach(function (k) { S.show(k.at); set.forEach(function (el, i) { max[i] = Math.max(max[i], el.getBoundingClientRect().height); }); });
+        set.forEach(function (el, i) { el.style.minHeight = Math.ceil(max[i]) + "px"; });
+      });
       S.show(t);                                                     // drawn again in the held height, which a step may fill
       if (S.dock) S.dock();                                          // the held height can tip a phone scene past one screen
     });

@@ -89,6 +89,8 @@
 .scene.js :is(text.ghost,.ghost text){fill:var(--muted)}
 .scene.js :is(.ghost,.ghost *):is(.bx,.bx-a,.ln,.ln-a,.ln-2,.ln-b,.ln-ref){stroke:var(--copper)}
 .scene.js :is(.ghost,.ghost *):is(.hd,.hd-a,.cell,.cell-i,.bx-f,.ww-h,.ww-t,.ww-w,[class^="c-"]){fill:var(--copper)}
+/* the same preview for a DOM part of the stage (a verdict line held for its step): its words muted, its rules copper */
+.scene.js .sc-art [data-ghost].ghost:not(svg *),.scene.js .sc-art [data-ghost].ghost :not(svg *){color:var(--muted);border-color:var(--copper)}
 /* the same preview for a DOM label drawn over a canvas (a page toggles .gh on it until its step): words muted, a
    boxed or struck word keeps its shape in copper */
 .scene.js .sc-art .sc-l.gh,.scene.js .sc-art .sc-l.gh *{color:var(--muted);outline-color:var(--copper);text-decoration-color:var(--copper)}

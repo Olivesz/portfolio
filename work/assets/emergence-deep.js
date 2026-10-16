@@ -893,7 +893,7 @@
       lbl(api, "la", "a " + a, 0, 1, { dy: -4, cls: "i" }); lbl(api, "lb", "b " + b, 0, 3, { dy: -4, cls: "i" });
       lbl(api, "lx", s ? "not b, into the adder" : "b, into the adder", 0, 5, { dy: -4 }); lbl(api, "lc", "carry", 0, 7, { dy: -4 });
       var sv = lbl(api, "ls", "sum " + (done ? r.sum : "…"), 0, 9, { dy: -4, cls: "i" }); sv.setAttribute("data-src", "page:alu");
-      var op = lbl(api, "op", (s ? "a − b" : "a + b") + (done ? (r.cout ? (s ? "  carry 1: no borrow" : "  carry 1: overflow") : "  carry 0") : ""), X - 2, 11, { dy: -4, cls: r.cout && done ? "c" : "" });
+      var op = lbl(api, "op", (s ? "a − b" : "a + b") + (done ? (r.cout ? (s ? "  carry 1: no borrow" : "  carry 1: overflow") : "  carry 0") : ""), api.phone ? 0 : X - 2, 11, { dy: -4, cls: r.cout && done ? "c" : "" });
       if (rs && api.mode !== "live") { rs[0].value = a; rs[1].value = b; }
     }
     var rs = null;

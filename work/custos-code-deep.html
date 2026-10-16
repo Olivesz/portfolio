@@ -152,6 +152,7 @@
 .tr-n.lit .ans{color:var(--ink)}
 .tr-n.exit{border-left-color:var(--mk,var(--v-cyan))}
 .tr-leaf{margin-top:16px;min-height:56px}
+.tr-leaf.gh .vd{color:var(--muted);border-color:var(--copper)} .tr-leaf.gh .vd::before{background:transparent;border:1px solid var(--copper);box-sizing:border-box}
 .tr-why{display:block;margin-top:8px;color:var(--ink)}
 /* fig 8: the ladder */
 .ld-r{display:grid;grid-template-columns:40px 176px minmax(0,1fr);column-gap:16px;align-items:center;min-height:41px;padding:4px 0 3px;border-bottom:1px solid var(--rule)}
@@ -184,7 +185,9 @@
 .pth .old{outline:1px solid var(--v-red);outline-offset:1px}
 .pth .new{outline:1px solid var(--v-green);outline-offset:1px}
 .lt{display:grid;grid-template-columns:8px minmax(0,1fr);column-gap:8px;align-items:center;padding:4px 0 3px;border-bottom:1px solid var(--rule)}
-.flip{font:500 15px/24px var(--sg);color:var(--ink)}
+.flip{margin-top:12px;font:500 15px/24px var(--sg);color:var(--ink)}
+/* until its step the result line shows only its shape, in the space the numbers will take */
+p.flip{display:grid} p.flip>span{grid-area:1/1} p.flip .fl-gh,p.flip.ghost .fl-n{visibility:hidden} p.flip.ghost .fl-gh{visibility:visible}
 /* fig 13 */
 .qt-out{border:1px solid var(--copper);padding:8px;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;min-height:104px}
 .qt-v{margin-top:8px;min-height:56px}
@@ -315,6 +318,12 @@
   .tr-n:not(.lit) .ans{display:none}
   .tr-n.lit .ex{display:none}
   .tr-n.exit .ans::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;background:var(--mk)}
+  .tr-n .ans,.tr-n .ex{min-height:16px;font:400 11px/16px var(--mono);letter-spacing:.04em}
+  /* the verdict sits under the claim it answers, holding its tallest step, so the two share a screen above the docked
+     words however far down the walk ends */
+  #sc-tree .sc-art>.cx:first-child{display:flex;flex-direction:column}
+  #sc-tree .tr-leaf{order:1;margin:0 0 16px}
+  #tr-nodes{order:2}
 }
 /* controls: 24 px to hit with a mouse, 32 px on touch */
 button.vd{min-height:24px}
@@ -351,6 +360,9 @@ button.vd{min-height:24px}
 @media (min-width:600px) and (max-width:767px) and (max-height:499px){ .ld-r{grid-template-columns:32px 176px minmax(0,1fr)} .ld-slot{grid-column:3} }
 /* fig 6: the stage holds the advice report's height, so the one-line demo report uses it, set large */
 #sc-split .sp-list{min-height:0} #sc-split .sp-bls{display:flex;flex-direction:column;gap:8px;margin-top:16px} #sc-split .sp-bls:empty{display:none} #sc-split .sp-bls i{display:block;height:26px;box-sizing:border-box;border:1px solid var(--rule);border-left-width:2px} #sc-split .sp-text.big{font-size:30px;line-height:40px;margin-top:4px} #sc-split .sp-text.big .sp-cut{height:30px;margin:0 8px;vertical-align:-5px}
+/* fig 6 on a phone: a dropped row gives its reason; its pieces are the muted words between the cuts above it, so the
+   advice report holds the stage no taller than the demo report's steps need */
+@media (max-width:767px),(max-height:499px){ #sc-split .sp-it.no .lbi{display:none} }
 /* fig 12: the field's name stays on one line beside it */
 #sc-guard .cx-in label .lbi{white-space:nowrap}
 /* a caption sentence that opens on the click or tap verb */
@@ -741,7 +753,7 @@ button.vd{min-height:24px}
                   <div><span class="lb">the claim</span><p class="chip-c tr" id="tr-claim"></p></div>
                 </div>
                 <div id="tr-nodes"></div>
-                <div class="tr-leaf" id="tr-leaf"></div>
+                <div class="tr-leaf" id="tr-leaf" data-hold></div>
               </div>
             </div></div>
             <div class="cx cx-in">
@@ -946,7 +958,7 @@ button.vd{min-height:24px}
               <span class="lb" style="margin-top:8px" data-src="Olivesz/custos-code@f3737f8:src/custos_code/rules.py#L146-L158">may a missing file accuse?</span>
               <div id="gd-lights"></div>
               <p class="cx-out" id="gd-v"></p>
-              <p class="flip" id="gd-flip" data-from="flip" data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65"><span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">4</span> accusations, at least <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">3</span> false <span aria-hidden="true">→</span> <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">1</span> accusation, <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">0</span> known false</p>
+              <p class="flip" id="gd-flip" data-from="flip" data-ghost data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65"><span class="fl-gh" aria-hidden="true">accusations: before → after</span><span class="fl-n"><span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">4</span> accusations, at least <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">3</span> false <span aria-hidden="true">→</span> <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">1</span> accusation, <span data-src="Olivesz/custos-code@f3737f8:eval/results/2026-09-19-extraction.md#L64-L65">0</span> known false</span></p>
             </div>
             <div class="cx cx-in">
               <label style="flex:1 1 240px"><span class="lbi">a path</span><input type="text" id="gd-path" value="src/cache.py" spellcheck="false" autocomplete="off"></label>

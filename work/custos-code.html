@@ -29,6 +29,8 @@
 .cx .chip{display:block;height:auto;padding:0;border:0}.cx .chip::before{content:none}
 /* the hero in the page's hue: the verdicts and the evidence rail are violet, the stop chip a violet fill */
 #hero .cx .lab .ro,#hero .cx .vcol.ink{color:var(--v-violet)} #hero .cx .chip{color:var(--void)}
+/* a row before its beat stays --muted, its verdict word included */
+#hero .cx .gh .ro,#hero .cx .gh .vcol.ink{color:var(--muted)}
 /* the verdict key: what the log shows for a test claim, and the verdict the rule gives; contradicted keeps its pink mark */
 .vk{list-style:none;max-width:576px;font:400 13px/24px var(--mono);color:var(--body)}
 .vk li{display:grid;grid-template-columns:minmax(0,1fr) 144px;column-gap:16px;padding:4px 0 3px;border-top:1px solid var(--rule)}
@@ -791,7 +793,8 @@ function wordBoxes(L, report) {                         // [{w, line, l, r, at}]
 function baseline(L, li) { var asc = 0.977 * L.fs, desc = 0.2955 * L.fs; return L.y.s + li * L.lh + (L.lh - (asc + desc)) / 2 + asc; }
 
 /* ---------- the text runs: one positioned element each, with the cell under its first glyph ---------- */
-// at: the u from which the run is on the figure; a run is drawn when u >= at and its anchor's rank has passed
+// at: the u from which the run is lit; a run is drawn when u >= at and its anchor's rank has passed. gh: the run stands
+// in --muted from u 0, so the rows below the log hold their place before their beat (the chip and what it does wait)
 function runList(L, D) {
   var t = D.trap, C = D.control, out = [], cy = L.y.ctrl;
   out.push({ id: "rep", x: L.sx, y: L.y.rep, lh: 16, at: 0 });
@@ -804,16 +807,16 @@ function runList(L, D) {
   out.push({ id: "r2", x: L.tx, y: L.y.r2, lh: L.mlh, at: 0 });
   if (D.ok) {
     var T = L.T;
-    out.push({ id: "verdict", x: L.sx, y: L.y.verdict, lh: 16, at: T.verdict });
-    out.push({ id: "stop", x: L.sx, y: L.y.stop, lh: 24, at: T.stop });
+    out.push({ id: "verdict", x: L.sx, y: L.y.verdict, lh: 16, at: T.verdict, gh: 1 });
+    out.push({ id: "stop", x: L.sx, y: L.y.stop, lh: 24, at: T.stop, gh: 1 });
     out.push({ id: "chip", x: L.sx + CHIP_DX, y: L.y.stop, lh: 24, at: T.chip, gx: (CHIP_W - t.stop.length * MONO13) / 2 });   // centred: its first glyph is gx in
     // what a blocked stop does, where the row has room for it (a phone row ends at the chip, as on the index station)
     if (t.stop === "blocked" && L.ctrl === "full") out.push({ id: "sent", x: L.sx + CHIP_DX + CHIP_W + 8, y: L.y.stop, lh: 24, at: T.chip });
     var order = ctrlOrder(C), why = L.ctrl === "full" && order.some(function (c) { return c.verdict === "unwitnessed"; }), n = order.length + (why ? 1 : 0);
     var step = (T.ctrl[1] - T.ctrl[0]) / n;
-    out.push({ id: "ctrl", x: L.sx, y: cy, lh: 16, at: T.ctrl[0] });
-    order.forEach(function (cm, i) { out.push({ id: "c" + i, x: L.sx, y: cy + 16 * (i + 1), lh: 16, at: T.ctrl[0] + step * (i + 1) }); });
-    if (why) out.push({ id: "why", x: L.sx + L.col, y: cy + 16 * (order.length + 1), lh: 16, at: T.ctrl[1] });
+    out.push({ id: "ctrl", x: L.sx, y: cy, lh: 16, at: T.ctrl[0], gh: 1 });
+    order.forEach(function (cm, i) { out.push({ id: "c" + i, x: L.sx, y: cy + 16 * (i + 1), lh: 16, at: T.ctrl[0] + step * (i + 1), gh: 1 }); });
+    if (why) out.push({ id: "why", x: L.sx + L.col, y: cy + 16 * (order.length + 1), lh: 16, at: T.ctrl[1], gh: 1 });
   }
   out.forEach(function (q) { q.a = [Math.floor((q.x + (q.gx || 0) + 2) / L.cell), Math.floor((q.y + q.lh / 2) / L.cell)]; });
   return out;
@@ -922,7 +925,9 @@ var CSS = [
   ".cx .bl{display:inline-block;width:0;height:0;vertical-align:baseline}",
   // dimmed (the station is behind you): every colour one token down, ink -> body -> muted
   ".cx.dim .sent,.cx.dim .lab .ro,.cx.dim .ink,.cx.dim .chip{color:var(--body)}",
-  ".cx.dim .mono{color:var(--muted)}"
+  ".cx.dim .mono{color:var(--muted)}",
+  // a row before its beat: every part of it in --muted
+  ".cx .gh,.cx .gh .ro,.cx .gh .ink{color:var(--muted)}"
 ].join("\n");
 // a dimmed layer's marks take the token one step down; muted, signal-2, trail-3 and the chrome tokens are floors
 var DOWN = { ink: "body", body: "muted", signal: "signal-2", trail: "trail-2", "trail-2": "trail-3" };
@@ -1089,7 +1094,7 @@ function draw(u, box, ctx) {
   // the stroke travels in signal as far as the claim's margin; its last leg, the strike, is drawn whole at the verdict
   var done = ok && u >= T.verdict, chip = ok && u >= T.chip, wire = G.total - G.route[G.route.length - 1].len;
   var len = !ok ? 0 : done ? G.total : Math.round(smoother(seg(u, T.travel)) * wire);
-  var runsOn = B.runs.map(function (q) { return u >= q.at && bay(ox + q.a[0], oy + q.a[1]) < lv ? 1 : 0; });
+  var runsOn = B.runs.map(function (q) { return bay(ox + q.a[0], oy + q.a[1]) >= lv ? 0 : u >= q.at ? 2 : q.gh ? 1 : 0; });   // 2 lit, 1 muted
   var dkey = [sc ? sc.join(",") : "", len, done, chip, ok && u >= T.scan3[0], runsOn.join(""), lv, ox, oy, pp, dpr, name, ok, dn].join("|");
   if (dkey === M.dkey) return M.drawn;
   M.dkey = dkey;
@@ -1125,6 +1130,7 @@ function draw(u, box, ctx) {
   B.runs.forEach(function (q, n) {
     var e = P.runs[q.id], vis = runsOn[n] ? "visible" : "hidden";
     if (e && e.style.visibility !== vis) e.style.visibility = vis;
+    if (e && e.classList.contains("gh") !== (runsOn[n] === 1)) e.classList.toggle("gh", runsOn[n] === 1);
   });
   M.drawn = drawn;
   return drawn;

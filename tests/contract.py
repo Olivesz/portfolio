@@ -2279,7 +2279,22 @@ def a_maplabels(v):
             w, h = ov(L[i]["q"], c["q"])
             if w > 0.5 and h > 0.5:
                 bad.append(f"'{L[i]['name']}' overlaps the caption row by {round(w)}x{round(h)}")
-    return not bad, "; ".join(bad[:4]) if bad else f"{len(names)} labels whole on screen, no two overlapping, clear of the caption row"
+    tags = ""
+    if v.name.startswith("phone"):                 # an upright phone's map tags every place, each tag beside its own place
+        M = v.js("() => __walk.marks ? __walk.marks() : null")
+        if M is None:
+            raise Missing("__walk.marks is absent")
+        def gap(a, c):
+            return (max(0, max(a[0], c[0]) - min(a[2], c[2])) ** 2 + max(0, max(a[1], c[1]) - min(a[3], c[3])) ** 2) ** 0.5
+        if len(M) != r["n"]:
+            bad.append(f"{len(M)} of {r['n']} places tagged on the map")
+        for m in M:
+            own = gap(m["mark"], m["place"])
+            near = min(((gap(m["mark"], o["place"]), o["n"]) for o in M if o is not m), default=(1e9, None))
+            if own > 12 or near[0] <= own:
+                bad.append(f"tag {m['n']} ({m['id']}) is {own:.0f}px from its place" + (f", {near[0]:.0f}px from place {near[1]}" if near[0] <= own else ""))
+        tags = f"; {len(M)} map tags, each within 12px of its own place and nearer it than any other"
+    return not bad, "; ".join(bad[:4]) if bad else f"{len(names)} labels whole on screen, no two overlapping, clear of the caption row" + tags
 
 
 MAPSIZE_JS = r"""() => { const c = __ct.artCanvas(); if (!c) return null;
@@ -3637,6 +3652,17 @@ CASE_JS = r"""(need) => {
 }"""
 
 
+# Colours are read from getComputedStyle, which reports a CSS transition's in-between value: a rail link easing from
+# --muted to --ink as its chapter lights reads as a colour no token has. So the sample waits until no CSS transition is
+# running (or waiting out its delay) for two frames in a row, up to 4 s; a page still easing after that fails on its own.
+CASE_SETTLE_JS = """async () => { const t0 = performance.now(), frame = () => new Promise(r => requestAnimationFrame(() => r()));
+  const busy = () => document.getAnimations().filter(a => a instanceof CSSTransition && a.playState === 'running');
+  let quiet = 0;
+  while (performance.now() - t0 < 4000) { await frame(); quiet = busy().length ? 0 : quiet + 1; if (quiet >= 2) break; }
+  const left = busy().map(a => { const e = a.effect && a.effect.target; return (e ? e.tagName.toLowerCase() + '.' + ((e.getAttribute('class') || '').split(' ')[0]) : '?') + ':' + a.transitionProperty; });
+  return { ok: !left.length, ms: Math.round(performance.now() - t0), left: [...new Set(left)].slice(0, 3) }; }"""
+
+
 def a_cases(v):
     """Every work/*.html: no error, no request off the origin, the two woff2 from work/assets, colours within the
     tokens (no pink on words, no alpha, no effect), DOM sizes, no overflow, no wheel/touch/key listener, link names,
@@ -3666,6 +3692,7 @@ def a_cases(v):
                 pg.evaluate("""async () => { const s = document.querySelector('[data-play]'), t0 = performance.now();
                     while (performance.now() - t0 < 9000 && !/^(done|rest)$/.test(s.dataset.state || '')) await new Promise(r => setTimeout(r, 100)); }""")
             coarse = pg.evaluate("() => matchMedia('(pointer: coarse)').matches")
+            settle = pg.evaluate(CASE_SETTLE_JS)
             r = pg.evaluate(CASE_JS, 32 if coarse else 24)
         finally:
             ctx.close()
@@ -3685,10 +3712,12 @@ def a_cases(v):
             "targets": r["small"][:3],
             "hero": [] if r["state"] in (want, "static") else [f"state {r['state']}, want {want}"],
             "selfchecks": [k for k, ok in r["checks"].items() if not ok],
+            # a colour sampled mid-transition is a blend, not a token; the page must come to rest so it can be read
+            "settle": [] if settle["ok"] else [f"transitions still running after {settle['ms']}ms: {', '.join(settle['left'])}"],
         }
         n += len(fails)
         bad += [f"{page.name} {k}: {', '.join(map(str, x))[:140]}" for k, x in fails.items() if x]
-    return not bad, (f"{len(pages)} pages x 12 checks ({motion} motion)" + (f", {len(bad)} failing: " + "; ".join(bad[:4]) + (" ... " + bad[-1] if len(bad) > 4 else "") if bad else ", all pass"))
+    return not bad, (f"{len(pages)} pages x {len(fails)} checks ({motion} motion)" + (f", {len(bad)} failing: " + "; ".join(bad[:4]) + (" ... " + bad[-1] if len(bad) > 4 else "") if bad else ", all pass"))
 
 
 
@@ -3972,7 +4001,7 @@ ASSERTIONS = [
     ("playwalk", ("desktop", "phone") + LANDS, a_playwalk, "a visitor at a normal pace (110px every 120ms): stopping 1.5s at each hold, every station plays from p 0 to done; never stopping, no clock advances out of frame or runs ahead of itself to its end"),
     ("playreduced", ("desktop", "phone"), a_playreduced, "reduced motion: done at p 1 in every frame from each arrival, never playing; replay hidden and refused"),
     ("places", PHONES + ("phone-small-1x",), a_places, "pull-back to the résumé every 0.02 screen: no shown place row's text crosses a card's text"),
-    ("maplabels", ("desktop", "desktop-1024", "laptop-1280", "laptop-1366") + PHONES + LANDS, a_maplabels, "at the map every place label's text is whole on screen, no two labels' text overlap and none overlaps the caption row (landscape included)"),
+    ("maplabels", ("desktop", "desktop-1024", "laptop-1280", "laptop-1366") + PHONES + ("phone-se", "phone-640") + LANDS, a_maplabels, "at the map every place label's text is whole on screen, no two labels' text overlap and none overlaps the caption row (landscape included); an upright phone's map tags every place, each tag within 12px of its own place and nearer it than any other"),
     ("mapsize", ("desktop", "laptop-1280", "laptop-1366"), a_mapsize, "at the map the lit art spans at least 45% of the viewport's short side both ways (1440x900, and 1280x800 and 1366x768 at 1x)"),
     ("readable", ("desktop", "phone"), a_readable, "each chapter card first fits whole no earlier than its station's arrival - 0.05"),
     ("station", ("desktop", "phone"), a_station, "at holds, built() == the card stuck at its sticky top == sceneId, and the drawn step == stepAt(shown)"),

@@ -443,6 +443,7 @@ var GATE_LINES = [
 var GATE_LIST = [];
 GATE_LINES.forEach(function (r) { for (var i = 1; i < r.length; i++) GATE_LIST.push({ f: r[i], line: r[0] }); });
 var GATES = { count: 47, missing: "test_risk.py" };
+var GPR_PH = 12;                               // gates per row in a phone's gates view
 
 /* ---------- the shipped run (Sharpe 1.12 at rf=0), one row per calendar quarter ---------- */
 // research/momtilt.json commits the run's daily NAV (README L162-L164); these are its quarter-ends, resampled here
@@ -634,14 +635,16 @@ function geo(W, H, c, phone) {
   g.qp = Math.max(3, Math.min(12, Math.floor((W - g.LG - (g.wide ? 64 : 30)) / 54)));
   g.RX = g.wide ? g.LG + 54 * g.qp : W;                    // right edge of header readouts
   g.PA = g.LG + 54 * g.qp;                                  // the right edge every plot shares
-  g.gp = Math.max(4, Math.floor((g.PA + 3) / (phone ? Math.ceil(GATES.count / 2) : GATES.count))); g.gs = g.gp - (g.gp >= 10 ? 3 : 2);
+  // a desktop sets the 47 gates in one row under the fit; a phone, whose gates view has the box to itself, sets them
+  // as a block of four rows of 12, as on the index station, so the view fills its box and the run reads at a glance
+  g.gp = Math.max(4, Math.floor((g.PA + 3) / (phone ? GPR_PH : GATES.count))); g.gs = phone ? g.gp - Math.max(2, Math.round(g.gp / 4)) : g.gp - (g.gp >= 10 ? 3 : 2);
   var hA = phone ? 80 : g.wide ? 56 : 48, hB = phone ? 40 : 36, hE = phone ? 96 : g.wide ? 100 : 88, dd = 48, y;
   g.A = { hdr: 14, trk: 24, top: 32, h: hA };
   y = 32 + hA;
   g.B = { hdr: y + 24, top: y + 32, h: hB, foot: y + 32 + hB + 18 };
   if (phone) {                                              // view 2 is set on its own, centred later once H is known
-    g.C = { hdr: 14, sq: 26, rows: 2 };
-    g.C.tick = g.C.sq + 2 * g.gp; g.C.tk = g.C.tick + 20; g.C.sp = [g.C.tk + 24, g.C.tk + 40]; g.C.h = g.C.sp[1] + 4;
+    g.C = { hdr: 14, sq: 26, rows: Math.ceil(GATES.count / GPR_PH) };
+    g.C.tick = g.C.sq + g.C.rows * g.gp; g.C.tk = g.C.tick + 20; g.C.sp = [g.C.tk + 24, g.C.tk + 40]; g.C.h = g.C.sp[1] + 4;
     g.D = { y0: 0, hdr: 14, leg: 32, top: 42, h: hE, dd: dd };
   } else {
     y = g.B.foot + 28;
@@ -706,7 +709,7 @@ function paintEstimate(P, g, m, k) {
 }
 function gateXY(g, i) {
   if (g.C.rows === 1) return [i * g.gp, g.C.sq];
-  var per = Math.ceil(GATES.count / 2), r = Math.floor(i / per);
+  var per = Math.ceil(GATES.count / g.C.rows), r = Math.floor(i / per);
   return [(i % per) * g.gp, g.C.sq + r * g.gp];
 }
 function tickGate(s) { return s.testing >= 0 ? s.testing : s.passed === GATES.count ? GATE_LIST.map(function (q) { return q.f; }).indexOf(GATES.missing) : -1; }
@@ -755,13 +758,17 @@ function T_(x, y, parts, anchor) { return { x: Math.round(x), y: Math.round(y), 
 // each beat carries one title and one readout; the figure's marks say the rest
 function textPlanted(g, m, s) {
   var out = [], k = s.pass;
-  var heads = g.wide ? ["planted answer · seeded synthetic returns · two-state HMM, fitted by EM in the browser", "planted answer · seeded synthetic returns · EM fit in the browser"] : [];
-  heads = heads.concat(["planted answer · synthetic · EM fit in the browser", "planted answer · synthetic · EM fit"]);
-  out.push(T_(0, g.A.hdr, [[heads.filter(function (h) { return h.length * CW11 <= g.PA; })[0] || heads[heads.length - 1], 11, "muted"]]));
+  out.push(T_(0, g.A.hdr, [[plantHead(g), 11, "muted"]]));
   // the lock is named once the fit settles; while EM is still passing, the readout counts the passes
   if (s.idle) out.push(T_(0, g.B.foot, [["switch planted on day " + m.day, 13, "muted", SRC.em]]));
   else if (k >= 0) out.push(T_(0, g.B.foot, s.locked ? [[lockText(m, k, g.PA), 13, "ink", SRC.em]] : [["EM fit · pass " + (k + 1) + " of " + m.pend, 13, "muted", SRC.em]]));
   return out;
+}
+// the planted view's header: the longest form that fits the plot
+function plantHead(g) {
+  var heads = g.wide ? ["planted answer · seeded synthetic returns · two-state HMM, fitted by EM in the browser", "planted answer · seeded synthetic returns · EM fit in the browser"] : [];
+  heads = heads.concat(["planted answer · synthetic · EM fit in the browser", "planted answer · synthetic · EM fit"]);
+  return heads.filter(function (h) { return h.length * CW11 <= g.PA; })[0] || heads[heads.length - 1];
 }
 function textGates(g, s) {
   var out = [], C = g.C, all = s.passed === GATES.count, tone = all ? "ink" : "signal", dot = [" · ", 11, "muted"];
@@ -771,7 +778,12 @@ function textGates(g, s) {
   if (C.sp.length === 1 && tw(one) + tw(ro) + 16 <= g.RX) out.push(T_(0, C.hdr, one));
   else if (C.sp.length === 1) { out.push(T_(0, C.hdr, [n])); out.push(T_(0, C.sp[0], [a, dot, b])); }
   else { out.push(T_(0, C.hdr, [n])); out.push(T_(0, C.sp[0], [a])); out.push(T_(0, C.sp[1], [b])); }
-  if (s.gatesOn) out.push(T_(g.RX, C.hdr, ro, "end"));
+  // a phone's block of four rows ends short of the box: its count stands over the block's right edge, not the box's,
+  // unless the planted view's header, which the gates view dissolves out of in the same box, shares its row and reaches
+  // that far (a phone on its side): then the box's edge keeps the two apart for the whole dissolve
+  var bx = (Math.ceil(GATES.count / C.rows) - 1) * g.gp + g.gs, wro = (2 * String(GATES.count).length + 4) * CW13;
+  var rx = C.rows > 1 && (Math.abs(C.hdr - g.A.hdr) >= 16 || plantHead(g).length * CW11 + 16 <= bx - wro) ? bx : g.RX;
+  if (s.gatesOn) out.push(T_(rx, C.hdr, ro, "end"));
   return out;
 }
 function textReal(g, s) {

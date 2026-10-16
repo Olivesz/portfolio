@@ -99,10 +99,9 @@
 .tg-out{min-height:48px;margin-top:16px;font:400 13px/24px var(--mono);color:var(--ink);max-width:576px}
 .tg-out .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .scene .stats{margin-top:24px}
-/* fig 14's numbers wait as their slots: the rules and labels faint, no figure drawn until their step */
+/* fig 14's numbers stand from the first frame, muted on copper rules; their step only brings the colour up */
 .scene.js .stats.ghost li{border-top-color:var(--copper)}
-.scene.js .stats.ghost :is(.v,.b){visibility:hidden}
-.scene.js .stats.ghost .k,.scene.js .stats.ghost .k *{color:var(--muted)}
+.scene.js .stats.ghost :is(.v,.b,.k),.scene.js .stats.ghost :is(.v,.b,.k) *{color:var(--muted)}
 .sc-tg .v{display:none}
 /* the opening scene sits in the hero's frame, its colour key under it */
 .lx-shot>.lgd{margin:0;padding:12px 16px 16px;border-top:1px solid var(--rule)}

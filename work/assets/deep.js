@@ -241,8 +241,9 @@
       return;
     }
     var o = L.o || {}, w = L.e.offsetWidth, cx = ox + L.x * p + (o.align === "center" ? p / 2 : o.align === "right" ? p : 0);
-    var left = o.align === "center" ? cx - w / 2 : o.align === "right" ? cx - w : cx;
-    L.e.style.left = Math.round(left + (o.dx || 0)) + "px";
+    var left = (o.align === "center" ? cx - w / 2 : o.align === "right" ? cx - w : cx) + (o.dx || 0);
+    if (this.inset) left = Math.max(this.inset[0], Math.min(left, this.inset[2] - this.inset[1] - w));   // a bled grid's words stay off the screen's edge
+    L.e.style.left = Math.round(left) + "px";
     L.e.style.top = Math.round(oy + L.y * p + (o.dy || 0)) + "px";
   };
 
@@ -251,19 +252,28 @@
     var S = this, spec = S.spec, g = spec.grid;
     S.padT = (spec.space && spec.space.top) || 0; S.padB = (spec.space && spec.space.bottom) || 0;
     S.padL = (spec.space && spec.space.left) || 0; S.padR = (spec.space && spec.space.right) || 0;
-    /* a 360px phone: a grid that would drop below its phone pitch in the text column takes the page gutters as well
-       (its rules stay at the column), so it draws at the pitch a 390px phone draws it at, labels and all */
+    /* a phone narrower than the one a grid was drawn for (360 to 383 px): a grid a few pixels wider than the text column
+       at its phone pitch overhangs it by at most 4 px a side (the stage takes the gutters, its rules stay at the
+       column), which keeps it inside its frame's corners; a wider one keeps to the column and draws at the largest
+       pitch of whole device pixels that fits (3.5 CSS px for 4 on a 2x screen), so no grid runs into its corners or
+       toward the screen's edge. Only a 1x screen, where that pitch would lose a quarter, still takes the gutters, and
+       there its labels keep 12 px from the screen's edges (S.inset, placeLabel). A grid whose rows depend on its pitch
+       reads it as grid.at. */
     S.fig.classList.remove("bleed");
-    if (g && g.pitchPhone && root.innerWidth < 768) {
+    var phone = root.innerWidth < 768, devPitch = 0;
+    S.dpr = dprInt();
+    if (g && g.pitchPhone && phone) {
       var col = Math.floor(S.stage.clientWidth), need = g.cols * g.pitchPhone + S.padL + S.padR;
-      if (col < need && root.innerWidth - 8 >= need) S.fig.classList.add("bleed");
+      var dev = Math.floor((col - S.padL - S.padR) * S.dpr / g.cols) / S.dpr;
+      if (col < need && need > col + 8 && dev >= g.pitchPhone * 0.875) devPitch = dev;
+      else if (col < need && root.innerWidth - 8 >= need) S.fig.classList.add("bleed");
     }
     var avail = Math.floor(S.stage.clientWidth);
     if (g) {
-      var phone = root.innerWidth < 768, want = phone && g.pitchPhone ? g.pitchPhone : g.pitch || 8;
+      var want = phone && g.pitchPhone ? g.pitchPhone : g.pitch || 8;
       var fit = Math.floor((avail - S.padL - S.padR) / g.cols);
-      S.pitch = Math.max(g.min || 2, Math.min(want, fit));
-      S.dpr = dprInt(); S.dp = S.pitch * S.dpr;
+      S.pitch = Math.max(g.min || 2, Math.min(want, devPitch || fit));
+      S.dp = Math.round(S.pitch * S.dpr); g.at = S.pitch;
       var cw = g.cols * S.pitch, ch = g.rows * S.pitch;
       S.canvas.width = g.cols * S.dp; S.canvas.height = g.rows * S.dp;
       S.canvas.style.width = cw + "px"; S.canvas.style.height = ch + "px";
@@ -280,6 +290,11 @@
       if (Math.abs(fx) > 0.01 || Math.abs(fy) > 0.01) S.art.style.transform = "translate(" + (-fx) + "px," + (-fy) + "px)";
     } else {
       S.pitch = 1;
+    }
+    S.inset = null;
+    if (S.fig.classList.contains("bleed")) {
+      var ar = S.art.getBoundingClientRect();
+      S.inset = [Math.max(0, Math.ceil(12 - ar.left)), Math.max(0, Math.ceil(ar.right - (root.innerWidth - 12))), ar.width];
     }
     if (spec.layout) spec.layout(S.api, avail);
     for (var id in S.labels) S.placeLabel(S.labels[id]);

@@ -653,10 +653,10 @@
           <ol class="sc-keys">
             <li data-key="rule" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L36-L41">The repair had a second half. The old rule took the smallest of the lever and the brakes, and the brakes top out at 1, so a calm book could never be levered.</span></li>
             <li data-key="times" data-at="1">Now exposure is the lever times the tighter brake.</li>
-            <li data-key="fin" data-at="2"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L891-L894">Both kill lines held. Financing took about 37% of the leverage gain, under the 50% line.</span></li>
+            <li data-key="fin" data-at="2"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L891-L894">Both kill lines held.</span> The fix alone raised Sharpe from <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L886">0.94</span> to <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L887">1.02</span>, and <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L893-L894">financing took about 37% of the leverage gain, under the 50% line.</span></li>
             <li data-key="ladder" data-at="3">Where the return went, by realized volatility: <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L26">6.9%</span> as found, <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L887">8.7%</span> with the fix alone, <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L888">11.6%</span> with the lever as well, in the August run, against the <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24">13%</span> target.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-pay-cap"><span class="n">fig 14</span>Did the repair pay? A calm book at full brakes under each rule, the financing bill against its kill line, and realized volatility at each stage.</figcaption>
+          <figcaption class="sc-cap" id="sc-pay-cap"><span class="n">fig 14</span>Did the repair pay? A calm book at full brakes under each rule, the two kill lines, and realized volatility at each stage.</figcaption>
         </figure>
 </div>
 </div>
@@ -1559,7 +1559,8 @@
           var nIn = 0; for (d = 0; d < BEFORE; d++) if (C.changed[t0 + d]) nIn++;
           lab(api, "chg", nIn + (ph ? " of the last " + BEFORE + " days changed · this draw" : " of the last " + BEFORE + " days before the cut changed their smoothed reading · this draw"), 0, L.ro, { dy: 4, live: 1 });
           if (k >= 3) {
-            lab(api, "same", (ph ? "filtered, shared days: max change " : "filtered row, max change on shared days: ") + (C.maxF === 0 ? "0" : C.maxF.toExponential(1)) + " · this draw", 0, L.ro, { dy: 24, cls: "i", live: 1 });
+            // a phone narrower than 4 px a cell keeps "this draw" to the line above, so this one fits the column
+            lab(api, "same", (ph ? "filtered, shared days: max change " : "filtered row, max change on shared days: ") + (C.maxF === 0 ? "0" : C.maxF.toExponential(1)) + (ph && api.pitch < 4 ? "" : " · this draw"), 0, L.ro, { dy: 24, cls: "i", live: 1 });
             lab(api, "gl", ph ? "its gate: under a billionth" : "its gate allows under a billionth", 0, L.ro, { dy: 44, k: "kr-g", src: R + "tests/test_regime_engine.py#L111" });
           }
         }
@@ -1965,13 +1966,14 @@
         var lever = r3(Math.min(OV.cap, OV.target / st.v)), mc = r3(Math.min(1, OV.cvar / st.cv)), md = r3(ddFixed(st.dd)), brake = Math.min(mc, md);
         var tf = 1 + OV.tilt * TL[st.tl], ex = r3(clamp(lever * brake * tf, 0, OV.cap));
         if (k === 4) {
-          var bw = ph ? 42 : 38, y = 4, rc = ph ? "i" : "r", bh = ph ? 15 : 10;    // a phone's day t+1 box holds its three lines
+          // a phone's day t+1 box holds its three lines (60 px, whatever the cell size)
+          var bw = ph ? 42 : 38, y = 4, rc = ph ? "i" : "r", bh = ph ? Math.max(15, Math.ceil(60 / api.pitch)) : 10, nar = ph && api.pitch < 4;
           box(api, 0, y, bw, bh, "copper"); box(api, W - bw, y, bw, bh, "v-amber");
-          lab(api, "c0", "close of day t", 1, y, { dy: 6 }); lab(api, "c1", "exposure set: " + fmt(ex, 3) + "×", 1, y, { dy: 26, cls: rc });
+          lab(api, "c0", "close of day t", 1, y, { dy: 6 }); lab(api, "c1", (nar ? "exposure: " : "exposure set: ") + fmt(ex, 3) + "×", 1, y, { dy: 26, cls: rc });
           lab(api, "c2", "day t+1", W - bw + 1, y, { dy: 6 }); lab(api, "c3", ph ? "gross × exposure" : "net = gross × exposure", W - bw + 1, y, { dy: 26, cls: rc });
           lab(api, "c3b", "− costs − financing", W - bw + 1, y, { dy: ph ? 42 : 50, cls: rc });
           line(api, [[bw + 1, y + 5], [W - bw - 2, y + 5]], "v-cyan", 2); sq(api, W - bw - 2, y + 5, 6, "v-cyan");
-          var fy = ph ? 22 : 19;
+          var fy = ph ? y + bh + 3 : 19;
           lab(api, "f0", ph ? "costs: 1 bp + 2 bp spread + impact, cap 25 bp" : "costs: 1 bp commission + 2 bp spread + square-root impact, capped at 25 bp", 0, fy, { src: R + "README.md#L318-L319" });
           var finbp = Math.max(0, ex - 1) * OV.fin / 252 * 1e4;
           lab(api, "f1", (ph ? "financing: " + fmt(Math.max(0, ex - 1), 2) + " × 3.5%/yr ÷ 252 = " : "financing: " + fmt(Math.max(0, ex - 1), 2) + " × 3.5% a year ÷ 252 = ") + fmt(finbp, 2) + " bp" + (ph ? "" : " a day"), 0, fy, { dy: ph ? 40 : 24, cls: "i", derived: "(exposure − 1) × 0.035 / 252", inputs: R + "docs/design/DESIGN15.md#L42-L43" });
@@ -2189,7 +2191,7 @@
     for (i = A; i <= B; i++) NMAX = Math.max(NMAX, nav[i]);
     Deep.scene("sc-repair", {
       grid: { cols: 88, get rows() { return PHONE() ? 52 : 34; }, pitch: 8, pitchPhone: 4 },
-      space: { top: 24, get bottom() { return PHONE() ? 16 : 24; } },
+      space: { get top() { return PHONE() ? 44 : 24; }, get bottom() { return PHONE() ? 16 : 24; } },
       ticks: 27, tps: 8,
       check: function () { return GF.a && GF.b && GF.c && GF.d && !GW.a && GW.first === 0 && Math.abs(nav[339] - Math.pow(1 - 0.00722, 40)) < 1e-9; },
       inputs: [{ id: "swap", label: "grade as found", states: ["off", "on"] }],
@@ -2227,7 +2229,8 @@
           [["a", "1 at every high"], ["c", "never more for deeper"], ["d", ph ? "between floor and 1, −10% to −18%" : "between the floor and 1, −10% to −18%"], ["b", "the floor past −20%"]].forEach(function (q, i) {
             lab(api, "ck" + i, (graded ? (Gd[q[0]] ? "pass · " : "fail · ") : "check · ") + q[1], ph ? 0 : (i % 2) * 44, my1 + 1 + (ph ? i * 4.5 : Math.floor(i / 2) * 2.5), { dy: 2, k: graded ? (Gd[q[0]] ? "kr-g" : "i") : "", src: R + "tests/test_risk.py#L38-L52" });
           });
-          if (graded) lab(api, "who", "grading: " + who + (asFound ? " · fails on day one at " + fmt(mW[0], 2) : ""), W, ny0, { align: "right", dy: -24, k: asFound ? "kr-t" : "kr-a" });
+          // a phone sets the grading on its own line above the NAV caption, which it would print over at the right
+          if (graded) lab(api, "who", "grading: " + who + (asFound ? " · fails on day one at " + fmt(mW[0], 2) : ""), ph ? 0 : W, ny0, { align: ph ? "left" : "right", dy: ph ? -44 : -24, k: asFound ? "kr-t" : "kr-a" });
         }
         end(api);
       }
@@ -2235,8 +2238,8 @@
   })();
 
   /* ======================================================================================================
-     13b · did the repair pay? the combination rule on a calm book (DESIGN15.md#L36-L41), the financing bill against its kill
-     line (FINDINGS.md#L867-L870) and the volatility ladder (DESIGN15.md#L26, FINDINGS.md#L863-L864)
+     13b · did the repair pay? the combination rule on a calm book (DESIGN15.md#L36-L41), both kill lines
+     (DESIGN15.md#L67-L73, FINDINGS.md#L886-L894) and the volatility ladder (DESIGN15.md#L26, FINDINGS.md#L863-L864)
      ====================================================================================================== */
   (function () {
     Deep.scene("sc-pay", {
@@ -2261,15 +2264,23 @@
           });
           lab(api, "one", ph ? "1×: the brakes’ top" : "1×: where the brakes top out", XB(1), ph ? 30 : 21, { align: ph ? "right" : "center", dy: 4, src: R + "docs/design/DESIGN15.md#L39-L41" });
         } else if (k === 1) {
-          var gx0 = 0, gx1 = W - 2, gy = ph ? 8 : 6;
+          /* the two kill lines written before the run, one gauge each: Sharpe as found and with the fix alone against a drop of 0.05,
+             then financing's share of the leverage gain against half */
+          var gx0 = 0, gx1 = W - 2, u = ph ? 1 : 0.5, sy = ph ? 8 : 4, gy = ph ? 25 : 11.5;
+          function XS(v) { return gx0 + (v - 0.8) / 0.3 * (gx1 - gx0); }   // a Sharpe axis from 0.80 to 1.10
           function XG(v) { return gx0 + v * (gx1 - gx0); }
-          lab(api, "h1", ph ? "leverage gain spent on financing" : "share of the leverage gain spent on financing", 0, 0, { dy: -24, cls: "i" });
-          hr(api, gx0, gx1, gy + 2, "copper"); fill(api, XG(0), gy, XG(0.37) - XG(0), 4, "v-amber");
-          vr(api, XG(0.5), gy - 3, gy + 7, "ink", 1, true); vr(api, XG(1), gy - 1, gy + 5, "muted");
-          lab(api, "f37", "~37%", XG(0.37), gy, { dx: 8, dy: -18, k: "kr-a", src: R + "docs/FINDINGS.md#L893-L894" });
-          lab(api, "f50", "kill line 50%", XG(0.5), gy + 7, { align: "center", dy: 4, cls: "i", src: R + "docs/design/DESIGN15.md#L72-L73" });
-          lab(api, "f100", "all of it", XG(1), gy + 5, { align: "right", dy: 4 });
-          lab(api, "fok", "both kill lines held", 0, gy + 12, { dy: ph ? 16 : 8, k: "kr-g", src: R + "docs/FINDINGS.md#L891-L892" });
+          lab(api, "h1", "the two kill lines", 0, 0, { dy: -24, cls: "i" });
+          lab(api, "s0", "Sharpe · as found 0.94 → fix alone 1.02", 0, sy - 7 * u, { dy: ph ? 0 : 4, cls: "i", src: R + "docs/FINDINGS.md#L886-L887" });
+          hr(api, gx0, gx1, sy, "copper");
+          hr(api, XS(0.94), XS(1.02), sy, "v-amber"); sq(api, XS(0.94), sy, 12, "muted"); sq(api, XS(1.02), sy, 12, "v-amber");
+          vr(api, XS(0.89), sy - (ph ? 3 : 1), sy + 3 * u, "ink", 1, true);   // starts under the row's words
+          lab(api, "s5", "kill line: down 0.05", XS(0.89), sy + 3 * u, { align: "center", dy: 4, cls: "i", src: R + "docs/design/DESIGN15.md#L69-L71" });
+          lab(api, "f0", "financing · ~37% of the leverage gain", 0, gy - 7 * u, { dy: ph ? 0 : 4, cls: "i", src: R + "docs/FINDINGS.md#L893-L894" });
+          hr(api, gx0, gx1, gy + 2 * u, "copper"); fill(api, XG(0), gy, XG(0.37) - XG(0), 4 * u, "v-amber");
+          vr(api, XG(0.5), gy - 3 * u, gy + 7 * u, "ink", 1, true); vr(api, XG(1), gy - u, gy + 5 * u, "muted");
+          lab(api, "f50", "kill line 50%", XG(0.5), gy + 7 * u, { align: "center", dy: 4, cls: "i", src: R + "docs/design/DESIGN15.md#L72-L73" });
+          lab(api, "f100", "all of it", XG(1), gy + 5 * u, { align: "right", dy: 4 });
+          lab(api, "fok", "both kill lines held", 0, gy + 7 * u, { dy: 32, k: "kr-g", src: R + "docs/FINDINGS.md#L891-L892" });
         } else {
           var sv = (W - 2) / 0.14, yy0 = 2;
           lab(api, "h2", "realized volatility", 0, 0, { dy: -24, cls: "i" });
@@ -2308,7 +2319,7 @@
       g.c.fillRect(X0, Y0, S, t); g.c.fillRect(X0, Y0 + S - t, S, t); g.c.fillRect(X0, Y0, t, S); g.c.fillRect(X0 + S - t, Y0, t, S);
     }
     Deep.scene("sc-results", {
-      grid: { cols: 88, get rows() { return PHONE() ? 66 : 34; }, pitch: 8, pitchPhone: 4 },
+      grid: { cols: 88, get rows() { if (!PHONE()) return 34; var p = this.at || 4, rs = Math.max(12, Math.ceil(48 / p)); return 7 + 4 * rs + Math.ceil(32 / p) + 3; }, pitch: 8, pitchPhone: 4 },   // down to the caveat's row (draw), at the pitch drawn
       space: { top: 8, get bottom() { return PHONE() ? 24 : 32; } },
       ticks: 18, tps: 8, smooth: true,
       check: function () { return ROWS.every(function (q) { return q.k <= q.max && q.e <= q.max && q.s <= q.max; }); },
@@ -2317,9 +2328,9 @@
         var k = api.keyIndex, key = api.key, W = api.cols, ph = api.phone, moving = api.mode === "auto" || api.mode === "seg";
         // the markers slide out from zero on arrival (ticks 0 to 10, before the first step's hold), then stay; every later step only adds the reading
         var u = moving && k === 0 ? ease(clamp((tick + frac) / 10, 0, 1)) : 1, focus = FOCUS[key] || null;
-        var x0 = ph ? 1 : 22, x1 = ph ? W - 2 : 48;
+        var x0 = ph ? 1 : 22, x1 = ph ? W - 2 : 48, rs = Math.max(12, Math.ceil(48 / api.pitch));   // a phone's rows: 48 px apart
         ROWS.forEach(function (q, i) {
-          var y = ph ? 7 + i * 12 : 4 + i * 6, X = function (v) { return x0 + v / q.max * (x1 - x0); };
+          var y = ph ? 7 + i * rs : 4 + i * 6, X = function (v) { return x0 + v / q.max * (x1 - x0); };
           var on = !focus || focus.indexOf(i) >= 0;
           hr(api, x0, x1, y, "rule"); vr(api, x0, y - 1, y + 1, "muted");
           lab(api, "rn" + i, q.n, ph ? x0 : 0, y, { dy: ph ? -22 : -8, cls: on ? "i" : "" });
@@ -2335,7 +2346,7 @@
             lab(api, "v" + i, html, ph ? x0 : x1 + 3, y, { html: true, dy: ph ? 8 : -8, cls: on ? "i" : "", src: R + "README.md#L151-L155" });
           }
         });
-        if (k >= 4) lab(api, "cv", ph ? "in-sample · after costs · survivorship bias" : "in-sample · after costs · up to 1.5× leverage · survivorship bias", 0, ph ? 63 : 33, { dy: -2, cls: "i", src: R + "README.md#L144-L162" });
+        if (k >= 4) lab(api, "cv", ph ? "in-sample · after costs · survivorship bias" : "in-sample · after costs · up to 1.5× leverage · survivorship bias", 0, ph ? 7 + 4 * rs + Math.ceil(32 / api.pitch) : 33, { dy: -2, cls: "i", src: R + "README.md#L144-L162" });
         end(api);
       }
     });

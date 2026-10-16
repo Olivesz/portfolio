@@ -17,6 +17,7 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 | `stations` | array | `[[id, A, E], ...]` in page order. `A` is the hold start (the card reaches its sticky top) and `E` the hold end, in screens. An optional 4th element lists beat start positions: `[id, A, E, [b0, b1, ...]]`. |
 | `view()` | fn → object | `{pp, k, half, dpr, step, Ox, Oy}` for the last drawn frame. `pp` is device px per drawn cell (an integer), `k` is world cells per drawn cell (1, or 2 when decimated), `step` is the step actually drawn, and `Ox`/`Oy` are the world origin in device px. |
 | `mapFit()` | fn → object | `{p, half, bb}` |
+| `marks()` | fn → array | The upright phone map's numbered tags in the last frame, each `{id, n, place, mark, tag}` with CSS-px boxes; empty when the map carries none. |
 | `shown()` | fn → number | The smoothed `s` the canvas last drew. |
 | `camAt(s)` | fn → array | `[cx, cy, pf]` |
 | `reduced` | bool | `prefers-reduced-motion` at boot. |

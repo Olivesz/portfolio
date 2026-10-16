@@ -171,7 +171,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig .hd{fill:var(--copper)} .ig .hd-a{fill:var(--accent)}
 /* contradicted: the ant's pink, as a mark and never as text, the same on the index, the case study and the deep dive */
 .ig .ln-t{fill:none;stroke:var(--trail);stroke-width:1px} .ig .hd-t,.ig .mk-t{fill:var(--trail)}
-.ig .cell{fill:var(--accent)} .ig .cell-i{fill:var(--ink)} .ig .cell-o{fill:var(--residue)}
+.ig .cell{fill:var(--accent)} .ig .cell-i{fill:var(--ink)} .ig .cell-o{fill:var(--residue)} .ig .cell-g{fill:var(--copper)}
 .ig .ax{fill:none;stroke:var(--rule);stroke-width:1px}
 .ig .c-llm{fill:var(--t-llm)} .ig .c-verify{fill:var(--t-verify)} .ig .c-systems{fill:var(--t-systems)}
 .ig .c-data{fill:var(--t-data)} .ig .c-play{fill:var(--t-play)} .ig .c-signal{fill:var(--v-cyan)} .ig .c-ref{fill:var(--muted)}
@@ -430,7 +430,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-sk .n{color:var(--accent)} .lx-sk .n .of{color:var(--muted)}
 /* the statement: the section's first sentence. 40 px up to about 90 characters; a longer one is set at 30 (lx: the
    build adds .long), so no statement runs to a grey wall */
-.lx-state{margin-top:16px;max-width:832px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
+.lx-state{margin-top:16px;max-width:832px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink);text-wrap:balance}
 .lx-state.long{font:500 30px/40px var(--sg);letter-spacing:-.015em}
 @media (max-width:1023px){ .lx-state{font-size:30px;line-height:40px;letter-spacing:-.015em} .lx-state.long,.lx-state.mid{font:500 15px/24px var(--sg);letter-spacing:0} }
 @media (max-width:767px){ .lx-sh{padding-top:12px} .lx-state{margin-top:12px} .lx-body{margin-top:16px} .lx-foot .def{display:none} .lx-hero-d{margin-top:16px} }
@@ -455,6 +455,9 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 @media (max-width:767px){
   .lx-duo>.lx-txt>.lx-pull,.lx-duo>.lx-txt>.lx-pull+*,.lx-duo>.lx-txt>.lx-tiles{margin-top:24px}
   .lx-key{margin-top:8px} .lx-led .lx-mg{margin-top:12px} .lx-deep{margin-top:40px}
+  /* a case study's sections on a phone: a tighter step between them, the story 16 px under its band, and the
+     30 px statement's lines at 1.2 */
+  .lx-sec{margin-top:40px} .lx-sec>.lx-sh+.lx-body{margin-top:16px} .lx-sec .lx-state:not(.long):not(.mid){line-height:36px}
 }
 @media (min-width:1280px){
   .lx-duo{display:grid;grid-template-columns:minmax(0,1fr) var(--lx-fig);column-gap:32px;align-items:start}
