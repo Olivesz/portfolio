@@ -264,3 +264,283 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig.armed.on.quick .rv-x{transition-duration:240ms;transition-delay:calc(var(--o,0) * 40ms)}
 .ig.armed.on.quick .rv-f{transition-duration:200ms;transition-delay:calc(var(--o,0) * 40ms + 60ms)}
 /* reveal: end */
+
+/* ---------- the depth pages' layer (lx-): a page opts in with its markup; pages without lx- classes are untouched.
+   Adds no colour and no font size of its own: every colour is a :root token, every DOM size one of
+   72 44 40 30 15 13 11. No gradients, shadows or glows. Cells are whole CSS px (4 px), so whole device px at DPR 1-3.
+   Motion plays once on arrival; reduced motion and no script show every final state (case.css zeroes transitions). */
+
+:root{ --lx-rail:0px; --lx-gap:96px; --lx-fig:704px; --lx-cn:16px }
+@media (min-width:1280px){ :root{ --lx-rail:64px } }
+@media (min-width:1440px){ :root{ --lx-rail:160px } }
+@media (max-width:1023px){ :root{ --lx-gap:48px; --lx-cn:12px } }
+
+/* ---------- the frame: one column below 1280, and above it the wide frame with the rail's band on its left ---------- */
+.lxb{width:var(--col);margin-left:auto;margin-right:auto}
+@media (max-width:1023px){ .lxb{width:auto;margin-left:var(--gut);margin-right:var(--gut)} }
+@media (min-width:1280px){
+  .lxb{width:min(var(--wide),calc(100% - 2 * var(--gut)));margin-left:max(var(--gut),calc((100% - var(--wide)) / 2));margin-right:0;padding-left:var(--lx-rail)}
+  @supports (margin-left:round(down,1px,8px)){ .lxb{margin-left:max(var(--gut),round(down,(100% - var(--wide)) / 2,8px))} }
+}
+
+/* ---------- progress: the road. A rail of cells beside the story (1280 and up), a strip of cells under the top strip
+   (below). case.js draws both on a canvas only when the ant changes cell; the labels are plain #links ---------- */
+.lx-rail{display:none;position:fixed;z-index:20;top:calc(var(--strip) + 48px);left:max(var(--gut),calc((100% - var(--wide)) / 2));width:144px;font:400 11px/16px var(--mono);letter-spacing:.04em}
+@supports (left:round(down,1px,8px)){ .lx-rail{left:max(var(--gut),round(down,(100% - var(--wide)) / 2,8px))} }
+@media (min-width:1280px){ .lx-rail{display:block} }
+.lx-rail ol{list-style:none;margin:0;padding:0}
+.lx-rail li{position:relative;height:32px}
+.lx-rail a{display:flex;align-items:center;gap:8px;height:32px;padding-left:20px;color:var(--muted);text-decoration:none;white-space:nowrap;transition:color var(--t-ui) var(--ease-enter)}
+.lx-rail a .n{color:var(--muted);transition:color var(--t-ui) var(--ease-enter)}
+.lx-rail:not(.lx-on) a,.lx-rail:not(.lx-on) a .n{transition:none}
+.lx-rail a:hover,.lx-rail a:focus-visible{color:var(--ink)}
+.lx-rail li.past a,.lx-rail li.past a .n{color:var(--body)}
+.lx-rail li.here a{color:var(--ink)} .lx-rail li.here a .n{color:var(--accent)}
+.lx-rail li.sub a{padding-left:32px}
+.lx-rail .lx-road{position:absolute;left:0;top:0;pointer-events:none}
+/* 1280 to 1439: the band is 64 px, so the rail keeps its stations and numbers and drops the names; a chapter's own
+   steps stay indented under it */
+@media (min-width:1280px) and (max-width:1439px){ .lx-rail{width:48px} .lx-rail a .t{display:none} .lx-rail li.sub a{padding-left:28px} }
+
+.lx-bar{position:fixed;z-index:29;left:0;right:0;top:var(--strip);height:16px;background:var(--void);pointer-events:none}
+.lx-bar .lx-road{position:absolute;left:var(--gut);top:2px}
+@media (min-width:1280px){ .lx-bar{display:none} }
+
+/* ---------- hero: the station, opened up. Words and the result on the left, the live figure on the right; the one ant
+   walks a Langton highway into the figure's corner (case.js), then rests there ---------- */
+.lx-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "f" "d";padding-top:48px}
+.lx-hero-t{grid-area:t} .lx-hero-d{grid-area:d} .lx-hero .lx-shot{grid-area:f}
+.lx-hero h1{margin-top:8px;font:500 72px/72px var(--sg);letter-spacing:-.03em;color:var(--ink)}
+.lx-lede{margin-top:16px;max-width:448px;font:400 15px/24px var(--sg);color:var(--ink)}
+.lx-lede+.lx-lede{color:var(--body)}
+.lx-hero-d>.lx-lede:first-child{margin-top:0}
+.lx-hero .facts{margin-top:32px;max-width:448px}
+.lx-hero .facts>div{grid-template-columns:64px 1fr}
+@media (min-width:1280px){
+  .lx-hero{grid-template-columns:minmax(0,1fr) var(--lx-fig);column-gap:32px;grid-template-rows:auto 1fr;grid-template-areas:"t f" "d f";align-items:start}
+  .lx-hero .lx-shot{margin-top:104px}
+  .lx-hero-d{margin-top:16px}
+}
+@media (max-width:1279px){ .lx-hero .lx-shot{margin-top:24px} .lx-hero-d{margin-top:24px} }
+@media (max-width:1023px){ .lx-hero{padding-top:24px} .lx-hero h1{font-size:44px;line-height:48px;margin-top:4px} }
+/* the arrival canvas: over the band above the figure's corner, never over words, never takes a click */
+.lx-arrive-cv{position:absolute;z-index:1;pointer-events:none}
+/* the hero's words rise in once, kicker first (CSS only, so it needs no script; reduced motion rests) */
+@keyframes lx-rise{from{opacity:0;transform:translateY(12px)}}
+.lx-hero .lx-up{animation:lx-rise 560ms var(--ease-enter) both;animation-delay:calc(var(--d,0) * 70ms)}
+
+/* buttons: the way in, outlined in the hue; the repository, quiet; the arrow travels on hover */
+.lx-cta{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.lx-btn{display:inline-flex;align-items:center;gap:12px;min-height:48px;padding:0 16px;border:1px solid var(--accent);color:var(--ink);text-decoration:none;font:500 15px/24px var(--sg);transition:border-color var(--t-ui) var(--ease-enter)}
+.lx-btn .k{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent)}
+.lx-btn .ar{color:var(--accent);transition:transform var(--t-ui) var(--ease-enter)}
+.lx-btn:hover,.lx-btn:focus-visible{border-color:var(--ink)}
+.lx-btn:hover .ar,.lx-btn:focus-visible .ar{transform:translateX(4px)}
+.lx-btn.q{border-color:var(--copper);font:400 13px/24px var(--mono)}
+.lx-btn.q .ar{color:var(--ink)}
+@media (max-width:767px){ .lx-btn{width:100%;justify-content:space-between} }
+/* under 380 px a button with a read time would wrap both its words and the time: the words keep their line and the
+   time goes under them, beside the arrow */
+@media (max-width:379px){
+  .lx-btn:has(.k){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 12px;align-content:center}
+  .lx-btn:has(.k) .k{grid-row:2;grid-column:1} .lx-btn:has(.k) .ar{grid-row:1 / span 2;grid-column:2}
+}
+
+/* ---------- frames: four 2 px L-corners, copper until the figure arrives, then the hue, clockwise ---------- */
+.lx-fr{position:relative}
+.lx-cn{position:absolute;inset:0;pointer-events:none;z-index:2}
+.lx-cn i{position:absolute;width:var(--lx-cn);height:var(--lx-cn);border:0 solid var(--copper)}
+.lx-cn i:nth-child(1){left:0;top:0;border-left-width:2px;border-top-width:2px}
+.lx-cn i:nth-child(2){right:0;top:0;border-right-width:2px;border-top-width:2px}
+.lx-cn i:nth-child(3){right:0;bottom:0;border-right-width:2px;border-bottom-width:2px}
+.lx-cn i:nth-child(4){left:0;bottom:0;border-left-width:2px;border-bottom-width:2px}
+.lx-fr.lit>.lx-cn i{border-color:var(--accent)}
+.lx-fr.lit>.lx-cn i:nth-child(2){transition:border-color 0ms linear 90ms}
+.lx-fr.lit>.lx-cn i:nth-child(3){transition:border-color 0ms linear 180ms}
+.lx-fr.lit>.lx-cn i:nth-child(4){transition:border-color 0ms linear 270ms}
+/* an inline figure: the corners stand 12 px off its drawing, so they never touch a label */
+.ig.lx-fr{padding:20px 0 12px}
+.ig.lx-fr>.lx-cn{inset:0 -12px}
+@media (max-width:767px){ .ig.lx-fr{padding:12px 0 8px} .ig.lx-fr>.lx-cn{inset:0 -8px} }
+
+/* the shot: the hero figure inside its corners, a bar on top naming its beats */
+.lx-shot{min-width:0}
+.lx-shot .stage{border:0}
+.lx-shot-bar{display:flex;align-items:center;gap:16px;height:40px;padding:0 16px;border-bottom:1px solid var(--rule);font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);white-space:nowrap;overflow:hidden}
+.lx-shot-bar .n{color:var(--accent)}
+.lx-beats{display:flex;gap:16px;list-style:none;margin:0 0 0 auto;padding:0}
+.lx-beats li{display:inline-flex;align-items:center;gap:8px;color:var(--muted)}
+.lx-beats li::before{content:"";width:8px;height:8px;background:var(--rule)}
+.lx-beats li.past{color:var(--body)} .lx-beats li.past::before{background:var(--copper)}
+.lx-beats li.on{color:var(--ink)} .lx-beats li.on::before{background:var(--accent)}
+.lx-beats .s{display:none}
+.lx-shot .look{padding:12px 16px 0;border-top:1px solid var(--rule)}
+.lx-shot .cap-row{padding:8px 16px 16px}
+@media (max-width:767px){ .lx-shot-bar{padding:0 12px;gap:12px} .lx-beats{gap:12px} .lx-beats .w{display:none} .lx-beats .s{display:inline} .lx-shot-bar .w2{display:none}
+  .lx-shot .look{padding:12px 12px 0} .lx-shot .cap-row{padding:8px 12px 8px}
+  .lx-led{margin-top:24px} .lx-cta{margin-top:24px} .lx-hero .facts{margin-top:24px} }
+
+/* ---------- the result: the index card's big numbers, each with the bars that make it a win ---------- */
+.lx-led{margin-top:32px}
+.lx-led-h{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.lx-led-h .a{color:var(--accent)}
+.lx-mg{display:grid;gap:24px;margin-top:16px;list-style:none;padding:0}
+.lx-m{min-width:0;padding-top:12px;border-top:2px solid var(--accent)}
+.lx-m .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.lx-big{display:block;font:500 72px/72px var(--sg);letter-spacing:-.035em;color:var(--ink);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lx-big.a{color:var(--accent)}
+.lx-m .lx-big{margin-top:4px}
+/* the comparison: a row per book, one scale from zero; the book in the hue, equal weight an ink outline, SPY copper */
+.lx-cmp{display:grid;row-gap:4px;margin-top:12px;font:400 13px/20px var(--mono);color:var(--body);font-variant-numeric:tabular-nums}
+.lx-cmp>div{display:grid;grid-template-columns:96px minmax(0,1fr) 80px;align-items:center;column-gap:12px}
+.lx-cmp .v{text-align:right;white-space:nowrap}
+.lx-cmp i{display:block;box-sizing:border-box;height:8px;width:calc(var(--w) * 1%);background:var(--copper);transform-origin:0 50%}
+.lx-cmp .me,.lx-cmp .me .v{color:var(--ink)}
+.lx-cmp .me .v{color:var(--accent)}
+.lx-cmp .me i{background:var(--accent)}
+.lx-cmp .ew i{background:none;border:1px solid var(--ink)}
+.lx-foot{margin-top:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+/* the key a phone shows once instead of a name on every row */
+.lx-key{display:none;flex-wrap:wrap;gap:4px 16px;margin-top:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.lx-key span{display:inline-flex;align-items:center;gap:8px}
+.lx-key span::before{content:"";width:8px;height:8px;box-sizing:border-box;background:var(--copper)}
+.lx-key .me{color:var(--ink)} .lx-key .me::before{background:var(--accent)} .lx-key .ew::before{background:none;border:1px solid var(--ink)}
+/* a phone: the two results side by side at 44 px, each row a bar and its value, the names in the key */
+@media (max-width:767px){
+  .lx-key{display:flex}
+  .lx-led .lx-mg{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px}
+  .lx-led .lx-m .k{min-height:32px}
+  .lx-led .lx-big{font-size:44px;line-height:48px;letter-spacing:-.03em}
+  .lx-led .lx-cmp>div{grid-template-columns:minmax(0,1fr) auto;column-gap:8px}
+  .lx-led .lx-cmp [role="rowheader"]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+}
+/* a tablet or a phone on its side (768-1279): the two results side by side, at 44 px below 1024 */
+@media (min-width:768px) and (max-width:1279px){ .lx-led .lx-mg{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px} }
+@media (min-width:768px) and (max-width:1023px){ .lx-led .lx-big{font-size:44px;line-height:48px;letter-spacing:-.03em} .lx-led .lx-cmp>div{grid-template-columns:100px minmax(0,1fr) auto;column-gap:8px} }
+.lx-foot .dot{color:var(--muted)}
+/* the bars lay one 4 px cell per step (case.js sets each width in whole cells and --n); the hero's result is marked
+   data-lx-load, so on a desktop its bars lay once the words are in, and on a phone when it comes into view */
+
+/* ---------- sections: the band (the reader's place, in the hue), the statement, then the story ---------- */
+.lx-sec{margin-top:var(--lx-gap)}
+.lx-sh{position:relative;padding-top:16px}
+.lx-sh::before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:var(--rule)}
+.lx-sh::after{content:"";position:absolute;left:0;top:-1px;height:2px;width:calc(var(--at,0) * 100%);background:var(--accent);transform-origin:0 50%}
+.lx-sk{display:flex;align-items:baseline;gap:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--ink)}
+.lx-sk .n{color:var(--accent)} .lx-sk .n .of{color:var(--muted)}
+/* the statement: the section's first sentence. 40 px up to about 90 characters; a longer one is set at 30 (lx: the
+   build adds .long), so no statement runs to a grey wall */
+.lx-state{margin-top:16px;max-width:832px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
+.lx-state.long{font:500 30px/40px var(--sg);letter-spacing:-.015em}
+@media (max-width:1023px){ .lx-state{font-size:30px;line-height:40px;letter-spacing:-.015em} .lx-state.long,.lx-state.mid{font:500 15px/24px var(--sg);letter-spacing:0} }
+@media (max-width:767px){ .lx-sh{padding-top:12px} .lx-state{margin-top:12px} .lx-body{margin-top:16px} .lx-foot .def{display:none} .lx-hero-d{margin-top:16px} }
+
+/* the story: prose at a 640 px measure; at 1280 and up a figure sits beside its prose instead of under it */
+.lx-body{margin-top:24px}
+.lx-body>*+*,.lx-txt>*+*{margin-top:16px}
+.lx-body>p,.lx-txt>p{max-width:640px;color:var(--body)}
+.lx-body>p.np,.lx-txt>p.np,.lx-body>p.lx-state{color:var(--ink)}
+.lx-body>p.lx-state{max-width:832px}
+.lx-body code,.lx-body .m,.lx-txt .m{font:400 13px/24px var(--mono);color:var(--ink)}
+.lx-duo+*,.lx-body>*+.lx-duo,.lx-body>*+.lx-pull,.lx-body>.lx-pull+*,.lx-body>*+.lx-tiles,.lx-txt>*+.lx-tiles,.lx-txt>*+.lx-pull,.lx-txt>.lx-pull+*{margin-top:32px}
+.lx-fig>*+*{margin-top:32px}
+@media (max-width:1279px){
+  .lx-duo{display:flex;flex-direction:column}
+  .lx-duo>.lx-txt,.lx-duo>.lx-fig{display:contents}
+  .lx-duo>.lx-txt>*{order:2;margin-top:16px} .lx-duo>.lx-txt>:first-child{order:0;margin-top:0}
+  .lx-duo.at2>.lx-txt>:nth-child(2){order:0}
+  .lx-duo>.lx-fig>*{order:1;margin-top:24px;margin-bottom:8px}
+  .lx-duo>.lx-txt>.lx-pull,.lx-duo>.lx-txt>.lx-pull+*,.lx-duo>.lx-txt>.lx-tiles{margin-top:32px}
+}
+@media (max-width:767px){
+  .lx-duo>.lx-txt>.lx-pull,.lx-duo>.lx-txt>.lx-pull+*,.lx-duo>.lx-txt>.lx-tiles{margin-top:24px}
+  .lx-key{margin-top:8px} .lx-led .lx-mg{margin-top:12px} .lx-deep{margin-top:40px}
+}
+@media (min-width:1280px){
+  .lx-duo{display:grid;grid-template-columns:minmax(0,1fr) var(--lx-fig);column-gap:32px;align-items:start}
+  .lx-duo.flip{grid-template-columns:var(--lx-fig) minmax(0,1fr)} .lx-duo.flip>.lx-fig{grid-column:1;grid-row:1}
+}
+
+/* the paragraph at the reading line turns ink and takes a 2 px rule in the hue (case.js; never under reduced motion) */
+.lx-body>p:not(.lx-pull):not(.lx-state),.lx-txt>p:not(.lx-pull){position:relative;transition:color var(--t-ui) var(--ease-enter)}
+.lx-body>p:not(.lx-pull):not(.lx-state)::before,.lx-txt>p:not(.lx-pull)::before{content:"";position:absolute;left:-16px;top:4px;bottom:4px;width:2px;background:var(--accent);transform:scaleY(0);transform-origin:50% 0;transition:transform 320ms var(--ease-enter)}
+.lx-body>p.rd,.lx-txt>p.rd{color:var(--ink)}
+.lx-body>p.rd::before,.lx-txt>p.rd::before{transform:none}
+@media (max-width:1023px){ .lx-body>p:not(.lx-pull):not(.lx-state)::before,.lx-txt>p:not(.lx-pull)::before{left:-10px} }
+
+/* a pair: two numbers against each other, the one that matters in the hue */
+.lx-pair{display:flex;flex-wrap:wrap;align-items:flex-end;column-gap:32px;row-gap:12px}
+.lx-pair>div{display:flex;flex-direction:column}
+.lx-pair .k{margin-top:4px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.lx-pair .to{align-self:center;font:500 40px/48px var(--sg);color:var(--accent)}
+.lx-pair .vs{align-self:center;font:400 13px/24px var(--mono);color:var(--muted)}
+@media (max-width:767px){ .lx-pair{column-gap:20px} .lx-pair .lx-big{font-size:44px;line-height:48px} .lx-pair .to{font-size:30px;line-height:40px} }
+
+/* a pull line: the sentence that carries the section, on the hue's bar */
+.lx-pull,.lx-body>p.lx-pull,.lx-txt>p.lx-pull{max-width:640px;padding-left:22px;border-left:2px solid var(--accent);font:500 30px/40px var(--sg);letter-spacing:-.015em;color:var(--ink)}
+@media (max-width:767px){ .lx-pull,.lx-body>p.lx-pull,.lx-txt>p.lx-pull{padding-left:14px} .lx-pull.long,.lx-body>p.lx-pull.long,.lx-txt>p.lx-pull.long{font-size:15px;line-height:24px;letter-spacing:0} }
+
+/* tiles: a count drawn as its own cells, lit one by one on arrival (gates, experiments, tests, programs) */
+.lx-tiles{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:24px;align-items:start}
+.lx-tiles .lx-big{margin:0}
+.lx-tiles .k{display:block;padding-top:4px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.lx-tiles .b{display:block;margin-top:4px;font:400 13px/20px var(--mono);color:var(--body)}
+.lx-tiles ol{display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:12px 0 0;padding:0;max-width:328px}
+.lx-tiles li{width:8px;height:8px;background:var(--c,var(--accent))}
+/* a phone hides a count the hero's station already draws (the 47 gates) */
+@media (max-width:767px){ .lx-tiles.dup{display:none} .lx-tiles{column-gap:16px} }
+
+/* the checks on real prices light green in order, the index's gates (.ck is page-local; case.js sets --i) */
+.lx-armed .ck li::before{background:var(--copper)}
+.lx-armed.on .ck li::before{background:var(--t-verify);transition:background-color 0ms linear calc(200ms + var(--i,0) * 140ms)}
+
+/* ---------- the way deeper, and the neighbours ---------- */
+.lx-deep{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:24px;margin-top:var(--lx-gap);padding:24px 24px 24px;text-decoration:none}
+.lx-deep .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent)}
+.lx-deep .k .sep{color:var(--muted)}
+.lx-deep .t{display:block;margin-top:8px;font:500 30px/40px var(--sg);letter-spacing:-.015em;color:var(--ink);text-wrap:balance}
+.lx-deep .d{display:block;margin-top:4px;max-width:576px;font:400 15px/24px var(--sg);color:var(--body)}
+.lx-deep .ar{font:500 44px/48px var(--sg);color:var(--accent);transition:transform var(--t-ui) var(--ease-enter)}
+.lx-deep:hover .ar,.lx-deep:focus-visible .ar{transform:translateX(8px)}
+@media (max-width:767px){ .lx-deep{padding:16px 16px} .lx-deep .d{display:none} .lx-deep .ar{font-size:30px;line-height:40px} }
+@media (max-width:379px){ .lx-deep .k .sep{display:none} .lx-deep .k [data-derived]{display:block} }
+
+.lx-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:64px}
+.lx-nav a{display:block;padding:12px 0 16px;border-top:2px solid var(--copper);text-decoration:none;transition:border-color var(--t-ui) var(--ease-enter)}
+.lx-nav a:hover,.lx-nav a:focus-visible{border-color:var(--c,var(--ink))}
+.lx-nav .k{display:flex;align-items:center;gap:8px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.lx-nav .k::before{content:"";width:8px;height:8px;background:var(--c,var(--muted));flex:none}
+.lx-nav .all .k::before{content:none}
+.lx-nav .t{display:block;margin-top:4px;font:500 15px/24px var(--sg);color:var(--ink)}
+.lx-nav .next{text-align:right} .lx-nav .next .k{justify-content:flex-end}
+@media (max-width:767px){ .lx-nav{grid-template-columns:1fr 1fr;gap:12px;margin-top:32px} .lx-nav .all{grid-column:1 / -1;grid-row:1} }
+
+/* ---------- arrival: armed by case.js only while below the fold; .on plays it once; .quick at a skim ---------- */
+.lx-armed [data-lx="up"],.lx-armed[data-lx="up"]{opacity:0;transform:translateY(16px)}
+.lx-armed.on [data-lx="up"],.lx-armed.on[data-lx="up"]{opacity:1;transform:none;transition:opacity 480ms var(--ease-enter),transform 560ms var(--ease-enter);transition-delay:calc(var(--d,0) * 80ms)}
+.lx-sh.lx-armed::after{transform:scaleX(0)}
+.lx-sh.lx-armed.on::after{transform:none;transition:transform 720ms steps(24,end) 80ms}
+.lx-armed .lx-cmp i{transform:scaleX(0)}
+/* every bar of a comparison starts together and takes the same time, a whole cell per step, so the bars stand in
+   their final order at every instant */
+.lx-armed.on .lx-cmp i{transform:none;transition:transform 640ms steps(var(--n,24),end) 240ms}
+.lx-armed .lx-tiles li,.lx-armed.lx-tiles li{opacity:0}
+.lx-armed.on .lx-tiles li,.lx-armed.on.lx-tiles li{opacity:1;transition:opacity 0ms linear;transition-delay:calc(160ms + var(--i,0) * 22ms)}
+.lx-armed.on.quick [data-lx="up"],.lx-armed.on.quick[data-lx="up"],.lx-armed.on.quick .lx-cmp i,.lx-sh.lx-armed.on.quick::after{transition-duration:200ms;transition-delay:0ms}
+.lx-armed.on.quick .lx-tiles li,.lx-armed.on.quick.lx-tiles li{transition-delay:calc(var(--i,0) * 4ms)}
+/* at a skim a title or a statement is read in passing: it is there at once, in ink, never caught halfway up */
+.lx-armed.on.quick h2[data-lx="up"],.lx-armed.on.quick .lx-state[data-lx="up"]{transition:none}
+
+@media (prefers-reduced-motion:reduce){ .lx-hero .lx-up{animation:none} }
+@media print{ .lx-rail,.lx-bar,.lx-arrive-cv{display:none} .lx-armed *{opacity:1!important;transform:none!important} }
+
+/* a results row set like the index cards: three cells, each a 2 px hue rule, its key, the number in the hue and its
+   line; on a phone one row per cell, the number beside its words in a column as wide as the widest number */
+.lx-stats{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:24px;margin-top:32px}
+.lx-stats .s{display:block;margin-top:8px;max-width:320px;font:400 13px/20px var(--mono);color:var(--body)}
+@media (max-width:767px){
+  .lx-stats{grid-template-columns:minmax(0,1fr);row-gap:16px;margin-top:24px}
+  .lx-stats .lx-m{display:grid;grid-template-columns:136px minmax(0,1fr);column-gap:16px;align-items:start}
+  .lx-stats .lx-big{grid-column:1;grid-row:1 / span 2;margin-top:0;font-size:44px;line-height:48px;letter-spacing:-.03em}
+  .lx-stats .k{grid-column:2} .lx-stats .s{grid-column:2;margin-top:4px}
+}

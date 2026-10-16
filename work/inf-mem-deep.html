@@ -27,6 +27,10 @@
 <link rel="stylesheet" href="assets/case.css">
 <link rel="stylesheet" href="assets/deep.css">
 <style>
+/* the rail's steps are numbered as the page numbers them, one to nine, and sit a shade under the chapters */
+.lx-rail li.sub a .n,.lx-rail li.sub.past a .n{color:var(--muted)} .lx-rail li.sub.here a .n{color:var(--accent)}
+/* the results row on a phone: the widest number, 0.571, keeps clear of its words */
+@media (max-width:767px){ .lx-stats .lx-m{grid-template-columns:128px minmax(0,1fr)} }
 /* this page's meanings: a hue is where data is going, or an outcome. Every colour is a :root token. */
 .ig .f-blue{fill:var(--v-blue)} .ig .f-violet{fill:var(--v-violet)} .ig .f-cyan{fill:var(--v-cyan)}
 .ig .f-green{fill:var(--v-green)} .ig .f-red{fill:var(--v-red)} .ig .f-amber{fill:var(--v-amber)}
@@ -34,7 +38,7 @@
 .ig .s-blue{fill:var(--void);stroke:var(--v-blue);stroke-width:1px} .ig .s-violet{fill:var(--void);stroke:var(--v-violet);stroke-width:1px}
 .ig .s-cyan{fill:var(--void);stroke:var(--v-cyan);stroke-width:1px} .ig .s-green{fill:var(--void);stroke:var(--v-green);stroke-width:1px}
 /* a preview that holds its place with no words: its outlines in the rule until its step */
-.ig .gw.ghost text{visibility:hidden} .ig .gw.ghost :is(.s-cyan,.s-green){stroke:var(--rule)}
+.ig .gw.ghost text{visibility:hidden} .ig .gw.ghost :is(.s-cyan,.s-green){stroke:var(--copper)}
 .ig .s-red{fill:var(--void);stroke:var(--v-red);stroke-width:1px} .ig .s-amber{fill:none;stroke:var(--v-amber);stroke-width:1px}
 .ig .s-ink{fill:none;stroke:var(--ink);stroke-width:1px} .ig .s-mut{fill:none;stroke:var(--muted);stroke-width:1px}
 /* dimming steps a colour down a token, never an alpha: words to muted, boxes and copper to rule, a settled blue to residue */
@@ -48,10 +52,10 @@
 .ig .aa,.ig .aa *{shape-rendering:geometricPrecision}
 .ig .fd{transition:opacity 320ms var(--ease-enter)}
 .ig .gone{display:none}
-/* a part waiting for its step (deep.css): this page's fills and lines dim to rule as well */
-#main .ig .ghost text{fill:var(--copper)}
-#main .ig .ghost rect:not([class*="f-"]),#main .ig .ghost path:not([class*="f-"]),#main .ig .ghost line{stroke:var(--rule)}
-#main .ig .ghost rect[class*="f-"],#main .ig .ghost path[class*="f-"]{fill:var(--rule);stroke:none}
+/* a part waiting for its step (deep.css): this page's fills and lines dim to copper as well */
+#main .ig .ghost text{fill:var(--muted)}
+#main .ig .ghost rect:not([class*="f-"]),#main .ig .ghost path:not([class*="f-"]),#main .ig .ghost line{stroke:var(--copper)}
+#main .ig .ghost rect[class*="f-"],#main .ig .ghost path[class*="f-"]{fill:var(--copper);stroke:none}
 .lgd{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:24px;list-style:none;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body)}
 .lgd li{display:inline-flex;align-items:center;gap:8px}
 .lgd i{width:8px;height:8px;flex:none}
@@ -98,12 +102,14 @@
 /* fig 14's numbers wait as their slots: the rules and labels faint, no figure drawn until their step */
 .scene.js .stats.ghost li{border-top-color:var(--copper)}
 .scene.js .stats.ghost :is(.v,.b){visibility:hidden}
-.scene.js .stats.ghost .k,.scene.js .stats.ghost .k *{color:var(--copper)}
+.scene.js .stats.ghost .k,.scene.js .stats.ghost .k *{color:var(--muted)}
 .sc-tg .v{display:none}
-.head>.scene{margin-top:40px;max-width:704px}
-.head>.lgd{margin-top:16px}
+/* the opening scene sits in the hero's frame, its colour key under it */
+.lx-shot>.lgd{margin:0;padding:12px 16px 16px;border-top:1px solid var(--rule)}
+/* inline links in the chapters keep the long read's hit area: 24 px, 32 on touch, without moving a line box */
+.lx-ch .lx-body a{padding:5px 0}
+@media (pointer:coarse){ .lx-ch .lx-body a{padding:9px 0} }
 /* the measured numbers in the header: ink on the body grey, the rest of the line stays quiet */
-.facts dd b{font-weight:400;color:var(--ink)}
 .tg .grp{display:grid;grid-template-columns:1fr 48px 48px}
 .tg .sub{display:none;margin:0;padding:0 0 8px 16px;list-style:none}
 .tg .sub.open{display:block}
@@ -125,26 +131,36 @@
   <a class="sp" href="inf-mem.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
   <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
 </header>
+<div class="lx-bar" aria-hidden="true"></div>
+<nav class="lx-rail" aria-label="contents">
+  <ol>
+    <li><a href="#top"><span class="n">+</span><span class="t">in depth</span></a></li>
+    <li><a href="#ch-situation"><span class="n">01</span><span class="t">the situation</span></a></li>
+    <li><a href="#ch-idea"><span class="n">02</span><span class="t">the idea</span></a></li>
+    <li><a href="#ch-build"><span class="n">03</span><span class="t">the build</span></a></li>
+    <li class="sub"><a href="#st-hold"><span class="n">1</span><span class="t">holding</span></a></li>
+    <li class="sub"><a href="#st-store"><span class="n">2</span><span class="t">the store</span></a></li>
+    <li class="sub"><a href="#st-gate1"><span class="n">3</span><span class="t">first gate</span></a></li>
+    <li class="sub"><a href="#st-rank"><span class="n">4</span><span class="t">ranking</span></a></li>
+    <li class="sub"><a href="#st-panel"><span class="n">5</span><span class="t">review panel</span></a></li>
+    <li class="sub"><a href="#st-inject"><span class="n">6</span><span class="t">injection</span></a></li>
+    <li class="sub"><a href="#st-extract"><span class="n">7</span><span class="t">learning</span></a></li>
+    <li class="sub"><a href="#st-gate2"><span class="n">8</span><span class="t">second gate</span></a></li>
+    <li class="sub"><a href="#st-ledger"><span class="n">9</span><span class="t">what crosses</span></a></li>
+    <li><a href="#ch-broke"><span class="n">04</span><span class="t">what broke</span></a></li>
+    <li><a href="#ch-results"><span class="n">05</span><span class="t">results</span></a></li>
+  </ol>
+</nav>
 
 <main id="main" tabindex="-1">
-  <header class="blk head">
-    <p class="kick">beyond the walk <span class="sep">·</span> in depth</p>
-    <h1>inf-mem, in depth</h1>
-    <div class="head-grid">
-      <div>
-        <p class="lede"><span data-src="Olivesz/inf-mem@c6579f9:README.md#L14-L22">How a prompt picks up memories before it is sent, and how the reply turns into new ones.</span> <span data-src="Olivesz/inf-mem@c6579f9:README.md#L53-L60">Storage and search run on the machine; extraction and compression call Groq.</span></p>
-        <p class="lede lede-2">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
-      </div>
-      <dl class="facts">
-        <div><dt>short</dt><dd><a href="inf-mem.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>stack</dt><dd data-src="Olivesz/inf-mem@c6579f9:README.md#L89-L105">Python <span class="dot">·</span> FastAPI <span class="dot">·</span> SQLite <span class="dot">·</span> ONNX <span class="dot">·</span> Chrome extension</dd></div>
-        <div><dt>held out</dt><dd>off-topic <b data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</b>, was <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span> <span class="dot">·</span> <span data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5</span> <b data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</b></dd></div>
-        <div><dt>speed</dt><dd>/retrieve <b data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5&nbsp;ms</b> p50 at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> memories</dd></div>
-        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer">github.com/Olivesz/inf-mem</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 14 minutes</dd></div>
-      </dl>
-    </div>
-    <figure class="scene ig" id="s-idea" aria-labelledby="s-idea-cap">
+  <div class="lxb lx-hero deep" id="top">
+    <header class="lx-hero-t">
+      <p class="kick lx-up" style="--d:0">beyond the walk <span class="sep">·</span> in depth</p>
+      <h1 class="lx-up" style="--d:1">inf-mem, in depth</h1>
+    </header>
+    <div class="lx-shot lx-fr" data-lx-arrive>
+      <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <figure class="scene ig" id="s-idea" aria-labelledby="s-idea-cap">
       <div class="sc-stage"><div class="sc-art"></div></div>
       <ol class="sc-keys">
         <li data-key="map" data-at="0">The places a message touches: the browser, this machine, the chat site and Groq.</li>
@@ -156,7 +172,7 @@
       </ol>
       <figcaption class="sc-cap" id="s-idea-cap"><span class="n">fig 1</span>The store is read before a prompt is sent and written after the reply.</figcaption>
     </figure>
-    <ul class="lgd" aria-label="what the colours mean">
+      <ul class="lgd" aria-label="what the colours mean">
       <li><i class="c-b"></i>blue · to this machine</li>
       <li><i class="c-v"></i>violet · to the chat site</li>
       <li><i class="c-c"></i>cyan · to Groq</li>
@@ -164,45 +180,45 @@
       <li><i class="c-r"></i>red · error</li>
       <li><i class="c-a"></i>amber · a threshold</li>
     </ul>
-  </header>
+    </div>
+    <div class="lx-hero-d">
+      <p class="lx-lede lx-up" style="--d:2"><span data-src="Olivesz/inf-mem@c6579f9:README.md#L14-L22">How a prompt picks up memories before it is sent, and how the reply turns into new ones.</span> <span data-src="Olivesz/inf-mem@c6579f9:README.md#L53-L60">Storage and search run on the machine; extraction and compression call Groq.</span></p>
+      <p class="lx-lede lx-up" style="--d:3">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
+      <div class="lx-cta lx-up" style="--d:4">
+        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q" href="inf-mem.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
+      </div>
+      <dl class="facts lx-up" style="--d:5">
+        <div><dt>stack</dt><dd data-src="Olivesz/inf-mem@c6579f9:README.md#L89-L105">Python <span class="dot">·</span> FastAPI <span class="dot">·</span> SQLite <span class="dot">·</span> ONNX <span class="dot">·</span> Chrome extension</dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer">github.com/Olivesz/inf-mem</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 14 minutes</dd></div>
+      </dl>
+    </div>
+  </div>
 
-  <div class="blk dd">
-    <aside class="dd-rail">
-      <nav class="dd-toc" aria-label="contents">
-        <p class="k">contents</p>
-        <ol>
-          <li><a href="#ch-situation"><span class="n">01</span>the situation</a></li>
-          <li><a href="#ch-idea"><span class="n">02</span>the idea</a></li>
-          <li><a href="#ch-build"><span class="n">03</span>the build</a>
-            <ol>
-              <li><a href="#st-hold">holding the prompt</a></li>
-              <li><a href="#st-store">the store</a></li>
-              <li><a href="#st-gate1">first gate</a></li>
-              <li><a href="#st-rank">ranking</a></li>
-              <li><a href="#st-panel">review panel</a></li>
-              <li><a href="#st-inject">injection</a></li>
-              <li><a href="#st-extract">learning</a></li>
-              <li><a href="#st-gate2">second gate</a></li>
-              <li><a href="#st-ledger">what crosses</a></li>
-            </ol>
-          </li>
-          <li><a href="#ch-broke"><span class="n">04</span>what broke</a></li>
-          <li><a href="#ch-results"><span class="n">05</span>results</a></li>
+
+  <article class="lxb">
+    <section class="ch lx-ch" id="ch-situation" aria-labelledby="h-situation">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.2">
+        <p class="lx-sk" data-lx="up"><span class="n">01 <span class="of">/ 05</span></span>the situation</p>
+        <h2 data-lx="up" style="--d:1" id="h-situation">Every thread starts blank</h2>
+
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#s-blank"><span class="n">fig 2</span><span class="t">Typed again in every thread</span><span class="lx-g8" aria-hidden="true"><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#s-angle"><span class="n">fig 3</span><span class="t">Closeness as an angle</span><span class="lx-g8" aria-hidden="true"><i style="--h:1;--c:var(--v-violet)"></i><i style="--h:2;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:6;--c:var(--v-violet)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
         </ol>
-        <a class="back-to" href="inf-mem.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
-      </nav>
-    </aside>
-
-    <article class="dd-body">
-      <!-- 01 -->
-      <section class="ch" id="ch-situation" aria-labelledby="h-situation">
-        <p class="ch-k">01 <span class="sep">·</span> the situation</p>
-        <h2 id="h-situation">Every thread starts blank</h2>
-        <p class="np">A chat model keeps nothing once a conversation ends.</p>
-        <p>Projects, preferences and background get typed again in every new thread, and nothing typed on one site reaches the other.</p>
-        <p>Fixing that from outside is hard in two ways. inf-mem has to cut into two sites it does not own, and picking the right few lines out of many needs meaning, not keywords.</p>
-
-        <figure class="scene ig" id="s-blank" aria-labelledby="s-blank-cap">
+      </header>
+      <div class="lx-body">
+<p class="lx-state">A chat model keeps nothing once a conversation ends.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Projects, preferences and background get typed again in every new thread, and nothing typed on one site reaches the other.</p>
+<p>Fixing that from outside is hard in two ways. inf-mem has to cut into two sites it does not own, and picking the right few lines out of many needs meaning, not keywords.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-blank" aria-labelledby="s-blank-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="t1" data-at="8">The first thread on chatgpt.com: background first, then the question.</li>
@@ -213,11 +229,16 @@
           </ol>
           <figcaption class="sc-cap" id="s-blank-cap"><span class="n">fig 2</span>Each new thread starts blank, on either site. The background lines are <span data-src="Olivesz/inf-mem@c6579f9:docs/make_popup_screenshot.py#L23-L28">memories of the repo’s invented demo user</span>. <span class="verb cap">click</span> to open another thread.</figcaption>
         </figure>
-
-        <p>The fix needs one way to say which stored line is relevant to a new prompt.</p>
-        <p data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L76-L99">The search here works by meaning, not by matching words. A small model turns each text into 384 numbers. Texts about the same thing end up pointing the same way, and the cosine of the angle between them is the score: 1 for the same direction, 0 for unrelated.</p>
-
-        <figure class="scene ig" id="s-angle" aria-labelledby="s-angle-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The fix needs one way to say which stored line is relevant to a new prompt.</p>
+<p data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L76-L99">The search here works by meaning, not by matching words. A small model turns each text into 384 numbers. Texts about the same thing end up pointing the same way, and the cosine of the angle between them is the score: 1 for the same direction, 0 for unrelated.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-angle" aria-labelledby="s-angle-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="vec" data-at="8">The PREFERENCE line becomes <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> numbers: one direction, an arrow.</li>
@@ -227,32 +248,54 @@
           </ol>
           <figcaption class="sc-cap" id="s-angle-cap"><span class="n">fig 3</span>Schematic: <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L52">384</span> dimensions drawn as two. Closeness is the cosine of the angle between two texts. Drag the slider to turn the prompt.</figcaption>
         </figure>
-      </section>
+</div>
+</div>
+      </div>
+    </section>
 
-      <!-- 02 -->
-      <section class="ch" id="ch-idea" aria-labelledby="h-idea">
-        <p class="ch-k">02 <span class="sep">·</span> the idea</p>
-        <h2 id="h-idea">Two moments around every message</h2>
-        <p class="np" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">The idea is one memory store on the machine, outside every conversation, placed in the path of each message twice.</p>
-        <p>Before the prompt leaves, the store offers what is relevant. After the reply arrives, it keeps what is new, with help from Groq, a hosted API that runs open models. The same store serves both sites. <a href="#s-idea">The opening figure</a> plays the whole round trip.</p>
+    <section class="ch lx-ch" id="ch-idea" aria-labelledby="h-idea">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.4">
+        <p class="lx-sk" data-lx="up"><span class="n">02 <span class="of">/ 05</span></span>the idea</p>
+        <h2 data-lx="up" style="--d:1" id="h-idea">Two moments around every message</h2>
 
+      </header>
+      <div class="lx-body">
+<p class="lx-state long" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">The idea is one memory store on the machine, outside every conversation, placed in the path of each message twice.</p>
+<p>Before the prompt leaves, the store offers what is relevant. After the reply arrives, it keeps what is new, with help from Groq, a hosted API that runs open models. The same store serves both sites. <a href="#s-idea">The opening figure</a> plays the whole round trip.</p>
+<p class="lx-pull mid">Read before sending, write after replying, and show the user what goes out.</p>
+      </div>
+    </section>
 
+    <section class="ch lx-ch" id="ch-build" aria-labelledby="h-build">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.6">
+        <p class="lx-sk" data-lx="up"><span class="n">03 <span class="of">/ 05</span></span>the build</p>
+        <h2 data-lx="up" style="--d:1" id="h-build">One message, hop by hop</h2>
 
-        <p class="pull">Read before sending, write after replying, and show the user what goes out.</p>
-      </section>
-
-      <!-- 03 -->
-      <section class="ch" id="ch-build" aria-labelledby="h-build">
-        <p class="ch-k">03 <span class="sep">·</span> the build</p>
-        <h2 id="h-build">One message, hop by hop</h2>
-        <p>Each step follows the same message one hop further: from the key press, through the store and the panel, to the chat site, and back as a new memory.</p>
-
-        <div class="st" id="st-hold">
-          <p class="st-k">step 01 <span class="sep">·</span> holding the prompt</p>
-          <h3>Stand in the way of the send</h3>
-          <p data-src="Olivesz/inf-mem@c6579f9:extension/manifest.json#L23-L48">On chatgpt.com, chat.openai.com and claude.ai, a content script listens on the input box.</p>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L250-L255">Enter (without Shift)</span> and <span data-src="Olivesz/inf-mem@c6579f9:extension/content/chatgpt.js#L15">the send button</span> are cancelled, and the text is read out. <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L7-L8">The page’s script cannot reach localhost itself, so the extension’s service worker posts it</span> to the backend on <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L18">port 7842</span>. <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L195-L198">If the worker answers with an error, or no memory passes the gate, the script puts the text back and sends it itself</span>, so the site gets it as typed: no memory, and no lost message.</p>
-          <figure class="scene ig" id="s-hold" aria-labelledby="s-hold-cap">
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#s-hold"><span class="n">fig 4</span><span class="t">Enter, held</span><span class="s" aria-hidden="true">holding</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--ink)"></i><i style="--h:3;--c:var(--ink)"></i><i style="--h:3;--c:var(--ink)"></i><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:6;--c:var(--v-blue)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#s-store"><span class="n">fig 5</span><span class="t">A memory as a vector</span><span class="s" aria-hidden="true">the store</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:3;--c:var(--v-blue)"></i><i style="--h:6;--c:var(--v-blue)"></i><i style="--h:1;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:2;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i></span></a></li>
+          <li data-lx="up" style="--d:5"><a href="#s-gate1"><span class="n">fig 6</span><span class="t">The first gate</span><span class="s" aria-hidden="true">first gate</span><span class="lx-g8" aria-hidden="true"><i class="o" style="--h:1"></i><i class="o" style="--h:2"></i><i class="o" style="--h:3"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:6;--c:var(--v-violet)"></i><i style="--h:6;--c:var(--v-violet)"></i></span></a></li>
+          <li data-lx="up" style="--d:6"><a href="#s-rank"><span class="n">fig 7</span><span class="t">Similarity times importance</span><span class="s" aria-hidden="true">ranking</span><span class="lx-g8" aria-hidden="true"><i style="--h:6;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--v-violet)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:1"></i></span></a></li>
+          <li data-lx="up" style="--d:7"><a href="#s-panel"><span class="n">fig 8</span><span class="t">The review panel</span><span class="s" aria-hidden="true">review panel</span><span class="lx-g8" aria-hidden="true"><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:2;--c:var(--ink)"></i><i style="--h:2;--c:var(--ink)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
+          <li data-lx="up" style="--d:8"><a href="#s-inject"><span class="n">fig 9</span><span class="t">The block above the prompt</span><span class="s" aria-hidden="true">injection</span><span class="lx-g8" aria-hidden="true"><i style="--h:6;--c:var(--v-violet)"></i><i style="--h:6;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--ink)"></i><i style="--h:3;--c:var(--ink)"></i><i style="--h:3;--c:var(--ink)"></i><i style="--h:3;--c:var(--ink)"></i></span></a></li>
+          <li data-lx="up" style="--d:9"><a href="#s-extract"><span class="n">fig 10</span><span class="t">The call to Groq</span><span class="s" aria-hidden="true">learning</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--ink)"></i><i style="--h:3;--c:var(--ink)"></i><i style="--h:4;--c:var(--v-cyan)"></i><i style="--h:5;--c:var(--v-cyan)"></i><i style="--h:6;--c:var(--v-cyan)"></i><i style="--h:5;--c:var(--v-cyan)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-green)"></i></span></a></li>
+          <li data-lx="up" style="--d:10"><a href="#s-gate2"><span class="n">fig 11</span><span class="t">The second gate</span><span class="s" aria-hidden="true">second gate</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:5;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-amber)"></i><i style="--h:6;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-green)"></i></span></a></li>
+          <li data-lx="up" style="--d:11"><a href="#s-ledger"><span class="n">fig 12</span><span class="t">Every crossing for one message</span><span class="s" aria-hidden="true">what crosses</span><span class="lx-g8" aria-hidden="true"><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p>Each step follows the same message one hop further: from the key press, through the store and the panel, to the chat site, and back as a new memory.</p>
+<div class="st" id="st-hold">
+<p class="st-k">step 01 <span class="sep">·</span> holding the prompt</p>
+<h3>Stand in the way of the send</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p data-src="Olivesz/inf-mem@c6579f9:extension/manifest.json#L23-L48">On chatgpt.com, chat.openai.com and claude.ai, a content script listens on the input box.</p>
+<p><span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L250-L255">Enter (without Shift)</span> and <span data-src="Olivesz/inf-mem@c6579f9:extension/content/chatgpt.js#L15">the send button</span> are cancelled, and the text is read out. <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L7-L8">The page’s script cannot reach localhost itself, so the extension’s service worker posts it</span> to the backend on <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L18">port 7842</span>. <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L195-L198">If the worker answers with an error, or no memory passes the gate, the script puts the text back and sends it itself</span>, so the site gets it as typed: no memory, and no lost message.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-hold" aria-labelledby="s-hold-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="box" data-at="0">The site’s input box, and the ways to finish a line: Enter, Shift + Enter, the send button.</li>
@@ -265,15 +308,21 @@
             </ol>
             <figcaption class="sc-cap" id="s-hold-cap"><span class="n">fig 4</span>Enter is held; Shift + Enter still makes a new line. With the backend stopped, the site sends the prompt as typed.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-store">
-          <p class="st-k">step 02 <span class="sep">·</span> the store</p>
-          <h3><span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L28">384</span> numbers per memory</h3>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L34-L47">The backend embeds text with BAAI/bge-small-en-v1.5 through fastembed, which runs on ONNX Runtime</span>, so there is no PyTorch and no GPU. <span data-src="Olivesz/inf-mem@c6579f9:README.md#L73">The model downloads once, about 130 MB.</span></p>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L107-L109">Each memory is then one row of a single SQLite file, memories.db: its text, type, importance, counters and its 384 numbers.</span> <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L33-L37">On start the vectors are loaded into a matrix held in memory for search, with the IDs kept in matrix order.</span> <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L178-L181">A write touches only its own row.</span></p>
-          <p>A prompt goes through the same model, but only to be compared. It is never stored.</p>
-          <figure class="scene ig" id="s-store" aria-labelledby="s-store-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-store">
+<p class="st-k">step 02 <span class="sep">·</span> the store</p>
+<h3><span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L28">384</span> numbers per memory</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L34-L47">The backend embeds text with BAAI/bge-small-en-v1.5 through fastembed, which runs on ONNX Runtime</span>, so there is no PyTorch and no GPU. <span data-src="Olivesz/inf-mem@c6579f9:README.md#L73">The model downloads once, about 130 MB.</span></p>
+<p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L107-L109">Each memory is then one row of a single SQLite file, memories.db: its text, type, importance, counters and its 384 numbers.</span> <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L33-L37">On start the vectors are loaded into a matrix held in memory for search, with the IDs kept in matrix order.</span> <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L178-L181">A write touches only its own row.</span></p>
+<p>A prompt goes through the same model, but only to be compared. It is never stored.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-store" aria-labelledby="s-store-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="model" data-at="6">Memory and prompt both go through the model, on this machine.</li>
@@ -284,14 +333,20 @@
             </ol>
             <figcaption class="sc-cap" id="s-store-cap"><span class="n">fig 5</span>Schematic values. A prompt is embedded and compared, never stored; a memory is embedded and stored. <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L211-L212">IDs are uuid4 strings</span>, shortened here. The first version kept vectors and IDs in two NumPy files; what broke, below, happened there.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-gate1">
-          <p class="st-k">step 03 <span class="sep">·</span> the first gate</p>
-          <h3>Under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, never offered</h3>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L66-L73">The prompt is embedded with the model’s query instruction</span>, then <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L410-L412">compared with every stored row by cosine, in one pass</span>. Anything under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> is dropped here, before its importance is even looked at.</p>
-          <p>The gate used to be <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">0.35</span>, picked by hand. On held-out questions from LoCoMo, a public long-conversation benchmark, that let memories into <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span> of off-topic prompts. <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, chosen on the other half of the benchmark, cuts that to <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span>, while <span data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5</span>, <span data-src="Olivesz/inf-mem@c6579f9:eval/calibration.md#L76-L77">the share of a question’s evidence found in the 5 memories returned</span>, stays at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span> against <span data-src="Olivesz/inf-mem@c6579f9:README.md#L33">0.575</span> with no gate.</p>
-          <figure class="scene ig" id="s-gate1" aria-labelledby="s-gate1-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-gate1">
+<p class="st-k">step 03 <span class="sep">·</span> the first gate</p>
+<h3>Under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, never offered</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L66-L73">The prompt is embedded with the model’s query instruction</span>, then <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L410-L412">compared with every stored row by cosine, in one pass</span>. Anything under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> is dropped here, before its importance is even looked at.</p>
+<p>The gate used to be <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">0.35</span>, picked by hand. On held-out questions from LoCoMo, a public long-conversation benchmark, that let memories into <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span> of off-topic prompts. <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, chosen on the other half of the benchmark, cuts that to <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span>, while <span data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5</span>, <span data-src="Olivesz/inf-mem@c6579f9:eval/calibration.md#L76-L77">the share of a question’s evidence found in the 5 memories returned</span>, stays at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span> against <span data-src="Olivesz/inf-mem@c6579f9:README.md#L33">0.575</span> with no gate.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-gate1" aria-labelledby="s-gate1-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="cards" data-at="0">The gate at <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span>, and one stored memory of each type.</li>
@@ -301,14 +356,20 @@
             </ol>
             <figcaption class="sc-cap" id="s-gate1-cap"><span class="n">fig 6</span>Example similarities. A memory under <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L31">0.61</span> is never offered, however important it is. Drag the gate to move it.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-rank">
-          <p class="st-k">step 04 <span class="sep">·</span> ranking</p>
-          <h3 data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L157">similarity × (1 + importance / 10)</h3>
-          <p data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L134-L135">Closeness alone does not set the order. Each surviving memory’s similarity is multiplied by one plus a tenth of its importance, so importance can nearly double a score.</p>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L124">The five best</span> go back to the browser, and <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L161">each one returned counts one more access</span>.</p>
-          <figure class="scene ig" id="s-rank" aria-labelledby="s-rank-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-rank">
+<p class="st-k">step 04 <span class="sep">·</span> ranking</p>
+<h3 data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L157">similarity × (1 + importance / 10)</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L134-L135">Closeness alone does not set the order. Each surviving memory’s similarity is multiplied by one plus a tenth of its importance, so importance can nearly double a score.</p>
+<p><span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L124">The five best</span> go back to the browser, and <span data-src="Olivesz/inf-mem@c6579f9:backend/retriever.py#L161">each one returned counts one more access</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-rank" aria-labelledby="s-rank-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="claim" data-at="0">B ranks above A, though A is closer. Here is why.</li>
@@ -320,14 +381,20 @@
             </ol>
             <figcaption class="sc-cap" id="s-rank-cap"><span class="n">fig 7</span>The rule is the code’s; the cards are set to show it. <span data-derived="similarity × (1 + importance / 10), retriever.py#L157">At 0.62 and importance 10 a memory scores 1.24, above one at 0.90 and importance 1 (0.99)</span>. Drag the sliders to re-rank.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-panel">
-          <p class="st-k">step 05 <span class="sep">·</span> the review panel</p>
-          <h3>Nothing reaches the chat site without a click</h3>
-          <p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L95-L130">Before anything reaches the chat site, a panel slides in with the memories that would go with the prompt. Sending with memory, skipping, or compressing is one click; closing the panel sends nothing.</p>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L11">Compression is off by default.</span> When it is on, Groq rewrites the prompt shorter before the panel opens, and the panel previews <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L91">the first 150 characters</span>.</p>
-          <figure class="scene ig" id="s-panel" aria-labelledby="s-panel-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-panel">
+<p class="st-k">step 05 <span class="sep">·</span> the review panel</p>
+<h3>Nothing reaches the chat site without a click</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L95-L130">Before anything reaches the chat site, a panel slides in with the memories that would go with the prompt. Sending with memory, skipping, or compressing is one click; closing the panel sends nothing.</p>
+<p><span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L11">Compression is off by default.</span> When it is on, Groq rewrites the prompt shorter before the panel opens, and the panel previews <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L91">the first 150 characters</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-panel" aria-labelledby="s-panel-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="slide" data-at="6">The panel slides in, <span data-src="Olivesz/inf-mem@c6579f9:extension/panel/panel.css#L9-L32">320 px wide, over 0.3 s</span>.</li>
@@ -337,14 +404,20 @@
             </ol>
             <figcaption class="sc-cap" id="s-panel-cap"><span class="n">fig 8</span>Nothing reaches the chat site until a button is pressed. Skip sends the prompt as typed; × sends nothing; compress &amp; send appears only when compression is on.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-inject">
-          <p class="st-k">step 06 <span class="sep">·</span> injection</p>
-          <h3>A plain-text block above the prompt</h3>
-          <p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L46-L52">Approved memories become a plain-text block above the prompt, one line per memory, each marked with its type.</p>
-          <p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L219-L238">The content script clears the site’s input box, inserts the full text the way typing would, waits <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L227">50 ms</span> for the page to catch up, and clicks the site’s send button, or presses Enter when there is none. From here the memories are part of the prompt, and the chat site receives them like any other text.</p>
-          <figure class="scene ig" id="s-inject" aria-labelledby="s-inject-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-inject">
+<p class="st-k">step 06 <span class="sep">·</span> injection</p>
+<h3>A plain-text block above the prompt</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L46-L52">Approved memories become a plain-text block above the prompt, one line per memory, each marked with its type.</p>
+<p data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L219-L238">The content script clears the site’s input box, inserts the full text the way typing would, waits <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L227">50 ms</span> for the page to catch up, and clicks the site’s send button, or presses Enter when there is none. From here the memories are part of the prompt, and the chat site receives them like any other text.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-inject" aria-labelledby="s-inject-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="lines" data-at="6">Each approved memory becomes one line: bullet, type, text.</li>
@@ -355,15 +428,21 @@
             </ol>
             <figcaption class="sc-cap" id="s-inject-cap"><span class="n">fig 9</span>The literal block, type names as the code writes them. Memories approved in the panel travel to the chat site as part of the prompt.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-extract">
-          <p class="st-k">step 07 <span class="sep">·</span> learning from the reply</p>
-          <h3>The Groq call that is always on</h3>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L263-L283">Once the reply has finished streaming and its text has stayed the same</span> for <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L20">600 ms</span>, the content script passes the prompt and that reply to the worker, once, and the worker <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L110-L123">posts them to /extract without waiting</span>.</p>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L85">CI checks that on copies of both sites’ pages: one extraction per finished reply.</span> On the live sites, <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">ChatGPT’s composer was checked on 2026-10-13</span>; its reply markup, and claude.ai, are not checked yet.</p>
-          <p data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L28-L47">The backend sends both to Groq’s <span data-src="Olivesz/inf-mem@c6579f9:backend/config.py#L19">llama-3.1-8b-instant</span> with fixed instructions: pick out facts, projects, preferences and episodes worth keeping, score each from 1 to 10, and answer with a JSON list, or an empty one. This is the Groq call that is always on; compression is the other, and it is off by default. <span data-src="Olivesz/inf-mem@c6579f9:backend/main.py#L82-L85">Without a Groq key the backend refuses it</span>, and nothing new is learned, while <span data-src="Olivesz/inf-mem@c6579f9:backend/main.py#L122-L133">/retrieve keeps working</span>.</p>
-          <figure class="scene ig" id="s-extract" aria-labelledby="s-extract-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-extract">
+<p class="st-k">step 07 <span class="sep">·</span> learning from the reply</p>
+<h3>The Groq call that is always on</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L263-L283">Once the reply has finished streaming and its text has stayed the same</span> for <span data-src="Olivesz/inf-mem@c6579f9:extension/content/shared.js#L20">600 ms</span>, the content script passes the prompt and that reply to the worker, once, and the worker <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L110-L123">posts them to /extract without waiting</span>.</p>
+<p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L85">CI checks that on copies of both sites’ pages: one extraction per finished reply.</span> On the live sites, <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">ChatGPT’s composer was checked on 2026-10-13</span>; its reply markup, and claude.ai, are not checked yet.</p>
+<p data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L28-L47">The backend sends both to Groq’s <span data-src="Olivesz/inf-mem@c6579f9:backend/config.py#L19">llama-3.1-8b-instant</span> with fixed instructions: pick out facts, projects, preferences and episodes worth keeping, score each from 1 to 10, and answer with a JSON list, or an empty one. This is the Groq call that is always on; compression is the other, and it is off by default. <span data-src="Olivesz/inf-mem@c6579f9:backend/main.py#L82-L85">Without a Groq key the backend refuses it</span>, and nothing new is learned, while <span data-src="Olivesz/inf-mem@c6579f9:backend/main.py#L122-L133">/retrieve keeps working</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-extract" aria-labelledby="s-extract-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="reply" data-at="6">The reply streams in. Nothing is sent while it grows.</li>
@@ -375,14 +454,20 @@
             </ol>
             <figcaption class="sc-cap" id="s-extract-cap"><span class="n">fig 10</span>Cyan crosses the machine boundary: the prompt and the finished reply go to Groq, once per reply; the store does not. What comes back is a JSON list, checked before anything is kept.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-gate2">
-          <p class="st-k">step 08 <span class="sep">·</span> the second gate</p>
-          <h3>At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above, the same memory</h3>
-          <p><span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L154-L161">Each candidate is embedded on the machine and scored against every stored memory in one pass. Only the closest counts.</span> At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above it is the same memory: <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L196-L209">the candidate replaces it if its importance is higher or its text longer, and is skipped otherwise</span>. <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L211-L220">Anything else is stored as a new memory, under a new ID.</span></p>
-          <p>The gate used to be <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">0.85</span>. On <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">180</span> hand-labelled pairs, no cosine threshold that merged anything was right <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">90%</span> of the time, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">39%</span> of the merges the old gate made joined two different facts. A paraphrase and a different fact score alike, so only near-verbatim restatements merge now.</p>
-          <figure class="scene ig" id="s-gate2" aria-labelledby="s-gate2-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-gate2">
+<p class="st-k">step 08 <span class="sep">·</span> the second gate</p>
+<h3>At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above, the same memory</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L154-L161">Each candidate is embedded on the machine and scored against every stored memory in one pass. Only the closest counts.</span> At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above it is the same memory: <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L196-L209">the candidate replaces it if its importance is higher or its text longer, and is skipped otherwise</span>. <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L211-L220">Anything else is stored as a new memory, under a new ID.</span></p>
+<p>The gate used to be <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">0.85</span>. On <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">180</span> hand-labelled pairs, no cosine threshold that merged anything was right <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">90%</span> of the time, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L37">39%</span> of the merges the old gate made joined two different facts. A paraphrase and a different fact score alike, so only near-verbatim restatements merge now.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-gate2" aria-labelledby="s-gate2-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="embed" data-at="6">A candidate, embedded on this machine like everything else.</li>
@@ -394,14 +479,16 @@
             </ol>
             <figcaption class="sc-cap" id="s-gate2-cap"><span class="n">fig 11</span>At <span data-src="Olivesz/inf-mem@c6579f9:backend/extractor.py#L51">0.98</span> or above a candidate counts as a memory already kept: it replaces it only if more important or longer. Otherwise it is added under a new ID. The similarities are examples.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-ledger">
-          <p class="st-k">step 09 <span class="sep">·</span> what crosses</p>
-          <h3>What stays, what leaves</h3>
-          <p>Put together, a message leaves the machine for two places: the chat site and Groq. The chat site was always going to get the prompt; it now also gets the memories approved in the panel. Groq gets the prompt and the finished reply for extraction, once per reply, and the prompt alone for compression when that is on.</p>
-          <p>Storage, embedding, both gates and the ranking run on the machine. <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L282-L288">The extension’s own settings live in Chrome’s synced storage</span>, which Chrome copies to the user’s Google account when sync is on.</p>
-          <figure class="scene ig wide" id="s-ledger" aria-labelledby="s-ledger-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-ledger">
+<p class="st-k">step 09 <span class="sep">·</span> what crosses</p>
+<h3>What stays, what leaves</h3>
+<p>Put together, a message leaves the machine for two places: the chat site and Groq. The chat site was always going to get the prompt; it now also gets the memories approved in the panel. Groq gets the prompt and the finished reply for extraction, once per reply, and the prompt alone for compression when that is on.</p>
+<p>Storage, embedding, both gates and the ranking run on the machine. <span data-src="Olivesz/inf-mem@c6579f9:extension/background.js#L282-L288">The extension’s own settings live in Chrome’s synced storage</span>, which Chrome copies to the user’s Google account when sync is on.</p>
+<figure class="scene lx-fr ig wide" id="s-ledger" aria-labelledby="s-ledger-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div>
               <div class="ldg tbl">
                 <table class="pt">
@@ -432,18 +519,29 @@
             </ol>
             <figcaption class="sc-cap" id="s-ledger-cap"><span class="n">fig 12</span>Every crossing for one message. The chat site gets the prompt and what was approved; Groq gets the prompt (when compression is on) and the finished reply, once; the store stays in ~/.inf_mem.</figcaption>
           </figure>
-        </div>
-      </section>
+</div>
+      </div>
+    </section>
 
-      <!-- 04 -->
-      <section class="ch" id="ch-broke" aria-labelledby="h-broke">
-        <p class="ch-k">04 <span class="sep">·</span> what broke</p>
-        <h2 id="h-broke">The ID file</h2>
-        <p class="np">The bug lived between two runs, in the store’s first version.</p>
-        <p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L35">Vectors and IDs were saved as two NumPy files that must line up row for row.</span> <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L343-L347">Before the fix, the ID list was saved as a pickled object array.</span> Pickle is Python’s format for arbitrary objects, which NumPy refuses to load unless allowed, because loading it can run code. <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L56-L60">The store loads both files with pickle turned off</span>, so the ID file could not come back.</p>
-        <p>During a session the IDs sit in memory, so every add and search inside one run worked. On the next start <span data-src="Olivesz/inf-mem@2f86999:backend/main.py#L62-L81">the backend builds the store, the load fails, and the error stops the backend</span>; the extension then sends every prompt without memory.</p>
+    <section class="ch lx-ch" id="ch-broke" aria-labelledby="h-broke">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.8">
+        <p class="lx-sk" data-lx="up"><span class="n">04 <span class="of">/ 05</span></span>what broke</p>
+        <h2 data-lx="up" style="--d:1" id="h-broke">The ID file</h2>
 
-        <figure class="scene ig" id="s-idfile" aria-labelledby="s-idfile-cap">
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#s-idfile"><span class="n">fig 13</span><span class="t">The ID file across two starts</span><span class="lx-g8" aria-hidden="true"><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-blue)"></i><i class="o" style="--h:4"></i><i style="--h:6;--c:var(--v-red)"></i><i style="--h:3;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-green)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state mid">The bug lived between two runs, in the store’s first version.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L35">Vectors and IDs were saved as two NumPy files that must line up row for row.</span> <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L343-L347">Before the fix, the ID list was saved as a pickled object array.</span> Pickle is Python’s format for arbitrary objects, which NumPy refuses to load unless allowed, because loading it can run code. <span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L56-L60">The store loads both files with pickle turned off</span>, so the ID file could not come back.</p>
+<p>During a session the IDs sit in memory, so every add and search inside one run worked. On the next start <span data-src="Olivesz/inf-mem@2f86999:backend/main.py#L62-L81">the backend builds the store, the load fails, and the error stops the backend</span>; the extension then sends every prompt without memory.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="s-idfile" aria-labelledby="s-idfile-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="session" data-at="8">A session adds memories. Each add saves both files.</li>
@@ -456,21 +554,33 @@
           </ol>
           <figcaption class="sc-cap" id="s-idfile-cap"><span class="n">fig 13</span>The IDs were written in a form the loader is set to refuse. Nothing failed until the next start, so the test now opens the store twice.</figcaption>
         </figure>
+</div>
+</div>
+<p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L342-L350">The fix saved the IDs as plain strings, with pickle off on both sides.</span> The lesson is in the test. A store that is only opened once can never show this bug, so <span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L126-L133">the test writes a memory, opens a second store on the same folder, and checks that the memory and a 1 × 384 matrix come back</span>.</p>
+<p>The store has since moved to SQLite, with each vector in its memory’s row, and <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L44-L46">an old pair of .npy files is migrated into the database once</span>. <span data-src="Olivesz/inf-mem@c6579f9:tests/test_backend.py#L125-L132">The test that opens the store twice is still there.</span></p>
+<p class="lx-pull mid">A bug that only shows on the second start needs a test that starts twice.</p>
+      </div>
+    </section>
 
-        <p><span data-src="Olivesz/inf-mem@2f86999:backend/memory_store.py#L342-L350">The fix saved the IDs as plain strings, with pickle off on both sides.</span> The lesson is in the test. A store that is only opened once can never show this bug, so <span data-src="Olivesz/inf-mem@2f86999:tests/test_backend.py#L126-L133">the test writes a memory, opens a second store on the same folder, and checks that the memory and a 1 × 384 matrix come back</span>.</p>
-        <p>The store has since moved to SQLite, with each vector in its memory’s row, and <span data-src="Olivesz/inf-mem@c6579f9:backend/memory_store.py#L44-L46">an old pair of .npy files is migrated into the database once</span>. <span data-src="Olivesz/inf-mem@c6579f9:tests/test_backend.py#L125-L132">The test that opens the store twice is still there.</span></p>
-        <p class="pull">A bug that only shows on the second start needs a test that starts twice.</p>
-      </section>
+    <section class="ch lx-ch" id="ch-results" aria-labelledby="h-results">
+      <header class="lx-open lx-sh lx-arrive" style="--at:1">
+        <p class="lx-sk" data-lx="up"><span class="n">05 <span class="of">/ 05</span></span>results</p>
+        <h2 data-lx="up" style="--d:1" id="h-results">What is measured, and what is checked</h2>
 
-      <!-- 05 -->
-      <section class="ch" id="ch-results" aria-labelledby="h-results">
-        <p class="ch-k">05 <span class="sep">·</span> results</p>
-        <h2 id="h-results">What is measured, and what is checked</h2>
-        <p class="np">Retrieval is measured on held-out data, speed on two machines, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">every push runs all five test tiers</span>.</p>
-        <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L29">On LoCoMo the gate was chosen on five conversations and measured on the other five, 776 questions.</span> Off-topic prompts that still pull in a memory fall to <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span>, from <span data-src="Olivesz/inf-mem@c6579f9:README.md#L34">100%</span> at the old gate, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5</span> is <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span>.</p>
-        <p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L39">Through the full HTTP stack, with the real model and store and Groq stubbed out</span>, /retrieve at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> memories takes <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5 ms</span> at the median and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">7 ms</span> at p95 on an Apple M5, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">15</span> / <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">19 ms</span> on the CI runner. /extract stays flat as the store grows: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L44">8 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L44">1,000</span> memories and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">9 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> on the M5. <span data-src="Olivesz/inf-mem@c6579f9:README.md#L84">CI fails if /extract at 10k takes more than twice as long as at 1k</span>; <a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">on the run for c6579f9</a> it took <span data-derived="20.88 ms / 17.86 ms, /extract p50 at 10k and 1k in that run’s scaling check">1.17</span> times as long.</p>
-
-        <figure class="scene" id="s-results" aria-labelledby="s-results-cap">
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#s-results"><span class="n">fig 14</span><span class="t">The test tiers, job by job</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">Retrieval is measured on held-out data, speed on two machines, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">every push runs all five test tiers</span>.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L29">On LoCoMo the gate was chosen on five conversations and measured on the other five, 776 questions.</span></p>
+<p><span data-src="Olivesz/inf-mem@c6579f9:README.md#L39">Through the full HTTP stack, with the real model and store and Groq stubbed out</span>, /retrieve at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> memories takes <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5 ms</span> at the median and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">7 ms</span> at p95 on an Apple M5, and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">15</span> / <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">19 ms</span> on the CI runner. /extract stays flat as the store grows: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L44">8 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L44">1,000</span> memories and <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">9 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> on the M5. <span data-src="Olivesz/inf-mem@c6579f9:README.md#L84">CI fails if /extract at 10k takes more than twice as long as at 1k</span>; <a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">on the run for c6579f9</a> it took <span data-derived="20.88 ms / 17.86 ms, /extract p50 at 10k and 1k in that run’s scaling check">1.17</span> times as long.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="s-results" aria-labelledby="s-results-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art">
             <ol class="tg" id="tg" aria-label="ci jobs at c6579f9"></ol>
             <p class="tg-out" id="tg-out" aria-live="polite"><span class="k">pick a tier to see what it checks</span></p>
@@ -487,9 +597,15 @@
           </ol>
           <figcaption class="sc-cap" id="s-results-cap"><span class="n">fig 14</span><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">CI at c6579f9: lint, then five tiers, from mocked endpoints to the extension in Chromium</span>. <span class="verb cap">click</span> a tier to open it, and a line to see what it checks.</figcaption>
         </figure>
-        <p class="pull">Proven: held-out off-topic rate <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span> at recall@5 <span data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span>; /retrieve <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5 ms</span> at <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">10,000</span> memories. Not proven: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L81-L85">the live Groq model (every tier mocks or fakes it)</span>; on the live sites <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">only ChatGPT’s composer has been checked</span>.</p>
-
-        <details class="srcs-d" id="s-src">
+</div>
+</div>
+<ul class="lx-mg lx-stats lx-arrive">
+<li class="lx-m" data-lx="up" style="--d:0"><span class="k">off-topic prompts that still inject memories</span><span class="lx-big a" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span><span class="s" data-src="Olivesz/inf-mem@c6579f9:README.md#L34">held out; 100% at the old 0.35 gate</span></li>
+<li class="lx-m" data-lx="up" style="--d:1"><span class="k">/retrieve p50</span><span class="lx-big a" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5 ms</span><span class="s" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">at 10,000 memories on an Apple M5</span></li>
+<li class="lx-m" data-lx="up" style="--d:2"><span class="k">recall@5, held out</span><span class="lx-big a" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span><span class="s" data-src="Olivesz/inf-mem@c6579f9:README.md#L33">0.575 with no gate</span></li>
+</ul>
+<p class="lx-pull long">Not proven: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L81-L85">the live Groq model (every tier mocks or fakes it)</span>; on the live sites <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">only ChatGPT’s composer has been checked</span>.</p>
+<details class="srcs-d" id="s-src">
           <summary>sources · 98 lines pinned to inf-mem@c6579f9, 7 of them to the earlier 2f86999</summary>
           <ol class="srcs" id="srcs">
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/.github/workflows/ci.yml#L16-L17" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · .github/workflows/ci.yml#L16-L17</a> lint · ruff</li>
@@ -593,16 +709,16 @@
             <li><a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">inf-mem · CI run 38488383502</a> every job passes at c6579f9; /extract at 10k took 1.17 times its 1k time</li>
           </ol>
         </details>
-      </section>
-    </article>
-  </div>
+      </div>
+    </section>
+  </article>
 
-  <nav class="blk case-nav" aria-label="deep dives">
-    <a class="prev" href="inf-mem.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
+  <nav class="lxb lx-nav" aria-label="deep dives">
+    <a class="prev" href="inf-mem.html" target="_blank" rel="noopener noreferrer" style="--c:var(--t-llm)"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
     <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
-    <a class="next" href="emergence-deep.html" rel="next noopener noreferrer" target="_blank"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">emergence</span></a>
+    <a class="next" href="emergence-deep.html" target="_blank" rel="next noopener noreferrer" style="--c:var(--t-verify)"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">emergence</span></a>
   </nav>
-  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
+  <footer class="lxb colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
 </main>
 
 <script src="assets/deep.js"></script>
@@ -1486,7 +1602,7 @@
     pk(L, p, "f-cyan", [[cx(6) + 6, cyv(GR)], [cx(6) + 6, end(GR, MA)]], 35.5, 38);
     return ly[3] + LH + (n ? 8 : 36);
   }, {
-    ticks: 42, rest: "write", align: "left", pause: 2000,
+    ticks: 42, rest: "write", align: "left", pause: 2000, start: "retrieve",     // opens on the first crossing
     // on a phone, what a step changes is its crossing on the lanes and its row in the list; when the two together are
     // taller than a short screen shows between the strip and the dock, its row in the list, which says it in words
     focus: function (api, i, name) {
@@ -1597,7 +1713,7 @@
     });
   }
   var s14 = Deep.scene("s-results", {
-    ticks: 12, tps: 8, pause: 2500, rest: "stats",
+    ticks: 12, tps: 8, pause: 2500, rest: "stats", start: "pass",   // opens with every job passed
     check: function () { return checks["s-results"]; },
     draw: function (api, tick) {
       var all = cellsC, k = Math.min(all.length, Math.round(tick * all.length / 10));
@@ -1610,5 +1726,6 @@
   window.__deep.step = function (id) { var s = Deep.scenes.filter(function (x) { return x.id === id; })[0]; return s ? { step: s.k + 1, steps: s.keys.length, key: s.keys[s.k].name, mode: s.mode } : null; };
 })();
 </script>
+<script src="assets/case.js" defer></script>
 </body>
 </html>

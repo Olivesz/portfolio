@@ -35,9 +35,9 @@
 #sc-idea .gate.ok{fill:var(--v-green);stroke:var(--v-green)}
 #sc-idea .gate-t{font-size:13px;fill:var(--muted)}
 #sc-idea .gate-t.ok{fill:var(--void)}
-#sc-idea .ghost .lamp{fill:var(--rule)}
-#sc-idea .ghost .gate{fill:var(--void);stroke:var(--rule)}
-#sc-idea .ghost .gate-t,#sc-idea .ghost text.shut{fill:var(--copper)}
+#sc-idea .ghost .lamp{fill:var(--copper)}
+#sc-idea .ghost .gate{fill:var(--void);stroke:var(--copper)}
+#sc-idea .ghost .gate-t,#sc-idea .ghost text.shut{fill:var(--muted)}
 /* a shut gate's way through steps down a token instead of fading: rule-coloured lines and box, muted words */
 #sc-idea .shut .ln-a,#sc-idea .ln-a.shut{stroke:var(--rule)} #sc-idea .shut .hd-a,#sc-idea .hd-a.shut{fill:var(--rule)}
 #sc-idea .bx.shut{stroke:var(--rule)} #sc-idea text.shut{fill:var(--muted)}
@@ -75,10 +75,13 @@
 /* a caption sentence that opens on the click or tap verb */
 .verb.cap{text-transform:capitalize}
 /* the hero: the regime gate in one picture, no stepper */
-#sc-hero{margin-top:32px}
+#sc-hero{margin-top:0}
 #sc-hero .sc-bar,#sc-hero .sc-keys,#sc-hero .sc-in{display:none}
 /* fig 15: a readout line that names three books, KRONOS in amber */
 .sc-l .kr-a{color:var(--v-amber)}
+/* a screen under 500 px tall lets the strip scroll away (deep.css), so the road takes the top edge instead of
+   floating 40 px down over the text */
+@media (max-height:499px){ .lx-bar{top:0} }
 </style>
 </head>
 <body>
@@ -89,64 +92,78 @@
   <a class="sp" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
   <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
 </header>
+<div class="lx-bar" aria-hidden="true"></div>
+<nav class="lx-rail" aria-label="contents">
+  <ol>
+    <li><a href="#top"><span class="n">iv</span><span class="t">in depth</span></a></li>
+    <li><a href="#ch-situation"><span class="n">01</span><span class="t">the situation</span></a></li>
+    <li><a href="#ch-idea"><span class="n">02</span><span class="t">the idea</span></a></li>
+    <li><a href="#ch-build"><span class="n">03</span><span class="t">the build</span></a></li>
+    <li class="sub"><a href="#st-world"><span class="n">01</span><span class="t">planted world</span></a></li>
+    <li class="sub"><a href="#st-em"><span class="n">02</span><span class="t">fitting it</span></a></li>
+    <li class="sub"><a href="#st-filter"><span class="n">03</span><span class="t">no future</span></a></li>
+    <li class="sub"><a href="#st-label"><span class="n">04</span><span class="t">the label</span></a></li>
+    <li class="sub"><a href="#st-tails"><span class="n">05</span><span class="t">fat tails</span></a></li>
+    <li class="sub"><a href="#st-book"><span class="n">06</span><span class="t">the book</span></a></li>
+    <li class="sub"><a href="#st-overlay"><span class="n">07</span><span class="t">the overlay</span></a></li>
+    <li><a href="#ch-broke"><span class="n">04</span><span class="t">what broke</span></a></li>
+    <li class="sub"><a href="#sc-gates"><span class="n">·</span><span class="t">the gate list</span></a></li>
+    <li class="sub"><a href="#sc-throttle"><span class="n">·</span><span class="t">the throttle</span></a></li>
+    <li class="sub"><a href="#sc-repair"><span class="n">·</span><span class="t">X27, replayed</span></a></li>
+    <li class="sub"><a href="#sc-pay"><span class="n">·</span><span class="t">did it pay?</span></a></li>
+    <li><a href="#ch-results"><span class="n">05</span><span class="t">results</span></a></li>
+  </ol>
+</nav>
 
 <main id="main" tabindex="-1">
-  <header class="blk head">
-    <p class="kick">chapter iv <span class="sep">·</span> in depth</p>
-    <h1>KRONOS, in depth</h1>
-    <div class="head-grid">
-      <div>
-        <p class="lede">How a trading research platform learns to read market moods, and how it checks every estimator on a planted answer before it trusts a real price.</p>
-        <p class="lede lede-2">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
+  <div class="lxb lx-hero deep" id="top">
+    <header class="lx-hero-t">
+      <p class="kick lx-up" style="--d:0">chapter iv <span class="sep">·</span> in depth</p>
+      <h1 class="lx-up" style="--d:1">KRONOS, in depth</h1>
+    </header>
+    <div class="lx-shot lx-fr" data-lx-arrive>
+      <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <figure class="scene hero" id="sc-hero" aria-label="The answer planted in a synthetic market, 3,000 days of three moods, and under it the fitted model's reading of each day: the two bands match on all but a handful of days.">
+      <div class="sc-stage"><div class="sc-art"></div></div>
+      <ol class="sc-keys"><li data-key="run" data-at="0">The planted answer, and the model’s reading of it.</li></ol>
+      <figcaption class="sc-cap"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L16-L45">The regime gate</span>, run in your browser.</figcaption>
+    </figure>
+    </div>
+    <div class="lx-hero-d">
+      <p class="lx-lede lx-up" style="--d:2">How a trading research platform learns to read market moods, and how it checks every estimator on a planted answer before it trusts a real price.</p>
+      <p class="lx-lede lx-up" style="--d:3">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
+      <div class="lx-cta lx-up" style="--d:4">
+        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q" href="kronos.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
       </div>
-      <dl class="facts">
-        <div><dt>short</dt><dd><a href="kronos.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+      <dl class="facts lx-up" style="--d:5">
         <div><dt>stack</dt><dd data-src="Olivesz/kronos-quant@c19c5ca:README.md#L5">Python <span class="dot">·</span> NumPy <span class="dot">·</span> pandas <span class="dot">·</span> SciPy</dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">github.com/Olivesz/kronos-quant</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
         <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 17 minutes</dd></div>
       </dl>
     </div>
-    <figure class="scene hero" id="sc-hero" aria-label="The answer planted in a synthetic market, 3,000 days of three moods, and under it the fitted model's reading of each day: the two bands match on all but a handful of days.">
-      <div class="sc-stage"><div class="sc-art"></div></div>
-      <ol class="sc-keys"><li data-key="run" data-at="0">The planted answer, and the model’s reading of it.</li></ol>
-      <figcaption class="sc-cap"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L16-L45">The regime gate</span>, run in your browser.</figcaption>
-    </figure>
-  </header>
+  </div>
 
-  <div class="blk dd">
-    <aside class="dd-rail">
-      <nav class="dd-toc" aria-label="contents">
-        <p class="k">contents</p>
-        <ol>
-          <li><a href="#ch-situation"><span class="n">01</span>the situation</a></li>
-          <li><a href="#ch-idea"><span class="n">02</span>the idea</a></li>
-          <li><a href="#ch-build"><span class="n">03</span>the build</a>
-            <ol>
-              <li><a href="#st-world">the planted world</a></li>
-              <li><a href="#st-em">fitting it</a></li>
-              <li><a href="#st-filter">no future</a></li>
-              <li><a href="#st-label">the label</a></li>
-              <li><a href="#st-tails">fat tails</a></li>
-              <li><a href="#st-book">the book</a></li>
-              <li><a href="#st-overlay">the overlay</a></li>
-            </ol>
-          </li>
-          <li><a href="#ch-broke"><span class="n">04</span>what broke</a></li>
-          <li><a href="#ch-results"><span class="n">05</span>results</a></li>
+
+  <article class="lxb">
+    <section class="ch lx-ch" id="ch-situation" aria-labelledby="h-situation">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.2">
+        <p class="lx-sk" data-lx="up"><span class="n">01 <span class="of">/ 05</span></span>the situation</p>
+        <h2 data-lx="up" style="--d:1" id="h-situation">One history, no answer key</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-market"><span class="n">fig 1</span><span class="t">A synthetic market and its answer</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-blue)"></i></span></a></li>
         </ol>
-        <a class="back-to" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
-      </nav>
-    </aside>
-
-    <article class="dd-body">
-      <!-- 01 -->
-      <section class="ch" id="ch-situation" aria-labelledby="h-situation">
-        <p class="ch-k">01 <span class="sep">·</span> the situation</p>
-        <h2 id="h-situation">One history, no answer key</h2>
-        <p class="np">Markets switch moods. Calm rallies, choppy stretches and selloffs come and go, and none of them is announced.</p>
-        <p>A model that labels those moods has nothing to check them against: a wrong label can still look right on a chart. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L56-L58">Most backtests are one number, computed once on one history, with no ground truth.</span></p>
-
-        <figure class="scene" id="sc-market" aria-labelledby="sc-market-cap">
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">Markets switch moods. Calm rallies, choppy stretches and selloffs come and go, and none of them is announced.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>A model that labels those moods has nothing to check them against: a wrong label can still look right on a chart. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L56-L58">Most backtests are one number, computed once on one history, with no ground truth.</span></p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-market" aria-labelledby="sc-market-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="draw" data-at="0">A market from the platform’s own generator: one price line, years of trading days. Under it, the row a regime model is asked to fill in.</li>
@@ -156,18 +173,29 @@
           </ol>
           <figcaption class="sc-cap" id="sc-market-cap"><span class="n">fig 1</span><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/data.py#L101-L103">A synthetic market from the platform’s own generator, with fat tails, volatility clustering and regime shifts.</span> The coloured band is the answer it was built from. <span class="verb cap">click</span> new draw, or hide the answer to see what a model gets.</figcaption>
         </figure>
+</div>
+</div>
+<p>The platform runs offline on markets like this one, <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/data.py#L101-L103">built so every model has real structure to find</span>, with the answer known.</p>
+      </div>
+    </section>
 
-        <p>The platform runs offline on markets like this one, <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/data.py#L101-L103">built so every model has real structure to find</span>, with the answer known.</p>
-      </section>
-
-      <!-- 02 -->
-      <section class="ch" id="ch-idea" aria-labelledby="h-idea">
-        <p class="ch-k">02 <span class="sep">·</span> the idea</p>
-        <h2 id="h-idea">Plant the answer, then grade</h2>
-        <p class="np">Build worlds where the answer is planted. An estimator has to find the plant, and stay quiet in a world with nothing planted, before it is allowed near a real price.</p>
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L30-L34">Size: on a world where the effect is absent, the test does not fire. Power: on a world where it is present by construction, the test detects it.</span> A test that never fires has perfect size and is worth nothing, so both worlds are needed.</p>
-
-        <figure class="scene ig" id="sc-idea" aria-labelledby="sc-idea-cap">
+    <section class="ch lx-ch" id="ch-idea" aria-labelledby="h-idea">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.4">
+        <p class="lx-sk" data-lx="up"><span class="n">02 <span class="of">/ 05</span></span>the idea</p>
+        <h2 data-lx="up" style="--d:1" id="h-idea">Plant the answer, then grade</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-idea"><span class="n">fig 2</span><span class="t">Every estimator, graded twice</span><span class="lx-g8" aria-hidden="true"><i class="o"></i><i class="o"></i><i class="o"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-green)"></i><i style="--c:var(--v-green)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">Build worlds where the answer is planted. An estimator has to find the plant, and stay quiet in a world with nothing planted, before it is allowed near a real price.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L30-L34">Size: on a world where the effect is absent, the test does not fire. Power: on a world where it is present by construction, the test detects it.</span> A test that never fires has perfect size and is worth nothing, so both worlds are needed.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="sc-idea" aria-labelledby="sc-idea-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage">
             <div class="sc-art">
               <svg class="ig-w" width="704" height="232" viewBox="0 0 704 232" role="img" aria-labelledby="sc-idea-t" xmlns="http://www.w3.org/2000/svg">
@@ -251,17 +279,35 @@
           </ol>
           <figcaption class="sc-cap" id="sc-idea-cap"><span class="n">fig 2</span>Every estimator is graded twice on synthetic data. <span class="verb cap">click</span> always fires or never fires to break the estimator.</figcaption>
         </figure>
+</div>
+</div>
+<p class="lx-pull long"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L43-L44">No estimator is trusted until it passes a gate on data where the answer is already known.</span></p>
+      </div>
+    </section>
 
-        <p class="pull"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L43-L44">No estimator is trusted until it passes a gate on data where the answer is already known.</span></p>
-      </section>
-
-      <!-- 03 -->
-      <section class="ch" id="ch-build" aria-labelledby="h-build">
-        <p class="ch-k">03 <span class="sep">·</span> the build</p>
-        <h2 id="h-build">From a planted world to a sized book</h2>
-        <p>The steps below build the regime model and its gates, the book it used to drive, and the overlay that sizes the book. <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L138-L143">That regime-gated book lost to plain equal weight under a pre-registered test, so the shipped book is now equal weight, and the regime-gated one runs beside it as the control every new construction must beat.</span> (Pre-registered: outcomes and kill lines written down before the run.)</p>
-
-        <figure class="scene ig" id="sc-flow" aria-labelledby="sc-flow-cap">
+    <section class="ch lx-ch" id="ch-build" aria-labelledby="h-build">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.6">
+        <p class="lx-sk" data-lx="up"><span class="n">03 <span class="of">/ 05</span></span>the build</p>
+        <h2 data-lx="up" style="--d:1" id="h-build">From a planted world to a sized book</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-flow"><span class="n">fig 3</span><span class="t">The machine at one rebalance</span><span class="s" aria-hidden="true">the machine</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#sc-chain"><span class="n">fig 4</span><span class="t">The regime gate’s world</span><span class="s" aria-hidden="true">planted world</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-blue)"></i></span></a></li>
+          <li data-lx="up" style="--d:5"><a href="#sc-em"><span class="n">fig 5</span><span class="t">The regime gate’s fit</span><span class="s" aria-hidden="true">fitting it</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-blue)"></i></span></a></li>
+          <li data-lx="up" style="--d:6"><a href="#sc-causal"><span class="n">fig 6</span><span class="t">Filtered and smoothed readings</span><span class="s" aria-hidden="true">no future</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-violet)"></i><i class="o"></i><i class="o"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-red)"></i></span></a></li>
+          <li data-lx="up" style="--d:7"><a href="#sc-hyst"><span class="n">fig 7</span><span class="t">The label rule, day by day</span><span class="s" aria-hidden="true">the label</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-blue)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-violet)"></i><i style="--c:var(--v-violet)"></i></span></a></li>
+          <li data-lx="up" style="--d:8"><a href="#sc-tails"><span class="n">fig 8</span><span class="t">One state’s returns, and its tails</span><span class="s" aria-hidden="true">fat tails</span><span class="lx-g8" aria-hidden="true"><i class="o"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i class="o"></i></span></a></li>
+          <li data-lx="up" style="--d:9"><a href="#sc-book"><span class="n">fig 9</span><span class="t">One rebalance on real tickers</span><span class="s" aria-hidden="true">the book</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i></span></a></li>
+          <li data-lx="up" style="--d:10"><a href="#sc-overlay"><span class="n">fig 10</span><span class="t">The overlay’s formula</span><span class="s" aria-hidden="true">the overlay</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The steps below build the regime model and its gates, the book it used to drive, and the overlay that sizes the book. <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L138-L143">That regime-gated book lost to plain equal weight under a pre-registered test, so the shipped book is now equal weight, and the regime-gated one runs beside it as the control every new construction must beat.</span> (Pre-registered: outcomes and kill lines written down before the run.)</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="sc-flow" aria-labelledby="sc-flow-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage">
             <div class="sc-art">
               <svg class="ig-w" width="704" height="264" viewBox="0 0 704 264" role="img" aria-labelledby="sc-flow-t" xmlns="http://www.w3.org/2000/svg">
@@ -341,15 +387,20 @@
           </ol>
           <figcaption class="sc-cap" id="sc-flow-cap"><span class="n">fig 3</span>The machine at one rebalance: the shipped book’s path in amber, the control’s in grey. HRP + BL is hierarchical risk parity with a Black-Litterman tilt, built in the book step below. Each step below opens on a small copy of it, with its own box lit.</figcaption>
         </figure>
-
-        <div class="st" id="st-world">
-          <p class="st-k">step 01 <span class="sep">·</span> the planted world</p>
-          <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
-          <h3>A hidden chain, two numbers a day</h3>
-          <p>The regime model’s gate builds its world from <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L42">three</span> hidden moods. Each day a Markov chain either stays in the current mood or moves, and the mood emits two numbers: the day’s return, and the log of its volatility. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L15-L28">The gate fixes the synthetic ground truth: the length, the switching odds, and each mood’s centre and spread.</span></p>
-          <p>On real data the same two features come from the market: <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L201-L207">the daily market return and the log of its realized volatility, annualized</span>, over a <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L47">10</span>-day window.</p>
-
-          <figure class="scene" id="sc-chain" aria-labelledby="sc-chain-cap">
+</div>
+</div>
+<div class="st" id="st-world">
+<p class="st-k">step 01 <span class="sep">·</span> the planted world</p>
+<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<h3>A hidden chain, two numbers a day</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The regime model’s gate builds its world from <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L42">three</span> hidden moods. Each day a Markov chain either stays in the current mood or moves, and the mood emits two numbers: the day’s return, and the log of its volatility. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L15-L28">The gate fixes the synthetic ground truth: the length, the switching odds, and each mood’s centre and spread.</span></p>
+<p>On real data the same two features come from the market: <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L201-L207">the daily market return and the log of its realized volatility, annualized</span>, over a <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L47">10</span>-day window.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-chain" aria-labelledby="sc-chain-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="nodes" data-at="0">Each day Bull stays put with probability <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">0.97</span>, Volatile and Bear with <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">0.94</span>; otherwise the chain moves.</li>
@@ -360,16 +411,21 @@
             </ol>
             <figcaption class="sc-cap" id="sc-chain-cap"><span class="n">fig 4</span>The regime gate’s world, drawn fresh in the browser. The next figure fits this same draw. <span class="verb cap">click</span> new draw to plant another.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-em">
-          <p class="st-k">step 02 <span class="sep">·</span> fitting it</p>
-          <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
-          <h3>EM finds the plant</h3>
-          <p>The model is a hidden Markov model: <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L42">three</span> states, each with its own centre and spread in the two features, and a table of day-to-day switching odds. It is fitted by expectation-maximisation, which alternates two moves.</p>
-          <p>Score every day against the current guesses with a sweep forward and a sweep back through time, then move each guess to the weighted average of its days. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L150-L152">Repeat, and break off once the fit stops improving.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L83-L104">The fit starts 3 times, the later starts nudged at random, and keeps the best.</span></p>
-
-          <figure class="scene" id="sc-em" aria-labelledby="sc-em-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-em">
+<p class="st-k">step 02 <span class="sep">·</span> fitting it</p>
+<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<h3>EM finds the plant</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The model is a hidden Markov model: <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L42">three</span> states, each with its own centre and spread in the two features, and a table of day-to-day switching odds. It is fitted by expectation-maximisation, which alternates two moves.</p>
+<p>Score every day against the current guesses with a sweep forward and a sweep back through time, then move each guess to the weighted average of its days. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L150-L152">Repeat, and break off once the fit stops improving.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L83-L104">The fit starts 3 times, the later starts nudged at random, and keeps the best.</span></p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-em" aria-labelledby="sc-em-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="start" data-at="0">First guess: sort the days by volatility and cut them into thirds. Each third gives a starting ellipse, and every state is guessed to stay put <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L55-L56">0.95</span> of the time.</li>
@@ -382,19 +438,23 @@
             </ol>
             <figcaption class="sc-cap" id="sc-em-cap"><span class="n">fig 5</span>The regime gate’s fit, run in the browser on this draw: the Gaussian engine the gate tests. Readouts marked “this draw” are computed here; the pass lines are the gate’s.</figcaption>
           </figure>
-
-          <p>On real data the same gate asks history to agree: <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L63-L72">more than 0.7 of March 2020 labelled Bear or Volatile, and more than 0.7 of 2017 labelled Bull</span>.</p>
-        </div>
-
-        <div class="st" id="st-filter">
-          <p class="st-k">step 03 <span class="sep">·</span> no future</p>
-          <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
-          <h3>Read it without the future</h3>
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L68-L75">A fitted model can answer two questions about any day. Filtered: given the data up to that day, which state is it in now? Smoothed: given the whole sample, which state was it in? The smoothed answer is cleaner: it uses later days.</span></p>
-          <p>The gate’s world is so clean that both readings agree on almost every day, so the next two figures use a murkier market from the opening figure’s generator, fitted the same way, on the same two features the real-data fit uses.</p>
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L101-L102">Every trading decision reads filtered probabilities only.</span> The model is refit walk-forward: first after <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L45">750</span> days, then every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L46">21</span> trading days.</p>
-
-          <figure class="scene" id="sc-causal" aria-labelledby="sc-causal-cap">
+</div>
+</div>
+<p>On real data the same gate asks history to agree: <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L63-L72">more than 0.7 of March 2020 labelled Bear or Volatile, and more than 0.7 of 2017 labelled Bull</span>.</p>
+</div>
+<div class="st" id="st-filter">
+<p class="st-k">step 03 <span class="sep">·</span> no future</p>
+<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<h3>Read it without the future</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/METHODS.md#L68-L75">A fitted model can answer two questions about any day. Filtered: given the data up to that day, which state is it in now? Smoothed: given the whole sample, which state was it in? The smoothed answer is cleaner: it uses later days.</span></p>
+<p>The gate’s world is so clean that both readings agree on almost every day, so the next two figures use a murkier market from the opening figure’s generator, fitted the same way, on the same two features the real-data fit uses.</p>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L101-L102">Every trading decision reads filtered probabilities only.</span> The model is refit walk-forward: first after <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L45">750</span> days, then every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L46">21</span> trading days.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-causal" aria-labelledby="sc-causal-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="cursor" data-at="0">Two readings of one fit, near the cut. At the cursor, the filtered row on top may use only the days to its left; the smoothed row uses every day.</li>
@@ -404,18 +464,22 @@
             </ol>
             <figcaption class="sc-cap" id="sc-causal-cap"><span class="n">fig 6</span>Filtered and smoothed readings of a market from the opening figure’s generator, fitted in the browser: the days just before the cut, read again after it. <span class="verb cap">click</span> move the cut to cut somewhere else.</figcaption>
           </figure>
-
-          <p>The gate itself cuts the last <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime_engine.py#L102">300</span> days. The trading system gets the same test: <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_trade.py#L62-L81">drop the last 200 days, and every earlier target weight has to stay within a billionth</span>.</p>
-        </div>
-
-        <div class="st" id="st-label">
-          <p class="st-k">step 04 <span class="sep">·</span> the label</p>
-          <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
-          <h3>From probabilities to a label</h3>
-          <p>A filtered probability jitters from day to day, and trading on its raw leader would turn the book over on noise. So the label follows two rules.</p>
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L264-L265">A confirmation streak, then a minimum dwell:</span> a new state has to lead above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span> for <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L51">5</span> straight days before the label flips, and then the label stays put for at least <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days, unless the new state is above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span> on the day it is confirmed.</p>
-
-          <figure class="scene" id="sc-hyst" aria-labelledby="sc-hyst-cap">
+</div>
+</div>
+<p>The gate itself cuts the last <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime_engine.py#L102">300</span> days. The trading system gets the same test: <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_trade.py#L62-L81">drop the last 200 days, and every earlier target weight has to stay within a billionth</span>.</p>
+</div>
+<div class="st" id="st-label">
+<p class="st-k">step 04 <span class="sep">·</span> the label</p>
+<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<h3>From probabilities to a label</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>A filtered probability jitters from day to day, and trading on its raw leader would turn the book over on noise. So the label follows two rules.</p>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/regime.py#L264-L265">A confirmation streak, then a minimum dwell:</span> a new state has to lead above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span> for <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L51">5</span> straight days before the label flips, and then the label stays put for at least <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days, unless the new state is above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span> on the day it is confirmed.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-hyst" aria-labelledby="sc-hyst-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="raw" data-at="0">Filtered probabilities, one per state, and the label built from them. Their leader alone would flicker.</li>
@@ -426,16 +490,21 @@
             </ol>
             <figcaption class="sc-cap" id="sc-hyst-cap"><span class="n">fig 7</span>The label rule run day by day on that market’s filtered readings. The readout counts days in a row above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span> and days since the last change, which carries in from before the window; both reset when the label moves. <span class="verb cap">click</span> no hysteresis to see the raw leader.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-tails">
-          <p class="st-k">step 05 <span class="sep">·</span> fat tails</p>
-          <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
-          <h3>Fat tails fake regimes</h3>
-          <p>Real returns have fat tails: big days come far more often than a bell curve allows. A Gaussian model tends to explain them by inventing extra states. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">On simulated fat-tailed worlds with 3 true states, Gaussian model selection picked too many states</span> for <span data-derived="88% of 8 seeds = 7" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">7</span> <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">of 8 seeds (6 picked five)</span>, against <span data-derived="50% of 8 seeds = 4" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">4 of 8</span> on plain Gaussian worlds; the Student-t picked too many for <span data-derived="38% of 8 seeds = 3" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">3 of 8</span>.</p>
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L43">The shipped engine is a Student-t HMM instead.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/thmm.py#L1-L16">Each state emits a Student-t, and each day gets a weight that shrinks as it lands further from its state’s centre, so one outlier cannot drag the fit.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime_engine.py#L1-L10">It runs with the same features, refits, label rules and causality test as the Gaussian engine.</span></p>
-
-          <figure class="scene" id="sc-tails" aria-labelledby="sc-tails-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-tails">
+<p class="st-k">step 05 <span class="sep">·</span> fat tails</p>
+<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<h3>Fat tails fake regimes</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Real returns have fat tails: big days come far more often than a bell curve allows. A Gaussian model tends to explain them by inventing extra states. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">On simulated fat-tailed worlds with 3 true states, Gaussian model selection picked too many states</span> for <span data-derived="88% of 8 seeds = 7" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">7</span> <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">of 8 seeds (6 picked five)</span>, against <span data-derived="50% of 8 seeds = 4" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">4 of 8</span> on plain Gaussian worlds; the Student-t picked too many for <span data-derived="38% of 8 seeds = 3" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">3 of 8</span>.</p>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L43">The shipped engine is a Student-t HMM instead.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/thmm.py#L1-L16">Each state emits a Student-t, and each day gets a weight that shrinks as it lands further from its state’s centre, so one outlier cannot drag the fit.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime_engine.py#L1-L10">It runs with the same features, refits, label rules and causality test as the Gaussian engine.</span></p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-tails" aria-labelledby="sc-tails-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="bell" data-at="0">One state’s returns from a fat-tailed world, counted on a log scale, with the best-fitting bell. Outlined bins hold days the bell says should almost never happen.</li>
@@ -447,15 +516,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-tails-cap"><span class="n">fig 8</span>One state’s returns, drawn in the browser; ν is the tail index (low means fat tails). The last step draws the curves fitted on real data, over this draw’s bins ghosted. <span class="verb cap">click</span> gaussian world to compare.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-book">
-          <p class="st-k">step 06 <span class="sep">·</span> the book</p>
-          <p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> regimes <span aria-hidden="true">→</span> <b>signals</b> <span aria-hidden="true">→</span> <b>HRP + BL</b> <span aria-hidden="true">→</span> overlay</p>
-          <h3>The control: from a label to a book</h3>
-          <p>This was the shipped book until <span data-derived="commit date of c19c5ca">13 October</span>, and it still runs as the control. Every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L104">21</span> trading days the label picks a signal mix, the mix ranks the names, and <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/black_litterman.py#L1-L7">the book is a hierarchical-risk-parity backbone with a Black-Litterman tilt, which feeds the signal into the weights as a view</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L100-L101">Equal weight replaced all of that in the shipped book</span>; the overlay in the next step sizes either one.</p>
-
-          <figure class="scene" id="sc-book" aria-labelledby="sc-book-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-book">
+<p class="st-k">step 06 <span class="sep">·</span> the book</p>
+<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> regimes <span aria-hidden="true">→</span> <b>signals</b> <span aria-hidden="true">→</span> <b>HRP + BL</b> <span aria-hidden="true">→</span> overlay</p>
+<h3>The control: from a label to a book</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>This was the shipped book until <span data-derived="commit date of c19c5ca">13 October</span>, and it still runs as the control. Every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L104">21</span> trading days the label picks a signal mix, the mix ranks the names, and <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/black_litterman.py#L1-L7">the book is a hierarchical-risk-parity backbone with a Black-Litterman tilt, which feeds the signal into the weights as a view</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L100-L101">Equal weight replaced all of that in the shipped book</span>; the overlay in the next step sizes either one.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-book" aria-labelledby="sc-book-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="mix" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L24-L28">The label picks the mix: Bull leans on momentum, Volatile splits between reversal and low volatility, Bear leans on low volatility.</span></li>
@@ -466,16 +540,21 @@
             </ol>
             <figcaption class="sc-cap" id="sc-book-cap"><span class="n">fig 9</span><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/data.py#L101-L103">One rebalance on real tickers with synthetic prices from the platform’s generator</span>, drawn in the browser. The weights are not a result. The tilt uses the combined signal itself as its view. <span class="verb cap">click</span> a regime to re-mix.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-overlay">
-          <p class="st-k">step 07 <span class="sep">·</span> the overlay</p>
-          <p class="kr-here" aria-label="where this step sits in fig 3">either book <span aria-hidden="true">·</span> equal weight or HRP + BL <span aria-hidden="true">→</span> <b>overlay</b> <span aria-hidden="true">→</span> t+1</p>
-          <h3>Lever times the tighter brake</h3>
-          <p>The size of the whole book is set last. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L69-L75">A lever aims the book’s volatility at its target by dividing the target by a forecast of the book’s own volatility</span>, capped at <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5×</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L77-L93">Two brakes can only hold it back: a tail-loss brake and a drawdown throttle. Exposure is the lever times whichever brake is tighter.</span></p>
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L23-L55">The forecast is a small regression, refit every 21 days: the book’s squared daily returns, averaged over the last 1, 5 and 22 days, predict the next day’s.</span> A short window reacts to a shock, a long one remembers the regime, and the regression learns how much to trust each.</p>
-
-          <figure class="scene" id="sc-overlay" aria-labelledby="sc-overlay-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-overlay">
+<p class="st-k">step 07 <span class="sep">·</span> the overlay</p>
+<p class="kr-here" aria-label="where this step sits in fig 3">either book <span aria-hidden="true">·</span> equal weight or HRP + BL <span aria-hidden="true">→</span> <b>overlay</b> <span aria-hidden="true">→</span> t+1</p>
+<h3>Lever times the tighter brake</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The size of the whole book is set last. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L69-L75">A lever aims the book’s volatility at its target by dividing the target by a forecast of the book’s own volatility</span>, capped at <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5×</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L77-L93">Two brakes can only hold it back: a tail-loss brake and a drawdown throttle. Exposure is the lever times whichever brake is tighter.</span></p>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L23-L55">The forecast is a small regression, refit every 21 days: the book’s squared daily returns, averaged over the last 1, 5 and 22 days, predict the next day’s.</span> A short window reacts to a shock, a long one remembers the regime, and the regression learns how much to trust each.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-overlay" aria-labelledby="sc-overlay-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="calm" data-at="0">A calm book at <span data-derived="0.05 = 5%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L56">5%</span> volatility: the lever wants <span data-derived="0.13 / 0.05 = 2.6" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L86; Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L56">2.6×</span>, and the cap holds it to <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5×</span>.</li>
@@ -486,21 +565,35 @@
             </ol>
             <figcaption class="sc-cap" id="sc-overlay-cap"><span class="n">fig 10</span>The overlay’s formula, computed in the browser. Drag the sliders, or switch the tilt, to size your own book.</figcaption>
           </figure>
+</div>
+</div>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L96">The exposure is smoothed</span> over <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L92">5</span> days, and a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L1148">±15%</span> tilt on the sign of the market’s recent momentum rides inside the cap. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L1-L8">Gate X27 pins the overlay’s direction and reach: the drawdown throttle, the lever’s cap and the financing charge</span>; <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L59-L60">the tilt has its own gate</span>.</p>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L62-L71">Beside the book runs a small pairs sleeve: pairs of names that move together, with a Kalman-filtered hedge ratio (re-estimated as each new price arrives), traded when their spread stretches</span>: the sleeve from fig 3.</p>
+</div>
+      </div>
+    </section>
 
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L96">The exposure is smoothed</span> over <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L92">5</span> days, and a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L1148">±15%</span> tilt on the sign of the market’s recent momentum rides inside the cap. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L1-L8">Gate X27 pins the overlay’s direction and reach: the drawdown throttle, the lever’s cap and the financing charge</span>; <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L59-L60">the tilt has its own gate</span>.</p>
-          <p><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L62-L71">Beside the book runs a small pairs sleeve: pairs of names that move together, with a Kalman-filtered hedge ratio (re-estimated as each new price arrives), traded when their spread stretches</span>: the sleeve from fig 3.</p>
-        </div>
-      </section>
-
-      <!-- 04 -->
-      <section class="ch" id="ch-broke" aria-labelledby="h-broke">
-        <p class="ch-k">04 <span class="sep">·</span> what broke</p>
-        <h2 id="h-broke">The brake that pushed the wrong way</h2>
-        <p class="ch-sum">After the build: the machine, and a gate on every estimator. This chapter: the bug none of the gates asked about.</p>
-        <p class="np">Every gate passed, and the book still fell short of its own plan.</p>
-        <p>Realized volatility sat at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L26">6.9%</span> against a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24">13%</span> target. Where did the return go? The gates were the first place to look.</p>
-
-        <figure class="scene" id="sc-gates" aria-labelledby="sc-gates-cap">
+    <section class="ch lx-ch" id="ch-broke" aria-labelledby="h-broke">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.8">
+        <p class="lx-sk" data-lx="up"><span class="n">04 <span class="of">/ 05</span></span>what broke</p>
+        <h2 data-lx="up" style="--d:1" id="h-broke">The brake that pushed the wrong way</h2>
+        <p class="lx-sum" data-lx="up" style="--d:2">After the build: the machine, and a gate on every estimator. This chapter: the bug none of the gates asked about.</p>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-gates"><span class="n">fig 11</span><span class="t">The gate list at each commit</span><span class="s" aria-hidden="true">the gate list</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-green)"></i><i style="--c:var(--v-green)"></i><i style="--c:var(--v-green)"></i><i style="--c:var(--v-green)"></i><i style="--c:var(--v-green)"></i><i style="--c:var(--v-green)"></i><i style="--c:var(--v-green)"></i><i class="o"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#sc-throttle"><span class="n">fig 12</span><span class="t">The drawdown throttle, as found and fixed</span><span class="s" aria-hidden="true">the throttle</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-red)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i></span></a></li>
+          <li data-lx="up" style="--d:5"><a href="#sc-repair"><span class="n">fig 13</span><span class="t">Gate X27, replayed on its own path</span><span class="s" aria-hidden="true">X27, replayed</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--ink)"></i><i style="--c:var(--ink)"></i><i style="--c:var(--ink)"></i><i style="--c:var(--ink)"></i><i style="--c:var(--v-red)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i></span></a></li>
+          <li data-lx="up" style="--d:6"><a href="#sc-pay"><span class="n">fig 14</span><span class="t">Did the repair pay?</span><span class="s" aria-hidden="true">did it pay?</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state mid">Every gate passed, and the book still fell short of its own plan.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Realized volatility sat at <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L26">6.9%</span> against a <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24">13%</span> target. Where did the return go? The gates were the first place to look.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-gates" aria-labelledby="sc-gates-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="e1" data-at="0"><span data-derived="commit date of 454fe62">13 July</span>, the first commit: <span data-derived="len(GATES) at 454fe62 = 27" data-inputs="Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29">27</span> gates.</li>
@@ -511,10 +604,15 @@
           </ol>
           <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 11</span>The gate list at each commit, in run order, one tile per gate. Between steps the runner re-checks them in order.</figcaption>
         </figure>
-
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L30-L31">The drawdown throttle shrinks the book as it falls from its last high: full size down to a −8% drawdown, then a straight line to 0.25 at −20%.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L14-L23">As written, the line’s span came out negative, so it ran the wrong way.</span></p>
-
-        <figure class="scene" id="sc-throttle" aria-labelledby="sc-throttle-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L30-L31">The drawdown throttle shrinks the book as it falls from its last high: full size down to a −8% drawdown, then a straight line to 0.25 at −20%.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L14-L23">As written, the line’s span came out negative, so it ran the wrong way.</span></p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-throttle" aria-labelledby="sc-throttle-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="both" data-at="0">Two throttles, each from its formula: fixed in amber, as found in red. Shaded: where they disagree.</li>
@@ -524,10 +622,15 @@
           </ol>
           <figcaption class="sc-cap" id="sc-throttle-cap"><span class="n">fig 12</span>The drawdown throttle as found and fixed, each drawn from its formula. Drag the drawdown to read both.</figcaption>
         </figure>
-
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L5-L7">The repair was pre-registered: the findings, both repairs, the expected outcomes and the kill criteria, written before the repaired system ran.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L118-L119">It shipped with the missing gate, and the old numbers stay in the repo as the baseline row.</span></p>
-
-        <figure class="scene" id="sc-repair" aria-labelledby="sc-repair-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L5-L7">The repair was pre-registered: the findings, both repairs, the expected outcomes and the kill criteria, written before the repaired system ran.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L118-L119">It shipped with the missing gate, and the old numbers stay in the repo as the baseline row.</span></p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-repair" aria-labelledby="sc-repair-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="path" data-at="11"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L28-L33">Gate X27’s engineered path: flat, a steady slide, then a recovery</span>, <span data-derived="days 300 to 340 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">40</span> days down and <span data-derived="days 340 to 420 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L32">80</span> back up. The slide bottoms near <span data-derived="0.99278^40 − 1 = −25.2%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">−25%</span>.</li>
@@ -537,10 +640,15 @@
             </ol>
           <figcaption class="sc-cap" id="sc-repair-cap"><span class="n">fig 13</span>Gate X27 replayed on its own path, computed in the browser. <span class="verb cap">click</span> grade as found to put the old throttle through the same checks.</figcaption>
         </figure>
-
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L67-L73">Two kill lines were written before the run: if Sharpe (return per unit of risk) fell by more than 0.05, the leverage would not ship; if financing ate half the leverage gain, the leverage would be dropped.</span></p>
-
-        <figure class="scene" id="sc-pay" aria-labelledby="sc-pay-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L67-L73">Two kill lines were written before the run: if Sharpe (return per unit of risk) fell by more than 0.05, the leverage would not ship; if financing ate half the leverage gain, the leverage would be dropped.</span></p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-pay" aria-labelledby="sc-pay-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="rule" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L36-L41">The repair had a second half. The old rule took the smallest of the lever and the brakes, and the brakes top out at 1, so a calm book could never be levered.</span></li>
@@ -550,20 +658,31 @@
           </ol>
           <figcaption class="sc-cap" id="sc-pay-cap"><span class="n">fig 14</span>Did the repair pay? A calm book at full brakes under each rule, the financing bill against its kill line, and realized volatility at each stage.</figcaption>
         </figure>
+</div>
+</div>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L1150-L1154">A later gate checks the exposure cap under an extreme tilt instead of assuming it, and its record says why: an inverted overlay hid in this codebase once.</span> The suite now tests direction.</p>
+<p class="lx-pull long">A brake that braked at the top and let go in a crash passed every gate, because no gate asked which way it pushed.</p>
+      </div>
+    </section>
 
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L1150-L1154">A later gate checks the exposure cap under an extreme tilt instead of assuming it, and its record says why: an inverted overlay hid in this codebase once.</span> The suite now tests direction.</p>
-        <p class="pull">A brake that braked at the top and let go in a crash passed every gate, because no gate asked which way it pushed.</p>
-      </section>
-
-      <!-- 05 -->
-      <section class="ch" id="ch-results" aria-labelledby="h-results">
-        <p class="ch-k">05 <span class="sep">·</span> results</p>
-        <h2 id="h-results">Against equal weight and SPY</h2>
-        <p class="ch-sum">After the repair: the shipped book over the whole backtest, beside equal weight on the same names and SPY.</p>
-        <p class="np"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">The shipped book holds about equal weight’s Sharpe at 64% of its drawdown</span> (<span data-src="Olivesz/kronos-quant@c19c5ca:research/momtilt.json#L12-L93">from the unrounded drawdowns</span>), <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">and beats SPY’s Sharpe at 56% of its drawdown.</span></p>
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157-L159">That is risk control, not alpha:</span> equal weight and SPY still win on raw return, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L209">and on Sharpe over cash the book lands just short of equal weight, which the repo reports as a failure.</span></p>
-
-        <figure class="scene" id="sc-results" aria-labelledby="sc-results-cap">
+    <section class="ch lx-ch" id="ch-results" aria-labelledby="h-results">
+      <header class="lx-open lx-sh lx-arrive" style="--at:1">
+        <p class="lx-sk" data-lx="up"><span class="n">05 <span class="of">/ 05</span></span>results</p>
+        <h2 data-lx="up" style="--d:1" id="h-results">Against equal weight and SPY</h2>
+        <p class="lx-sum" data-lx="up" style="--d:2">After the repair: the shipped book over the whole backtest, beside equal weight on the same names and SPY.</p>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-results"><span class="n">fig 15</span><span class="t">The shipped book, equal weight and SPY</span><span class="lx-g8" aria-hidden="true"><i style="--c:var(--v-amber)"></i><i style="--c:var(--v-amber)"></i><i class="o"></i><i class="o"></i><i style="--c:var(--copper)"></i><i style="--c:var(--copper)"></i><i style="--c:var(--v-amber)"></i><i style="--c:var(--copper)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">The shipped book holds about equal weight’s Sharpe at 64% of its drawdown</span>, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">and beats SPY’s Sharpe at 56% of its drawdown.</span></p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157-L159">That is risk control, not alpha:</span> equal weight and SPY still win on raw return, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L209">and on Sharpe over cash the book lands just short of equal weight, which the repo reports as a failure.</span></p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-results" aria-labelledby="sc-results-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="slide" data-at="10">Each row on its own scale from zero: KRONOS in amber, equal weight on the same names as an outline, SPY in grey. CAGR is the yearly growth rate.</li>
@@ -572,21 +691,20 @@
             <li data-key="raw" data-at="16">CAGR <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">13.6%</span>, against <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">16.6%</span> and <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">15.0%</span>: equal weight and SPY both win on raw return.</li>
             <li data-key="caveat" data-at="18"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">In-sample</span>, after costs, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span>, financing <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L159-L160">0.77%/yr</span>, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L338-L342">on today’s large caps, picked with hindsight, which carries survivorship bias</span>.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-results-cap"><span class="n">fig 15</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">2013-01-14 to 2026-06-04, net of costs</span>: the shipped book, equal weight on the same names, and SPY, over the same days.</figcaption>
+          <figcaption class="sc-cap" id="sc-results-cap"><span class="n">fig 15</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">2013-01-14 to 2026-06-04, net of costs</span>: the shipped book, equal weight on the same names, and SPY, over the same days. Shares of drawdown are worked out <span data-src="Olivesz/kronos-quant@c19c5ca:research/momtilt.json#L12-L93">from the unrounded drawdowns</span>.</figcaption>
         </figure>
-
-        <ul class="stats">
-          <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L28-L30">64%</span><span class="k">of equal weight’s drawdown</span><span class="b" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L28-L30">at about its Sharpe, on the same names</span></li>
-          <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L30-L31">56%</span><span class="k">of SPY’s drawdown</span><span class="b" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L30-L31">at a higher Sharpe</span></li>
-          <li><span class="v" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span><span class="k">gates</span><span class="b" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">all run in CI on real prices, nothing skipped</span></li>
-        </ul>
-
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L166-L177">Since 2026-08-17 a CI job has logged the unlevered KRONOS-TRADE variant (the system the research licenses for live use), not the shipped book, before each session: after 35 trading days it is down 2.38%, against SPY’s +0.70% and equal weight’s −2.25%, a gap of about one standard error, too soon to confirm or refute the backtest.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L180-L182">Its decisions before 13 October ran on a panel with a 74-day gap, since repaired.</span></p>
-        <p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L228-L240">Frozen with every US setting and rerun on Japan, Europe and Asia-EM, the shipped book kept roughly half the local index’s drawdown, but equal weight on the same names beat its Sharpe in all three markets, and the index did in Japan and Europe.</span></p>
-
-        <p>Beside the book sit <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L186">35</span> pre-registered experiments, with <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L320-L322">negative results reported as plainly as positive ones: stat-arb is dead, random-matrix denoising does not help here, duration models do not beat the plain HMM, and the trading system does not beat SPY on CAGR</span>.</p>
-        <p>Every number here comes from <a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">Olivesz/kronos-quant</a> at a pinned commit, listed below; the short version is <a href="kronos.html" target="_blank" rel="noopener noreferrer">the case study</a>.</p>
-        <details class="srcs-d"><summary>sources · 20 files pinned to kronos-quant@c19c5ca, and the gate list at three earlier commits</summary>
+</div>
+</div>
+<ul class="lx-mg lx-stats lx-arrive">
+<li class="lx-m" data-lx="up" style="--d:0"><span class="k">of equal weight’s drawdown</span><span class="lx-big a" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L28-L30">64%</span><span class="s" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L28-L30">at about its Sharpe, on the same names</span></li>
+<li class="lx-m" data-lx="up" style="--d:1"><span class="k">of SPY’s drawdown</span><span class="lx-big a" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L30-L31">56%</span><span class="s" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L30-L31">at a higher Sharpe</span></li>
+<li class="lx-m" data-lx="up" style="--d:2"><span class="k">gates</span><span class="lx-big a" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span><span class="s" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">all run in CI on real prices, nothing skipped</span></li>
+</ul>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L166-L177">Since 2026-08-17 a CI job has logged the unlevered KRONOS-TRADE variant (the system the research licenses for live use), not the shipped book, before each session: after 35 trading days it is down 2.38%, against SPY’s +0.70% and equal weight’s −2.25%, a gap of about one standard error, too soon to confirm or refute the backtest.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L180-L182">Its decisions before 13 October ran on a panel with a 74-day gap, since repaired.</span></p>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L228-L240">Frozen with every US setting and rerun on Japan, Europe and Asia-EM, the shipped book kept roughly half the local index’s drawdown, but equal weight on the same names beat its Sharpe in all three markets, and the index did in Japan and Europe.</span></p>
+<p>Beside the book sit <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L186">35</span> pre-registered experiments, with <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L320-L322">negative results reported as plainly as positive ones: stat-arb is dead, random-matrix denoising does not help here, duration models do not beat the plain HMM, and the trading system does not beat SPY on CAGR</span>.</p>
+<p>Every number here comes from <a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer">Olivesz/kronos-quant</a> at a pinned commit, listed below; the short version is <a href="kronos.html" target="_blank" rel="noopener noreferrer">the case study</a>.</p>
+<details class="srcs-d"><summary>sources · 20 files pinned to kronos-quant@c19c5ca, and the gate list at three earlier commits</summary>
           <ol class="srcs">
             <li><a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/README.md" target="_blank" rel="noopener noreferrer">README.md</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/config.py" target="_blank" rel="noopener noreferrer">config.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/run_kronos.py" target="_blank" rel="noopener noreferrer">run_kronos.py</a> · c19c5ca</li>
             <li><a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/data.py" target="_blank" rel="noopener noreferrer">kronos/data.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/regime.py" target="_blank" rel="noopener noreferrer">regime.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/thmm.py" target="_blank" rel="noopener noreferrer">thmm.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/signals.py" target="_blank" rel="noopener noreferrer">signals.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/hrp.py" target="_blank" rel="noopener noreferrer">hrp.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/black_litterman.py" target="_blank" rel="noopener noreferrer">black_litterman.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/risk.py" target="_blank" rel="noopener noreferrer">risk.py</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/c19c5ca/kronos/backtest.py" target="_blank" rel="noopener noreferrer">backtest.py</a> · c19c5ca</li>
@@ -595,16 +713,16 @@
             <li>the gate list over time: <a href="https://github.com/Olivesz/kronos-quant/blob/454fe62/tests/run_all.py" target="_blank" rel="noopener noreferrer">454fe62</a>, <a href="https://github.com/Olivesz/kronos-quant/blob/0c1b53b/tests/run_all.py" target="_blank" rel="noopener noreferrer">0c1b53b</a> (and the throttle as found, <a href="https://github.com/Olivesz/kronos-quant/blob/0c1b53b/kronos/risk.py" target="_blank" rel="noopener noreferrer">kronos/risk.py</a>), <a href="https://github.com/Olivesz/kronos-quant/blob/7383e32/tests/run_all.py" target="_blank" rel="noopener noreferrer">7383e32</a></li>
           </ol>
         </details>
-      </section>
-    </article>
-  </div>
+      </div>
+    </section>
+  </article>
 
-  <nav class="blk case-nav" aria-label="deep dives">
-    <a class="prev" href="kronos.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
+  <nav class="lxb lx-nav" aria-label="deep dives">
+    <a class="prev" href="kronos.html" target="_blank" rel="noopener noreferrer" style="--c:var(--t-data)"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
     <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
-    <a class="next" href="custos-code-deep.html" rel="next noopener noreferrer" target="_blank"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">custos-code</span></a>
+    <a class="next" href="custos-code-deep.html" target="_blank" rel="next noopener noreferrer" style="--c:var(--t-llm)"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">custos-code</span></a>
   </nav>
-  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
+  <footer class="lxb colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
 </main>
 
 <script src="assets/deep.js"></script>
@@ -863,8 +981,9 @@
             row++;
           });
         }
-        // before the answer is painted, the key's three names stand muted under the empty row: the moods it will be filled with
-        if (k < 2 && !hatch) SN.forEach(function (nm, i) { lab(api, "rc" + i, nm, 0, b0 + bh + 1 + i * (ph ? 4.5 : 2.25), { dy: 1, k: "kr-dim", src: R + "kronos/data.py#L" + (79 + i) }); });
+        // before the answer is painted, the key's three names stand in their own hues under the empty row: the moods it
+        // will be filled with, so the first frame already says what to look for
+        if (k < 2 && !hatch) SN.forEach(function (nm, i) { lab(api, "rc" + i, nm, 0, b0 + bh + 1 + i * (ph ? 4.5 : 2.25), { dy: 1, k: SC[i], src: R + "kronos/data.py#L" + (79 + i) }); });
         end(api);
       }
     });
@@ -2230,5 +2349,6 @@
   };
 })();
 </script>
+<script src="assets/case.js" defer></script>
 </body>
 </html>

@@ -157,7 +157,7 @@ restated in the suite, never read from the page:
 |---|---|
 | `#work .k-field .k-blob[data-k]` | one native `<button aria-pressed aria-controls="k-panel">` per theme (`llm verify systems data play`), in the tab order. Its `.k-bs` SVG holds the blob's cells as `<path>` stages (`.k-hid` while hidden), its `.k-bn` lines name the theme's signature projects, and `.k-bm b` counts the rest. Only the cells take the pointer. Every blob's cells fill in its own hue (`--h`). A picked theme's blob is `aria-pressed="true"` and shows its `.k-rs` SVG, a ring of ink cells that never takes the pointer; the others carry `.off` and keep `.k-rs` hidden. |
 | `#work .k-pane[data-pane]` | `rest` (a key, no projects), and one per theme key; the shown pane has `.cur`. At rest the shown pane is the first theme's (picked) where `.k-panel` sits beside `.k-field` (1024 px and wider), and `rest` where it sits under it. A theme pane holds `.k-hi .k-card[data-p]` (its signatures) and `.k-rest .k-mrow[data-p]` (every other member, shown). |
-| `#work .k-msg`, `#work .k-ask` | the status line (hidden while no theme is picked), and the prompt (`.k-a1` pointer, `.k-a2` touch; `.k-a3`, which names the ringed theme as open, only where the panel sits beside the field). |
+| `#work .k-msg`, `#work .k-ask` | the status line (hidden while no theme is picked), and the prompt (`.k-a1` pointer, `.k-a2` touch). |
 | `window.__workGrow.state()` | `{picked, grown, growing, mode}`: read-only; the blobs grow once, the first time the field is in view. |
 
 ## Résumé viewer (markup the suite reads)
@@ -171,3 +171,15 @@ sr-only copy in `#resume .rv-text`, derived from `pdftotext` and holding the `.c
 | `#resume .rv-ctl` | `download pdf` and `open pdf →` links to `resume.pdf`, a native `<button class="rv-zbtn" aria-pressed>` for zoom, and `replay` (hidden under reduced motion). |
 | `#resume .rv-hot` | the PDF's own links (email, LinkedIn, GitHub) as focusable hotspots over the page image. |
 
+
+## Depth pages (work/*.html that opt into the lx- layer)
+
+A work page opts in with `.lx-rail` / `.lx-bar` or a hero marked `[data-lx-arrive]`; `work/assets/case.js` then
+exposes `window.__lx`, read-only. `depth` reads it on every page that opts in.
+
+| hook | contract |
+|---|---|
+| `window.__lx` | `arrived()` → the hero ant has reached its corner (true at load under reduced motion); `ant()` → `'hero'` or `'road'`, whichever draws the one ant now; `road()` → `{maxR, maxB, wide}`, the furthest rail row or strip cell laid, never decreasing; `head()` → `{y, on}` of the hero ant's head cell; `reduce`. |
+| `canvas.lx-arrive-cv`, `canvas.lx-road` | the only canvases that draw the ant: exactly one `--ant` cell between them on screen. |
+| `[data-lx-arrive].lit` | the hero frame's corners have taken the hue (the ant is in). |
+| `[data-read]` | a deep dive's read time, written by deep.js; its case study quotes the same minutes. |

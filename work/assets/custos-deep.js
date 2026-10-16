@@ -296,7 +296,7 @@
   /* every scene holds each step long enough to read its words at a normal pace (ms per word) */
   scene("sc-gap", { ticks: 3, tps: 1 });
   /* ================= fig 2, fig 3 ================= */
-  scene("sc-rate", { ticks: 4, tps: 1 });
+  scene("sc-rate", { ticks: 4, tps: 1, start: "misreport" });   // opens with the amber share drawn
   /* fig 3: as each step arrives, a square travels the arrows it turns on: the call, the rows, the prose that hits the wall,
      the claim on its way to the rules, the nudge riding back. Restarted on every step, so prev, next and replay show it again */
   scene("sc-loop", { ticks: 5, tps: 1,

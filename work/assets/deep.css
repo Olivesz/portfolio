@@ -81,16 +81,17 @@
 .scene.js .tip{opacity:0;transition:opacity 160ms var(--ease-enter)}
 .scene.js .tip.on,.scene.js .on .tip{opacity:1;transition-delay:520ms}
 
-/* a part waiting for its step ([data-ghost], see deep.js): a faint preview drawn a token down, never with an alpha;
-   words copper, boxes, lines and fills rule; a stroke that draws itself on stays undrawn until its step */
+/* a part waiting for its step ([data-ghost], see deep.js): a preview drawn a token down, never with an alpha, and
+   legible on its own: words muted, boxes, lines and fills copper; a stroke that draws itself on stays undrawn until
+   its step */
 .scene.js [data-ghost].ghost{opacity:1}
 .scene.js [data-ghost].rv{opacity:0!important;transition:none!important}
-.scene.js :is(text.ghost,.ghost text){fill:var(--copper)}
-.scene.js :is(.ghost,.ghost *):is(.bx,.bx-a,.ln,.ln-a,.ln-2,.ln-b,.ln-ref){stroke:var(--rule)}
-.scene.js :is(.ghost,.ghost *):is(.hd,.hd-a,.cell,.cell-i,.bx-f,.ww-h,.ww-t,.ww-w,[class^="c-"]){fill:var(--rule)}
-/* the same preview for a DOM label drawn over a canvas (a page toggles .gh on it until its step): words copper, a
-   boxed or struck word keeps its shape in the rule */
-.scene.js .sc-art .sc-l.gh,.scene.js .sc-art .sc-l.gh *{color:var(--copper);outline-color:var(--rule);text-decoration-color:var(--rule)}
+.scene.js :is(text.ghost,.ghost text){fill:var(--muted)}
+.scene.js :is(.ghost,.ghost *):is(.bx,.bx-a,.ln,.ln-a,.ln-2,.ln-b,.ln-ref){stroke:var(--copper)}
+.scene.js :is(.ghost,.ghost *):is(.hd,.hd-a,.cell,.cell-i,.bx-f,.ww-h,.ww-t,.ww-w,[class^="c-"]){fill:var(--copper)}
+/* the same preview for a DOM label drawn over a canvas (a page toggles .gh on it until its step): words muted, a
+   boxed or struck word keeps its shape in copper */
+.scene.js .sc-art .sc-l.gh,.scene.js .sc-art .sc-l.gh *{color:var(--muted);outline-color:var(--copper);text-decoration-color:var(--copper)}
 
 /* the progress rule: 1 px in the accent over the stage's bottom edge, filling while the scene plays on its own */
 .sc-prog{position:relative;z-index:1;height:1px;margin-top:-1px;pointer-events:none}
@@ -219,8 +220,9 @@
   .scene.js.docked>.sc-keys{margin-bottom:calc(-1 * var(--keys-h,0px))} .scene.js.docked>.sc-bar{margin-top:var(--keys-h,0px)}
 }
 /* a phone on its side: the docked words run the column's width like a subtitle, one line where the measure takes two,
-   and the strip scrolls away with the header, so a long read's figures get the screen between the top and the dock */
-@media (max-height:499px){ .scene.js.docked>.sc-keys li{max-width:none} .strip{position:relative} .dd-toc{top:24px;max-height:calc(100vh - 48px)} }
+   and the strip scrolls away with the header, so a long read's figures get the screen between the top and the dock;
+   the road bar, left alone, sits flush with the top of the screen */
+@media (max-height:499px){ .scene.js.docked>.sc-keys li{max-width:none} .strip{position:relative} .dd-toc{top:24px;max-height:calc(100vh - 48px)} .lx-bar{top:0} }
 /* the strip carries 4 px of void under its edge, so a part scrolling away under it never leaves a sliver of itself */
 .strip::after{content:"";position:absolute;left:0;right:0;top:100%;height:4px;background:var(--void);pointer-events:none}
 /* a phone on its side at 720 px or wider has the wide composition's 704 px: its figures draw that one, shorter than
@@ -237,3 +239,91 @@
 
 @media (prefers-reduced-motion:reduce){ .scene.js .draw{stroke-dashoffset:0} .scene.js .tip{opacity:1} }
 @media print{ .dd-rail{display:none} .dd{grid-template-columns:1fr} .sc-bar,.sc-in,.sc-prog{display:none} .scene.js .sc-keys li{visibility:visible} }
+
+/* ---------- the depth pages' layer, deep-dive part (lx-): chapter openers, scenes in corners, next-chapter cards. Same rules:
+   tokens only, sizes from 72 44 40 30 15 13 11, no gradients, shadows or glows. */
+
+/* the deep hero: the title across, then the words on the left and the hero scene on the right, the ant walking into
+   its corner. The scene fills the right column, so the hero has no empty half */
+@media (min-width:1280px){
+  .lx-hero.deep{grid-template-rows:auto auto 1fr;grid-template-areas:"t t" "d f" ". f"}
+  .lx-hero.deep .lx-shot{margin-top:152px}
+  .lx-hero.deep .lx-hero-d{margin-top:24px}
+}
+.lx-hero.deep .scene.hero{margin-top:0}
+.lx-hero.deep .sc-stage{border:0}
+.lx-hero.deep .lx-shot .scene{padding-top:8px}
+.lx-hero.deep .sc-cap{margin:0;padding:12px 16px 16px;border-top:1px solid var(--rule);max-width:none}
+@media (max-width:1023px){ .lx-hero.deep h1{font-size:40px;line-height:48px} }
+
+/* chapters */
+.lx-ch{margin-top:var(--lx-gap)}
+.ch.lx-ch{padding-top:0;border-top:0}
+/* the opener: number and name, a 72 px title, the one line, then what you'll see */
+.lx-open h2{margin-top:12px;max-width:1040px;font:500 72px/72px var(--sg);letter-spacing:-.03em;color:var(--ink)}
+.lx-sum{margin-top:16px;max-width:640px;font:400 15px/24px var(--sg);color:var(--body)}
+/* what you'll see: one tile per figure, a link to it, its title and an 8-cell strip of flat swatches in the figure's own
+   hues. The strips are a wide-screen aid: under 1024 px the list is figure numbers and short names (.s) */
+.lx-see{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;list-style:none;margin:24px 0 0;padding:0}
+.lx-see a{display:flex;flex-direction:column;height:100%;padding-top:12px;border-top:2px solid var(--copper);text-decoration:none;transition:border-color var(--t-ui) var(--ease-enter)}
+.lx-see a:hover,.lx-see a:focus-visible{border-color:var(--accent)}
+.lx-see .n{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent)}
+.lx-see .t{margin-top:4px;font:500 15px/24px var(--sg);color:var(--ink)}
+.lx-see .s{display:none}
+.lx-g8{display:flex;gap:4px;height:8px;margin-top:auto;padding-top:12px;box-sizing:content-box}
+.lx-g8 i{width:8px;height:8px;background:var(--c,var(--accent))}
+.lx-g8 i.o{background:none;border:2px solid var(--copper);box-sizing:border-box}
+@media (max-width:1023px){ .lx-open h2{font-size:44px;line-height:48px;margin-top:8px} }
+/* under 1024 px: a chapter with one figure skips what you'll see (its figure follows at once), and a longer list is
+   figure numbers and short names (fig 6 diode), as many columns as fit (two on a phone), the full titles kept as the
+   links' names and the strips left to wider screens. A figure with no short name shows its title, wrapped, never cut;
+   that rule sits in :where so a page's own list rules win */
+@media (max-width:1023px){
+  .lx-see:not(:has(li+li)){display:none}
+  .lx-see:has(li+li){grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:0 12px;margin-top:16px}
+  .lx-see:has(li+li) a{flex-direction:row;align-items:baseline;gap:8px;box-sizing:border-box;min-height:32px;padding:6px 0 0;border-top-width:1px}
+  .lx-see:has(li+li) .t{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  .lx-see:has(li+li) .n{flex:none}
+  .lx-see:has(li+li) .s{display:block;min-width:0;overflow:hidden;font:400 13px/20px var(--mono);color:var(--ink);white-space:nowrap;text-overflow:ellipsis}
+  .lx-see:has(li+li) :where(a:not(:has(.s))) .t{position:static;width:auto;height:auto;min-width:0;margin-top:0;clip-path:none;white-space:normal;font:400 13px/20px var(--mono)}
+  .lx-see .lx-g8{display:none}
+}
+
+/* the chapter's story: prose beside its scene from 1280 (the words stay beside a tall scene while it plays) */
+.lx-ch .lx-body>.lx-state{margin-top:32px}
+.lx-ch .lx-duo{margin-top:32px}
+@media (min-width:1280px){ .lx-ch .lx-duo>.lx-txt{position:sticky;top:calc(var(--strip) + 32px)} }
+/* a scene in corners: its stage drops its own rules, the corners frame it */
+.scene.lx-fr{padding:8px 0 12px}
+.scene.lx-fr>.lx-cn{inset:0 -12px}
+.scene.lx-fr>.sc-stage{border-top-color:var(--void);border-bottom-color:var(--void)}
+/* one column (under 1024 px): the stage's own padding is the frame's room, and a long pull line steps down as a long
+   statement does */
+@media (max-width:1023px){ .scene.lx-fr{padding:0 0 4px} .lx-ch .lx-pull.long{font-size:15px;line-height:24px;letter-spacing:0} }
+@media (max-width:767px){ .scene.lx-fr>.lx-cn{inset:0 -8px} }
+
+/* the next chapter announces itself: its name, its line, its numbers; the whole card is the link */
+.lx-nextch{position:relative;display:block;margin-top:var(--lx-gap);padding:28px 32px 32px;text-decoration:none}
+.lx-nextch .t{display:block;margin-top:12px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
+.lx-nextch .d{display:block;margin-top:8px;max-width:640px;font:400 15px/24px var(--sg);color:var(--body)}
+.lx-nextch .lx-mg{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:24px}
+.lx-nextch .lx-m{display:block}
+.lx-nextch .lx-big{font-size:44px;line-height:48px}
+.lx-nextch .s{display:block;margin-top:4px;font:400 13px/20px var(--mono);color:var(--body)}
+.lx-nextch .ar{position:absolute;right:32px;top:24px;font:500 40px/48px var(--sg);color:var(--accent);transition:transform var(--t-ui) var(--ease-enter)}
+.lx-nextch:hover .ar,.lx-nextch:focus-visible .ar{transform:translateX(8px)}
+@media (max-width:767px){ .lx-nextch{padding:20px 16px 24px} .lx-nextch .t{font-size:30px;line-height:40px} .lx-nextch .lx-mg{grid-template-columns:1fr;gap:16px} .lx-nextch .ar{right:16px;top:12px;font-size:30px;line-height:40px} }
+
+/* a phone, or a phone on its side, has no room to spare: the hero's two buttons (start reading, and the jump to the
+   results) share a row, and they and the facts sit 16 px under what comes before. The case study stays one tap away in
+   the strip at the top. */
+@media (max-width:767px), (max-width:1023px) and (max-height:500px){
+  .lx-hero.deep .lx-cta{display:flex;gap:8px}
+  .lx-hero.deep .lx-cta .lx-btn{flex:1 1 0;width:auto;min-width:0;padding:0 12px}
+  .lx-hero.deep .lx-cta:has(.res) .lx-btn.q:not(.res){display:none}
+  .lx-hero.deep .lx-cta,.lx-hero.deep .facts{margin-top:16px}
+}
+@media (max-width:767px){ .lx-see:has(li+li){grid-template-columns:repeat(2,minmax(0,1fr))} }
+/* a list with no short names sets its titles in wider columns, one on a phone, so a title takes a line, not three */
+@media (max-width:1023px){ .lx-see:has(li+li):not(:has(.s)){grid-template-columns:repeat(auto-fill,minmax(296px,1fr))} }
+@media (max-width:767px){ .lx-see:has(li+li):not(:has(.s)){grid-template-columns:minmax(0,1fr)} }

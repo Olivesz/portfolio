@@ -1,7 +1,8 @@
 /* deep.js: the Scene component for the deep dives, plus the contents rail's "you are here".
 
    A scene is a timeline of whole ticks with named steps on it. It plays once on a clock when it arrives on screen
-   (see onScreen), one figure at a time, holding each step until its words can be read (see holdAt); a stepper (prev,
+   (see onScreen), a beat after any figure that started before it, holding each step until its words can be read (see
+   holdAt); a stepper (prev,
    step n of m, next, one square per step) walks it at the reader's pace; replay plays it again. Optional inputs switch it to a live mode. With reduced motion it shows its
    key frame and keeps the stepper. Native buttons only: no wheel, touch or key listeners.
 
@@ -71,10 +72,14 @@
        frame to the words), less the time the frames take to reach the next step, so no step leaves the screen before
        it can be read. One rule for every deep dive; an ambient loop (a hero) keeps its own pause. */
     S.holdAt = function (i) {
-      var k = S.keys[i];
-      return S.ambient ? S.pause : Math.max(S.pause, (k.words ? LOOK_MS + k.words * READ_MS : 0) - S.wordsMs(i));
+      var k = S.keys[i], pre = i && i === S.startKey ? S.span(S.wordsAt(i), k.at) : 0;   // a start step's lead never plays
+      return S.ambient ? S.pause : Math.max(S.pause, (k.words ? LOOK_MS + k.words * READ_MS : 0) - (S.wordsMs(i) - pre));
     };
     S.restKey = spec.rest !== undefined ? S.idx(spec.rest) : S.keys.length - 1;
+    /* spec.start names the step the autoplay starts on (default the first): a hero whose opening steps are an empty
+       stage starts where its subject is on screen, and prev still reaches the steps before it */
+    S.startKey = spec.start !== undefined ? S.idx(spec.start) : 0;
+    S.startAt = S.startKey ? S.keys[S.startKey].at : 0;
 
     /* keyed DOM parts: data-from / data-until / data-only name a step. A part that also carries data-ghost stands as a
        faint preview in the tokens (deep.css) until its step, and before the figure arrives, so a figure never opens on
@@ -94,7 +99,7 @@
     S.api = S.makeApi();
     if (spec.init) spec.init(S.api);
     S.layout();
-    S.show(REDUCE ? S.keys[S.restKey].at : 0);
+    S.show(REDUCE ? S.keys[S.restKey].at : S.startAt);
     S.observe();
   }
   var SP = Scene.prototype;
@@ -119,8 +124,8 @@
   /* one whole autoplay, in ms: the frames' travel, each step's hold, and the last step's words */
   SP.playMs = function () {
     var S = this, n = S.keys.length, last = S.keys[n - 1];
-    var ms = S.span(0, S.keys[0].at) + S.span(last.at, S.T) + (last.words ? LOOK_MS + last.words * READ_MS : 0);
-    for (var i = 0; i < n - 1; i++) ms += S.holdAt(i) + S.travelMs(i);
+    var ms = S.span(S.startAt, S.keys[S.startKey].at) + S.span(last.at, S.T) + (last.words ? LOOK_MS + last.words * READ_MS : 0);
+    for (var i = S.startKey; i < n - 1; i++) ms += S.holdAt(i) + S.travelMs(i);
     return ms;
   };
 
@@ -310,8 +315,13 @@
   /* phone: a scene whose art, words and stepper do not fit one screen under the strip docks its words and stepper to
      the bottom of the screen while it is on screen, so the step being described and its words are always in view
      together, and the try-it inputs move under the stepper */
-  // the strip's height while it stays at the top of the screen (on a phone held sideways it scrolls away, see deep.css)
-  function stripH() { var s = document.querySelector(".strip"); return s && getComputedStyle(s).position === "sticky" ? s.offsetHeight : 0; }
+  // the strip's height while it stays at the top of the screen (on a phone held sideways it scrolls away, see deep.css,
+  // and only the road bar, where a page has one, stays there)
+  function stripH() {
+    var s = document.querySelector(".strip"), b = document.querySelector(".lx-bar");
+    if (s && getComputedStyle(s).position === "sticky") return s.offsetHeight;
+    return b && getComputedStyle(b).display !== "none" ? b.offsetHeight : 0;
+  }
   // a screen that docks: a phone, or any screen under 500 px tall (a phone held sideways), as deep.css's docked rules
   function dockable() { return root.innerWidth < 768 || root.innerHeight < 500; }
   // the screen under the strip, less 16 px for a stage parked a little below the strip and 8 px under the stepper
@@ -409,8 +419,8 @@
   /* the autoplay's own clock, in ms, from its start to tick t: each stretch between steps, and each step's hold that is
      done (the one it sits on counts what has passed of it). A step at the very end gets no hold, as in advance(). */
   SP.clockAt = function (t, holdLeft) {
-    var S = this, ms = 0, prev = 0;
-    for (var i = 0; i < S.keys.length; i++) {
+    var S = this, ms = 0, prev = S.startAt;
+    for (var i = S.startKey; i < S.keys.length; i++) {
       var a = S.keys[i].at; if (a > t + 1e-9) break;
       ms += S.span(prev, a); prev = a;
       var h = (i === 0 && a === 0) || (a > 0 && a < S.T) ? S.holdAt(i) : 0;
@@ -510,14 +520,15 @@
   SP.play = function () {
     var S = this; S.queued = false; S.paused = false; S.played = true; S.stop(); S.leaveLive();
     if (REDUCE) { S.show(S.keys[S.restKey].at); return; }
-    S.mode = "auto"; S.t = 0; S.target = S.T; S.holdLeft = S.keys[0].at === 0 ? S.holdAt(0) : 0; S.heldAt = S.keys[0].at === 0 ? 0 : -1; S.render(true); S.run();
+    var a = S.keys[S.startKey].at;
+    S.mode = "auto"; S.t = S.startAt; S.target = S.T; S.holdLeft = a === S.t ? S.holdAt(S.startKey) : 0; S.heldAt = a === S.t ? a : -1; S.render(true); S.run();
   };
   /* go to step i: forward plays the segment to it; back (or a square), or a figure off screen, snaps. The last step
      runs on to the end of the timeline, where the autoplay leaves it, so what plays after its words is not lost. */
   SP.go = function (i, snap) {
     var S = this;
     i = Math.max(0, Math.min(S.keys.length - 1, i));
-    var wasLive = S.mode === "live"; S.leaveLive(); S.stop(); S.arrived = true; S.queued = false; S.paused = false; S.played = true;
+    var wasLive = S.mode === "live"; S.leaveLive(); S.stop(); if (!S.arrived) S.fig.dispatchEvent(new CustomEvent("deep:arrive")); S.arrived = true; S.queued = false; S.paused = false; S.played = true;
     var at = i === S.keys.length - 1 ? S.T : S.keys[i].at;
     if (snap || REDUCE || wasLive || at <= S.t || !S.visible) { S.show(at); return; }
     S.mode = "seg"; S.target = at; S.holdLeft = 0; S.run();
@@ -525,7 +536,7 @@
 
   /* ---------- live inputs ---------- */
   SP.toggle = function (id) {
-    var S = this, L = S.spec.live; S.arrived = true; S.queued = false; S.paused = false; S.played = true;
+    var S = this, L = S.spec.live; if (!S.arrived) S.fig.dispatchEvent(new CustomEvent("deep:arrive")); S.arrived = true; S.queued = false; S.paused = false; S.played = true;
     var mom = S.inputBtns[id] && S.inputBtns[id].inp.momentary;
     if (!mom) { S.inputs[id] = !S.inputs[id]; S.syncInputs(); }
     if (!L) { if (S.spec.onInput) S.spec.onInput(S.api, id, mom ? true : S.inputs[id], null); S.render(true); return; }
@@ -550,14 +561,14 @@
     if (S.spec.inputs) { S.spec.inputs.forEach(function (inp) { S.inputs[inp.id] = !!inp.on; }); S.syncInputs(); }
   };
 
-  /* ---------- arrival: one figure at a time ----------
+  /* ---------- arrival: staggered by a beat ----------
      A figure arrives when 40% of it (or a fifth of the screen, for a tall one) is on screen, as on the case studies, so
-     a reader who stops on it never waits over an unmoving first frame. If another figure on screen is
-     still playing, the newcomer shows its first frame and waits, then starts a beat after that one ends or leaves the
-     screen; the highest waiting figure goes first. A figure that has left the reading band while it plays does not hold
-     up one that is in it: it pauses where it is and carries on when it comes back into the band. A figure with a hidden
-     stepper (an ambient loop, like a hero) never makes another wait. Off screen a figure pauses (see away): it carries on
-     when it is back in the band and its turn comes, or, if it never got past its first step, it starts over. */
+     a reader who stops on it never waits over an unmoving first frame. If another figure on screen is already playing,
+     the newcomer shows its first frame and starts one beat (600 ms) later, beside it, rather than waiting for it to
+     end; two figures that arrive together start a beat apart, the higher first. A figure that has left the reading band
+     while it plays pauses where it is and carries on when it comes back into the band. A figure with a hidden stepper
+     (an ambient loop, like a hero) never makes another wait. Off screen a figure pauses (see away): it carries on when
+     it is back in the band and its turn comes, or, if it never got past its first step, it starts over. */
   var BEAT = 600, kickT = 0;
   function blocking(S) { return S.mode === "auto" && S.visible && !S.ambient; }
   // where a stage sits against the reading band (the top 65% of the screen), measured now rather than at the last
@@ -582,29 +593,32 @@
       kickT = 0;
       var c = scenes.filter(function (S) { return S.queued && inBand(S); });
       if (!c.length) return;
-      var b = scenes.filter(blocking);
-      if (b.some(holds)) { kick(); return; }   // look again a beat later while one waits in the band
-      // the figures still playing are out of the reading band: hold each where it is, to carry on when it returns
-      b.forEach(function (o) { o.stop(); o.mode = "still"; o.paused = true; o.queued = true; o.render(true); });
+      // a figure still playing out of the reading band holds where it is, to carry on when it returns; one in the band
+      // plays on beside the newcomer
+      scenes.filter(blocking).forEach(function (o) {
+        if (holds(o)) return;
+        o.stop(); o.mode = "still"; o.paused = true; o.queued = true; o.render(true);
+      });
       c.sort(function (a, b) { return a.stage.getBoundingClientRect().top - b.stage.getBoundingClientRect().top; });
       var S = c[0]; S.queued = false;
       if (S.paused) { S.paused = false; S.mode = "auto"; S.target = S.T; S.render(true); S.run(); } else S.play();
+      if (c.length > 1) kick();                // the next one waiting starts a beat after this one
     }, BEAT);
   }
   /* a figure that leaves the screen while it plays. Left on its clock, it would carry on at its first pixel back, below
      the reading band and beside whatever else is playing, so a reader coming back from the bottom of the page met every
-     figure part-way through. Instead: seen no further than its first step (the reader skimmed past), it forgets that it
+     figure part-way through. Instead: seen no further than the step it starts on (the reader skimmed past), it forgets that it
      arrived and plays from the start at its next arrival; further along, it pauses where it is and waits its turn in the
      reading band to carry on. A hero loop (ambient) never holds the floor, so it keeps its clock. */
   SP.away = function () {
     var S = this; if (S.ambient) return;
     S.mode = "still";
-    if (S.k === 0) { S.t = 0; S.arrived = false; S.played = false; S.queued = false; S.paused = false; S.holdLeft = 0; }
+    if (S.k <= S.startKey) { S.t = S.startAt; S.arrived = false; S.played = false; S.queued = false; S.paused = false; S.holdLeft = 0; }
     else { S.paused = true; S.queued = true; }
     S.render(true);
   };
   SP.arrive = function () {
-    var S = this; S.arrived = true;
+    var S = this; S.arrived = true; S.fig.dispatchEvent(new CustomEvent("deep:arrive"));
     if (REDUCE) { S.render(true); return; }
     if (scenes.some(function (o) { return o !== S && blocking(o); })) { S.queued = true; S.render(true); kick(); return; }
     S.play();
@@ -677,7 +691,8 @@
 
   /* the read time in the head (dd[data-read]): the prose at 230 words a minute, plus each figure's autoplay, whose
      steps are paced to be read (their words are counted there, not twice). Same rule on every deep dive. */
-  var SKIP = ".dd-rail, .sc-keys, .sc-bar, .sc-in, .sc-art, .srcs-d, .case-nav, .colo, .strip, .skip, .facts, .sr-only, title";
+  var SKIP = ".dd-rail, .sc-keys, .sc-bar, .sc-in, .sc-art, .srcs-d, .case-nav, .colo, .strip, .skip, .facts, .sr-only, title, " +
+    ".lx-rail, .lx-bar, .lx-see, .lx-nextch, .lx-shot-bar, .lx-key, .lx-cn, .lx-pair, .lx-nav, .lx-cta";
   function readTime() {
     var figMs = 0, words = 0, main = document.getElementById("main") || document.querySelector("main");
     scenes.forEach(function (S) { if (!S.ambient) figMs += S.playMs(); });

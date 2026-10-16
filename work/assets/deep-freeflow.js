@@ -20,7 +20,7 @@
 
   /* ---------------- where you are in the loop: each build step's kicker carries the eight stages, its own lit ---------------- */
   (function () {
-    var steps = [].slice.call(document.querySelectorAll("#ch-build > .st"));
+    var steps = [].slice.call(document.querySelectorAll("#ch-build .st"));
     steps.forEach(function (st, i) {
       var k = st.querySelector(".st-k"); if (!k) return;
       var m = document.createElement("span"); m.className = "st-map"; m.setAttribute("aria-hidden", "true");
@@ -282,7 +282,7 @@
     var lead = { words: 5, phrase: Math.ceil(GAP0 / 5 + 4) + 1 };
     [].forEach.call(document.querySelectorAll("#sc-dictate .sc-keys li"), function (li) { var k = li.getAttribute("data-key"); if (k in lead) li.setAttribute("data-lead", lead[k]); });
     scene("sc-dictate", [90, 94], {
-      ticks: 232, tps: 20, pause: 900,
+      ticks: 232, tps: 20, pause: 900, start: "words",                   // opens on the first typed word; prev shows the tap
       draw: function (api, tick) {
         var W = api.cols, t = T(tick), nar = narrow(api), listening = t >= 0 && t < 1100, now = Math.min(t, 1100);
         api.clear();
@@ -350,7 +350,7 @@
       api.rect(0, y, Math.max(1, w), 3, w ? "v-red" : "muted");
     }
     scene("sc-mind", [58, 62], {
-      ticks: 11, tps: 2, pause: 1100,
+      ticks: 11, tps: 2, pause: 1100, start: "p105",              // opens on the first words heard; prev reaches 0.70 s
       draw: function (api, tick) {
         var W = api.cols, i = Math.min(tick, 10), R = RETYPE[i];
         api.clear();

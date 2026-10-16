@@ -120,16 +120,29 @@ a{color:inherit}
 .card .pt th,.card .pt td{padding:0 0 0 16px;text-align:right;font-weight:400;white-space:nowrap}
 .card .pt th:first-child{padding-left:0;text-align:left;color:var(--ink)}
 .card .pt thead th{font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--muted)} .card .pt thead th:first-child{color:var(--muted)}
-.card .cv{margin:0;font:400 13px/24px var(--mono);color:var(--body)} .card .cv .nw{white-space:nowrap} .card .cv .kl{display:none}
-/* the result the table is about: KRONOS's drawdown against the others, and the line that says what it buys */
-.card .cv .kr,.card .pt tbody tr:first-child td:first-of-type{color:var(--ink)}
-@media (max-width:767px) and (max-height:660px){ .card .cv .kr0{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)} }   /* the shortest phones keep the card to its band */
+.card .cv{margin:0;font:400 13px/24px var(--mono);color:var(--body)} .card .cv .nw,.card .pf .nw{white-space:nowrap} .card .cv .kl{display:none}
+/* KRONOS's results lead with what the run bought, then show it: each max drawdown is a bar on one scale from zero (a cell
+   is 1/24 of SPY's), KRONOS in the chapter hue, equal weight an outline, SPY in the chart's SPY tone. The bars lay cell by
+   cell once the table is in view, so the shortest one stops first; reduced motion and no script show them whole */
+.card .kk{margin:16px 0 0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)} .card .kk+.kh{margin-top:4px}
+.card .kh{margin:16px 0 0;color:var(--ink)}
+/* a card's proof in mono under its plain line, its key result in ink, as KRONOS's results are set */
+.card .fr{margin:16px 0 0} .card .fr .kr{color:var(--ink)}
+.card .kt{margin-top:8px}
+.card .kt tbody tr:first-child th{color:var(--accent)} .card .kt tbody tr:first-child .kb+td{color:var(--ink)}
+.card .kt .kb{--kc:4px;padding-left:16px;text-align:left} .card .kt .kb+td{padding-left:8px}
+.card .kt .kb i{display:block;box-sizing:border-box;width:calc(var(--n) * var(--kc));height:8px;background:var(--copper)}
+.card .kt tr:first-child .kb i{background:var(--accent)} .card .kt tr:nth-child(2) .kb i{background:none;border:1px solid var(--muted)}
+.card .kt.arm .kb i{clip-path:inset(0 100% 0 0)}
+.card .kt.arm.on .kb i{clip-path:inset(0);animation:kbar calc(var(--n) * 32ms) steps(var(--n), jump-start) both}
+@keyframes kbar{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
 .card .meta{margin:16px 0 0;font:400 13px/24px var(--mono);color:var(--body)}
 .card .lk{margin:16px 0 0;font:400 13px/24px var(--mono)}
 .card .lk a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
 .card .lk a:hover,.card .lk a:focus-visible{text-decoration-color:var(--ink)}
 /* the way into a chapter's deep dive takes the chapter's colour, so it reads as the next thing to open */
 .card .lk a.dd{color:var(--accent,var(--ink));text-decoration-color:var(--accent,var(--muted))}
+.card .lk .sp{margin:0 4px}                                         /* three links keep one line on a 360 px phone */
 .card .lk a.dd:hover,.card .lk a.dd:focus-visible{text-decoration-color:var(--ink)}
 .card .rp,.card .rt{display:inline-block;box-sizing:border-box;height:24px;margin:0 0 0 12px;padding:0 8px;border:1px solid var(--copper);border-radius:0;background:none;font:400 11px/22px var(--mono);letter-spacing:.04em;color:var(--ink);vertical-align:top;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .arm-h{position:fixed;z-index:3;left:0;top:0;padding:0 4px;background:var(--void);font:400 11px/16px var(--mono);letter-spacing:.04em;white-space:nowrap;pointer-events:none}
@@ -146,7 +159,10 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
   /* KRONOS on a phone rests on its results table: the self-audit is the chart beat's caption, and the case study's */
   .card .kp-b{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
   .card .ki{margin-top:8px} .card .ki .kx{display:none}
-  .card .kp .pt th,.card .kp .pt td{line-height:20px} .card .kp .cv{font-size:11px;line-height:16px;letter-spacing:0} .card .kp .cv .kw{display:none} .card .kp .cv .kl{display:inline} }
+  .card .kp .pt th,.card .kp .pt td{line-height:20px} .card .kp .cv{font-size:11px;line-height:16px;letter-spacing:0} .card .kp .cv .kw{display:none} .card .kp .cv .kl{display:inline}
+  .card .kk{margin-top:12px;letter-spacing:0} .card .fr{margin-top:12px;font-size:11px;line-height:16px;letter-spacing:0} .card .kh{margin-top:12px} .card .kt{margin-top:4px} .card .kt .kb{--kc:2px;padding-left:12px} .card .kt .kb+td{padding-left:6px} .card .kt .kb i{height:6px} }
+/* the shortest phones keep each card to its band: KRONOS closes up its results and keeps every caveat; custos's proof line goes to screen-reader text */
+@media (max-width:767px) and (max-height:700px){ .card .kk,.card .cu{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)} .card .ki,.card .kh{margin-top:4px} .card .kt{margin-top:0} .card .kp .kt thead th{line-height:16px} }
 
 /* map places: a click teleports, never flies */
 #places{position:fixed;z-index:3;left:0;top:0;width:100%;height:100lvh;pointer-events:none;opacity:0;transition:opacity 200ms var(--ease-enter)}
@@ -245,7 +261,7 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 .egg-n{position:absolute;left:0;top:0;transform:translateX(-50%);font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);white-space:nowrap;visibility:hidden;pointer-events:none}
 .egg-n.r{transform:translateX(-100%)}   /* an ant flush with the column's right edge: its count ends where its box does */
 .egg-n b{font-weight:400;color:var(--eh)}
-/* all three found: what they were, and where to run a rule of one's own */
+/* the last find made away from the end: a link down to where all of them gather */
 .egg-win{position:absolute;left:0;top:0;margin:0;padding:0 4px;box-sizing:border-box;background:var(--void);font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);opacity:0;transition:opacity 400ms var(--ease-enter);pointer-events:auto}
 .egg-win.r{text-align:right}
 .egg-win.on{opacity:1}
@@ -254,6 +270,25 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 .egg.done .egg-n{visibility:visible}
 #places.park .egg,#places.park .egg-win{pointer-events:none}
 .egg-end{height:128px}
+/* all found: the ants gather after the colophon, one row in the column, each regrowing its figure in its hue; its name
+   takes the hue as it comes home. The row is sized to one line of the column (12px cells on a desktop, 6 on a phone,
+   less if the column needs it) */
+.egg-fin{width:896px;margin:0 auto;padding:24px 0 0}
+@supports (margin-left:round(down,1px,8px)){ .egg-fin{margin-left:max(0px,round(down,(100% - 896px) / 2,8px));margin-right:0} }
+@media (max-width:1023px){ .egg-fin{width:auto;margin-left:16px;margin-right:16px} }
+.egg-fin .ef-k{margin:0 0 8px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.egg-fin .ef-h{margin:0 0 24px;font:500 30px/32px var(--sg);letter-spacing:-.02em;color:var(--ink)}
+.egg-fin .ef-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 40px;margin:0;padding:0;list-style:none}
+@media (max-width:1023px){ .egg-fin .ef-row{gap:16px} }
+.egg-fin .ef-row li{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:0}
+.egg-fin canvas{display:block}
+.egg-fin .ef-n{margin:0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);opacity:0;transition:opacity 400ms var(--ease-enter)}
+.egg-fin li.go .ef-n{opacity:1}   /* a name shows with its figure, never under an empty slot */
+.egg-fin .ef-n b{display:block;font-weight:400;color:var(--body);transition:color 400ms var(--ease-enter)}
+.egg-fin li.home .ef-n b{color:var(--eh)}
+.egg-fin .ef-t{max-width:416px;margin:24px 0 0;font:400 15px/24px var(--sg);color:var(--body)}
+.egg-fin .ef-t a{display:inline-block;min-height:24px;font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--ink);text-decoration:underline 1px var(--muted);text-underline-offset:3px}
+@media (pointer:coarse){ .egg-fin .ef-t a{min-height:32px;line-height:32px} }
 /* the map's caption row, under the strip where the rising document reaches it last: what the labels do, then the
    tally of hidden ants (three cells outlined in each ant's hue, so a visitor knows the colours to look for, and filled
    once that ant is found). A phone sets the caption in its
@@ -271,6 +306,9 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 @media (pointer:coarse){ #mapcap .egg-tally a{padding:8px 0;margin:-8px 0} }   /* a 24 or 32px target on the row's 16px line */
 #mapcap:not(.on) .egg-tally a,#mapcap.lo.tg .egg-tally a{pointer-events:none}
 #mapcap .egg-tally.won{color:var(--body)}
+#mapcap .egg-tally.won a{text-decoration:underline 2px var(--eh,var(--muted))}
+#mapcap .egg-tally .cue a{animation:egg-cue 600ms steps(1,end) 2}
+@media (prefers-reduced-motion:reduce){ #mapcap .egg-tally .cue a{animation:none} }
 #mapcap.won .mc-t{visibility:hidden}   /* the payoff takes the whole row: the caption steps aside while it shows */
 #mapcap.won .egg-tally{left:var(--gut);right:auto}
 #mapcap.ph.won .egg-tally{right:var(--gut);top:calc(var(--mc-y,52px) - 6px);white-space:normal;align-items:flex-start}   /* from the top of the caption's reserved row: three lines end clear of the list */
@@ -341,12 +379,9 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
 #work .k-lede b{font-weight:500;color:var(--ink)}
 
 /* the ask, then the five theme blobs: a pick opens every project in the theme */
-#work .k-ask{margin-top:24px;font:400 13px/24px var(--mono);color:var(--ink);text-wrap:balance}   /* a narrow phone breaks it in two even lines, never a lone word */
+#work .k-ask{margin-top:24px;font:400 13px/24px var(--mono);color:var(--ink)}   /* one clause: the ring and the open list say the rest */
 #work .k-a2{display:none}
 @media (hover:none){ #work .k-a1{display:none} #work .k-a2{display:inline} }
-/* where the panel has its own column the section opens on a theme already picked: the prompt says which one is open */
-@media (max-width:1023px){ #work .k-a3{display:none} }
-
 /* the stage: the blob field, with the panel beside it on desktop and under it on phone */
 #work .k-stage{display:grid;grid-template-columns:560px 304px;column-gap:32px;margin-top:24px;align-items:start;container-type:inline-size}   /* room above the first disc for its ring */
 #work .k-field{position:relative;height:416px}
@@ -564,9 +599,10 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <p class="date">chapter ii</p>
       <h2>emergence</h2>
       <p class="np">a truth table. every rung verified, up to the CPU.</p>
-      <p class="pf"><span data-src="Olivesz/emergence@910b296:README.md#L5">Eight</span> cellular-automaton acts end in a SAP-1 CPU: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates and 175 flip-flops</span>, run as a gate-level netlist on <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five test programs</span>. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">In raw Wireworld, a full adder, a 4-bit counter and a D flip-flop match their netlists on every clock.</span></p>
+      <p class="pf" data-src="Olivesz/emergence@910b296:README.md#L5">Eight cellular automata, one engine: from a <span class="nw">one-line rule</span> to a CPU.</p>
+      <p class="cv fr"><span class="nw" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">SAP-1 (1,446 NAND gates, 175 flip-flops)</span> <span class="nw" data-src="Olivesz/emergence@910b296:cpu/README.md#L24">runs five test programs as a gate-level netlist.</span><br><span class="kr" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52"><span class="nw">In raw Wireworld, a full adder, a 4-bit counter</span> <span class="nw">and a D flip-flop match the netlist every clock.</span></span></p>
       <p class="sr-only">A NAND cell in raw Wireworld fills its truth table, inputs A and B as buttons; then the SAP-1’s recorded gate-level run replays Fibonacci, clock by clock, from PC and RAM over the bus to OUT.</p>
-      <p class="lk"><a class="rm dd" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="lk"><a class="rm dd" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
     <div class="ctl" id="ctl-emergence" role="group" aria-label="NAND cell inputs"></div>
   </div>
@@ -577,8 +613,9 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <h2>freeflow</h2>
       <p class="np" data-src="Olivesz/freeflow@19c0217:README.md#L49">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
       <p class="pf" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
+      <p class="cv fr"><span class="kr" data-src="Olivesz/freeflow@19c0217:README.md#L57-L60">word errors: <span class="nw">6.7% live,</span> <span class="nw">5.4% whole clip</span></span><br><span data-src="Olivesz/freeflow@19c0217:README.md#L55-L59"><span class="nw">20 held-out speakers</span> · <span class="nw">19.7% before the fix</span></span></p>
       <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log, whisper.cpp on the JFK sample.</p>
-      <p class="lk"><a class="rm dd" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="lk"><a class="rm dd" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
   </div>
 
@@ -589,19 +626,21 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <p class="np">a planted answer. no estimator touches a real price until it finds one.</p>
       <p class="pf ki" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">A regime-aware quant platform<span class="kx">, every model hand-implemented in Python</span>.</p>
       <div class="kp"><div class="kp-a">
-      <table class="pt">
-        <thead><tr><th data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">net of costs</th> <th>max DD</th> <th>Sharpe</th> <th>excess</th> <th>CAGR</th></tr></thead>
+      <p class="cv kk" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157">the result · risk control, not alpha</p>
+      <p class="cv kh"><span class="kr" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">about equal-weight’s Sharpe, 64% of its drawdown</span></p>
+      <table class="pt kt">
+        <thead><tr><th data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">net of costs</th> <th colspan="2">max drawdown</th> <th>Sharpe</th> <th>CAGR</th></tr></thead>
         <tbody>
-          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151"><th>KRONOS</th> <td>−18.7%</td> <td>1.12</td> <td>0.97</td> <td>13.6%</td></tr>
-          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154"><th>equal weight</th> <td>−29.5%</td> <td>1.10</td> <td>0.98</td> <td>16.6%</td></tr>
-          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155"><th>SPY</th> <td>−33.7%</td> <td>0.91</td> <td>0.81</td> <td>15.0%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151"><th>KRONOS</th> <td class="kb"><i style="--n:13"></i></td><td>−18.7%</td> <td>0.97</td> <td>13.6%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154"><th>equal weight</th> <td class="kb"><i style="--n:21"></i></td><td>−29.5%</td> <td>0.98</td> <td>16.6%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155"><th>SPY</th> <td class="kb"><i style="--n:24"></i></td><td>−33.7%</td> <td>0.81</td> <td>15.0%</td></tr>
         </tbody>
       </table>
-      <p class="cv"><span class="kr0"><span class="nw kr" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31"><span class="sr-only">about </span>equal weight’s Sharpe at 64% of its drawdown</span> · </span><span class="sr-only"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">Sharpe at rf=0, excess over cash</span> · </span><span class="nw" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample<span class="sr-only"> on today’s large caps</span></span><span class="kd"> · <span class="nw"><span class="kw">up to </span><span class="kl">≤</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5× leverage</span></span></span></p>
+      <p class="cv"><span class="sr-only"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149-L155">Sharpe over cash; at rf=0 it is 1.12, 1.10 and 0.91</span> · </span><span class="nw" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample<span class="kq"> on today’s large caps</span></span><span class="kd"> · <span class="nw"><span class="kw">up to </span><span class="kl">≤</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5× leverage</span></span></span></p>
       </div>
-      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">A self-audit found a sign bug all 30 gates then in CI had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate.</span> There are <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47</span> gates now, all run in CI on real prices.</p></div>
+      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">A self-audit found a sign bug all 30 gates then in CI had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate.</span></p></div>
       <p class="sr-only">A regime switch planted in synthetic returns; the fit locks onto it, and a slider moves it. Then the gates, then the run against SPY.</p>
-      <p class="lk"><a class="rm dd" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="lk"><a class="rm dd" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
     <div class="ctl" id="ctl-kronos" role="group" aria-label="KRONOS planted regime switch"></div>
   </div>
@@ -612,9 +651,10 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <h2>custos-code</h2>
       <p class="np">the log. the harness’s record of what the agent did.</p>
       <p class="pf"><span data-src="Olivesz/custos-code@4cb05fa:README.md#L3">Checks a coding agent’s final report against its own log, claim by claim.</span> In <span data-src="Olivesz/custos-code@4cb05fa:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with a nudge.</p>
+      <p class="cv fr cu"><span class="kr" data-src="Olivesz/custos-code@4cb05fa:README.md#L29-L33">six log sources · ten scenarios with known truth</span></p>
       <p class="meta" data-src="public_resume.tex#L79-L82">2026 hackathon. Led a team of 3, designed the core engine.</p>
       <p class="sr-only">The agent says the suite is green; its log shows failing tests: the claim is marked contradicted and the stop blocked. A passing run stops.</p>
-      <p class="lk"><a class="rm dd" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><span aria-hidden="true"> · </span><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></p>
+      <p class="lk"><a class="rm dd" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
   </div>
   <section class="sr-only" aria-label="the map">
@@ -638,7 +678,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <p class="k-lede"><b data-src="page:work-total">15</b> projects and papers in <b data-src="page:work-themes">5</b> themes.</p>
     </header>
     <p class="sr-only"><span data-src="page:work-themes">Five</span> theme buttons follow. Each names the projects to start with and counts the rest; picking one shows every project in that theme, with its links.</p>
-    <p class="k-ask" aria-hidden="true"><span class="k-a1">pick a theme</span><span class="k-a2">tap a theme</span> <span class="k-arr">↓</span><span class="k-a3"> · the ringed one is open <span class="k-arr">→</span></span></p>
+    <p class="k-ask" aria-hidden="true"><span class="k-a1">pick a theme</span><span class="k-a2">tap a theme</span> <span class="k-arr">↓</span></p>
     <div class="k-stage">
       <div class="k-field" role="group" aria-label="themes">
         <button type="button" class="k-blob" data-k="llm" aria-pressed="false" aria-controls="k-panel" aria-label="agents &amp; LLMs, 5 projects: custos-code, inf-mem and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">agents &amp; LLMs</span><span class="k-bn">custos-code</span><span class="k-bn">inf-mem</span><span class="k-bm">+<b data-src="page:work-more-llm">3</b> more</span></span></button><button type="button" class="k-blob" data-k="verify" aria-pressed="false" aria-controls="k-panel" aria-label="verification, 5 projects: emergence and 4 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">verification</span><span class="k-bn">emergence</span><span class="k-bm">+<b data-src="page:work-more-verify">4</b> more</span></span></button><button type="button" class="k-blob" data-k="systems" aria-pressed="false" aria-controls="k-panel" aria-label="systems, 7 projects: freeflow, IEEE IPCCC and 5 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">systems</span><span class="k-bn">freeflow</span><span class="k-bn">IEEE IPCCC</span><span class="k-bm">+<b data-src="page:work-more-systems">5</b> more</span></span></button><button type="button" class="k-blob" data-k="play" aria-pressed="false" aria-controls="k-panel" aria-label="interactive, 4 projects: emergence and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">interactive</span><span class="k-bn">play emergence</span><span class="k-bm">+<b data-src="page:work-more-play">3</b> more</span></span></button><button type="button" class="k-blob" data-k="data" aria-pressed="false" aria-controls="k-panel" aria-label="markets &amp; data, 4 projects: KRONOS and 3 more"><svg class="k-bs" aria-hidden="true" focusable="false"></svg><span class="k-bt" aria-hidden="true"><span class="k-bk">markets &amp; data</span><span class="k-bn">KRONOS</span><span class="k-bm">+<b data-src="page:work-more-data">3</b> more</span></span></button>
@@ -3364,6 +3404,29 @@ api.station = {
 if (typeof module !== "undefined" && module.exports) module.exports = api;
 root.FigKronos = api;
 })(typeof window !== "undefined" ? window : this);
+// the card's worst-fall bars lay once, when the whole table is first in view; without an observer, or under reduced
+// motion, they are never armed and show whole. The watch starts once the page has placed its blocks (DOMContentLoaded
+// follows the layout script), so a block still at its unplaced top never counts as seen
+(function () {
+  if (typeof document === "undefined" || !window.IntersectionObserver) return;
+  var t = document.querySelector("#kronos .kt");
+  if (!t || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  t.classList.add("arm");
+  function watch() {
+    var io = new IntersectionObserver(function (es) {
+      if (es[es.length - 1].intersectionRatio < 0.99) return;
+      t.classList.add("on"); io.disconnect();
+    }, { threshold: [0.99] });
+    io.observe(t);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", watch); else watch();
+  // the card's replay lays them again with the station (the button is added later, so the card listens)
+  var card = document.getElementById("kronos");
+  if (card) card.addEventListener("click", function (e) {
+    if (!e.target.closest || !e.target.closest(".rp") || !t.classList.contains("on")) return;
+    t.classList.remove("on"); void t.offsetWidth; t.classList.add("on");
+  });
+})();
 </script>
 <script>
 /* custos-code station, native layer.
@@ -6994,7 +7057,7 @@ window.__walk = {
     if (active) settle(active);                          // and one running at a time: the last one lands at its end
     e.t0 = performance.now(); e.b.classList.remove("cue");
     e.b.setAttribute("aria-disabled", "true"); e.b.setAttribute("aria-label", "hidden ant found");
-    if (findable().every(function (q) { return q.t0; })) last = e;
+    if (findable().every(function (q) { return q.t0; })) { last = e; gather(); if (e.id === "end") { ready = seen = true; show(); play(); } }
     tally();
     if (RM) { settle(e); return; }
     active = e; draw(e, true); requestAnimationFrame(tick);
@@ -7019,13 +7082,15 @@ window.__walk = {
     var n = EGGS.filter(function (e) { return e.t0; }).length, N = Math.max(n, findable().length);
     EGGS.forEach(function (e) {
       e.fn.textContent = ""; var r = d0.createElement("b"); r.textContent = e.rule; e.fn.appendChild(r);
-      e.fn.appendChild(d0.createTextNode(" · " + n + " of " + N + " found"));
+      if (!fin) e.fn.appendChild(d0.createTextNode(" · " + n + " of " + N + " found"));
     });
     if (!tallyEl) return;
     // where the row has room, the tally points at the first ant, the one on this map, until it is found
     var vw = d0.documentElement.clientWidth, m = EGGS[0], won = !!(win && last && last.par === places);
-    while (tallyT.firstChild) tallyT.removeChild(tallyT.firstChild);
-    if (won) { tallyT.appendChild(d0.createTextNode(n + " of " + N + " · ")); tallyT.appendChild(win); }
+    if (won) {                                        // the link stays in place across relayouts, so its one cue plays once
+      if (tallyT.lastChild !== win || tallyT.childNodes.length !== 2) { tallyT.textContent = ""; tallyT.appendChild(d0.createTextNode("")); tallyT.appendChild(win); }
+      tallyT.firstChild.nodeValue = n + " of " + N + " · ";
+    }
     else tallyT.textContent = n + " of " + N + (vw < 380 ? " ants found" : " hidden ants found") + (vw >= 600 && !m.t0 && m.free && m.home ? " · one is on this map" : "");
     EGGS.forEach(function (e, i) { marks[i].classList.toggle("on", !!e.t0); marks[i].hidden = findable().indexOf(e) < 0; });
     tallyEl.classList.toggle("won", won); fitWon();
@@ -7086,35 +7151,107 @@ window.__walk = {
     e = EGGS[2]; place(e, right - e.W * C, sp.top - dr.top + (sp.height - e.H * C) / 2);
   }
   if (window.ResizeObserver) new ResizeObserver(layoutDoc).observe(work);
-  window.addEventListener("resize", layoutDoc);
+  window.addEventListener("resize", function () { layoutDoc(); fsize(); });
   if (d0.fonts && d0.fonts.ready) d0.fonts.ready.then(layoutDoc);
   layoutDoc();
-  // all found: name what they were (only the ants this layout offered), and link to the act that runs any rule. The
-  // map's ant found last: the caption row carries it (tally), never a plate over the map. A document ant found last:
-  // set beside it, level with its box's foot, on the side with the room (flush right, so the text runs to its left)
-  function said() {
-    var rs = findable().map(function (e) { return e.rule; }), lt = rs.indexOf("RL") >= 0, tm = rs.filter(function (r) { return r !== "RL"; });
-    var t = tm.length ? tm.join(" and ") + (tm.length > 1 ? " are turmites" : " is a turmite") : "";
-    return lt ? "RL is Langton’s ant" + (t ? "; " + t : "") + ". " : t + ": Langton’s ant with more colours. ";
+  // all found: the ants gather after the colophon (gather, built at the last click so its room exists before it
+  // plays). The map's ant found last: the caption row links down to them (tally), never a plate over the map. The work
+  // gap's ant found last: a link beside it, level with its box's foot. The end's ant found last: the row starts
+  // regrowing in that click while the page brings it into view, so the scroll lands on figures already moving.
+  var fin = null, fsp = [], fC = 0, ready = false, played = false;
+  function gather() {
+    if (fin) return;
+    fin = d0.createElement("section"); fin.className = "egg-fin"; fin.id = "egg-fin"; fin.setAttribute("aria-label", "the hidden ants, found");
+    var k = d0.createElement("p"); k.className = "ef-k"; k.textContent = "hidden ants"; fin.appendChild(k);
+    var hd = d0.createElement("h2"); hd.className = "ef-h"; fin.appendChild(hd);
+    var row = d0.createElement("ol"); row.className = "ef-row"; row.setAttribute("data-src", "Olivesz/emergence@910b296:README.md#L23"); fin.appendChild(row);
+    findable().forEach(function (e) {
+      var li = d0.createElement("li"); li.style.setProperty("--eh", "var(--" + e.hue + ")");
+      var cv = d0.createElement("canvas"); cv.setAttribute("aria-hidden", "true"); li.appendChild(cv);
+      var n = d0.createElement("p"); n.className = "ef-n"; var b = d0.createElement("b"); b.textContent = e.rule; n.appendChild(b);
+      n.appendChild(d0.createTextNode(e.rule === "RL" ? "Langton’s ant" : "turmite")); li.appendChild(n);
+      row.appendChild(li); fsp.push({ e: e, li: li, cv: cv, g: new Uint8Array(R * R), n: 0 });
+    });
+    hd.textContent = (fsp.length === 3 ? "All three" : fsp.length === 2 ? "Both" : "All") + " found.";
+    var t = d0.createElement("p"); t.className = "ef-t";
+    t.appendChild(d0.createTextNode("One letter per cell colour: R turns right, L turns left. This page’s own ant is RL, Langton’s ant. "));
+    var a = d0.createElement("a"); a.href = "https://olivesz.github.io/emergence/"; a.target = "_blank"; a.rel = "noopener noreferrer";
+    a.textContent = "run any rule: emergence, act I\u00a0"; var ar = d0.createElement("span"); ar.setAttribute("aria-hidden", "true"); ar.textContent = "→"; a.appendChild(ar);
+    t.appendChild(a); fin.appendChild(t);
+    endSp.after(fin);
+    fsize();
+    if (window.IntersectionObserver) new IntersectionObserver(function (es) { if (es[0].intersectionRatio >= 0.5) { seen = true; play(); } }, { threshold: [0, 0.5, 1] }).observe(fin);
+    else seen = true;
+  }
+  var seen = false;
+  // the cell size: the largest (12, 6 on a phone) at which the row keeps to one line of the column
+  function fsize() {
+    if (!fin) return;
+    var row = fin.querySelector(".ef-row"), top = function () { return fsp.map(function (q) { return q.li.offsetTop + q.li.offsetHeight; }); };   // one line: every foot on the row's baseline
+    for (fC = d0.documentElement.clientWidth >= 1024 ? 12 : 6; fC >= 2; fC--) {
+      fsp.forEach(function (q) { q.cv.style.width = q.e.W * fC + "px"; q.cv.style.height = q.e.H * fC + "px"; });
+      var o = top(); if (o.every(function (y) { return y === o[0]; }) && row.scrollWidth <= row.clientWidth) break;
+    }
+    fsp.forEach(function (q) { fdraw(q, false); });
+  }
+  function fseek(q, k) {
+    if (k < q.n) { q.g.fill(0); q.n = 0; }
+    for (; q.n < k; q.n++) q.g[q.e.at[q.n]] = q.e.to[q.n];
+  }
+  function fdraw(q, head) {
+    var e = q.e, cv = q.cv, P = Math.max(1, Math.round(fC * (window.devicePixelRatio || 1)));
+    if (cv.width !== e.W * P || cv.height !== e.H * P) { cv.width = e.W * P; cv.height = e.H * P; }
+    var g2 = cv.getContext("2d"); g2.clearRect(0, 0, cv.width, cv.height); g2.fillStyle = e.col;
+    for (var y = e.bx[1]; y <= e.bx[3]; y++) for (var x = e.bx[0]; x <= e.bx[2]; x++) if (q.g[y * R + x] & 1) g2.fillRect((x - e.bx[0]) * P, (y - e.bx[1]) * P, P, P);
+    if (head && q.n > 0 && q.n < e.steps) { var hp = e.hp[q.n - 1]; g2.fillStyle = INK; g2.fillRect((hp % R - e.bx[0]) * P, (((hp / R) | 0) - e.bx[1]) * P, P, P); }
+  }
+  // all of them at once, a beat apart, each on its own run's clock (four fifths of its egg's); reduced motion: the end
+  function play() {
+    if (!ready || played || !seen) return;
+    played = true;
+    if (RM) { fsp.forEach(function (q) { fseek(q, q.e.steps); fdraw(q, false); q.li.classList.add("go", "home"); }); return; }
+    var t0 = performance.now();
+    (function step(now) {
+      var live = false;
+      fsp.forEach(function (q, i) {
+        var f = Math.max(0, Math.min(1, (now - t0 - i * 240) / (q.e.ms * 0.8)));
+        if (q.li.classList.contains("home")) return;
+        if (f > 0) q.li.classList.add("go");
+        fseek(q, Math.round(q.e.steps * (1 - Math.pow(1 - f, 3)))); fdraw(q, f < 1);
+        if (f < 1) live = true; else q.li.classList.add("home");
+      });
+      if (live) requestAnimationFrame(step);
+    })(t0);
+  }
+  // the end's own ant found last: in that click, scroll the row toward view, its foot in view where the screen is tall
+  // enough, never so far that the ant just let out leaves the top (the strip is over it)
+  function show() {
+    var r = fin.getBoundingClientRect(), a = EGGS[2].cv.getBoundingClientRect(), st = d0.getElementById("strip");
+    var dy = Math.round(Math.min(r.bottom + 24 - window.innerHeight, a.top - (st ? st.getBoundingClientRect().bottom : 40) - 16));
+    if (dy > 0) window.scrollBy({ top: dy, behavior: RM ? "auto" : "smooth" });
   }
   function reward() {
+    ready = true;
     var map = last.par === places;
-    if (!win) {
+    if (!win && last.id !== "end") {
       win = d0.createElement("span");
-      var t = d0.createElement("span"); t.setAttribute("data-src", "Olivesz/emergence@910b296:README.md#L23"); t.textContent = said();
-      // the link is short enough that a phone's plate (two lines and the link) stays clear of the colophon above it
-      var a = d0.createElement("a"); a.href = "https://olivesz.github.io/emergence/"; a.target = "_blank"; a.rel = "noopener noreferrer";
-      a.textContent = "run any rule: emergence, act I\u00a0"; var ar = d0.createElement("span"); ar.setAttribute("aria-hidden", "true"); ar.textContent = "→"; a.appendChild(ar);
-      win.appendChild(t); win.appendChild(a);
+      var a = d0.createElement("a"); a.href = "#egg-fin"; a.textContent = "see all " + fsp.length + " together\u00a0";
+      var ar = d0.createElement("span"); ar.setAttribute("aria-hidden", "true"); ar.textContent = "↓"; a.appendChild(ar); win.appendChild(a);
     }
-    if (map) { win.className = ""; tally(); return; }
-    if (win.tagName !== "P") { var p = d0.createElement("p"); p.className = "egg-win"; p.appendChild(win); win = p; }
-    if (win.parentNode !== last.par) last.par.appendChild(win);
-    seat();
-    requestAnimationFrame(function () { win.classList.add("on"); });
+    if (map) {                                        // far from the ant just let out: underlined in its hue, it blinks once to be seen
+      win.className = ""; win.style.setProperty("--eh", "var(--" + last.hue + ")"); tally();
+      requestAnimationFrame(function () { win.classList.add("cue"); });
+    }
+    else if (win) {
+      if (win.tagName !== "P") { var p = d0.createElement("p"); p.className = "egg-win"; p.appendChild(win); win = p; }
+      if (win.parentNode !== last.par) last.par.appendChild(win);
+      seat();
+      requestAnimationFrame(function () { win.classList.add("on"); });
+    }
+    play();
   }
   function seat() {
-    if (last.par === places) return;
+    if (!win || last.par === places) return;
     var e = last, x = e.at0[0], y = e.at0[1], bw = e.W * C, VW = d0.documentElement.clientWidth, pr = e.par.getBoundingClientRect();
     var col = e.par === doc ? work.getBoundingClientRect() : { left: 16, right: VW - 16 };
     var lo = Math.max(16, col.left) - pr.left, hi = Math.min(VW - 16, col.right) - pr.left, gap = 16;

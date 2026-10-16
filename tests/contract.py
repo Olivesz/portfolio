@@ -23,6 +23,7 @@ import functools
 import http.server
 import json
 import math
+import re
 import socket
 import sys
 import threading
@@ -1241,6 +1242,18 @@ EGG_NEAR_JS = r"""(i) => { const e = __eggs.list()[i], b = e.box, M = 24, out = 
     return { near: out.slice(0, 4), scene: __walk.sceneId(scrollY / __walk.S()), inView: b[1] >= 40 && b[1] + b[3] <= innerHeight, e }; }"""
 
 
+# the gathering after the colophon, built by the last find: one li per findable ant, each canvas's lit pixels, every li's
+# foot on one line, the row's overflow, and the act I link's target
+EGG_FIN_JS = r"""() => { const f = document.getElementById('egg-fin'); if (!f) return null; const row = f.querySelector('.ef-row');
+    const lis = [...f.querySelectorAll('.ef-row > li')], a = f.querySelector('.ef-t a');
+    return { n: lis.length, home: lis.map(l => l.classList.contains('home')),
+      lit: lis.map(l => { const c = l.querySelector('canvas'); if (!c || !c.width) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+        let k = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) k++; return k; }),
+      feet: lis.map(l => Math.round(l.getBoundingClientRect().bottom)), over: row.scrollWidth - row.clientWidth,
+      link: a ? [a.target, a.rel] : null,
+      strip: document.getElementById('strip') ? document.getElementById('strip').getBoundingClientRect().bottom : 40 }; }"""
+
+
 def egg_session(v, reduced):
     """a fresh page: bring each egg into view (the map egg at the map), check its surroundings, then plant it"""
     ctx = v.run.browser.new_context(reduced_motion="reduce" if reduced else "no-preference", **VIEWPORTS[v.name])
@@ -1279,6 +1292,7 @@ def egg_session(v, reduced):
             (pg.touchscreen.tap if v.phone else pg.mouse.click)(x, yy)
             pg.wait_for_timeout(30)
             runs, last = [], None
+            t0 = time.time(); early = None
             for _ in range(45):                      # 3.6s: past the longest clock (3s)
                 st = pg.evaluate("() => [__eggs.running(), __eggs.list()]")
                 runs.append(st[0]); last = st[1]
@@ -1286,6 +1300,12 @@ def egg_session(v, reduced):
                     first = st[1][i]
                     if first["running"] or not first["done"] or first["n"] != first["steps"]:
                         bad.append(f"egg {e['id']} at n {first['n']} of {first['steps']}, running {first['running']}, right after the click")
+                    if i == 2:                           # the last find: the gathering is drawn whole at once
+                        g = pg.evaluate(EGG_FIN_JS)
+                        if not g or not all(g["home"]) or not all(g["lit"]):
+                            bad.append(f"the gathering right after the last find: {g and (g['home'], g['lit'])}")
+                if i == 2 and not reduced and early is None and time.time() - t0 > 0.6:
+                    early, early_t = pg.evaluate(EGG_FIN_JS), time.time() - t0   # the end's ant found last: the row is already regrowing as the page brings it in
                 if i < 2 and len(runs) == 3 and not reduced:   # a second egg while this one runs: the first lands, one runs
                     pass
                 pg.wait_for_timeout(80)
@@ -1303,6 +1323,12 @@ def egg_session(v, reduced):
             if (again["n"], again["lit"], again["running"]) != (me["n"], me["lit"], False):
                 bad.append(f"egg {e['id']} planted again on a second click")
             log.append(f"{e['id']} {me['lit']} cells at step {me['n']}")
+            if i == 2:
+                if early is not None and not any(early["lit"]):
+                    bad.append(f"the gathering is still empty {early_t:.1f}s after the last find (lit {early['lit']})")
+                g = pg.evaluate(EGG_FIN_JS)
+                if g and me["box"][1] < g["strip"] - 0.5:
+                    bad.append(f"the end's ant was scrolled under the strip (top {me['box'][1]:.0f}, strip {g['strip']:.0f})")
         # the cap: two eggs clicked back to back on one screen never run two ants; replay it on the hooks' own clock
         cap = pg.evaluate("""() => { const L = __eggs.list(); return L.filter(e => e.planted).length; }""")
         if cap != 3:
@@ -1310,6 +1336,22 @@ def egg_session(v, reduced):
         tl = pg.evaluate("() => __eggs.tally()")
         if not tl or "3 of 3 hidden ants found" not in tl:
             bad.append(f"the map's tally reads {tl!r} after all three")
+        # the gathering: every findable ant home, lit, on one line of the column, and the act I link opens a new tab
+        try:
+            pg.wait_for_function("() => { const l = document.querySelectorAll('#egg-fin .ef-row > li'); return l.length && [...l].every(x => x.classList.contains('home')); }", timeout=6000)
+        except Exception:
+            pass
+        g = pg.evaluate(EGG_FIN_JS)
+        if not g:
+            bad.append("no gathering (#egg-fin) after all three")
+        else:
+            if g["n"] != cap or not all(g["home"]) or not all(g["lit"]):
+                bad.append(f"gathering: {g['n']} figures for {cap} found, home {g['home']}, lit pixels {g['lit']}")
+            if len(set(g["feet"])) > 1 or g["over"] > 0:
+                bad.append(f"gathering is not one line: feet {g['feet']}, overflow {g['over']}px")
+            if not g["link"] or g["link"][0] != "_blank" or "noopener" not in g["link"][1]:
+                bad.append(f"gathering link target/rel {g['link']}")
+            log.append(f"gathering {g['n']} figures home on one line")
     finally:
         ctx.close()
     return bad, log
@@ -3649,6 +3691,144 @@ def a_cases(v):
     return not bad, (f"{len(pages)} pages x 12 checks ({motion} motion)" + (f", {len(bad)} failing: " + "; ".join(bad[:4]) + (" ... " + bad[-1] if len(bad) > 4 else "") if bad else ", all pass"))
 
 
+
+# --- the depth layer (lx-) on the work pages that opt into it ---------------------------------------------------------
+# A page opts in with a road (.lx-rail / .lx-bar) or a hero arrival ([data-lx-arrive]); window.__lx is its hook.
+# one ant: white cells counted in the arrival canvas and the road canvases, on screen (the road strip may sit under the
+# top strip; the arrival may not), at 21 scroll positions down and 5 back up: exactly 1 at every one. The road is never
+# un-laid (maxR or maxB never decreases). No result digit (.lx-big, .lx-cmp .v) is ever transparent or zero-sized, and no
+# big number's text comes within 8 px of its own words beside it (measured on the text's glyph runs, not the boxes, which
+# can hold an overflowing number while reading a clear gap). Under
+# reduced motion the hero rests at load with its frame lit. A deep dive's read time equals its [data-read] line, and the
+# case study that links to it quotes the same minutes. The arrival band, sampled every 50 ms for its first 2.5 s, never
+# goes dark once lit (a resize before the walk starts must not land the ant and then replay the walk). No result digit's
+# ink is wider than its box (a number that spills runs into the words beside it).
+DEPTH_ANTS_JS = """() => { let n = 0;
+  // under the top strip is off screen, and so is under the phone's road strip when it shows (it is opaque, above the art)
+  const bar = document.querySelector('.lx-bar'), bb = bar && bar.getClientRects().length ? bar.getBoundingClientRect().bottom : 0, top = Math.max(40, bb);
+  for (const cv of document.querySelectorAll('.lx-arrive-cv, .lx-road')) {
+  const r = cv.getBoundingClientRect(); if (!r.width || !r.height || !cv.width || !cv.height) continue;
+  const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, sx = cv.width / r.width, sy = cv.height / r.height;
+  const px = new Set(), onBar = !!cv.closest('.lx-bar');
+  for (let i = 0; i < d.length; i += 4) if (d[i] === 255 && d[i + 1] === 255 && d[i + 2] === 255 && d[i + 3] === 255) {
+    const k = i / 4, x = k % cv.width, y = Math.floor(k / cv.width), vy = r.top + y / sy;
+    if (vy < 0 || vy >= innerHeight || (!onBar && vy < top)) continue;
+    px.add(x + ',' + y); }
+  // a head is one connected patch of white device pixels, whatever its cell pitch (3 CSS px on a phone, 4 wider)
+  const seen = new Set();
+  for (const s of px) { if (seen.has(s)) continue; n++; seen.add(s); const st = [s];
+    while (st.length) { const [x, y] = st.pop().split(',').map(Number);
+      for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) { const q = (x + dx) + ',' + (y + dy);
+        if (px.has(q) && !seen.has(q)) { seen.add(q); st.push(q); } } } } } return n; }"""
+DEPTH_ARRIVE_INIT = """(() => { const lit = window.__lxArriveLit = [], t0 = performance.now();
+  const id = setInterval(() => { if (performance.now() - t0 > 2500) { clearInterval(id); return; }
+    const c = document.querySelector('.lx-arrive-cv'); if (!c || !c.width || !c.height) return;
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data; let n = 0;
+    for (let i = 3; i < d.length; i += 4) if (d[i]) n++;
+    lit.push([Math.round(performance.now() - t0), n]); }, 50); })()"""
+DEPTH_SPILL_JS = """() => [...document.querySelectorAll('.lx-big')].filter(e => { const b = e.getBoundingClientRect();
+  if (!b.width) return false; const rg = document.createRange(); rg.selectNodeContents(e);
+  return rg.getBoundingClientRect().width > b.width + 1; }).map(e => e.textContent.trim())"""
+DEPTH_DIGITS_JS = """() => [...document.querySelectorAll('.lx-big, .lx-cmp .v')].filter(e => { const r = e.getBoundingClientRect();
+  return r.bottom > 0 && r.top < innerHeight && (r.width < 1 || r.height < 1 || +getComputedStyle(e).opacity < 0.99); }).map(e => e.textContent.trim())"""
+
+DEPTH_CLEAR_JS = """() => { const tr = e => { const g = document.createRange(); g.selectNodeContents(e);
+    return [...g.getClientRects()].filter(r => r.width > 1 && r.height > 1); }, out = [];
+  for (const b of document.querySelectorAll('.lx-big')) { const m = b.closest('.lx-m'), br = tr(b); if (!m || !br.length) continue;
+    for (const w of m.querySelectorAll('.k, .s, .lx-cmp')) { if (w.contains(b) || b.contains(w)) continue;
+      // words beside the number: a run that starts right of its middle and shares half its own height with it
+      for (const q of tr(w)) for (const a of br) { const vo = Math.min(a.bottom, q.bottom) - Math.max(a.top, q.top);
+        const gap = q.left - a.right;
+        if (q.left > (a.left + a.right) / 2 && vo > q.height / 2 && gap < 8) out.push(b.textContent.trim() + ' / ' + w.textContent.trim().slice(0, 24) + ' gap ' + gap.toFixed(1)); } } }
+  return [...new Set(out)]; }"""
+
+
+def a_depth(v):
+    """The lx- layer on every work page that opts in: one ant, the road never un-laid, digits never hidden, the hero at
+    rest under reduced motion, read times that agree."""
+    base = v.run.url.rsplit("/", 1)[0]
+    pages = [p for p in sorted((v.run.root / "work").glob("*.html"))
+             if re.search(r'class="lx-(rail|bar)"|data-lx-arrive', p.read_text())]
+    if not pages:
+        return True, "no work page opts into the depth layer yet"
+    bad, notes = [], []
+    for page in pages:
+        for motion in ("no-preference", "reduce"):
+            ctx = v.run.browser.new_context(reduced_motion=motion, **VIEWPORTS[v.name])
+            pg = ctx.new_page()
+            if motion == "no-preference":
+                pg.add_init_script(DEPTH_ARRIVE_INIT)
+            try:
+                pg.goto(f"{base}/work/{page.name}", wait_until="networkidle")
+                pg.evaluate("document.fonts.ready.then(() => 1)")
+                if motion == "reduce":
+                    r = pg.evaluate("() => ({ a: !!(window.__lx && __lx.arrived()), lit: [...document.querySelectorAll('[data-lx-arrive]')].every(f => f.classList.contains('lit')), n: document.querySelectorAll('[data-lx-arrive]').length })")
+                    if r["n"] and not (r["a"] and r["lit"]):
+                        bad.append(f"{page.name} reduced motion: hero not at rest ({r})")
+                    continue
+                pg.wait_for_timeout(3200)                       # the arrival walks in 2.2 s
+                lit, top = pg.evaluate("window.__lxArriveLit || []"), 0
+                for t, n in lit:
+                    if top and n < top / 2:
+                        bad.append(f"{page.name} arrival went dark at {t} ms ({top} lit px, then {n})")
+                        break
+                    top = max(top, n)
+                spill = pg.evaluate(DEPTH_SPILL_JS)
+                if spill:
+                    bad.append(f"{page.name} digits wider than their box {spill[:3]}")
+                # a reader who scrolls during the arrival: wheel from 0.2 s after the page settles (the walk is under way
+                # by then), 100 px every ~60 ms; from 0.7 s on exactly one ant is drawn (the arrival lands at once when its
+                # corner leaves), and never two
+                wctx = v.run.browser.new_context(reduced_motion=motion, **VIEWPORTS[v.name])
+                try:
+                    wp = wctx.new_page()
+                    wp.goto(f"{base}/work/{page.name}", wait_until="networkidle")
+                    t0 = time.time()
+                    vw = VIEWPORTS[v.name]["viewport"]
+                    wp.mouse.move(vw["width"] // 2, vw["height"] // 2)
+                    while time.time() - t0 < 0.2:
+                        wp.wait_for_timeout(10)
+                    wheel = []
+                    while time.time() - t0 < 2.6:
+                        wp.mouse.wheel(0, 100)
+                        wp.wait_for_timeout(50)
+                        wheel.append((round(time.time() - t0, 2), wp.evaluate(DEPTH_ANTS_JS)))
+                    off = [f"{t}s:{n}" for t, n in wheel if n > 1 or (t >= 0.7 and n != 1)]
+                    if off:
+                        bad.append(f"{page.name} wheel from 0.2 s, ants {off[:4]}")
+                finally:
+                    wctx.close()
+                H = pg.evaluate("document.documentElement.scrollHeight - innerHeight")
+                ants, roads, hidden = [], [], set()
+                for f in [i / 20 for i in range(21)] + [i / 20 for i in range(16, -1, -4)]:
+                    pg.evaluate(f"scrollTo(0, {round(H * f)})")
+                    pg.wait_for_timeout(140)
+                    ants.append(pg.evaluate(DEPTH_ANTS_JS))
+                    roads.append(pg.evaluate("JSON.stringify(window.__lx ? __lx.road() : {})"))
+                    hidden.update(pg.evaluate(DEPTH_DIGITS_JS))
+                crowd = pg.evaluate(DEPTH_CLEAR_JS)
+                if crowd:
+                    bad.append(f"{page.name} number against its words: {crowd[:2]}")
+                rs = [json.loads(x) for x in roads]
+                key = "maxR" if rs and rs[0].get("wide") else "maxB"
+                if any(a != 1 for a in ants):
+                    bad.append(f"{page.name} ants {ants}")
+                if any(rs[i + 1].get(key, 0) < rs[i].get(key, 0) for i in range(len(rs) - 1)):
+                    bad.append(f"{page.name} road un-laid ({key} {[x.get(key) for x in rs]})")
+                if hidden:
+                    bad.append(f"{page.name} hidden digits {sorted(hidden)[:3]}")
+                if page.name.endswith("-deep.html"):
+                    rt = pg.evaluate("() => { const d = document.querySelector('[data-read]'); return [__deep.readTime().min, d ? d.textContent : ''] }")
+                    case = (v.run.root / "work" / page.name.replace("-deep.html", ".html"))
+                    quoted = re.findall(r"about (\d+) minutes", case.read_text()) if case.exists() else []
+                    if rt[1] != f"about {rt[0]} minutes" or any(int(q) != rt[0] for q in quoted):
+                        bad.append(f"{page.name} read time {rt[0]} vs line {rt[1]!r}, case quotes {quoted}")
+                notes.append(page.name)
+            finally:
+                ctx.close()
+    return not bad, (f"{len(pages)} pages opted in ({', '.join(p.name for p in pages)}), 26 samples each and a wheel from 0.2 s"
+                     + (f", {len(bad)} failing: " + "; ".join(bad[:3]) if bad else ", one ant, road laid, digits shown, rest and read times agree"))
+
 # --- the deep dives under work/*-deep.html: their steppers ----------------------------------------------------------
 # `cases` covers the rest of a deep dive's contract (errors, requests off the origin, fonts, tokens, no pink words, sizes,
 # overflow, listeners, link names, targets, and __deep.selfCheck(), which fails when a scene hid itself or has no
@@ -3825,12 +4005,13 @@ ASSERTIONS = [
     ("fills", ("desktop", "phone"), a_fills, "canvas fill/stroke styles and bitmap values are packed tokens; no glow, no filter"),
     ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: five theme blobs in order, each naming its signature projects by the binding rule (each named once, the chapters in their own themes) and counting the rest, its area following its count; at rest the first theme open and picked where the panel has its own column (1024px and wider), else no list, line or chip; a pick opens every project in the theme, signatures first, all shown and sourced, every blob in its own hue and only the picked one ringed; the picked blob again rests, a tag picks its theme, a click between blobs picks nothing; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status and first project in view with the blobs still; keyboard (desktop) and taps (phone) pick; the blobs grow once on arrival without moving anything, whole at once under reduced motion"),
     ("workland", ("land",), a_workland, "all the work on a phone on its side: a tap on a theme brings its status line and first project into view below the strip"),
-    ("eggs", ("desktop", "phone"), a_eggs, "three hidden ants after chapter I, none within 24px of text; each plants exactly one ant that runs on a clock and settles at its last step; one runs at a time; reduced motion plants the end state at once; the map's tally counts them"),
+    ("eggs", ("desktop", "phone"), a_eggs, "three hidden ants after chapter I, none within 24px of text; each plants exactly one ant that runs on a clock and settles at its last step; one runs at a time; reduced motion plants the end state at once; the map's tally counts them; the last find gathers every found ant after the colophon, regrowing from that click, home on one line, its link in a new tab"),
     ("listeners", ("desktop", "phone"), a_listeners, "no wheel, touch or key listener at all, hooked before load"),
     ("scrollto", ("desktop", "phone"), a_scrollto, "no page-initiated scroll outside a click (a resize may restore the place, see resize)"),
     ("resize", ("desktop", "phone"), a_resize, "a resize or rotation at a transit, each hold and the résumé keeps the scene, its fraction and the résumé line"),
     ("errors", ("desktop", "phone", "phone-small", "desktop-125") + LANDS, a_errors, "no page errors or console errors"),
     ("cases", ("desktop", "phone", "phone-small"), a_cases, "each case study and deep dive under work/: no error, no request off the origin, its two fonts from work/assets, tokens only (no pink words, alpha or effect), DOM sizes, no overflow, no wheel/touch/key listener, link names, targets 24px fine and 32px touch, the hero done (desktop) or at rest (reduced motion), every self-check it exposes ok"),
+    ("depth", ("desktop", "phone"), a_depth, "the work pages that opt into the depth layer (lx-): exactly one ant on screen at 26 scroll positions down and back up and under a wheel from 0.2 s, the road never un-laid, no result digit hidden or crowding its words, the hero at rest with its frame lit under reduced motion, and a deep dive's read time equal to its line and to its case study's"),
     ("deep", ("desktop", "phone"), a_deep, "each deep dive under work/: every figure.scene became a scene with a stepper (none failed its self-check); with motion each one, scrolled to, starts playing on its own and moves on a step, and a square, next and prev move it; with reduced motion each rests on a step and the stepper still moves it; every stepper control is a focusable native button, and Space on a square and Enter on next move the scene"),
     ("perf", ("phone", "desktop"), None, "p95 script time per frame <= 2.3ms at 4x CPU throttle, median of 3 runs (rAF and scroll handlers, timed in-page)"),
 ]
@@ -3849,6 +4030,7 @@ FAST = {
     "work": ("desktop", "phone"),
     "errors": ("desktop", "phone", "phone-small"),
     "cases": ("phone",),
+    "depth": ("phone",),
     "newtab": ("desktop",),
     "phrases": ("desktop",),
 }

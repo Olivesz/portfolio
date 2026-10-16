@@ -51,7 +51,7 @@
 .k-h{background:var(--signal)} .k-t{background:var(--signal-2)} .k-w{background:var(--copper)} .k-r{outline:1px solid var(--v-red);outline-offset:-1px}
 .k-g{background:var(--v-green)} .k-a{background:var(--v-amber)} .k-c{background:var(--v-cyan)} .k-v{background:var(--v-violet)}
 .ig .c-amber{fill:var(--v-amber)} .ig .c-green{fill:var(--v-green)} .ig .c-blue{fill:var(--v-blue)} .ig .ln-b{fill:none;stroke:var(--v-blue);stroke-width:1px}
-#sc-hero{margin-top:24px}
+#sc-hero{margin-top:0}
 #sc-hero .sc-bar,#sc-hero .sc-keys,#sc-hero .sc-in{display:none}
 /* fig 15's output tape is the figure's payoff: the 30 px display size (15 on a phone); the newest number is green */
 .sc-r.tape.big{font:500 30px/40px var(--sg);letter-spacing:-.015em;word-spacing:.4em;color:var(--ink)}   /* a plain space at 30 px makes 1 1 2 read as 112 */
@@ -60,12 +60,21 @@
 /* a cross-reference (fig 4, step 03) is a link to that figure or step, in the words' own colour */
 a.xr{color:inherit}
 .sc-cap a.xr.n{color:inherit;margin-right:0}
-.dd-body .st,.dd-body .scene,.dd-body .ch{scroll-margin-top:72px}
+.lx-ch .st,.lx-ch .scene,.lx-ch{scroll-margin-top:72px}
 /* fig 15's whole-run strip, from the recorded trace */
 .sc-trace{position:relative;margin-top:24px}
 .sc-trace>canvas{display:block}
 /* the program listing on a phone: two columns under the machine */
 .sc-r .pc2{display:inline-block;vertical-align:top;margin-right:32px}
+/* a link in the story or a caption (fig 4, step 06) hits at 24 px, 32 on touch, without moving a line box */
+.lx-ch .lx-body a{padding:5px 0}
+@media (pointer:coarse){ .lx-ch .lx-body a{padding:9px 0} }
+/* fig 20, the payoff: a rung not yet climbed still reads whole (its square muted, its name in body, its check as a
+   climbed rung's), so the ladder is all there on arrival and climbs green from the bottom */
+#sc-ladder.js .ghost rect[class^="c-"]{fill:var(--muted)}
+#sc-ladder.js .ghost text{fill:var(--body)} #sc-ladder.js .ghost text.lb{fill:var(--muted)}
+/* a phone: the twenty scene frames sit a little closer */
+@media (max-width:767px){ .scene.lx-fr{padding:4px 0 8px} }
 </style>
 </head>
 <body>
@@ -76,67 +85,80 @@ a.xr{color:inherit}
   <a class="sp" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
   <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
 </header>
+<div class="lx-bar" aria-hidden="true"></div>
+<nav class="lx-rail" aria-label="contents">
+  <ol>
+    <li><a href="#top"><span class="n">ii</span><span class="t">in depth</span></a></li>
+    <li><a href="#ch-situation"><span class="n">01</span><span class="t">the situation</span></a></li>
+    <li><a href="#ch-idea"><span class="n">02</span><span class="t">the idea</span></a></li>
+    <li><a href="#ch-build"><span class="n">03</span><span class="t">the build</span></a></li>
+    <li class="sub"><a href="#st-diode"><span class="n">01</span><span class="t">diode</span></a></li>
+    <li class="sub"><a href="#st-or"><span class="n">02</span><span class="t">or</span></a></li>
+    <li class="sub"><a href="#st-no"><span class="n">03</span><span class="t">saying no</span></a></li>
+    <li class="sub"><a href="#st-nand"><span class="n">04</span><span class="t">nand</span></a></li>
+    <li class="sub"><a href="#st-mem"><span class="n">05</span><span class="t">memory</span></a></li>
+    <li class="sub"><a href="#st-gates"><span class="n">06</span><span class="t">nand gates</span></a></li>
+    <li class="sub"><a href="#st-ff"><span class="n">07</span><span class="t">flip-flops</span></a></li>
+    <li class="sub"><a href="#st-bus"><span class="n">08</span><span class="t">bus</span></a></li>
+    <li class="sub"><a href="#st-alu"><span class="n">09</span><span class="t">alu</span></a></li>
+    <li class="sub"><a href="#st-sap"><span class="n">10</span><span class="t">sap-1</span></a></li>
+    <li><a href="#ch-broke"><span class="n">04</span><span class="t">what broke</span></a></li>
+    <li><a href="#ch-results"><span class="n">05</span><span class="t">results</span></a></li>
+  </ol>
+</nav>
 
 <main id="main" tabindex="-1">
-  <header class="blk head">
-    <p class="kick">chapter ii <span class="sep">·</span> in depth</p>
-    <h1>emergence, in depth</h1>
-    <div class="head-grid">
-      <div>
-        <p class="lede">From one rule to a CPU: one Wireworld rule, a NAND gate and a memory loop built by hand and checked in it, then a gate-level CPU of NAND gates and clocked flip-flops, running Fibonacci gate by gate.</p>
-        <p class="lede lede-2">Every picture of the grid below is the real rule running on the real layout. Each figure plays when it reaches the screen; step through any of them at your own pace, or try the inputs under it.</p>
+  <div class="lxb lx-hero deep" id="top">
+    <header class="lx-hero-t">
+      <p class="kick lx-up" style="--d:0">chapter ii <span class="sep">·</span> in depth</p>
+      <h1 class="lx-up" style="--d:1">emergence, in depth</h1>
+    </header>
+    <div class="lx-shot lx-fr" data-lx-arrive>
+      <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <figure class="scene hero" id="sc-hero" aria-label="The NAND cell in the exact rule, cycling its inputs: the output lights for 00, 01 and 10, and stays dark for 11.">
+      <div class="sc-stage"><div class="sc-art"></div></div>
+      <ol class="sc-keys"><li data-key="run" data-at="0">The NAND cell of <span class="n">step 04</span>, running in the exact rule.</li></ol>
+      <figcaption class="sc-cap">One NAND cell running in the exact rule: <span data-src="page:nand-table">the output lights for 00, 01 and 10 and stays dark for 11</span>. The CPU at the end of this page has <span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates</span>.</figcaption>
+    </figure>
+    </div>
+    <div class="lx-hero-d">
+      <p class="lx-lede lx-up" style="--d:2">From one rule to a CPU: one Wireworld rule, a NAND gate and a memory loop built by hand and checked in it, then a gate-level CPU of NAND gates and clocked flip-flops, running Fibonacci gate by gate.</p>
+      <p class="lx-lede lx-up" style="--d:3">Every picture of the grid below is the real rule running on the real layout. Each figure plays when it reaches the screen; step through any of them at your own pace, or try the inputs under it.</p>
+      <div class="lx-cta lx-up" style="--d:4">
+        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q" href="emergence.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
       </div>
-      <dl class="facts">
-        <div><dt>short</dt><dd><a href="emergence.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+      <dl class="facts lx-up" style="--d:5">
         <div><dt>stack</dt><dd><span data-src="Olivesz/emergence@910b296:README.md#L78-L79">JavaScript <span class="dot">·</span> canvas</span> <span class="dot">·</span> <span data-src="Olivesz/emergence@910b296:README.md#L42">Python</span></dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer">github.com/Olivesz/emergence</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
         <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 18 minutes</dd></div>
       </dl>
     </div>
-    <figure class="scene hero" id="sc-hero" aria-label="The NAND cell in the exact rule, cycling its inputs: the output lights for 00, 01 and 10, and stays dark for 11.">
-      <div class="sc-stage"><div class="sc-art"></div></div>
-      <ol class="sc-keys"><li data-key="run" data-at="0">The NAND cell of <span class="n">step 04</span>, running in the exact rule.</li></ol>
-      <figcaption class="sc-cap">One NAND cell running in the exact rule: <span data-src="page:nand-table">the output lights for 00, 01 and 10 and stays dark for 11</span>. The CPU at the end of this page has <span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates</span>.</figcaption>
-    </figure>
-  </header>
+  </div>
 
-  <div class="blk dd">
-    <aside class="dd-rail">
-      <nav class="dd-toc" aria-label="contents">
-        <p class="k">contents</p>
-        <ol>
-          <li><a href="#ch-situation"><span class="n">01</span>the situation</a></li>
-          <li><a href="#ch-idea"><span class="n">02</span>the idea</a></li>
-          <li><a href="#ch-build"><span class="n">03</span>the build</a>
-            <ol>
-              <li><a href="#st-diode">diode</a></li>
-              <li><a href="#st-or">or</a></li>
-              <li><a href="#st-no">saying no</a></li>
-              <li><a href="#st-nand">nand</a></li>
-              <li><a href="#st-mem">memory</a></li>
-              <li><a href="#st-gates">gates from nand</a></li>
-              <li><a href="#st-ff">flip-flops, ram</a></li>
-              <li><a href="#st-bus">the bus</a></li>
-              <li><a href="#st-alu">the alu</a></li>
-              <li><a href="#st-sap">sap-1</a></li>
-            </ol>
-          </li>
-          <li><a href="#ch-broke"><span class="n">04</span>what broke</a></li>
-          <li><a href="#ch-results"><span class="n">05</span>results</a></li>
+
+  <article class="lxb">
+    <section class="ch lx-ch" id="ch-situation" aria-labelledby="h-situation">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.2">
+        <p class="lx-sk" data-lx="up"><span class="n">01 <span class="of">/ 05</span></span>the situation</p>
+        <h2 data-lx="up" style="--d:1" id="h-situation">A grid with one rule</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-rule"><span class="n">fig 1</span><span class="t">The rule as a cycle</span><span class="s" aria-hidden="true">the rule</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--copper)"></i><i style="--h:4;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:4;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#sc-count"><span class="n">fig 2</span><span class="t">One cell and its neighbours</span><span class="s" aria-hidden="true">neighbours</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i></span></a></li>
+          <li data-lx="up" style="--d:5"><a href="#sc-wire"><span class="n">fig 3</span><span class="t">Wires, launches and a clock</span><span class="s" aria-hidden="true">wires</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i></span></a></li>
+          <li data-lx="up" style="--d:6"><a href="#sc-gaps"><span class="n">fig 4</span><span class="t">What the rule doesn’t give you</span><span class="s" aria-hidden="true">the gaps</span><span class="lx-g8" aria-hidden="true"><i style="--h:4;--c:var(--signal)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:4;--c:var(--signal)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:3;--c:var(--v-red)"></i><i style="--h:3;--c:var(--v-red)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
         </ol>
-        <a class="back-to" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
-      </nav>
-    </aside>
-
-    <article class="dd-body">
-      <!-- ============================== 01 the situation ============================== -->
-      <section class="ch" id="ch-situation" aria-labelledby="h-situation">
-        <p class="ch-k">01 <span class="sep">·</span> the situation</p>
-        <h2 id="h-situation">A grid with one rule</h2>
-        <p class="np">Wireworld is a grid of square cells. Each cell is in one of <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">4 states</span>: empty, wire, an electron’s head, or its tail.</p>
-        <p>Every tick, all cells change at once, and each one looks only at its <span data-src="Olivesz/emergence@910b296:index.html#L921">8 neighbours</span>. Empty cells never change. The other states follow a cycle.</p>
-
-        <figure class="scene ig" id="sc-rule" aria-labelledby="sc-rule-cap">
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">Wireworld is a grid of square cells. Each cell is in one of <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">4 states</span>: empty, wire, an electron’s head, or its tail.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Every tick, all cells change at once, and each one looks only at its <span data-src="Olivesz/emergence@910b296:index.html#L921">8 neighbours</span>. Empty cells never change. The other states follow a cycle.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="sc-rule" aria-labelledby="sc-rule-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage">
             <div class="sc-art">
               <svg class="ig-w" width="704" height="176" viewBox="0 0 704 176" role="img" aria-labelledby="sc-rule-t" xmlns="http://www.w3.org/2000/svg">
@@ -221,10 +243,15 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-rule-cap"><span class="n">fig 1</span>The rule, as a cycle of head, tail and wire. Empty cells never change.</figcaption>
         </figure>
-
-        <p>The threshold is the interesting part. Here it is on one wire cell, with its neighbours lit one at a time.</p>
-
-        <figure class="scene" id="sc-count" aria-labelledby="sc-count-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The threshold is the interesting part. Here it is on one wire cell, with its neighbours lit one at a time.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-count" aria-labelledby="sc-count-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="zero" data-at="0">No heads around it: the middle cell stays wire.</li>
@@ -234,11 +261,16 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-count-cap"><span class="n">fig 2</span>One wire cell and its <span data-src="Olivesz/emergence@910b296:index.html#L921">8 neighbours</span>, one tick apart, in the exact rule. <span class="verb cap">click</span> the neighbours to light your own.</figcaption>
         </figure>
-
-        <p>Keep that third case in mind: <a class="xr n" href="#st-no">step 03</a> builds on it.</p>
-        <p>The first thing the rule gives you for free is motion. Put a head on a wire with its tail behind it, and the pair moves <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">one cell per tick</span>.</p>
-
-        <figure class="scene" id="sc-wire" aria-labelledby="sc-wire-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Keep that third case in mind: <a class="xr n" href="#st-no">step 03</a> builds on it.</p>
+<p>The first thing the rule gives you for free is motion. Put a head on a wire with its tail behind it, and the pair moves <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">one cell per tick</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-wire" aria-labelledby="sc-wire-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="move" data-at="0">An electron is two cells: a head, and the tail it just left. It moves one cell per tick.</li>
@@ -249,10 +281,15 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-wire-cap"><span class="n">fig 3</span>Wires, launches and a clock, in the exact rule. <span class="key-l k-h"></span>Head <span class="key-l k-t"></span>tail <span class="key-l k-w"></span>wire. <span class="verb cap">click</span> send an electron to launch another.</figcaption>
         </figure>
-
-        <p>So the rule gives you signals and a clock. What it does not give you is everything else a computer needs.</p>
-
-        <figure class="scene" id="sc-gaps" aria-labelledby="sc-gaps-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>So the rule gives you signals and a clock. What it does not give you is everything else a computer needs.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-gaps" aria-labelledby="sc-gaps-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="noand" data-at="6">No AND. Only a is sent, and one head is enough, so the junction fires anyway. A cell can never wait for both inputs.</li>
@@ -262,17 +299,29 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-gaps-cap"><span class="n">fig 4</span>Two gates and a loop from the project’s own page, in the exact rule: what the rule doesn’t give you. <a class="xr n" href="#st-diode">Steps 01 to 05</a> answer it. <span class="key-l k-a"></span>A backward copy <span class="key-l k-r"></span><span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span>, stays dark.</figcaption>
         </figure>
-      </section>
+</div>
+</div>
+      </div>
+    </section>
 
-      <!-- ============================== 02 the idea ============================== -->
-      <section class="ch" id="ch-idea" aria-labelledby="h-idea">
-        <p class="ch-k">02 <span class="sep">·</span> the idea</p>
-        <h2 id="h-idea">Two parts and a clock</h2>
-        <p class="np">NAND can build any logic, and a clocked flip-flop can hold a bit. So the whole machine needs only two parts.</p>
-        <p>First show, in the raw rule, that logic and memory both exist there: a NAND cell, and a loop that keeps a bit. Then stop wiring by hand: put every signal on one clock, latch it in a flip-flop each cycle, and let the NAND logic settle in between.</p>
-        <p>The memory loop is not that flip-flop. <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L22-L23">It has no data input and no enable: set writes a 1, clear erases a stored 1</span>. The CPU’s flip-flop copies its input on each clock edge; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L46-L47">compiled to the rule, it is a NAND multiplexer</span> (it passes one of two inputs) <span data-src="Olivesz/emergence@910b296:cpu/README.md#L46-L47">feeding a loop exactly one clock long</span>, checked on its own (<a class="xr n" href="#ch-results">chapter 05</a>).</p>
-
-        <figure class="scene" id="sc-plan" aria-labelledby="sc-plan-cap">
+    <section class="ch lx-ch" id="ch-idea" aria-labelledby="h-idea">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.4">
+        <p class="lx-sk" data-lx="up"><span class="n">02 <span class="of">/ 05</span></span>the idea</p>
+        <h2 data-lx="up" style="--d:1" id="h-idea">Two parts and a clock</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-plan"><span class="n">fig 5</span><span class="t">The plan: two parts, one clock</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-green)"></i><i style="--h:5;--c:var(--v-amber)"></i><i style="--h:5;--c:var(--v-amber)"></i><i style="--h:5;--c:var(--v-amber)"></i><i style="--h:5;--c:var(--v-amber)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--v-cyan)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">NAND can build any logic, and a clocked flip-flop can hold a bit. So the whole machine needs only two parts.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>First show, in the raw rule, that logic and memory both exist there: a NAND cell, and a loop that keeps a bit. Then stop wiring by hand: put every signal on one clock, latch it in a flip-flop each cycle, and let the NAND logic settle in between.</p>
+<p>The memory loop is not that flip-flop. <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L22-L23">It has no data input and no enable: set writes a 1, clear erases a stored 1</span>. The CPU’s flip-flop copies its input on each clock edge; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L46-L47">compiled to the rule, it is a NAND multiplexer</span> (it passes one of two inputs) <span data-src="Olivesz/emergence@910b296:cpu/README.md#L46-L47">feeding a loop exactly one clock long</span>, checked on its own (<a class="xr n" href="#ch-results">chapter 05</a>).</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-plan" aria-labelledby="sc-plan-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="nand" data-at="0">The NAND cell: one junction fed by a clock, built and checked in the rule (<a class="xr n" href="#sc-nand">fig 9</a>).</li>
@@ -282,21 +331,41 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-plan-cap"><span class="n">fig 5</span>The plan. A NAND cell and a memory loop, checked in the raw rule; then one netlist, a list of NAND gates and clocked flip-flops and the wires between them, simulated gate by gate. <span class="key-l k-g"></span>NAND <span class="key-l k-a"></span>flip-flop.</figcaption>
         </figure>
+</div>
+</div>
+<p class="lx-pull mid">Logic and memory checked in the rule, then one clock for everything built from them.</p>
+      </div>
+    </section>
 
-        <p class="pull">Logic and memory checked in the rule, then one clock for everything built from them.</p>
-      </section>
-
-      <!-- ============================== 03 the build ============================== -->
-      <section class="ch" id="ch-build" aria-labelledby="h-build">
-        <p class="ch-k">03 <span class="sep">·</span> the build</p>
-        <h2 id="h-build">From a wire up</h2>
-        <p>Each step is made from the ones before it. <a class="xr n" href="#st-diode">Steps 01 to 05</a> run cell by cell in the rule; from <a class="xr n" href="#st-gates">step 06</a> on, the parts are NAND gates and clocked flip-flops, wired into one netlist.</p>
-
-        <div class="st" id="st-diode">
-          <p class="st-k">step 01 <span class="sep">·</span> diode</p>
-          <h3>A diode lets a pulse through one way</h3>
-          <p><a class="xr n" href="#sc-gaps">Fig 4</a> showed a junction pushing copies back up its inputs. A diode stops them. It is a short wire that splits around a small bridge and joins again.</p>
-          <figure class="scene" id="sc-diode" aria-labelledby="sc-diode-cap">
+    <section class="ch lx-ch" id="ch-build" aria-labelledby="h-build">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.6">
+        <p class="lx-sk" data-lx="up"><span class="n">03 <span class="of">/ 05</span></span>the build</p>
+        <h2 data-lx="up" style="--d:1" id="h-build">From a wire up</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-diode"><span class="n">fig 6</span><span class="t">The diode</span><span class="s" aria-hidden="true">diode</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#sc-or"><span class="n">fig 7</span><span class="t">OR, cycling its inputs</span><span class="s" aria-hidden="true">or</span><span class="lx-g8" aria-hidden="true"><i class="o" style="--h:2"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i></span></a></li>
+          <li data-lx="up" style="--d:5"><a href="#sc-xor"><span class="n">fig 8</span><span class="t">XOR and suppression</span><span class="s" aria-hidden="true">saying no</span><span class="lx-g8" aria-hidden="true"><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i style="--h:3;--c:var(--v-red)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:5;--c:var(--signal)"></i></span></a></li>
+          <li data-lx="up" style="--d:6"><a href="#sc-nand"><span class="n">fig 9</span><span class="t">The NAND cell</span><span class="s" aria-hidden="true">nand</span><span class="lx-g8" aria-hidden="true"><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i class="o" style="--h:2"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i></span></a></li>
+          <li data-lx="up" style="--d:7"><a href="#sc-mem"><span class="n">fig 10</span><span class="t">The memory loop</span><span class="s" aria-hidden="true">memory</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:3;--c:var(--copper)"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--v-cyan)"></i></span></a></li>
+          <li data-lx="up" style="--d:8"><a href="#sc-gates"><span class="n">fig 11</span><span class="t">Every gate from NANDs</span><span class="s" aria-hidden="true">nand gates</span><span class="lx-g8" aria-hidden="true"><i style="--h:1;--c:var(--v-amber)"></i><i style="--h:2;--c:var(--v-amber)"></i><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:5;--c:var(--v-amber)"></i><i style="--h:6;--c:var(--v-amber)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i></span></a></li>
+          <li data-lx="up" style="--d:9"><a href="#sc-ff"><span class="n">fig 12</span><span class="t">Flip-flops and the RAM</span><span class="s" aria-hidden="true">flip-flops</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:6;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:6;--c:var(--v-cyan)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i></span></a></li>
+          <li data-lx="up" style="--d:10"><a href="#sc-bus"><span class="n">fig 13</span><span class="t">One talker on the bus</span><span class="s" aria-hidden="true">bus</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:6;--c:var(--v-green)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:6;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i></span></a></li>
+          <li data-lx="up" style="--d:11"><a href="#sc-alu"><span class="n">fig 14</span><span class="t">The adder, checked</span><span class="s" aria-hidden="true">alu</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:5;--c:var(--v-amber)"></i><i style="--h:5;--c:var(--v-amber)"></i><i style="--h:6;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-green)"></i></span></a></li>
+          <li data-lx="up" style="--d:12"><a href="#sc-sap"><span class="n">fig 15</span><span class="t">SAP-1 runs Fibonacci</span><span class="s" aria-hidden="true">sap-1</span><span class="lx-g8" aria-hidden="true"><i style="--h:1;--c:var(--v-green)"></i><i style="--h:1;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:5;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-green)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p>Each step is made from the ones before it. <a class="xr n" href="#st-diode">Steps 01 to 05</a> run cell by cell in the rule; from <a class="xr n" href="#st-gates">step 06</a> on, the parts are NAND gates and clocked flip-flops, wired into one netlist.</p>
+<div class="st" id="st-diode">
+<p class="st-k">step 01 <span class="sep">·</span> diode</p>
+<h3>A diode lets a pulse through one way</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p><a class="xr n" href="#sc-gaps">Fig 4</a> showed a junction pushing copies back up its inputs. A diode stops them. It is a short wire that splits around a small bridge and joins again.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-diode" aria-labelledby="sc-diode-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="layout" data-at="0">The layout, from the project’s cell library: a lead in, the bridge, a lead out.</li>
@@ -307,14 +376,20 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-diode-cap"><span class="n">fig 6</span>The diode, cell for cell from the repo’s cell library, in the exact rule. <span class="verb cap">click</span> send → or send ←.</figcaption>
           </figure>
-          <p>The memory loop in <a class="xr n" href="#st-mem">step 05</a> uses one of these, turned upright, as the left edge of its loop.</p>
-        </div>
-
-        <div class="st" id="st-or">
-          <p class="st-k">step 02 <span class="sep">·</span> or</p>
-          <h3>OR comes free</h3>
-          <p>Bring two wires to either side of one cell. One arriving head or two, either way the cell fires. That is OR, with nothing added.</p>
-          <figure class="scene" id="sc-or" aria-labelledby="sc-or-cap">
+</div>
+</div>
+<p>The memory loop in <a class="xr n" href="#st-mem">step 05</a> uses one of these, turned upright, as the left edge of its loop.</p>
+</div>
+<div class="st" id="st-or">
+<p class="st-k">step 02 <span class="sep">·</span> or</p>
+<h3>OR comes free</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Bring two wires to either side of one cell. One arriving head or two, either way the cell fires. That is OR, with nothing added.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-or" aria-labelledby="sc-or-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
                             <li data-key="a" data-at="28">a alone: one head reaches the junction, and the output fires.</li>
@@ -324,13 +399,19 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-or-cap"><span class="n">fig 7</span>OR, laid out as on the project’s own page, cycling through its inputs (sending nothing sends nothing out, so the table starts with <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">00</span> filled in). <span class="key-l k-g"></span>Output fired <span class="key-l k-a"></span>a backward copy. <span class="verb cap">click</span> to send a, b or both.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-no">
-          <p class="st-k">step 03 <span class="sep">·</span> saying no</p>
-          <h3>Suppression: <span data-src="Olivesz/emergence@910b296:index.html#L946">three heads</span> make a no</h3>
-          <p>XOR needs a no: two inputs that are each a yes must cancel. The only no in the rule is a crowd, so the layout makes one. Input a splits into two lanes that touch the junction; b brings one more.</p>
-          <figure class="scene" id="sc-xor" aria-labelledby="sc-xor-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-no">
+<p class="st-k">step 03 <span class="sep">·</span> saying no</p>
+<h3>Suppression: <span data-src="Olivesz/emergence@910b296:index.html#L946">three heads</span> make a no</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>XOR needs a no: two inputs that are each a yes must cancel. The only no in the rule is a crowd, so the layout makes one. Input a splits into two lanes that touch the junction; b brings one more.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-xor" aria-labelledby="sc-xor-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
                             <li data-key="a" data-at="49">a alone brings two heads to the junction J. Two fire it.</li>
@@ -340,14 +421,16 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-xor-cap"><span class="n">fig 8</span>XOR, laid out as on the project’s own page. <span class="key-l k-r"></span>A cell that saw <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span> and stayed dark. <span class="verb cap">click</span> to send a, b or both.</figcaption>
           </figure>
-          <p>Every part that inverts, from here up, is built on this crowd.</p>
-        </div>
-
-        <div class="st" id="st-nand">
-          <p class="st-k">step 04 <span class="sep">·</span> nand</p>
-          <h3>NAND: suppression with a clock</h3>
-          <p>Suppression needs a third head. Give the junction a clock, and that third head arrives every lap. A clock loop drops one pulse into the junction’s top-left port. Inputs a and b come in at two other corners, timed to arrive on the clock’s tick; the output leaves from the fourth.</p>
-          <figure class="scene wide" id="sc-nand" aria-labelledby="sc-nand-cap">
+</div>
+</div>
+<p>Every part that inverts, from here up, is built on this crowd.</p>
+</div>
+<div class="st" id="st-nand">
+<p class="st-k">step 04 <span class="sep">·</span> nand</p>
+<h3>NAND: suppression with a clock</h3>
+<p>Suppression needs a third head. Give the junction a clock, and that third head arrives every lap. A clock loop drops one pulse into the junction’s top-left port. Inputs a and b come in at two other corners, timed to arrive on the clock’s tick; the output leaves from the fourth.</p>
+<figure class="scene lx-fr wide" id="sc-nand" aria-labelledby="sc-nand-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="clock" data-at="38">The clock’s pulse reaches the junction. On its own it is one head, so the junction fires once a lap.</li>
@@ -359,15 +442,19 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-nand-cap"><span class="n">fig 9</span>The NAND cell, cell for cell from the repo, in the exact rule. Inputs a and b each start <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L168">10 cells</span> from the junction, and a pulse moves a cell a tick, so they launch <span data-derived="the 10-cell lead at one cell a tick">10 ticks</span> before the clock pulse arrives. <span class="verb cap">click</span> a, b or both: the page launches them in phase with the next lap.</figcaption>
           </figure>
-          <p>NOT comes with it: send one signal into both inputs. No pulse lets the clock through; a pulse brings two heads to join it, so the output is the opposite of the input.</p>
-        </div>
-
-        <div class="st" id="st-mem">
-          <p class="st-k">step 05 <span class="sep">·</span> memory</p>
-          <h3>Memory: a bit that circles</h3>
-          <p>A bit can’t sit still, so it is stored as an electron going round a loop. The loop’s left edge is the diode from <a class="xr n" href="#st-diode">step 01</a>: a set launches copies both ways round the corner, and the diode kills the one going the wrong way. A tap on the bottom edge reads a copy every lap.</p>
-          <p>Clearing it uses suppression again. One cell on the right edge, J, is the only one a two-lane clear wire touches. Time the clear so its two heads reach J as the stored bit does, and J sees <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L30">three</span>.</p>
-          <figure class="scene" id="sc-mem" aria-labelledby="sc-mem-cap">
+<p>NOT comes with it: send one signal into both inputs. No pulse lets the clock through; a pulse brings two heads to join it, so the output is the opposite of the input.</p>
+</div>
+<div class="st" id="st-mem">
+<p class="st-k">step 05 <span class="sep">·</span> memory</p>
+<h3>Memory: a bit that circles</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>A bit can’t sit still, so it is stored as an electron going round a loop. The loop’s left edge is the diode from <a class="xr n" href="#st-diode">step 01</a>: a set launches copies both ways round the corner, and the diode kills the one going the wrong way. A tap on the bottom edge reads a copy every lap.</p>
+<p>Clearing it uses suppression again. One cell on the right edge, J, is the only one a two-lane clear wire touches. Time the clear so its two heads reach J as the stored bit does, and J sees <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L30">three</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-mem" aria-labelledby="sc-mem-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="layout" data-at="0">The loop, its set wire, the diode edge, the read tap, J, and the clear wire.</li>
@@ -379,14 +466,20 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-mem-cap"><span class="n">fig 10</span>The memory loop (the repo calls it a loop register), cell for cell from the repo, in the exact rule. <span class="key-l k-a"></span>Read lamp <span class="key-l k-r"></span><span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span>, stays dark. <span class="verb cap">click</span> set, then clear: the page times the clear to the bit’s next pass.</figcaption>
           </figure>
-          <p>The raw-rule build stops here. Wiring Wireworld gates straight into each other hits a wall (<a class="xr n" href="#ch-broke">chapter 04</a>), so from here up the CPU is a netlist of two parts, NAND gates and clocked flip-flops, simulated gate by gate on one clock: every signal is latched once per cycle, and the NAND logic settles in between. <span data-src="Olivesz/emergence@910b296:cpu/wwlogic.py#L14-L15">The netlist assumes each NAND and each flip-flop is a verified Wireworld gadget</span>.</p>
-        </div>
-
-        <div class="st" id="st-gates">
-          <p class="st-k">step 06 <span class="sep">·</span> gates from nand</p>
-          <h3>Every other gate is NANDs</h3>
-          <p>Each box below is one NAND gate. It is filled green when its output is on; a wire is cyan when it carries a signal. The small square at the right end is the output, not a gate.</p>
-          <figure class="scene" id="sc-gates" aria-labelledby="sc-gates-cap">
+</div>
+</div>
+<p>The raw-rule build stops here. Wiring Wireworld gates straight into each other hits a wall (<a class="xr n" href="#ch-broke">chapter 04</a>), so from here up the CPU is a netlist of two parts, NAND gates and clocked flip-flops, simulated gate by gate on one clock: every signal is latched once per cycle, and the NAND logic settles in between. <span data-src="Olivesz/emergence@910b296:cpu/wwlogic.py#L14-L15">The netlist assumes each NAND and each flip-flop is a verified Wireworld gadget</span>.</p>
+</div>
+<div class="st" id="st-gates">
+<p class="st-k">step 06 <span class="sep">·</span> gates from nand</p>
+<h3>Every other gate is NANDs</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Each box below is one NAND gate. It is filled green when its output is on; a wire is cyan when it carries a signal. The small square at the right end is the output, not a gate.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-gates" aria-labelledby="sc-gates-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="not" data-at="0">NOT: one NAND with the same signal on both inputs.</li>
@@ -397,13 +490,19 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 11</span>The gates as the repo composes them, evaluated live: <span data-src="page:gate-counts">NOT is 1 NAND, AND 2, OR 3, XOR 4, MUX 8</span>. <span class="key-l k-g"></span>NAND output on <span class="key-l k-c"></span>wire on. <span class="verb cap">click</span> a, b or sel to set the inputs.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-ff">
-          <p class="st-k">step 07 <span class="sep">·</span> flip-flops, registers, ram</p>
-          <h3>Flip-flops wait for the clock</h3>
-          <p>In the netlist a flip-flop is a part with an input d, a load line and the clock. On each clock edge it takes d, and between edges it holds: it is <span data-src="Olivesz/emergence@910b296:cpu/wwlogic.py#L23-L24">edge-triggered</span>. That is what the loop of <a class="xr n" href="#st-mem">step 05</a> cannot do: it has no d to copy.</p>
-          <figure class="scene" id="sc-ff" aria-labelledby="sc-ff-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-ff">
+<p class="st-k">step 07 <span class="sep">·</span> flip-flops, registers, ram</p>
+<h3>Flip-flops wait for the clock</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>In the netlist a flip-flop is a part with an input d, a load line and the clock. On each clock edge it takes d, and between edges it holds: it is <span data-src="Olivesz/emergence@910b296:cpu/wwlogic.py#L23-L24">edge-triggered</span>. That is what the loop of <a class="xr n" href="#st-mem">step 05</a> cannot do: it has no d to copy.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-ff" aria-labelledby="sc-ff-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="wait" data-at="4">d turns on between edges. q waits.</li>
@@ -415,13 +514,15 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-ff-cap"><span class="n">fig 12</span>The flip-flop as the netlist models it: clock, inputs and outputs over time, then the RAM’s <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L12">16x8</span> bits before and after one write.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-bus">
-          <p class="st-k">step 08 <span class="sep">·</span> the bus</p>
-          <h3>One bus, one talker per step</h3>
-          <p>The registers share one <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L9">8</span>-lane bus. In each clock cycle, exactly one part drives it and one or more load from it. A ring counter steps through T1 to T6, and a grid of gates turns each step and opcode into those enables. Every instruction starts with the same fetch: T1 puts the program counter on the bus, T2 counts it up, T3 loads the instruction.</p>
-          <figure class="scene wide" id="sc-bus" aria-labelledby="sc-bus-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-bus">
+<p class="st-k">step 08 <span class="sep">·</span> the bus</p>
+<h3>One bus, one talker per step</h3>
+<p>The registers share one <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L9">8</span>-lane bus. In each clock cycle, exactly one part drives it and one or more load from it. A ring counter steps through T1 to T6, and a grid of gates turns each step and opcode into those enables. Every instruction starts with the same fetch: T1 puts the program counter on the bus, T2 counts it up, T3 loads the instruction.</p>
+<figure class="scene lx-fr wide" id="sc-bus" aria-labelledby="sc-bus-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="t1" data-at="0">T1: the program counter drives the bus (Ep), and the memory address register loads it (Lm).</li>
@@ -435,14 +536,18 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-bus-cap"><span class="n">fig 13</span>Micro-steps of the real Fibonacci run on the gate-level netlist. A loading register shows the value it takes at the end of the step. <span class="key-l k-g"></span>Drives the bus <span class="key-l k-c"></span>loads from it <span class="key-l k-a"></span>a set bit <span class="key-l k-v"></span>the ring counter’s step.</figcaption>
           </figure>
-          <p>Each instruction takes <span data-src="Olivesz/emergence@910b296:cpu/README.md#L69-L70">up to 6 of these steps, three to fetch and up to three to execute</span>.</p>
-        </div>
-
-        <div class="st" id="st-alu">
-          <p class="st-k">step 09 <span class="sep">·</span> the alu</p>
-          <h3>The ALU is <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L15">eight</span> adders in a row</h3>
-          <p>A full adder adds two bits and a carry, from the gates in <a class="xr n" href="#st-gates">step 06</a>: the sum is a XOR b XOR carry-in, and the carry out is set when two or more of a, b and carry-in are set. Chain <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L15">eight</span>, and each passes its carry to the next bit up. To subtract, an XOR flips every bit of b and the first carry-in is set.</p>
-          <figure class="scene" id="sc-alu" aria-labelledby="sc-alu-cap">
+<p>Each instruction takes <span data-src="Olivesz/emergence@910b296:cpu/README.md#L69-L70">up to 6 of these steps, three to fetch and up to three to execute</span>.</p>
+</div>
+<div class="st" id="st-alu">
+<p class="st-k">step 09 <span class="sep">·</span> the alu</p>
+<h3>The ALU is <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L15">eight</span> adders in a row</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>A full adder adds two bits and a carry, from the gates in <a class="xr n" href="#st-gates">step 06</a>: the sum is a XOR b XOR carry-in, and the carry out is set when two or more of a, b and carry-in are set. Chain <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L15">eight</span>, and each passes its carry to the next bit up. To subtract, an XOR flips every bit of b and the first carry-in is set.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-alu" aria-labelledby="sc-alu-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="one" data-at="1">One full adder: the lowest bit adds its two inputs and passes a carry left.</li>
@@ -452,13 +557,15 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-alu-cap"><span class="n">fig 14</span>The adder/subtractor on the gate-level netlist, checked against plain arithmetic on every pair of inputs. <span class="key-l k-a"></span>A set bit <span class="key-l k-c"></span>a carry. Drag a or b.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-sap">
-          <p class="st-k">step 10 <span class="sep">·</span> sap-1</p>
-          <h3>SAP-1 runs Fibonacci</h3>
-          <p>Put it together as <span data-src="Olivesz/emergence@910b296:cpu/README.md#L3-L4">SAP-1, the textbook Simple-As-Possible teaching CPU</span>: a program counter, an address register, the RAM, an instruction register, A and B, the ALU, an output register, and the control grid, all on the one bus. The machine has <span data-src="Olivesz/emergence@910b296:cpu/README.md#L59">8-bit data, 4-bit addresses, 16 words</span> of memory. The program, drawn beside the machine below, prints a, adds the last two numbers, shifts them along, and <span data-src="Olivesz/emergence@910b296:cpu/README.md#L77">loops until the sum no longer fits in 8 bits</span>.</p>
-          <figure class="scene wide" id="sc-sap" aria-labelledby="sc-sap-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-sap">
+<p class="st-k">step 10 <span class="sep">·</span> sap-1</p>
+<h3>SAP-1 runs Fibonacci</h3>
+<p>Put it together as <span data-src="Olivesz/emergence@910b296:cpu/README.md#L3-L4">SAP-1, the textbook Simple-As-Possible teaching CPU</span>: a program counter, an address register, the RAM, an instruction register, A and B, the ALU, an output register, and the control grid, all on the one bus. The machine has <span data-src="Olivesz/emergence@910b296:cpu/README.md#L59">8-bit data, 4-bit addresses, 16 words</span> of memory. The program, drawn beside the machine below, prints a, adds the last two numbers, shifts them along, and <span data-src="Olivesz/emergence@910b296:cpu/README.md#L77">loops until the sum no longer fits in 8 bits</span>.</p>
+<figure class="scene lx-fr wide" id="sc-sap" aria-labelledby="sc-sap-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="o1" data-at="10">The first OUT prints <span data-src="page:sap-out">1</span>. The strip under the machine marks each print as it happens.</li>
@@ -471,17 +578,26 @@ a.xr{color:inherit}
             </ol>
             <figcaption class="sc-cap" id="sc-sap-cap"><span class="n">fig 15</span>SAP-1 running Fibonacci, gate by gate: the bus, the parts on it, the program with its current instruction lit, and the output tape. Under it, the repo’s recorded netlist trace of the same run, <span data-src="Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1">all 688 clocks</span>: register A on each clock, each output, and the carry that ends the run. Before it plays, the page checks that its own run equals the trace on every clock. OUT prints <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L103">1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144</span>. <span class="verb cap">click</span> a program to run it.</figcaption>
           </figure>
-        </div>
-      </section>
+</div>
+      </div>
+    </section>
 
-      <!-- ============================== 04 what broke ============================== -->
-      <section class="ch" id="ch-broke" aria-labelledby="h-broke">
-        <p class="ch-k">04 <span class="sep">·</span> what broke</p>
-        <h2 id="h-broke">Gates that failed when composed</h2>
-        <p class="np">The first plan was to wire gates straight into each other, the way the project page’s own AND is built.</p>
-        <p>It hit a wall. A long lead on one input corrupted the other, and the wires between gates carried signals backward until they oscillated. The AND shows why: it is built as (a OR b) minus (a XOR b), with a diode on each input, and <span data-src="Olivesz/emergence@910b296:index.html#L965">three heads</span> have to meet on one tick at the end of long, hand-matched paths.</p>
-
-        <figure class="scene wide" id="sc-and" aria-labelledby="sc-and-cap">
+    <section class="ch lx-ch" id="ch-broke" aria-labelledby="h-broke">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.8">
+        <p class="lx-sk" data-lx="up"><span class="n">04 <span class="of">/ 05</span></span>what broke</p>
+        <h2 data-lx="up" style="--d:1" id="h-broke">Gates that failed when composed</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-and"><span class="n">fig 16</span><span class="t">AND, tuned by hand</span><span class="s" aria-hidden="true">and, by hand</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#sc-skew"><span class="n">fig 17</span><span class="t">One cell longer: it fails</span><span class="s" aria-hidden="true">a cell longer</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:6;--c:var(--v-red)"></i><i style="--h:6;--c:var(--v-red)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
+          <li data-lx="up" style="--d:5"><a href="#sc-sync"><span class="n">fig 18</span><span class="t">The clocked discipline</span><span class="s" aria-hidden="true">the clock</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:6;--c:var(--v-amber)"></i><i style="--h:6;--c:var(--v-amber)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:6;--c:var(--v-amber)"></i><i style="--h:6;--c:var(--v-amber)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--v-cyan)"></i></span></a></li>
+          <li data-lx="up" style="--d:6"><a href="#sc-slack"><span class="n">fig 19</span><span class="t">A clear on time, and late</span><span class="s" aria-hidden="true">a late clear</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:3;--c:var(--signal-2)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:3;--c:var(--copper)"></i><i style="--h:5;--c:var(--signal)"></i><i style="--h:6;--c:var(--v-red)"></i><i style="--h:2;--c:var(--v-cyan)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">The first plan was to wire gates straight into each other, the way the project page’s own AND is built.</p>
+<p>It hit a wall. A long lead on one input corrupted the other, and the wires between gates carried signals backward until they oscillated. The AND shows why: it is built as (a OR b) minus (a XOR b), with a diode on each input, and <span data-src="Olivesz/emergence@910b296:index.html#L965">three heads</span> have to meet on one tick at the end of long, hand-matched paths.</p>
+<figure class="scene lx-fr wide" id="sc-and" aria-labelledby="sc-and-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="a" data-at="40">a alone: the OR half and the XOR half both fire, their heads meet at the last junction, and the crowd suppresses the output.</li>
@@ -490,10 +606,9 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-and-cap"><span class="n">fig 16</span>AND, the hard way: the project page’s own layout, in the exact rule. It works, because every path was tuned by hand to the tick. <span class="verb cap">click</span> to send a, b or both.</figcaption>
         </figure>
-
-        <p>Now make one lead longer. A wire carries a pulse one cell per tick, so a lead <span data-src="page:skew-k">one cell</span> longer delivers a’s pulse one tick late, and the heads that were tuned to meet no longer do.</p>
-
-        <figure class="scene wide" id="sc-skew" aria-labelledby="sc-skew-cap">
+<p>Now make one lead longer. A wire carries a pulse one cell per tick, so a lead <span data-src="page:skew-k">one cell</span> longer delivers a’s pulse one tick late, and the heads that were tuned to meet no longer do.</p>
+<figure class="scene lx-fr wide" id="sc-skew" aria-labelledby="sc-skew-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="a" data-at="40">a alone, late: the OR and XOR heads still meet each other, so a alone is still suppressed.</li>
@@ -502,10 +617,13 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-skew-cap"><span class="n">fig 17</span>Built for this page: <a class="xr n" href="#sc-and">fig 16</a>’s AND with a’s lead <span data-src="page:skew-k">one cell</span> longer, drawn as a launch one tick late, in the exact rule. Any lead from <span data-src="page:skew-range">1 to 8 cells</span> longer gives the same wrong row; the page checks each. <span class="key-l k-r"></span><span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span>, stays dark. <span class="verb cap">click</span> to send a, b or both.</figcaption>
         </figure>
-
-        <p>Silicon has the same hazard, and the same fix. Latch every signal in a flip-flop once per clock, and let the logic between them settle before anything reads it.</p>
-
-        <figure class="scene ig" id="sc-sync" aria-labelledby="sc-sync-cap">
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Silicon has the same hazard, and the same fix. Latch every signal in a flip-flop once per clock, and let the logic between them settle before anything reads it.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr ig" id="sc-sync" aria-labelledby="sc-sync-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage">
             <div class="sc-art">
               <svg class="ig-w" width="704" height="200" viewBox="0 0 704 200" role="img" aria-labelledby="sc-sync-t" xmlns="http://www.w3.org/2000/svg">
@@ -551,10 +669,15 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-sync-cap"><span class="n">fig 18</span>The clocked discipline, as a diagram. This is how the netlist in <a class="xr n" href="#st-gates">steps 06 to 10</a> runs.</figcaption>
         </figure>
-
-        <p>The memory loop carries the same lesson inside it. Its clear only works on one tick.</p>
-
-        <figure class="scene" id="sc-slack" aria-labelledby="sc-slack-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The memory loop carries the same lesson inside it. Its clear only works on one tick.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-slack" aria-labelledby="sc-slack-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="late" data-at="10"><span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L348-L349">2 ticks late</span>, the clear heads arrive after the bit has passed J. They die, and the bit keeps going.</li>
@@ -564,18 +687,26 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-slack-cap"><span class="n">fig 19</span>Two memory loops, in the exact rule. The first gets its clear on time; the second gets the same clear, mistimed. Drag the timing, then clear.</figcaption>
         </figure>
+</div>
+</div>
+<p>The repo’s own note gives the fix: only send a clear when a bit is stored. In the netlist, clear is part of the flip-flop’s clocked update, so its timing is never left to the wires.</p>
+<p class="lx-pull long">The hand-built cells only work on the tick they were built for; the netlist gives every part the same clock.</p>
+      </div>
+    </section>
 
-        <p>The repo’s own note gives the fix: only send a clear when a bit is stored. In the netlist, clear is part of the flip-flop’s clocked update, so its timing is never left to the wires.</p>
-        <p class="pull">The hand-built cells only work on the tick they were built for; the netlist gives every part the same clock.</p>
-      </section>
-
-      <!-- ============================== 05 results ============================== -->
-      <section class="ch" id="ch-results" aria-labelledby="h-results">
-        <p class="ch-k">05 <span class="sep">·</span> results</p>
-        <h2 id="h-results">Every rung has a check that runs</h2>
-        <p class="np">The NAND cell and the memory loop pass in the rule; the gates and modules pass at netlist level; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span> run against their expected output.</p>
-
-        <figure class="scene ig" id="sc-ladder" aria-labelledby="sc-ladder-cap">
+    <section class="ch lx-ch" id="ch-results" aria-labelledby="h-results">
+      <header class="lx-open lx-sh lx-arrive" style="--at:1">
+        <p class="lx-sk" data-lx="up"><span class="n">05 <span class="of">/ 05</span></span>results</p>
+        <h2 data-lx="up" style="--d:1" id="h-results">Every rung has a check that runs</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-ladder"><span class="n">fig 20</span><span class="t">Every rung and its check</span><span class="lx-g8" aria-hidden="true"><i style="--h:1;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:5;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-green)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">The NAND cell and the memory loop pass in the rule; the gates and modules pass at netlist level; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span> run against their expected output.</p>
+<div class="lx-solo">
+<figure class="scene lx-fr ig" id="sc-ladder" aria-labelledby="sc-ladder-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage">
             <div class="sc-art">
               <svg class="ig-w" width="704" height="288" viewBox="0 0 704 288" role="img" aria-labelledby="sc-ladder-t" xmlns="http://www.w3.org/2000/svg">
@@ -613,14 +744,13 @@ a.xr{color:inherit}
           </ol>
           <figcaption class="sc-cap" id="sc-ladder-cap"><span class="n">fig 20</span>Every rung has a check that runs, from the rule up to <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span>. Dashed: not built yet.</figcaption>
         </figure>
-
-        <ul class="stats">
-          <li><span class="v" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446</span><span class="k">NAND gates in SAP-1</span><span class="b">each simulated as a gate; <a class="xr n" href="#st-nand">step 04</a> builds one in the rule</span></li>
-          <li><span class="v" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">175</span><span class="k">flip-flops</span><span class="b">most of them in the <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L12">16x8</span> RAM</span></li>
-          <li><span class="v" data-src="Olivesz/emergence@910b296:cpu/README.md#L59">8-bit</span><span class="k">data</span><span class="b"><span data-src="Olivesz/emergence@910b296:cpu/README.md#L59">16 words</span> of memory</span></li>
-        </ul>
-
-        <div class="tbl">
+</div>
+<ul class="lx-mg lx-stats lx-arrive">
+<li class="lx-m" data-lx="up" style="--d:0"><span class="k">NAND gates in SAP-1</span><span class="lx-big a" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446</span><span class="s">each simulated as a gate; <a class="xr n" href="#st-nand">step 04</a> builds one in the rule</span></li>
+<li class="lx-m" data-lx="up" style="--d:1"><span class="k">flip-flops</span><span class="lx-big a" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">175</span><span class="s">most of them in the <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L12">16x8</span> RAM</span></li>
+<li class="lx-m" data-lx="up" style="--d:2"><span class="k">data</span><span class="lx-big a" data-src="Olivesz/emergence@910b296:cpu/README.md#L59">8-bit</span><span class="s"><span data-src="Olivesz/emergence@910b296:cpu/README.md#L59">16 words</span> of memory</span></li>
+</ul>
+<div class="tbl">
           <table class="pt">
             <caption>each program’s output, compared in its self-check; this page runs <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">all five</span> on the netlist before <a class="xr n" href="#sc-sap">fig 15</a> plays, and compares the Fibonacci run with the repo’s recorded netlist trace on <span data-src="Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1">all 688 clocks</span>.</caption>
             <thead><tr><th scope="col">program</th><th scope="col">prints</th></tr></thead>
@@ -633,12 +763,10 @@ a.xr{color:inherit}
             </tbody>
           </table>
         </div>
-
-        <p>A larger SAP-2 runs on the same two parts: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L104">18,895 NAND gates and 2,118 flip-flops</span>, a stack and <span data-src="Olivesz/emergence@910b296:cpu/README.md#L93">256 bytes</span> of memory, the memory built from flip-flops too. It runs multiply, divide, GCD, primes and bubble sort.</p>
-        <p>In Conway’s Life, the same project builds gates from glider collisions. That is a separate build; the CPU does not run on it.</p>
-        <p class="pull">Proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L25">the NAND cell and the memory loop in the raw rule</span>; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">a full adder, a 4-bit counter and a D flip-flop compiled to it, matching the netlist on every clock</span>; the CPU and its <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five programs</span> at netlist level. Not proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L55">the whole CPU in the raw rule. Every gate’s inputs must arrive together, so the router that lays the netlist out as Wireworld cells has to plan delay lines, and so far it manages that for about a dozen gates</span>.</p>
-
-        <details class="srcs-d">
+<p>A larger SAP-2 runs on the same two parts: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L104">18,895 NAND gates and 2,118 flip-flops</span>, a stack and <span data-src="Olivesz/emergence@910b296:cpu/README.md#L93">256 bytes</span> of memory, the memory built from flip-flops too. It runs multiply, divide, GCD, primes and bubble sort.</p>
+<p>In Conway’s Life, the same project builds gates from glider collisions. That is a separate build; the CPU does not run on it.</p>
+<p class="lx-pull long">Proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L25">the NAND cell and the memory loop in the raw rule</span>; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">a full adder, a 4-bit counter and a D flip-flop compiled to it, matching the netlist on every clock</span>; the CPU and its <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five programs</span> at netlist level. Not proven: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L55">the whole CPU in the raw rule. Every gate’s inputs must arrive together, so the router that lays the netlist out as Wireworld cells has to plan delay lines, and so far it manages that for about a dozen gates</span>.</p>
+<details class="srcs-d">
           <summary>sources · 16 lines and 1 file pinned to emergence@910b296</summary>
           <ol class="srcs">
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/docs/acts.md?plain=1#L15" target="_blank" rel="noopener noreferrer">docs/acts.md#L15</a> the rule, the page’s gates and their tables</li>
@@ -660,16 +788,16 @@ a.xr{color:inherit}
             <li><a href="https://github.com/Olivesz/emergence/blob/910b29644c404df843e3e7b0fd60ecfd8df50c16/cpu/README.md?plain=1#L93-L104" target="_blank" rel="noopener noreferrer">cpu/README.md#L93-L104</a> SAP-2: 256 bytes of memory, 18,895 NAND gates and 2,118 flip-flops</li>
           </ol>
         </details>
-      </section>
-    </article>
-  </div>
+      </div>
+    </section>
+  </article>
 
-  <nav class="blk case-nav" aria-label="deep dives">
-    <a class="prev" href="emergence.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
+  <nav class="lxb lx-nav" aria-label="deep dives">
+    <a class="prev" href="emergence.html" target="_blank" rel="noopener noreferrer" style="--c:var(--t-verify)"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
     <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
-    <a class="next" href="freeflow-deep.html" rel="next noopener noreferrer" target="_blank"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">freeflow</span></a>
+    <a class="next" href="freeflow-deep.html" target="_blank" rel="next noopener noreferrer" style="--c:var(--t-systems)"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">freeflow</span></a>
   </nav>
-  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
+  <footer class="lxb colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
 </main>
 
 <script src="assets/ww.js"></script>
@@ -677,5 +805,6 @@ a.xr{color:inherit}
 <script src="assets/sap1_fib.js"></script>
 <script src="assets/deep.js"></script>
 <script src="assets/emergence-deep.js"></script>
+<script src="assets/case.js" defer></script>
 </body>
 </html>

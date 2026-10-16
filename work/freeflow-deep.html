@@ -45,14 +45,11 @@
 .sc-l .caret{display:inline-block;width:1px;height:14px;margin-left:1px;vertical-align:-2px;background:var(--ink)}
 .sc-l{line-height:16px}
 .sc-pips{flex-wrap:wrap;max-width:100%}
-/* the results row: a value never breaks across lines; on a phone each value sits over its words */
-#ch-results .stats .v{white-space:nowrap}
 /* the loop map beside each build step: stages passed in muted, this one in the accent */
 .st-map{display:inline-flex;gap:4px;margin-left:16px;vertical-align:1px}
 .st-map i{display:block;width:8px;height:4px;background:var(--rule)}
 .st-map i.d{background:var(--muted)}
 .st-map i.on{background:var(--accent)}
-@media (max-width:767px){ #ch-results .stats li{display:block} #ch-results .stats .k{padding-top:4px} }
 </style>
 </head>
 <body>
@@ -63,59 +60,35 @@
   <a class="sp" href="freeflow.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
   <a class="to" href="../resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a>
 </header>
+<div class="lx-bar" aria-hidden="true"></div>
+<nav class="lx-rail" aria-label="contents">
+  <ol>
+    <li><a href="#top"><span class="n">iii</span><span class="t">in depth</span></a></li>
+    <li><a href="#ch-situation"><span class="n">01</span><span class="t">the situation</span></a></li>
+    <li><a href="#ch-idea"><span class="n">02</span><span class="t">the idea</span></a></li>
+    <li><a href="#ch-build"><span class="n">03</span><span class="t">the build</span></a></li>
+    <li class="sub"><a href="#st-sound"><span class="n">01</span><span class="t">sound in</span></a></li>
+    <li class="sub"><a href="#st-gates"><span class="n">02</span><span class="t">the tick</span></a></li>
+    <li class="sub"><a href="#st-times"><span class="n">03</span><span class="t">the model</span></a></li>
+    <li class="sub"><a href="#st-agree"><span class="n">04</span><span class="t">agreement</span></a></li>
+    <li class="sub"><a href="#st-twice"><span class="n">05</span><span class="t">no repeats</span></a></li>
+    <li class="sub"><a href="#st-trim"><span class="n">06</span><span class="t">trimming</span></a></li>
+    <li class="sub"><a href="#st-type"><span class="n">07</span><span class="t">typing</span></a></li>
+    <li class="sub"><a href="#st-stop"><span class="n">08</span><span class="t">stopping</span></a></li>
+    <li><a href="#ch-broke"><span class="n">04</span><span class="t">what broke</span></a></li>
+    <li><a href="#ch-results"><span class="n">05</span><span class="t">results</span></a></li>
+  </ol>
+</nav>
 
 <main id="main" tabindex="-1">
-  <header class="blk head">
-    <p class="kick">chapter iii <span class="sep">·</span> in depth</p>
-    <h1>freeflow, in depth</h1>
-    <div class="head-grid">
-      <div>
-        <p class="lede">How a key tap becomes typed words on a Mac with no cloud: a growing audio buffer, a model pass every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, and one rule for when a word is safe to type.</p>
-        <p class="lede lede-2">Every scene plays when it reaches the screen. Step through any of them at your own pace. They replay <span data-src="Olivesz/freeflow@19c0217:README.md#L9-L12">a real pass log</span>: whisper.cpp base.en on the JFK sample, every pass the shipped streamer ran. The page runs the same rules over those passes and checks they type exactly what the log says before any picture draws.</p>
-      </div>
-      <dl class="facts">
-        <div><dt>short</dt><dd><a href="freeflow.html" target="_blank" rel="noopener noreferrer">the case study</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>stack</dt><dd><span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L1">Swift</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L6-L7">whisper.cpp</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">base.en</span></dd></div>
-        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer">github.com/Olivesz/freeflow</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 15 minutes</dd></div>
-      </dl>
-    </div>
-  </header>
-
-  <div class="blk dd">
-    <aside class="dd-rail">
-      <nav class="dd-toc" aria-label="contents">
-        <p class="k">contents</p>
-        <ol>
-          <li><a href="#ch-situation"><span class="n">01</span>the situation</a></li>
-          <li><a href="#ch-idea"><span class="n">02</span>the idea</a></li>
-          <li><a href="#ch-build"><span class="n">03</span>the build</a>
-            <ol>
-              <li><a href="#st-sound">sound in</a></li>
-              <li><a href="#st-gates">the gates</a></li>
-              <li><a href="#st-times">words with times</a></li>
-              <li><a href="#st-agree">two passes agree</a></li>
-              <li><a href="#st-twice">never twice</a></li>
-              <li><a href="#st-trim">trim the window</a></li>
-              <li><a href="#st-type">typing</a></li>
-              <li><a href="#st-stop">stopping</a></li>
-            </ol>
-          </li>
-          <li><a href="#ch-broke"><span class="n">04</span>what broke</a></li>
-          <li><a href="#ch-results"><span class="n">05</span>results</a></li>
-        </ol>
-        <a class="back-to" href="freeflow.html" target="_blank" rel="noopener noreferrer"><span class="back" aria-hidden="true">→</span>&nbsp;the case study</a>
-      </nav>
-    </aside>
-
-    <article class="dd-body">
-      <section class="ch" id="ch-situation" aria-labelledby="h-situation">
-        <p class="ch-k">01 <span class="sep">·</span> the situation</p>
-        <h2 id="h-situation">Words wherever the cursor is</h2>
-        <p class="np">Dictation that works in any app has one job. You talk, and the words are typed into <span data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">whatever app has focus</span>: a mail draft, a chat box, a code editor.</p>
-        <p>freeflow does that on a Mac, with Whisper running <span data-src="Olivesz/freeflow@19c0217:README.md#L6-L7">on-device through whisper.cpp</span>. No account, no cloud, <span data-src="Olivesz/freeflow@19c0217:README.md#L7">nothing to pay</span>.</p>
-
-        <figure class="scene" id="sc-dictate" aria-labelledby="sc-dictate-cap">
+  <div class="lxb lx-hero deep" id="top">
+    <header class="lx-hero-t">
+      <p class="kick lx-up" style="--d:0">chapter iii <span class="sep">·</span> in depth</p>
+      <h1 class="lx-up" style="--d:1">freeflow, in depth</h1>
+    </header>
+    <div class="lx-shot lx-fr" data-lx-arrive>
+      <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <figure class="scene hero" id="sc-dictate" aria-labelledby="sc-dictate-cap">
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="idle" data-at="0">The cursor sits in another app’s mail draft. Nothing is listening yet.</li>
@@ -127,10 +100,44 @@
           </ol>
           <figcaption class="sc-cap" id="sc-dictate-cap"><span class="n">fig 1</span>A real pass log · the JFK sample through the shipped streamer, <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">31</span> passes. Each word sits where the log times it. Below, each burst of typing is as tall as the words it carried, and a line ties the latest burst to its words. Sentence starts are capitalised, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/TextProcessor.swift#L211">as the app’s text rules type them</span>.</figcaption>
         </figure>
+    </div>
+    <div class="lx-hero-d">
+      <p class="lx-lede lx-up" style="--d:2">How a key tap becomes typed words on a Mac with no cloud: a growing audio buffer, a model pass every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, and one rule for when a word is safe to type.</p>
+      <p class="lx-lede lx-up" style="--d:3">Every scene plays when it reaches the screen. Step through any of them at your own pace. They replay <span data-src="Olivesz/freeflow@19c0217:README.md#L9-L12">a real pass log</span>: whisper.cpp base.en on the JFK sample, every pass the shipped streamer ran. The page runs the same rules over those passes and checks they type exactly what the log says before any picture draws.</p>
+      <div class="lx-cta lx-up" style="--d:4">
+        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q" href="freeflow.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
+      </div>
+      <dl class="facts lx-up" style="--d:5">
+        <div><dt>stack</dt><dd><span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L1">Swift</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L6-L7">whisper.cpp</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">base.en</span></dd></div>
+        <div><dt>code</dt><dd><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer">github.com/Olivesz/freeflow</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
+        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 15 minutes</dd></div>
+      </dl>
+    </div>
+  </div>
 
-        <p>The words should show up while you talk, not after you stop. That is where it gets hard. Whisper only transcribes finished clips. To get words while you talk, the app runs it again every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms on <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L36">everything captured so far</span>. Each run is a pass, and a later pass often changes words an earlier one got wrong.</p>
 
-        <figure class="scene" id="sc-mind" aria-labelledby="sc-mind-cap">
+  <article class="lxb">
+    <section class="ch lx-ch" id="ch-situation" aria-labelledby="h-situation">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.2">
+        <p class="lx-sk" data-lx="up"><span class="n">01 <span class="of">/ 05</span></span>the situation</p>
+        <h2 data-lx="up" style="--d:1" id="h-situation">Words wherever the cursor is</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-mind"><span class="n">fig 2</span><span class="t">Retype each guess, or wait for two</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:4;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--v-red)"></i><i style="--h:3;--c:var(--v-red)"></i><i style="--h:3;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:6;--c:var(--v-blue)"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#sc-stair"><span class="n">fig 3</span><span class="t">Seconds each pass would re-read</span><span class="lx-g8" aria-hidden="true"><i style="--h:1;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:3;--c:var(--copper)"></i><i style="--h:4;--c:var(--copper)"></i><i style="--h:4;--c:var(--copper)"></i><i style="--h:5;--c:var(--copper)"></i><i style="--h:6;--c:var(--copper)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">Dictation that works in any app has one job. You talk, and the words are typed into <span data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">whatever app has focus</span>: a mail draft, a chat box, a code editor.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>freeflow does that on a Mac, with Whisper running <span data-src="Olivesz/freeflow@19c0217:README.md#L6-L7">on-device through whisper.cpp</span>. No account, no cloud, <span data-src="Olivesz/freeflow@19c0217:README.md#L7">nothing to pay</span>.</p>
+<p>The words should show up while you talk, not after you stop. That is where it gets hard. Whisper only transcribes finished clips. To get words while you talk, the app runs it again every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms on <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L36">everything captured so far</span>. Each run is a pass, and a later pass often changes words an earlier one got wrong.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-mind" aria-labelledby="sc-mind-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="p070" data-at="0">The first pass, at <span data-src="page:passlog">0.70</span> s, hears nothing yet.</li>
@@ -143,11 +150,16 @@
           </ol>
           <figcaption class="sc-cap" id="sc-mind-cap"><span class="n">fig 2</span>The log’s first <span data-src="page:passlog">11</span> passes, typed two ways. Top: retype each guess. Bottom: type a word once two passes agree. Under each, the backspaces it sends into the app.</figcaption>
         </figure>
-
-        <p>Text already typed into another app can’t be quietly edited. Retyping gets the sentence right in the end, but wrong words flash on screen first, and every correction is a burst of backspaces sent into someone else’s app.</p>
-        <p>There’s a second cost. To revise its guesses, the model has to hear the speech again, and re-reading everything said so far on every pass gets slower <span data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">the longer you talk</span>.</p>
-
-        <figure class="scene" id="sc-stair" aria-labelledby="sc-stair-cap">
+</div>
+</div>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Text already typed into another app can’t be quietly edited. Retyping gets the sentence right in the end, but wrong words flash on screen first, and every correction is a burst of backspaces sent into someone else’s app.</p>
+<p>There’s a second cost. To revise its guesses, the model has to hear the speech again, and re-reading everything said so far on every pass gets slower <span data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">the longer you talk</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-stair" aria-labelledby="sc-stair-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="first" data-at="1">The first pass, at <span data-src="page:passlog">0.70</span> s, reads <span data-src="page:passlog">0.70</span> s of audio.</li>
@@ -157,15 +169,28 @@
           </ol>
           <figcaption class="sc-cap" id="sc-stair-cap"><span class="n">fig 3</span>The same passes of the JFK log, drawn as if nothing were ever dropped: seconds of audio each would re-read.</figcaption>
         </figure>
-      </section>
+</div>
+</div>
+      </div>
+    </section>
 
-      <section class="ch" id="ch-idea" aria-labelledby="h-idea">
-        <p class="ch-k">02 <span class="sep">·</span> the idea</p>
-        <h2 id="h-idea">The rules</h2>
-        <p class="np">A few rules handle both problems.</p>
-        <p>Read the recent audio again every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, but type a word only once <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L26">two passes in a row agree</span> on it. Never <span data-src="Olivesz/freeflow@19c0217:README.md#L79">take a word back</span>. And once enough typed audio piles up, <span data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">restart the window</span> just before the last typed word, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L34">keeping some typed audio</span> for context.</p>
-
-        <figure class="scene" id="sc-loop" aria-labelledby="sc-loop-cap">
+    <section class="ch lx-ch" id="ch-idea" aria-labelledby="h-idea">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.4">
+        <p class="lx-sk" data-lx="up"><span class="n">02 <span class="of">/ 05</span></span>the idea</p>
+        <h2 data-lx="up" style="--d:1" id="h-idea">The rules</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-loop"><span class="n">fig 4</span><span class="t">The Mac app’s loop</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-violet)"></i><i class="o" style="--h:2"></i><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:4;--c:var(--v-cyan)"></i><i style="--h:5;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-blue)"></i><i class="o" style="--h:2"></i><i style="--h:2;--c:var(--v-violet)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state">A few rules handle both problems.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Read the recent audio again every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, but type a word only once <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L26">two passes in a row agree</span> on it. Never <span data-src="Olivesz/freeflow@19c0217:README.md#L79">take a word back</span>. And once enough typed audio piles up, <span data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">restart the window</span> just before the last typed word, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L34">keeping some typed audio</span> for context.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-loop" aria-labelledby="sc-loop-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="key" data-at="0">A key tap starts the microphone.</li>
@@ -178,22 +203,41 @@
           </ol>
           <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 4</span>A diagram of the Mac app’s loop, one stage at a time. Dashed: the way back round, every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms. Each stage gets its own step below.</figcaption>
         </figure>
+</div>
+</div>
+<p>The rest of the page builds this loop one stage at a time, in the order the audio meets them. The Mac app is the one described. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L24-L25">The Python engine it was ported from</span> runs <span data-src="Olivesz/freeflow@19c0217:README.md#L98">the same fixtures</span> in its own tests.</p>
+<p class="lx-pull">One pass is a guess. Two passes agreeing is a fact.</p>
+      </div>
+    </section>
 
-        <p>The rest of the page builds this loop one stage at a time, in the order the audio meets them. The Mac app is the one described. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L24-L25">The Python engine it was ported from</span> runs <span data-src="Olivesz/freeflow@19c0217:README.md#L98">the same fixtures</span> in its own tests.</p>
-        <p class="pull">One pass is a guess. Two passes agreeing is a fact.</p>
-      </section>
-
-      <section class="ch" id="ch-build" aria-labelledby="h-build">
-        <p class="ch-k">03 <span class="sep">·</span> the build</p>
-        <h2 id="h-build">The loop, stage by stage</h2>
-        <p>Each step below adds one stage, and each picture runs the same rules over the same pass log.</p>
-
-        <div class="st" id="st-sound">
-          <p class="st-k">step 01 <span class="sep">·</span> sound in</p>
-          <h3>One growing buffer</h3>
-          <p>The microphone delivers audio at whatever rate the hardware uses. whisper.cpp wants <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L10">16000</span> samples a second, one channel, as floating-point numbers. So every block from the mic is resampled to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L3">16 kHz mono float</span> on arrival and appended to one buffer that only grows.</p>
-          <p>The loop that runs the model never touches the microphone. It takes a <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L31">snapshot</span> of the buffer when it needs one.</p>
-          <figure class="scene" id="sc-buffer" aria-labelledby="sc-buffer-cap">
+    <section class="ch lx-ch" id="ch-build" aria-labelledby="h-build">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.6">
+        <p class="lx-sk" data-lx="up"><span class="n">03 <span class="of">/ 05</span></span>the build</p>
+        <h2 data-lx="up" style="--d:1" id="h-build">The loop, stage by stage</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-buffer"><span class="n">fig 5</span><span class="t">The microphone into one buffer</span><span class="s" aria-hidden="true">sound in</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:2;--c:var(--v-violet)"></i><i style="--h:6;--c:var(--v-violet)"></i><i style="--h:4;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--v-violet)"></i></span></a></li>
+          <li data-lx="up" style="--d:4"><a href="#sc-gates"><span class="n">fig 6</span><span class="t">The gates before every pass</span><span class="s" aria-hidden="true">the tick</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-violet)"></i><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:5;--c:var(--v-violet)"></i><i class="o" style="--h:1"></i><i class="o" style="--h:1"></i></span></a></li>
+          <li data-lx="up" style="--d:5"><a href="#sc-times"><span class="n">fig 7</span><span class="t">Each word with a start and an end</span><span class="s" aria-hidden="true">the model</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:3;--c:var(--v-cyan)"></i><i class="o" style="--h:2"></i><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:3;--c:var(--v-cyan)"></i><i class="o" style="--h:2"></i><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:3;--c:var(--v-cyan)"></i></span></a></li>
+          <li data-lx="up" style="--d:6"><a href="#sc-agree"><span class="n">fig 8</span><span class="t">Typed once two passes agree</span><span class="s" aria-hidden="true">agreement</span><span class="lx-g8" aria-hidden="true"><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i style="--h:2;--c:var(--v-cyan)"></i><i class="o" style="--h:2"></i></span></a></li>
+          <li data-lx="up" style="--d:7"><a href="#sc-twice"><span class="n">fig 9</span><span class="t">Cut by text, or by time</span><span class="s" aria-hidden="true">no repeats</span><span class="lx-g8" aria-hidden="true"><i style="--h:3;--c:var(--v-blue)"></i><i style="--h:3;--c:var(--v-blue)"></i><i style="--h:3;--c:var(--v-blue)"></i><i style="--h:3;--c:var(--v-green)"></i><i style="--h:3;--c:var(--v-red)"></i><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:3;--c:var(--v-cyan)"></i><i style="--h:3;--c:var(--v-cyan)"></i></span></a></li>
+          <li data-lx="up" style="--d:8"><a href="#sc-trim"><span class="n">fig 10</span><span class="t">The window restarts</span><span class="s" aria-hidden="true">trimming</span><span class="lx-g8" aria-hidden="true"><i style="--h:1;--c:var(--copper)"></i><i style="--h:2;--c:var(--copper)"></i><i style="--h:3;--c:var(--copper)"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:2;--c:var(--v-blue)"></i><i style="--h:3;--c:var(--v-blue)"></i><i style="--h:4;--c:var(--v-blue)"></i><i style="--h:2;--c:var(--v-blue)"></i></span></a></li>
+          <li data-lx="up" style="--d:9"><a href="#sc-type"><span class="n">fig 11</span><span class="t">Key events into any app</span><span class="s" aria-hidden="true">typing</span><span class="lx-g8" aria-hidden="true"><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:3;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:5;--c:var(--v-blue)"></i><i style="--h:2;--c:var(--v-blue)"></i><i class="o" style="--h:1"></i></span></a></li>
+          <li data-lx="up" style="--d:10"><a href="#sc-stop"><span class="n">fig 12</span><span class="t">The silence clock</span><span class="s" aria-hidden="true">stopping</span><span class="lx-g8" aria-hidden="true"><i style="--h:5;--c:var(--v-violet)"></i><i style="--h:3;--c:var(--v-violet)"></i><i class="o" style="--h:1"></i><i class="o" style="--h:1"></i><i style="--h:2;--c:var(--v-amber)"></i><i style="--h:3;--c:var(--v-amber)"></i><i style="--h:4;--c:var(--v-amber)"></i><i style="--h:6;--c:var(--v-amber)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p>Each step below adds one stage, and each picture runs the same rules over the same pass log.</p>
+<div class="st" id="st-sound">
+<p class="st-k">step 01 <span class="sep">·</span> sound in</p>
+<h3>One growing buffer</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The microphone delivers audio at whatever rate the hardware uses. whisper.cpp wants <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L10">16000</span> samples a second, one channel, as floating-point numbers. So every block from the mic is resampled to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L3">16 kHz mono float</span> on arrival and appended to one buffer that only grows.</p>
+<p>The loop that runs the model never touches the microphone. It takes a <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L31">snapshot</span> of the buffer when it needs one.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-buffer" aria-labelledby="sc-buffer-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="block" data-at="1">A block arrives from the mic: <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L19">4,096</span> frames at the device’s own rate.</li>
@@ -203,14 +247,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-buffer-cap"><span class="n">fig 5</span>A diagram · the microphone, converted to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AudioCapture.swift#L3">16</span> kHz mono on arrival and appended to one buffer the loop copies.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-gates">
-          <p class="st-k">step 02 <span class="sep">·</span> the tick</p>
-          <h3>Gates before every pass</h3>
-          <p>A loop wakes every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, copies the buffer <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L38-L40">from the window’s start</span>, and decides whether the model should see it at all.</p>
-          <p>The gates come first, because Whisper does not stay quiet on silence. It <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L16-L18">fills silence with phrases like “thank you”</span>.</p>
-          <figure class="scene" id="sc-gates" aria-labelledby="sc-gates-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-gates">
+<p class="st-k">step 02 <span class="sep">·</span> the tick</p>
+<h3>Gates before every pass</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>A loop wakes every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, copies the buffer <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L38-L40">from the window’s start</span>, and decides whether the model should see it at all.</p>
+<p>The gates come first, because Whisper does not stay quiet on silence. It <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L16-L18">fills silence with phrases like “thank you”</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-gates" aria-labelledby="sc-gates-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="short" data-at="0">At <span data-src="page:rule">0.35</span> s the window is under <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L24">0.5</span> s: too short, so no pass. The log has none.</li>
@@ -221,14 +271,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 6</span>The gates before every pass: too short, too quiet, and a quiet tail cut to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L25">0.2</span> s. <span class="verb cap">click</span> to make the speech quiet.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-times">
-          <p class="st-k">step 03 <span class="sep">·</span> the model</p>
-          <h3>Words with times</h3>
-          <p>whisper.cpp runs the <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">base.en</span> model with <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L59-L64">greedy decoding</span> and is told to end a segment <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L155">after every word</span>. So each word comes back with its own start and end time. Greedy is deliberate: beam search <span data-src="Olivesz/freeflow@19c0217:README.md#L86-L87">crashed whisper.cpp mid-dictation</span>, and a test <span data-src="Olivesz/freeflow@19c0217:mac/Tests/FreeflowCoreTests/TextProcessorTests.swift#L219-L222">fails if it comes back</span>.</p>
-          <p>Those times count from the window’s start, so the window’s offset is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L101-L102">added to each start and end</span>. whisper.cpp sometimes times a word past the end of the audio, so times are <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L92-L95">clamped to the window</span>. Tokens that aren’t speech, like [BLANK_AUDIO], a sound in parentheses or a lone full stop, are <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L14-L16">dropped as non-speech</span>. Whisper learned them from subtitles.</p>
-          <figure class="scene" id="sc-times" aria-labelledby="sc-times-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-times">
+<p class="st-k">step 03 <span class="sep">·</span> the model</p>
+<h3>Words with times</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>whisper.cpp runs the <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">base.en</span> model with <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L59-L64">greedy decoding</span> and is told to end a segment <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L155">after every word</span>. So each word comes back with its own start and end time. Greedy is deliberate: beam search <span data-src="Olivesz/freeflow@19c0217:README.md#L86-L87">crashed whisper.cpp mid-dictation</span>, and a test <span data-src="Olivesz/freeflow@19c0217:mac/Tests/FreeflowCoreTests/TextProcessorTests.swift#L219-L222">fails if it comes back</span>.</p>
+<p>Those times count from the window’s start, so the window’s offset is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L101-L102">added to each start and end</span>. whisper.cpp sometimes times a word past the end of the audio, so times are <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L92-L95">clamped to the window</span>. Tokens that aren’t speech, like [BLANK_AUDIO], a sound in parentheses or a lone full stop, are <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L14-L16">dropped as non-speech</span>. Whisper learned them from subtitles.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-times" aria-labelledby="sc-times-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="words" data-at="0">The pass at <span data-src="page:passlog">1.75</span> s returns its words, each with a start and an end. “Americans” ends after the audio does, so it is clamped.</li>
@@ -240,14 +296,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-times-cap"><span class="n">fig 7</span>Two passes from the log · each word comes back on its own with a start and an end. Annotations for sounds and lone punctuation never get through.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-agree">
-          <p class="st-k">step 04 <span class="sep">·</span> agreement</p>
-          <h3>Type only what two passes agree on</h3>
-          <p>This is the rule the whole app rests on, called LocalAgreement-2. Each pass is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L108">compared with the last pass</span>, word by word from the front, ignoring case and spaces.</p>
-          <p>Words that match are committed and typed. The first mismatch stops the comparison, and everything from there on waits for the next pass.</p>
-          <figure class="scene" id="sc-agree" aria-labelledby="sc-agree-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-agree">
+<p class="st-k">step 04 <span class="sep">·</span> agreement</p>
+<h3>Type only what two passes agree on</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>This is the rule the whole app rests on, called LocalAgreement-2. Each pass is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L108">compared with the last pass</span>, word by word from the front, ignoring case and spaces.</p>
+<p>Words that match are committed and typed. The first mismatch stops the comparison, and everything from there on waits for the next pass.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-agree" aria-labelledby="sc-agree-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="p105" data-at="0">The first pass with words hears “And so am I!”. There is no earlier guess to agree with, so nothing is typed.</li>
@@ -259,14 +321,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-agree-cap"><span class="n">fig 8</span>A word is typed once two passes in a row agree on it, counting from the front: the first passes of the JFK log. Last step: filled, typed by that pass; outlined, waiting; struck, already typed and cut. <span class="verb cap">click</span> to be the next pass.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-twice">
-          <p class="st-k">step 05 <span class="sep">·</span> no repeats</p>
-          <h3>Never type a word twice</h3>
-          <p>Every pass re-reads audio whose words are already typed, so those words come back, and whisper.cpp <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">re-times words by up to a second</span> from one pass to the next. So the cut between typed and new words is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L121-L127">found by text</span>: the longest run of the last <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L162">four</span> typed words that the pass repeats, taking the one nearest in time.</p>
-          <p>Only when the pass repeats none of them does a time rule apply: keep words that start after the last typed word ends, less <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L131">0.1</span> s. Until the fix that added the text cut (commit <span data-src="Olivesz/freeflow@19c0217:README.md#L62-L63">262c910</span>), that time rule was the only one.</p>
-          <figure class="scene" id="sc-twice" aria-labelledby="sc-twice-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-twice">
+<p class="st-k">step 05 <span class="sep">·</span> no repeats</p>
+<h3>Never type a word twice</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Every pass re-reads audio whose words are already typed, so those words come back, and whisper.cpp <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">re-times words by up to a second</span> from one pass to the next. So the cut between typed and new words is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L121-L127">found by text</span>: the longest run of the last <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L162">four</span> typed words that the pass repeats, taking the one nearest in time.</p>
+<p>Only when the pass repeats none of them does a time rule apply: keep words that start after the last typed word ends, less <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L131">0.1</span> s. Until the fix that added the text cut (commit <span data-src="Olivesz/freeflow@19c0217:README.md#L62-L63">262c910</span>), that time rule was the only one.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-twice" aria-labelledby="sc-twice-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="line" data-at="0">The streamer’s committed words end “… ask what”, and “what” ends at <span data-src="page:passlog">8.64</span> s.</li>
@@ -277,14 +345,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-twice-cap"><span class="n">fig 9</span>From the log · the pass at <span data-src="page:passlog">9.80</span> s, cut by text and by time. Red: words the time rule would lose. <span class="verb cap">click</span> to cut by time only.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-trim">
-          <p class="st-k">step 06 <span class="sep">·</span> trimming</p>
-          <h3>Trim the window</h3>
-          <p>Once more than <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> seconds of typed audio sits in the window, the window is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L74-L76">trimmed from the last committed word’s start</span>: it restarts <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span> seconds before it. The model keeps a little context and never re-reads the rest. It cuts from the word’s start, not its end, because whisper.cpp often stretches a word’s end toward the end of the window.</p>
-          <p>The staircase becomes a sawtooth.</p>
-          <figure class="scene" id="sc-trim" aria-labelledby="sc-trim-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-trim">
+<p class="st-k">step 06 <span class="sep">·</span> trimming</p>
+<h3>Trim the window</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Once more than <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> seconds of typed audio sits in the window, the window is <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L74-L76">trimmed from the last committed word’s start</span>: it restarts <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span> seconds before it. The model keeps a little context and never re-reads the rest. It cuts from the word’s start, not its end, because whisper.cpp often stretches a word’s end toward the end of the window.</p>
+<p>The staircase becomes a sawtooth.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-trim" aria-labelledby="sc-trim-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="over" data-at="0">After the pass at <span data-src="page:passlog">4.20</span> s, typed audio in the window reaches <span data-src="page:passlog">3.29</span> s, past the <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> s line. “ask” was just typed.</li>
@@ -294,14 +368,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-trim-cap"><span class="n">fig 10</span>Every pass of the JFK log · once <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> s of typed audio piles up, the window restarts <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span> s before the last typed word. Copper behind: the untrimmed staircase. <span class="verb cap">click</span> to switch the trim off.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-type">
-          <p class="st-k">step 07 <span class="sep">·</span> typing</p>
-          <h3>Typing into the focused app</h3>
-          <p>Words are typed as <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L5">keyboard events</span>. Each event carries a Unicode string of up to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> characters, so the text arrives intact in any app that accepts typing. This needs the Accessibility permission.</p>
-          <p>Backspace is kept for one thing, a spoken command, and “scratch that” <span data-src="Olivesz/freeflow@19c0217:README.md#L84-L85">can only erase what the current dictation typed</span>.</p>
-          <figure class="scene" id="sc-type" aria-labelledby="sc-type-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-type">
+<p class="st-k">step 07 <span class="sep">·</span> typing</p>
+<h3>Typing into the focused app</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Words are typed as <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L5">keyboard events</span>. Each event carries a Unicode string of up to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> characters, so the text arrives intact in any app that accepts typing. This needs the Accessibility permission.</p>
+<p>Backspace is kept for one thing, a spoken command, and “scratch that” <span data-src="Olivesz/freeflow@19c0217:README.md#L84-L85">can only erase what the current dictation typed</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-type" aria-labelledby="sc-type-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="burst" data-at="0">The first burst, “ And” at <span data-src="page:passlog">1.75</span> s, is <span data-src="page:passlog">4</span> characters: one key-down and key-up pair.</li>
@@ -312,14 +392,20 @@
             </ol>
             <figcaption class="sc-cap" id="sc-type-cap"><span class="n">fig 11</span>Committed text goes out as key events of up to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> characters each, into whichever app has the cursor. The “scratch that” step is an example of the rule, not from the log.</figcaption>
           </figure>
-        </div>
-
-        <div class="st" id="st-stop">
-          <p class="st-k">step 08 <span class="sep">·</span> stopping</p>
-          <h3>Stopping cleanly</h3>
-          <p>Silence ends it in either mode. After a <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L45">400</span> ms grace, every quiet <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L47-L55">tick adds its length to a silence clock</span>, and speech resets it. At <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L29">1,500</span> ms it stops, so the fifth quiet tick in a row ends it. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AppDelegate.swift#L100-L102">In hold mode, letting go of the key</span> ends it sooner.</p>
-          <p>Either way, the stop only <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L87-L88">signals the loop to finish</span>. The loop finishes its turn, cuts the quiet off the tail, and runs <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L123">a final flush</span> that types whatever was <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L83">left in the tail</span>.</p>
-          <figure class="scene" id="sc-stop" aria-labelledby="sc-stop-cap">
+</div>
+</div>
+</div>
+<div class="st" id="st-stop">
+<p class="st-k">step 08 <span class="sep">·</span> stopping</p>
+<h3>Stopping cleanly</h3>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>Silence ends it in either mode. After a <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L45">400</span> ms grace, every quiet <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L47-L55">tick adds its length to a silence clock</span>, and speech resets it. At <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L29">1,500</span> ms it stops, so the fifth quiet tick in a row ends it. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AppDelegate.swift#L100-L102">In hold mode, letting go of the key</span> ends it sooner.</p>
+<p>Either way, the stop only <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L87-L88">signals the loop to finish</span>. The loop finishes its turn, cuts the quiet off the tail, and runs <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L123">a final flush</span> that types whatever was <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L83">left in the tail</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-stop" aria-labelledby="sc-stop-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="q1" data-at="0">After the last word, the first quiet tick puts <span data-src="page:rule">350</span> ms on the silence clock.</li>
@@ -331,16 +417,29 @@
             </ol>
             <figcaption class="sc-cap" id="sc-stop-cap"><span class="n">fig 12</span>The silence clock is the endpointer’s rule, tick by tick; the final pass is the log’s last row.</figcaption>
           </figure>
-        </div>
-      </section>
+</div>
+</div>
+</div>
+      </div>
+    </section>
 
-      <section class="ch" id="ch-broke" aria-labelledby="h-broke">
-        <p class="ch-k">04 <span class="sep">·</span> what broke</p>
-        <h2 id="h-broke">Dropped words</h2>
-        <p class="np">Words went missing mid-sentence. A phrase spoken clearly never appeared, and the words after it did.</p>
-        <p>The repo’s benchmark measures it. It replays <span data-src="Olivesz/freeflow@19c0217:README.md#L51">41</span> public clips through the app’s own streamer, decodes the same audio whole and offline with the same model, and scores both against the reference. The fix and the window were chosen on <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L33-L36">20</span> speakers and JFK; <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L33-L36">20</span> more were held out and <span data-src="Olivesz/freeflow@19c0217:README.md#L67-L68">first scored after the fix was committed</span>.</p>
-
-        <figure class="scene" id="sc-skip" aria-labelledby="sc-skip-cap">
+    <section class="ch lx-ch" id="ch-broke" aria-labelledby="h-broke">
+      <header class="lx-open lx-sh lx-arrive" style="--at:0.8">
+        <p class="lx-sk" data-lx="up"><span class="n">04 <span class="of">/ 05</span></span>what broke</p>
+        <h2 data-lx="up" style="--d:1" id="h-broke">Dropped words</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-skip"><span class="n">fig 13</span><span class="t">The benchmark, before and after</span><span class="lx-g8" aria-hidden="true"><i style="--h:6;--c:var(--v-red)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i style="--h:2;--c:var(--v-blue)"></i><i class="o" style="--h:2"></i><i class="o" style="--h:2"></i><i style="--h:2;--c:var(--v-blue)"></i><i style="--h:2;--c:var(--v-blue)"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">Words went missing mid-sentence. A phrase spoken clearly never appeared, and the words after it did.</p>
+<div class="lx-duo">
+<div class="lx-txt">
+<p>The repo’s benchmark measures it. It replays <span data-src="Olivesz/freeflow@19c0217:README.md#L51">41</span> public clips through the app’s own streamer, decodes the same audio whole and offline with the same model, and scores both against the reference. The fix and the window were chosen on <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L33-L36">20</span> speakers and JFK; <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L33-L36">20</span> more were held out and <span data-src="Olivesz/freeflow@19c0217:README.md#L67-L68">first scored after the fix was committed</span>.</p>
+</div>
+<div class="lx-fig">
+<figure class="scene lx-fr" id="sc-skip" aria-labelledby="sc-skip-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="jfk" data-at="0">Before the fix the streamer dropped <span data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/summary.csv#L2">6</span> of JFK’s <span data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/summary.csv#L2">22</span> words, struck through in red.</li>
@@ -352,23 +451,32 @@
           </ol>
           <figcaption class="sc-cap" id="sc-skip-cap"><span class="n">fig 13</span>The benchmark, before and after the fix · word error streamed, against offline decoding of the same audio with the same model. <span class="verb cap">click</span> to switch the streamer.</figcaption>
         </figure>
+</div>
+</div>
+<p>The old rule kept a new word only if it started after the last typed word ended. whisper.cpp <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">re-times words by up to a second</span> between passes and stretches the last word of a pass toward the window’s end, so new words fell behind the line and were thrown away. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80">The pass logs show it</span>.</p>
+<p class="lx-pull long">The Mac app now finds the cut by text, trims from the last typed word’s start at <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> seconds, keeps <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span>, and decodes greedily.</p>
+      </div>
+    </section>
 
-        <p>The old rule kept a new word only if it started after the last typed word ended. whisper.cpp <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">re-times words by up to a second</span> between passes and stretches the last word of a pass toward the window’s end, so new words fell behind the line and were thrown away. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80">The pass logs show it</span>.</p>
-        <p class="pull">The Mac app now finds the cut by text, trims from the last typed word’s start at <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> seconds, keeps <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span>, and decodes greedily.</p>
-      </section>
-
-      <section class="ch" id="ch-results" aria-labelledby="h-results">
-        <p class="ch-k">05 <span class="sep">·</span> results</p>
-        <h2 id="h-results">What is tested, and what CI checks</h2>
-        <p class="np">The streaming rules live in FreeflowCore, a Swift library with <span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L16">no model and no UI</span>, so they can be tested anywhere.</p>
-        <p><span data-derived="CI run 38482789778, swift job: Executed 55 tests, with 0 failures (32 + 14 + 5 + 4)">55</span> Swift tests and <span data-derived="CI run 38482789778, python job: 36 passed">36</span> Python tests passed on CI at the pinned commit. Both suites <span data-src="Olivesz/freeflow@19c0217:README.md#L98-L99">run the same fixtures</span>, each a sequence of decoder passes and the words that must be typed after each, and <span data-src="Olivesz/freeflow@19c0217:README.md#L99-L100">two are taken from real pass logs</span>. CI also <span data-src="Olivesz/freeflow@19c0217:README.md#L100-L101">builds the release app and replays the benchmark’s gate clips</span> with the real model, and fails if streaming loses more than <span data-src="Olivesz/freeflow@19c0217:README.md#L102">2</span> points of word error against offline, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">or if the JFK clip loses a word</span>. <span data-src="Olivesz/freeflow@19c0217:README.md#L102-L103">A control run with a broken window has to fail too</span>, and it does.</p>
-        <ul class="stats">
-          <li><span class="v" data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span><span class="k">streamed word error, held out</span><span class="b">offline <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> · was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span></span></li>
-          <li><span class="v" data-src="Olivesz/freeflow@19c0217:README.md#L60">3 of 523</span><span class="k">words dropped, held out</span><span class="b">was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">78</span></span></li>
-          <li><span class="v" data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">787 ms</span><span class="k">median commit lag, from a word’s end to its keystroke</span><span class="b">p95 <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">1,557</span> ms, with other work running</span></li>
-        </ul>
-
-        <figure class="scene" id="sc-tests" aria-labelledby="sc-tests-cap">
+    <section class="ch lx-ch" id="ch-results" aria-labelledby="h-results">
+      <header class="lx-open lx-sh lx-arrive" style="--at:1">
+        <p class="lx-sk" data-lx="up"><span class="n">05 <span class="of">/ 05</span></span>results</p>
+        <h2 data-lx="up" style="--d:1" id="h-results">What is tested, and what CI checks</h2>
+        <ol class="lx-see" aria-label="in this chapter">
+          <li data-lx="up" style="--d:3"><a href="#sc-tests"><span class="n">fig 14</span><span class="t">Tests, the gate and its control</span><span class="lx-g8" aria-hidden="true"><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:2;--c:var(--v-green)"></i><i style="--h:4;--c:var(--v-green)"></i><i style="--h:6;--c:var(--v-red)"></i><i class="o" style="--h:2"></i></span></a></li>
+        </ol>
+      </header>
+      <div class="lx-body">
+<p class="lx-state long">The streaming rules live in FreeflowCore, a Swift library with <span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L16">no model and no UI</span>, so they can be tested anywhere.</p>
+<p><span data-derived="CI run 38482789778, swift job: Executed 55 tests, with 0 failures (32 + 14 + 5 + 4)">55</span> Swift tests and <span data-derived="CI run 38482789778, python job: 36 passed">36</span> Python tests passed on CI at the pinned commit. Both suites <span data-src="Olivesz/freeflow@19c0217:README.md#L98-L99">run the same fixtures</span>, each a sequence of decoder passes and the words that must be typed after each, and <span data-src="Olivesz/freeflow@19c0217:README.md#L99-L100">two are taken from real pass logs</span>. CI also <span data-src="Olivesz/freeflow@19c0217:README.md#L100-L101">builds the release app and replays the benchmark’s gate clips</span> with the real model, and fails if streaming loses more than <span data-src="Olivesz/freeflow@19c0217:README.md#L102">2</span> points of word error against offline, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">or if the JFK clip loses a word</span>. <span data-src="Olivesz/freeflow@19c0217:README.md#L102-L103">A control run with a broken window has to fail too</span>, and it does.</p>
+<ul class="lx-mg lx-stats lx-arrive">
+<li class="lx-m" data-lx="up" style="--d:0"><span class="k">streamed word error, held out</span><span class="lx-big a" data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span><span class="s">offline <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> · was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span></span></li>
+<li class="lx-m" data-lx="up" style="--d:1"><span class="k">of <span data-src="Olivesz/freeflow@19c0217:README.md#L60">523</span> words dropped, held out</span><span class="lx-big a" data-src="Olivesz/freeflow@19c0217:README.md#L60">3</span><span class="s">was <span data-src="Olivesz/freeflow@19c0217:README.md#L59">78</span></span></li>
+<li class="lx-m" data-lx="up" style="--d:2"><span class="k">median commit lag in ms, from a word’s end to its keystroke</span><span class="lx-big a" data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">787</span><span class="s">p95 <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">1,557</span> ms, with other work running</span></li>
+</ul>
+<div class="lx-solo">
+<figure class="scene lx-fr" id="sc-tests" aria-labelledby="sc-tests-cap">
+<span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="swift" data-at="0">The Swift tests fill in file by file: text processing, stream fixtures, session and endpointer, scoring.</li>
@@ -380,11 +488,11 @@
           </ol>
           <figcaption class="sc-cap" id="sc-tests-cap"><span class="n">fig 14</span>The Swift and Python tests, the benchmark gate and its control, from one CI run. Greedy decoding is pinned by its own test.</figcaption>
         </figure>
-
-        <p class="pull">The ideas fit on one card: copy the buffer every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, type only what two passes agree on, find the cut by text, never take a word back, and keep the window short.</p>
-        <p>Every figure on this page is traced to a line listed below. Figures read from the pass log are computed by the page from the log’s rows; the rules are re-run over them first, and nothing draws unless they type exactly what the log says.</p>
-        <p>Not shown: other models or languages, since <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">the benchmark runs whisper.cpp base.en</span>, an English-only model; other kinds of speech, since its <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L24">41 clips</span> are <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L26-L28">public read speech</span>; and an idle machine, since <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L114-L116">the lag was timed with other work running</span>.</p>
-        <details class="srcs-d" id="ch-sources"><summary>sources · 100 lines pinned to freeflow@19c0217</summary>
+</div>
+<p class="lx-pull long">The ideas fit on one card: copy the buffer every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, type only what two passes agree on, find the cut by text, never take a word back, and keep the window short.</p>
+<p>Every figure on this page is traced to a line listed below. Figures read from the pass log are computed by the page from the log’s rows; the rules are re-run over them first, and nothing draws unless they type exactly what the log says.</p>
+<p>Not shown: other models or languages, since <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">the benchmark runs whisper.cpp base.en</span>, an English-only model; other kinds of speech, since its <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L24">41 clips</span> are <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L26-L28">public read speech</span>; and an idle machine, since <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L114-L116">the lag was timed with other work running</span>.</p>
+<details class="srcs-d" id="ch-sources"><summary>sources · 100 lines pinned to freeflow@19c0217</summary>
           <ol class="srcs">
             <li><span class="m">.github/workflows/ci.yml</span> <a href="https://github.com/Olivesz/freeflow/blob/19c0217/.github/workflows/ci.yml#L48-L50" target="_blank" rel="noopener noreferrer" aria-label=".github/workflows/ci.yml lines 48–50">lines 48–50</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/.github/workflows/ci.yml#L49" target="_blank" rel="noopener noreferrer" aria-label=".github/workflows/ci.yml line 49">line 49</a></li>
             <li><span class="m">README.md</span> <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L5-L7" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 5–7">lines 5–7</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L6-L7" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 6–7">lines 6–7</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L7" target="_blank" rel="noopener noreferrer" aria-label="README.md line 7">line 7</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L9-L12" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 9–12">lines 9–12</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L15" target="_blank" rel="noopener noreferrer" aria-label="README.md line 15">line 15</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L16" target="_blank" rel="noopener noreferrer" aria-label="README.md line 16">line 16</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L21" target="_blank" rel="noopener noreferrer" aria-label="README.md line 21">line 21</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L51" target="_blank" rel="noopener noreferrer" aria-label="README.md line 51">line 51</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L59" target="_blank" rel="noopener noreferrer" aria-label="README.md line 59">line 59</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L60" target="_blank" rel="noopener noreferrer" aria-label="README.md line 60">line 60</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L62-L63" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 62–63">lines 62–63</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L67-L68" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 67–68">lines 67–68</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L79" target="_blank" rel="noopener noreferrer" aria-label="README.md line 79">line 79</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L80-L82" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 80–82">lines 80–82</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L84-L85" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 84–85">lines 84–85</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L86-L87" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 86–87">lines 86–87</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L98" target="_blank" rel="noopener noreferrer" aria-label="README.md line 98">line 98</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L98-L99" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 98–99">lines 98–99</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L99-L100" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 99–100">lines 99–100</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L100-L101" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 100–101">lines 100–101</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L102" target="_blank" rel="noopener noreferrer" aria-label="README.md line 102">line 102</a> · <a href="https://github.com/Olivesz/freeflow/blob/19c0217/README.md?plain=1#L102-L103" target="_blank" rel="noopener noreferrer" aria-label="README.md lines 102–103">lines 102–103</a></li>
@@ -408,19 +516,20 @@
             <li><span class="m">CI</span> <a href="https://github.com/Olivesz/freeflow/actions/runs/38482789778" target="_blank" rel="noopener noreferrer">run 38482789778</a> · <a href="https://github.com/Olivesz/freeflow/commit/19c0217" target="_blank" rel="noopener noreferrer">commit 19c0217</a></li>
           </ol>
         </details>
-      </section>
-    </article>
-  </div>
+      </div>
+    </section>
+  </article>
 
-  <nav class="blk case-nav" aria-label="deep dives">
-    <a class="prev" href="freeflow.html" target="_blank" rel="noopener noreferrer"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
+  <nav class="lxb lx-nav" aria-label="deep dives">
+    <a class="prev" href="freeflow.html" target="_blank" rel="noopener noreferrer" style="--c:var(--t-systems)"><span class="k"><span class="back" aria-hidden="true">→</span> back to</span><span class="t">the case study</span></a>
     <a class="all" href="../index.html#work" target="_blank" rel="noopener noreferrer"><span class="k">back to</span><span class="t">all the work</span></a>
-    <a class="next" href="kronos-deep.html" target="_blank" rel="next noopener noreferrer"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">KRONOS</span></a>
+    <a class="next" href="kronos-deep.html" target="_blank" rel="next noopener noreferrer" style="--c:var(--t-data)"><span class="k">next in depth <span aria-hidden="true">→</span></span><span class="t">KRONOS</span></a>
   </nav>
-  <footer class="blk colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
+  <footer class="lxb colo"><p>Source: <a href="https://github.com/Olivesz/portfolio" target="_blank" rel="noopener noreferrer">github.com/Olivesz/portfolio</a>.</p></footer>
 </main>
 
 <script src="assets/deep.js"></script>
 <script src="assets/deep-freeflow.js"></script>
+<script src="assets/case.js" defer></script>
 </body>
 </html>

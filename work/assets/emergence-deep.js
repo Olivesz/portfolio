@@ -118,7 +118,8 @@
   }
   function lampsHTML(rows, cur) {
     return rows.map(function (r, i) {
-      var v = r[2] === null ? '<span class="m">·</span>' : r[3] === false ? '<span class="rd">' + r[2] + "</span>" : String(r[2]);   // out in ink, as on the index; red only when wrong
+      // a 1 out in the page's hue, a 0 in ink, so the column the reader checks is lit from the first frame; red only when wrong
+      var v = r[2] === null ? '<span class="m">·</span>' : r[3] === false ? '<span class="rd">' + r[2] + "</span>" : r[2] === 1 ? '<span class="a">1</span>' : String(r[2]);
       return '<span class="' + (i === cur ? "" : "m") + '">' + r[0] + " " + r[1] + "</span>  " + v;
     }).join("<br>");
   }
@@ -404,8 +405,9 @@
       if (o.marks) o.marks.forEach(function (m, i) { lbl(api, "mk" + i, m[0], m[1] + ox, m[2] + oy, { dx: m[3] || 0, dy: m[4] || 0, cls: m[5] || "" }); });
       var pd = api.pitch, ly = Math.round((pd - 16) / 2); lbl(api, "a", "a", pp.A[0] - 1, pp.A[1], { dx: -14, dy: ly, cls: "i" }); lbl(api, "b", "b", pp.B[0] - 1, pp.B[1], { dx: -14, dy: ly, cls: "i" });
       // the long AND on a phone runs a wire down past its lamp, so its "out" sits to the lamp's left, on its row
-      if (o.outLeft && PHONE) lbl(api, "o", "out", lampX, pp.O[1], { align: "right", dx: -(lampX - pp.O[0] + 1) * api.pitch - 4, dy: Math.round((api.pitch - 16) / 2) });
-      else lbl(api, "o", "out", lampX, pp.O[1], { dx: 0, dy: -20 });
+      // the output is what to look for: its name in the page's hue
+      if (o.outLeft && PHONE) lbl(api, "o", "out", lampX, pp.O[1], { align: "right", dx: -(lampX - pp.O[0] + 1) * api.pitch - 4, dy: Math.round((api.pitch - 16) / 2), cls: "a" });
+      else lbl(api, "o", "out", lampX, pp.O[1], { dx: 0, dy: -20, cls: "a" });
       var tx = PHONE ? 0 : COLS, ty = PHONE ? ROWS : 0;
       var tb = lbl(api, "tt", null, tx, ty, { dx: PHONE ? 0 : 24, dy: PHONE ? 8 : 0, cls: "r", html: true });
       tb.innerHTML = '<span class="m">a b  out</span><br>' + lampsHTML(tbl.rows, TABLE_ORDER.indexOf(tbl.cur));
