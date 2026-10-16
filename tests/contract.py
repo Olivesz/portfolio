@@ -847,19 +847,32 @@ WORK_PRIDE = ["custos-code", "kronos", "freeflow", "emergence", "inf-mem", "ai-c
 WORK_TIER = {p: (1 if i < 4 else 2) for i, p in enumerate(WORK_PRIDE)}          # every other project is tier 3
 WORK_PRIMARY = {"custos-code": "llm", "kronos": "data", "freeflow": "systems", "emergence": "verify"}
 WORK_SIGMAX = 2
+WORK_NORESULT = {"ai-capabilities"}       # no recorded result to show: listed in its themes' panes, never named in a blob
+WORK_ACTION = {"play": "play"}            # a theme signed by another theme's chapter names it as what to do there
+
+
+def work_sig_name(k, p):
+    """how theme k's blob names its signature p: a chapter signing a theme that is not its own, under an action, reads
+    'play emergence', so no blob repeats another's name"""
+    n = WORK_NAMES[p]
+    return f"{WORK_ACTION[k]} {n}" if k in WORK_ACTION and WORK_PRIMARY.get(p, k) != k else n
 
 
 def work_expected():
     """Each theme's signatures, named in its blob: the four chapters in their primary themes, then the tier-2 projects
-    in pride order, each into the member theme with the fewest signatures so far (the earlier theme on a tie); at most
-    two per theme, and no project named twice. The rest of each theme follow in its pane, by tier, then name."""
+    with a recorded result in pride order, each into the member theme with the fewest signatures so far (the earlier
+    theme on a tie); at most two per theme. A theme still unsigned is signed by its first chapter in pride order, the
+    one way a project is named twice. The rest of each theme follow in its pane, by tier, then name."""
     sig = {k: [] for k in WORK_THEMES}
     for p, k in WORK_PRIMARY.items():
         sig[k].append(p)
     for p in WORK_PRIDE[4:]:
         ks = [k for k in WORK_THEMES if k in WORK_MEMBERS[p] and len(sig[k]) < WORK_SIGMAX]
-        if ks:
+        if ks and p not in WORK_NORESULT:
             sig[min(ks, key=lambda k: (len(sig[k]), WORK_THEMES.index(k)))].append(p)
+    for k in WORK_THEMES:
+        if not sig[k]:
+            sig[k] += [p for p in WORK_PRIDE[:4] if k in WORK_MEMBERS[p]][:1]
     rest = {}
     for k in WORK_THEMES:
         mem = [p for p, ks in WORK_MEMBERS.items() if k in ks]
@@ -1022,14 +1035,15 @@ def a_work(v):
         k = b["k"]
         if k not in sig:
             continue
-        want = [WORK_NAMES[p] for p in sig[k]]
+        want = [work_sig_name(k, p) for p in sig[k]]
         if b["names"] != want:
             bad.append(f"{k}: names {b['names']}, the rule says {want}")
         if b["more"] != str(len(rest[k])):
             bad.append(f"{k}: '+{b['more']} more', the taxonomy says {len(rest[k])}")
         named += b["names"]
-    if len(named) != len(set(named)):
-        bad.append(f"a project is named in two blobs: {sorted(named)}")
+    twice = sorted(n for n in set(named) if named.count(n) > 1)
+    if twice != sorted({work_sig_name(k, p) for k in WORK_THEMES for p in sig[k][:1] if len(sig[k]) == 1 and WORK_PRIMARY.get(p) != k and k not in WORK_ACTION}):
+        bad.append(f"named in two blobs: {twice}; only a chapter signing an otherwise unsigned theme with no action may be")
     for p, k in WORK_PRIMARY.items():
         if WORK_NAMES[p] not in next((b["names"] for b in st["blobs"] if b["k"] == k), []):
             bad.append(f"{p} is not named in its own theme, {k}")
@@ -3321,6 +3335,60 @@ def a_caption(v):
     return not bad, m
 
 
+def a_restgap(v):
+    """A phone scroll that comes to rest between a finished station's exit and the next native station's whole-box
+    build never meets an empty band or a cut figure. For each native station after the first, the visitor wheels in
+    100 px notches from 0.3 screen before a quarter and the midpoint of that gap (the station ahead's offW to this
+    one's on0) and stops there. A second later the band must draw this station (its first frame, where it will
+    arrive) under its own line, and must not draw the station ahead, whose box the edge would cut."""
+    g = v.geometry()
+    for k in ("play", "stationShown", "caption"):
+        if not v.hook(k):
+            raise Missing(f"__walk.{k}() is absent")
+    P = v.js("() => __walk.play()")
+    ids = [st[0] for st in g["stations"]]
+    bad, n, fails = [], 0, 0
+    v.page.mouse.move(v.vw / 2, (40 + v.band) / 2)
+    for i, sid in enumerate(ids):
+        if i == 0 or sid not in ("freeflow", "kronos", "custos"):
+            continue
+        lo, hi = P[ids[i - 1]].get("offW"), P[sid].get("on0")
+        if lo is None or hi is None:
+            raise Missing("__walk.play() gives no offW or on0")
+        for f in (0.25, 0.5):
+            s = lo + f * (min(hi, g["stations"][i][1]) - lo)
+            y = round(s * v.S)
+            v.js("y => __ct.scrollTo(0, y)", round((s - 0.3) * v.S))
+            v.settle(1500)
+            for _ in range(40):
+                d = y - v.js("() => scrollY")
+                if d <= 0:
+                    break
+                v.page.mouse.wheel(0, min(100, d))
+                v.page.wait_for_timeout(120)
+            v.page.wait_for_timeout(1000)
+            q = v.js("() => ({ cap: __walk.caption(), s: scrollY / __walk.S() })")
+            want, ahead = sid, ids[i - 1]
+            q["shown"] = v.js("id => __walk.stationShown(id)", want)
+            q["ahead"] = v.js("a => __walk.stationShown(a.id) && __walk.figVis(a.id, a.s) < 0.999", {"id": ahead, "s": q["s"]})
+            n += 1
+            nb = len(bad)
+            if not q["shown"]:
+                bad.append(f"s {q['s']:.3f}: {want} not drawn 1 s after the scroll stopped (gap {lo:.3f}-{hi:.3f})")
+            if q["ahead"]:
+                bad.append(f"s {q['s']:.3f}: {ahead} drawn with its box cut by the band's edge")
+            if q["cap"]["who"] != want:
+                bad.append(f"s {q['s']:.3f}: caption is {q['cap']['who']}'s line {q['cap']['text'][:40]!r}, the band's figure is {want}")
+            fails += len(bad) > nb
+    v.cur = None
+    if not n:
+        raise Missing("no native station after the first")
+    m = f"{n - fails} of {n} stops in the gap before a native station draw a figure under its own caption"
+    if bad:
+        m += "; " + "; ".join(bad[:3])
+    return not bad, m
+
+
 def a_selfchecks(v):
     v.need_walk()
     lock, off = langton_lock()
@@ -3721,7 +3789,7 @@ ASSERTIONS = [
     ("playthrough", ("desktop", "phone"), a_playthrough, "a flick from the top past the last hold: no clock advances out of frame or runs ahead of itself, so a station passed unfinished is paused; each hold, visited back, resumes where it stopped and ends on the full play's end state"),
     ("playreverse", ("desktop", "phone"), a_playreverse, "wheeling back up into each played station: done at p 1 at every notch, and its hold matches the end state"),
     ("playreplay", ("desktop", "phone"), a_playreplay, "each card's replay button plays its station again from p 0 to done within 200 + ms (+150), ending on the same end state; clicked 1, 3, 6 and 10 notches past the hold, the station comes back and replays as itself, in frame, in its own medium"),
-    ("playwalk", ("desktop", "phone"), a_playwalk, "a visitor at a normal pace (110px every 120ms): stopping 1.5s at each hold, every station plays from p 0 to done; never stopping, no clock advances out of frame or runs ahead of itself to its end"),
+    ("playwalk", ("desktop", "phone") + LANDS, a_playwalk, "a visitor at a normal pace (110px every 120ms): stopping 1.5s at each hold, every station plays from p 0 to done; never stopping, no clock advances out of frame or runs ahead of itself to its end"),
     ("playreduced", ("desktop", "phone"), a_playreduced, "reduced motion: done at p 1 in every frame from each arrival, never playing; replay hidden and refused"),
     ("places", PHONES + ("phone-small-1x",), a_places, "pull-back to the résumé every 0.02 screen: no shown place row's text crosses a card's text"),
     ("maplabels", ("desktop", "desktop-1024", "laptop-1280", "laptop-1366") + PHONES + LANDS, a_maplabels, "at the map every place label's text is whole on screen, no two labels' text overlap and none overlaps the caption row (landscape included)"),
@@ -3735,6 +3803,7 @@ ASSERTIONS = [
     ("nativeclip", PHONES, a_nativeclip, "a phone's native layers draw nothing under the art band at any s from the first native approach to the pull-back, two frames after the scroll with no settling"),
     ("figclip", PHONES + LANDS, a_figclip, "every figure cell and every native layer inside the art band at every held phone frame, and the ant's whole cell with them"),
     ("heldlabels", ("desktop", "phone"), a_heldlabels, "one and two notches past each hold (hold + 0.1, + 0.2) a cell figure with cells on screen has its labels painted"),
+    ("restgap", PHONES, a_restgap, "a phone scroll that rests between a finished station's exit and the next native station's whole-box build meets the next station's first frame under its own caption 1 s later, and never the station ahead cut by the band's edge"),
     ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
     ("handoff", ("desktop",), a_handoff, "the bookend square's centre lands within 1 device px of the canvas ant's; the canvas stops drawing the ant there"),
     ("settle", ("desktop",), a_settle, "a 600px jump is drawn within 1px of the scroll position by 600ms"),

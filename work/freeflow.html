@@ -63,7 +63,7 @@
         <p class="lede" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
         <a class="dd-cta" href="freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth, about 15 minutes"><span><span class="k">the full walkthrough <span class="sep">·</span> <span data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 15 minutes</span></span><span class="t">How it works, in depth</span><span class="d">the problem, the idea and the build, step by step, in figures you can play and pause</span></span><span class="ar" aria-hidden="true">→</span></a>
       </div>
-      <dl class="facts">
+      <dl class="facts after-hero">
         <div><dt>year</dt><dd data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</dd></div>
         <div><dt>stack</dt><dd><span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L1">Swift</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L105-L107">Python</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L6-L7">whisper.cpp</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L6">macOS</span></dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer">github.com/Olivesz/<wbr><span class="slug">freeflow</span></a>&nbsp;<span aria-hidden="true">→</span></dd></div>
@@ -85,6 +85,11 @@
       <button class="replay" type="button" hidden>replay</button>
     </figcaption>
   </figure>
+  <script>/* one column (under 1024 px): the facts follow the opening figure. Placed here, while the page parses, so
+     nothing moves after the first paint; case.js moves them back if the column widens. */
+  (function () { var f = document.querySelector(".head .facts"), h = document.querySelector(".hero-fig");
+    if (!f || !h || !window.matchMedia || !matchMedia("(max-width:1023px)").matches) return;
+    var b = document.createElement("div"); b.className = "blk facts-after"; b.appendChild(f); h.parentNode.insertBefore(b, h.nextSibling); })();</script>
 
   <section class="blk sec" aria-labelledby="s-problem">
     <h2 id="s-problem"><span class="n">01</span>the problem</h2>

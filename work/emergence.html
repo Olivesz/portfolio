@@ -77,7 +77,7 @@
         <p class="lede lede-2" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">Compiled to raw Wireworld, a full adder, a 4-bit counter and a D flip-flop match their netlists on every clock.</p>
         <a class="dd-cta" href="emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth, about 18 minutes"><span><span class="k">the full walkthrough <span class="sep">·</span> <span data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 18 minutes</span></span><span class="t">How it works, in depth</span><span class="d">the problem, the idea and the build, step by step, in figures you can play and pause</span></span><span class="ar" aria-hidden="true">→</span></a>
       </div>
-      <dl class="facts">
+      <dl class="facts after-hero">
         <div><dt>year</dt><dd data-from="first commit 2026-08-02">2026</dd></div>
         <div><dt>stack</dt><dd><span data-src="Olivesz/emergence@910b296:README.md#L78-L79">JavaScript <span class="dot">·</span> canvas</span> <span class="dot">·</span> <span data-src="Olivesz/emergence@910b296:cpu/README.md#L80-L83">Python</span></dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer">github.com/Olivesz/<wbr><span class="slug">emergence</span></a>&nbsp;<span aria-hidden="true">→</span></dd></div>
@@ -106,6 +106,11 @@
       <button class="replay" type="button" hidden>replay</button>
     </figcaption>
   </figure>
+  <script>/* one column (under 1024 px): the facts follow the opening figure. Placed here, while the page parses, so
+     nothing moves after the first paint; case.js moves them back if the column widens. */
+  (function () { var f = document.querySelector(".head .facts"), h = document.querySelector(".hero-fig");
+    if (!f || !h || !window.matchMedia || !matchMedia("(max-width:1023px)").matches) return;
+    var b = document.createElement("div"); b.className = "blk facts-after"; b.appendChild(f); h.parentNode.insertBefore(b, h.nextSibling); })();</script>
 
   <section class="blk sec" aria-labelledby="s-problem">
     <h2 id="s-problem"><span class="n">01</span>the problem</h2>

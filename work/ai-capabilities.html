@@ -70,7 +70,7 @@
         <p class="lede"><span data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5">Social-deduction games played by large language models</span>: <span data-src="Olivesz/ai-capabilities@1908b9d:README.md#L15-L19">Mafia, Secret Hitler, Avalon, Spyfall and a Turing test</span>.</p>
         <p class="lede lede-2"><span data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5">Each game is one self-contained HTML file.</span> <span data-src="Olivesz/ai-capabilities@1908b9d:README.md#L7">It runs in the browser with the player’s own API key, and there is no server.</span></p>
       </div>
-      <dl class="facts">
+      <dl class="facts after-hero">
         <div><dt>year</dt><dd data-from="Olivesz/ai-capabilities commit history (GET /repos/Olivesz/ai-capabilities/commits)">2026</dd></div>
         <div><dt>stack</dt><dd data-src="Olivesz/ai-capabilities@1908b9d:README.md#L83">HTML <span class="dot">·</span> JavaScript <span class="dot">·</span> OpenAI and Anthropic APIs</dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/ai-capabilities" target="_blank" rel="noopener noreferrer">github.com/Olivesz/<wbr><span class="slug">ai-capabilities</span></a>&nbsp;<span aria-hidden="true">→</span></dd></div>
@@ -98,6 +98,11 @@
       <button class="replay" type="button" hidden>replay the talk</button>
     </figcaption>
   </figure>
+  <script>/* one column (under 1024 px): the facts follow the opening figure. Placed here, while the page parses, so
+     nothing moves after the first paint; case.js moves them back if the column widens. */
+  (function () { var f = document.querySelector(".head .facts"), h = document.querySelector(".hero-fig");
+    if (!f || !h || !window.matchMedia || !matchMedia("(max-width:1023px)").matches) return;
+    var b = document.createElement("div"); b.className = "blk facts-after"; b.appendChild(f); h.parentNode.insertBefore(b, h.nextSibling); })();</script>
 
   <section class="blk sec" aria-labelledby="s-idea">
     <h2 id="s-idea"><span class="n">01</span>the idea</h2>

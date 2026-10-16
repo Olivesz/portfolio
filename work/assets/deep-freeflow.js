@@ -942,7 +942,7 @@
         for (var j = 0; j < 36; j++) api.rect((j % 18) * 4, yp + 6 + Math.floor(j / 18) * 4, 3, 3, on2 && j < (tick - 20) * 4 ? "v-green" : "copper");
         // the gate and its control, against one line
         var yg = yp + 16, on3 = tick >= 30, on4 = tick >= 38, X = function (v) { return Math.round(v / MAX * (W - 2)); };
-        var gh = lab(api, "gt", "the gate: the release build replays JFK and every fifth speaker through the real model, and fails above offline + " + n("2", PIN + "bench/README.md#L38-L41") + " points", 0, yg, { cls: on3 ? "i" : "" });
+        var gh = lab(api, "gt", "gate · fails above offline + " + n("2", PIN + "bench/README.md#L38-L41") + " points " + n("or if JFK loses a word", PIN + "bench/gate.py#L5-L7"), 0, yg, { cls: on3 ? "i" : "" });
         gh.style.whiteSpace = "normal"; gh.style.width = W * C + "px";
         var y1 = yg + hRows(gh) + 2, xl = X(LINE);
         var th = lab(api, "th", "offline " + dv("3.8%", LG) + " + " + n("2", PIN + "bench/README.md#L38-L41"), xl + 2, y1, {}); th.style.color = "var(--v-amber)";

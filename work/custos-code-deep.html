@@ -67,6 +67,7 @@
 .cx-in input[type=text],.cx-in select{min-height:24px;padding:3px 8px;background:var(--void);border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 13px/16px var(--mono);max-width:100%}
 .cx-in input[type=text]{width:320px}
 #sc-split .cx-in label input{flex:1 1 auto;width:auto;min-width:0}
+#sc-split>.cx-in.sp-wr{margin-top:8px;padding-top:0;border-top:0}
 .cx-in input[type=text]:focus-visible,.cx-in select:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
 .cx-out{margin-top:8px;min-height:48px;color:var(--ink);overflow-wrap:anywhere}
 
@@ -335,9 +336,12 @@ button.vd{min-height:24px}
 /* a grid that holds a taller step's height keeps its rows at the top, so the spare height sits under them */
 .cx-2c,.cx-3c{align-content:start}
 .sp-text{min-height:0}
-@media (max-width:767px){ #qt-ro{min-height:0} }
+@media (max-width:767px),(max-height:499px){ #qt-ro{min-height:0} }
+/* a phone on its side: the ladder's rows close up so all six tiers sit between the strip and the docked words */
+@media (max-height:499px){ .ld-r{min-height:33px;padding:0} .ld-r.two{min-height:57px} }
+@media (min-width:600px) and (max-width:767px) and (max-height:499px){ .ld-r{grid-template-columns:32px 176px minmax(0,1fr)} .ld-slot{grid-column:3} }
 /* fig 6: the stage holds the advice report's height, so the one-line demo report uses it, set large */
-#sc-split .sp-list{min-height:0} #sc-split .sp-text.big{font-size:30px;line-height:40px;margin-top:4px} #sc-split .sp-text.big .sp-cut{height:30px;margin:0 8px;vertical-align:-5px}
+#sc-split .sp-list{min-height:0} #sc-split .sp-bls{display:flex;flex-direction:column;gap:8px;margin-top:16px} #sc-split .sp-bls:empty{display:none} #sc-split .sp-bls i{display:block;height:26px;box-sizing:border-box;border:1px solid var(--rule);border-left-width:2px} #sc-split .sp-text.big{font-size:30px;line-height:40px;margin-top:4px} #sc-split .sp-text.big .sp-cut{height:30px;margin:0 8px;vertical-align:-5px}
 /* on a phone the advice report wraps to many lines, so the held height is taller still: the demo report fills it at 40 */
 @media (max-width:767px){ #sc-split .sp-text.big{font-size:40px;line-height:48px} }
 /* fig 12: the field's name stays on one line beside it */
@@ -642,8 +646,8 @@ button.vd{min-height:24px}
               <li data-key="full" data-at="0" data-src="Olivesz/custos-code@f3737f8:README.md#L7-L12">The demo report, whole.</li>
               <li data-key="cut" data-at="1" data-src="Olivesz/custos-code@f3737f8:src/custos_code/claims.py#L39-L44">A cut falls at “, the”. The first piece names no finished action, so it is dropped.</li>
               <li data-key="lift" data-at="2">“the suite is green.” lifts out as a claim about running tests.</li>
-              <li data-key="ok" data-at="3" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L8">An honest report gives two claims: a create claim naming two files, and a test claim naming a count.</li>
-              <li data-key="advice" data-at="4" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L129-L136">Plans drop out. One sentence slips through on the word “wired”, but it names no file, so it can only end unwitnessed. The slip accuses no one.</li>
+              <li data-key="ok" data-at="3" data-src="Olivesz/custos-code@f3737f8:src/custos_code/demo_fixtures/ok_tests_0.jsonl#L8">An honest report gives two claims: one creates two named files, one runs the tests and names a count.</li>
+              <li data-key="advice" data-at="4" data-src="Olivesz/custos-code@f3737f8:eval/scoreboard.py#L129-L136">Plans drop out. The word “wired” lets one sentence through, but it names no file, so it ends unwitnessed and accuses no one.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-split-cap"><span class="n">fig 6</span>The splitter, running the repo’s own patterns in your browser. Every claim is the report’s own words. <span class="verb cap">click</span> a report, or write one.</figcaption>
           </figure>

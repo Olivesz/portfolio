@@ -77,7 +77,7 @@
         <p class="lede lede-2" data-src="public_resume.tex#L79-L82">2026 hackathon. Led a team of 3, designed the core engine.</p>
         <a class="dd-cta" href="custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth, about 16 minutes"><span><span class="k">the full walkthrough <span class="sep">·</span> <span data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 16 minutes</span></span><span class="t">How it works, in depth</span><span class="d">the problem, the idea and the build, step by step, in figures you can play and pause</span></span><span class="ar" aria-hidden="true">→</span></a>
       </div>
-      <dl class="facts">
+      <dl class="facts after-hero">
         <div><dt>year</dt><dd data-src="Olivesz/custos-code@f3737f8:docs/adr/0002-judge-cannot-contradict.md#L3">2026</dd></div>
         <div><dt>stack</dt><dd data-src="Olivesz/custos-code@f3737f8:README.md#L27-L33">Python <span class="dot">·</span> CLI <span class="dot">·</span> agent hooks <span class="dot">·</span> GitHub Actions</dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer">github.com/Olivesz/<wbr><span class="slug">custos-code</span></a>&nbsp;<span aria-hidden="true">→</span></dd></div>
@@ -101,6 +101,11 @@
       <button class="replay" type="button" hidden>replay the check</button>
     </figcaption>
   </figure>
+  <script>/* one column (under 1024 px): the facts follow the opening figure. Placed here, while the page parses, so
+     nothing moves after the first paint; case.js moves them back if the column widens. */
+  (function () { var f = document.querySelector(".head .facts"), h = document.querySelector(".hero-fig");
+    if (!f || !h || !window.matchMedia || !matchMedia("(max-width:1023px)").matches) return;
+    var b = document.createElement("div"); b.className = "blk facts-after"; b.appendChild(f); h.parentNode.insertBefore(b, h.nextSibling); })();</script>
 
   <section class="blk sec" aria-labelledby="s-problem">
     <h2 id="s-problem"><span class="n">01</span>the problem</h2>

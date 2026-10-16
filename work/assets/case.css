@@ -65,7 +65,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lede{font:400 15px/24px var(--sg);color:var(--ink);max-width:512px}
 .lede+.lede-2{margin-top:16px;color:var(--body)}
 .facts{font:400 13px/24px var(--mono);color:var(--body);font-variant-numeric:tabular-nums}
-.facts>div{display:grid;grid-template-columns:80px 1fr;column-gap:16px;padding:4px 0 3px;border-top:1px solid var(--rule)}
+.facts>div{display:grid;grid-template-columns:64px 1fr;column-gap:16px;padding:4px 0 3px;border-top:1px solid var(--rule)}
 .facts>div:last-child{border-bottom:1px solid var(--rule)}
 .facts dt{font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .facts dd{min-width:0;overflow-wrap:anywhere}
@@ -117,6 +117,10 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .srcs a,.facts dd a,main p a{padding:5px 0}
 @media (pointer:coarse){ .srcs a,.facts dd a,main p a{padding:9px 0} .strip a{padding:8px 0} }
 @media (max-width:1023px){ .hero-fig{margin-top:32px} .stage{min-height:var(--stage-h-phone,320px)} }
+.facts-after{margin-top:32px}
+/* one column with script: the facts are never painted in the header, even when a slow connection paints the page
+   before the script after the hero has moved them below it */
+@media (max-width:1023px) and (scripting:enabled){ .head .facts.after-hero{display:none} }
 /* hero key: one line under the hero naming what each hue marks. The square carries the hue and so do the words,
    except pink, which marks and never colours words */
 .look{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:24px;row-gap:4px;padding-top:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
@@ -255,7 +259,8 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig.armed.on .rv-f{opacity:1;transition:opacity 320ms var(--ease-enter) calc(var(--o,0) * var(--rv-step,360ms) + 120ms)}
 /* a phone stacks a figure's parts and passes them sooner: its steps come 200 ms apart unless the figure sets its own */
 @media (max-width:767px){ .ig[data-reveal]{--rv-step:200ms} }
-/* .quick (case.js): the figure came into view at a skim, so its parts follow 40 ms apart, whatever its own step */
-.ig.armed.on.quick .rv-x{transition-delay:calc(var(--o,0) * 40ms)}
-.ig.armed.on.quick .rv-f{transition-delay:calc(var(--o,0) * 40ms + 60ms)}
+/* .quick (case.js): the figure came into view at a skim, so its parts follow 40 ms apart, whatever its own step, and
+   land within a third of a second */
+.ig.armed.on.quick .rv-x{transition-duration:240ms;transition-delay:calc(var(--o,0) * 40ms)}
+.ig.armed.on.quick .rv-f{transition-duration:200ms;transition-delay:calc(var(--o,0) * 40ms + 60ms)}
 /* reveal: end */

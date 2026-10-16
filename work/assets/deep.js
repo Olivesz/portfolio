@@ -297,6 +297,11 @@
     S.fig.style.removeProperty("--pip-ov");
     if (n < 2 || root.innerWidth >= 768) return;
     var bar = S.fig.querySelector(".sc-bar"), base = COARSE ? 32 : 24, row = bar.clientWidth + (base - 8) / 2;
+    // a short screen keeps the squares on the stepper's one row: they get what prev, the count, next and replay leave
+    if (getComputedStyle(bar).display !== "grid") {
+      row = bar.clientWidth;
+      [].forEach.call(bar.children, function (c) { if (!c.classList.contains("sc-pips")) row -= c.offsetWidth + 8; });
+    }
     if (n * base <= row) return;
     var step = Math.floor((row - base) / (n - 1));
     if (step >= 24) S.fig.style.setProperty("--pip-ov", (step - base) + "px");
@@ -305,7 +310,8 @@
   /* phone: a scene whose art, words and stepper do not fit one screen under the strip docks its words and stepper to
      the bottom of the screen while it is on screen, so the step being described and its words are always in view
      together, and the try-it inputs move under the stepper */
-  function stripH() { var s = document.querySelector(".strip"); return s ? s.offsetHeight : 0; }
+  // the strip's height while it stays at the top of the screen (on a phone held sideways it scrolls away, see deep.css)
+  function stripH() { var s = document.querySelector(".strip"); return s && getComputedStyle(s).position === "sticky" ? s.offsetHeight : 0; }
   // a screen that docks: a phone, or any screen under 500 px tall (a phone held sideways), as deep.css's docked rules
   function dockable() { return root.innerWidth < 768 || root.innerHeight < 500; }
   // the screen under the strip, less 16 px for a stage parked a little below the strip and 8 px under the stepper
@@ -355,7 +361,8 @@
   SP.bounds = function (els, i) {
     var top = Infinity, bot = -Infinity;
     els.forEach(function (e) { var r = e.getBoundingClientRect(); top = Math.min(top, r.top); bot = Math.max(bot, r.bottom); });
-    return { top: top, bot: bot, lo: stripH() + 8, hi: this.dockTop(i) - 8 };
+    var m = root.innerHeight < 500 ? 4 : 8;                           // a short screen spares 4 px each side, not 8
+    return { top: top, bot: bot, lo: stripH() + m, hi: this.dockTop(i) - m };
   };
   /* a stepper click on a docked phone scene: scroll the least that brings the step's subject between the strip and
      the docked words (a subject taller than that shows its top). A click is the reader's, so the page may move. */
@@ -653,11 +660,15 @@
   }
 
   /* resize: lay every scene out again once the size settles */
-  var rz = 0;
+  var rz = 0, laidW = root.innerWidth, laidH = root.innerHeight;
+  function relayout() { rz = 0; laidW = root.innerWidth; laidH = root.innerHeight; scenes.forEach(function (s) { s.layout(); s.render(true); }); }
   root.addEventListener("resize", function () {
     clearTimeout(rz);
-    rz = setTimeout(function () { scenes.forEach(function (s) { s.layout(); s.render(true); }); }, 120);
+    rz = setTimeout(relayout, 120);
   });
+  // a check that runs while a resize is still settling (or before its event) lays the scenes out first, so it reads the
+  // size on screen
+  function settle() { if (rz || root.innerWidth !== laidW || root.innerHeight !== laidH) { clearTimeout(rz); relayout(); } }
   /* text labels measure their own width, so place them again once the fonts are in (and the words' height, which
      decides a phone scene's dock, is final) */
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.dock(); }); });
@@ -706,16 +717,16 @@
        caption and note is in sentence case, and on an upright phone every scene either fits one screen from its stage
        to its stepper or docks its stepper, with what each step changes short enough to sit above the dock, so the
        site's case-study contract (which runs every selfCheck it finds) fails a deep dive that breaks any of them. A
-       phone on its side docks too, but a step there may change more than its 390 px can show between strip and dock,
-       so it is not held to that. */
+       phone on its side (844x390) is held to the same. */
     selfCheck: function () {
+      settle();
       var figs = [].slice.call(document.querySelectorAll("figure.scene")), built = {};
       scenes.forEach(function (s) { built[s.id] = s; });
       var failed = figs.filter(function (f) { return f.getAttribute("data-check") === "fail"; }).map(function (f) { return f.id; });
       var unbuilt = figs.filter(function (f) { return f.getAttribute("data-check") !== "fail" && !built[f.id]; }).map(function (f) { return f.id || "?"; });
       var nobar = scenes.filter(function (s) { return !s.fig.querySelector(".sc-bar"); }).map(function (s) { return s.id; });
       var caps = lowerCaps(), fit = [], under = [];
-      if (root.innerWidth < 768) scenes.forEach(function (s) {
+      if (dockable()) scenes.forEach(function (s) {
         var bar = s.fig.querySelector(".sc-bar");
         if (!bar || s.ambient || getComputedStyle(bar).display === "none") return;
         if (s.fig.classList.contains("docked") ? getComputedStyle(bar).position !== "sticky" : s.reach() > room()) fit.push(s.id);

@@ -33,6 +33,8 @@
 .ig .f-ink{fill:var(--ink)} .ig .f-body{fill:var(--body)} .ig .f-mut{fill:var(--muted)} .ig .f-res{fill:var(--residue)} .ig .f-cop{fill:var(--copper)}
 .ig .s-blue{fill:var(--void);stroke:var(--v-blue);stroke-width:1px} .ig .s-violet{fill:var(--void);stroke:var(--v-violet);stroke-width:1px}
 .ig .s-cyan{fill:var(--void);stroke:var(--v-cyan);stroke-width:1px} .ig .s-green{fill:var(--void);stroke:var(--v-green);stroke-width:1px}
+/* a preview that holds its place with no words: its outlines in the rule until its step */
+.ig .gw.ghost text{visibility:hidden} .ig .gw.ghost :is(.s-cyan,.s-green){stroke:var(--rule)}
 .ig .s-red{fill:var(--void);stroke:var(--v-red);stroke-width:1px} .ig .s-amber{fill:none;stroke:var(--v-amber);stroke-width:1px}
 .ig .s-ink{fill:none;stroke:var(--ink);stroke-width:1px} .ig .s-mut{fill:none;stroke:var(--muted);stroke-width:1px}
 /* dimming steps a colour down a token, never an alpha: words to muted, boxes and copper to rule, a settled blue to residue */
@@ -798,12 +800,17 @@
     bx(p, ax, ay, sw, sh, "s-violet"); tx(p, ax + 8, ay + 16, "chatgpt.com", "lb");
     bx(p, bxp, by, sw, sh2, "s-violet"); tx(p, bxp + 8, by + 16, "claude.ai", "lb");
     thread(L, p, ax + 8, ay + 28, tw, 1, 0, null);
-    var r = kg(p, "from", "t2"); ln(r, "M" + (ax + 8) + " " + (ay + 28 + th + 16.5) + "H" + (ax + sw - 8), "l-dash"); tx(r, ax + sw / 2, ay + 28 + th + 12, "conversation ends", "lb", { a: "middle" });
+    // the threads still to come stand as faint outlines in their places until they open, so the sites never show as
+    // empty boxes: thread 2 until it opens at tick 12, thread 3 on claude.ai until tick 22
+    [[ax + 4, ay + t2y, 2, "only", "t1"], [bxp + 4, by + 28, 3, "until", "t2"]].forEach(function (o) {
+      var pv = g(gh(kg(p, o[3], o[4])), "ghost"); bx(pv, o[0], o[1], tw + 8, th, "bx"); tx(pv, o[0] + 8, o[1] + 16, "thread " + o[2], "lb");
+    });
+    var r = gh(kg(p, "from", "t2")); ln(r, "M" + (ax + 8) + " " + (ay + 28 + th + 16.5) + "H" + (ax + sw - 8), "l-dash"); tx(r, ax + sw / 2, ay + 28 + th + 12, "conversation ends", "lb", { a: "middle" });
     win(L, thread(L, p, ax + 8, ay + t2y, tw, 2, 14, "t3"), 12);
     var fl2 = kg(p, "only", "t2"); bx(fl2, ax + 8, ay + t2y, tw, th, "s-ink");
     win(L, thread(L, p, bxp + 8, by + 28, tw, 3, 22, "t4"), 22);
     // the next thread's place: a dashed outline that says it starts empty, until a click opens it
-    var ph = kg(p, "from", "t5"), px0 = bxp + 4, pw = tw + 8, py0 = by + sy0; L.r.ph = ph;
+    var ph = gh(kg(p, "from", "t5")), px0 = bxp + 4, pw = tw + 8, py0 = by + sy0; L.r.ph = ph;
     ln(ph, "M" + (px0 + 0.5) + " " + (py0 + 0.5) + "H" + (px0 + pw - 0.5) + "V" + (py0 + slotH - 0.5) + "H" + (px0 + 0.5) + "Z", "l-dash");
     if (L.n) tx(ph, px0 + 8, py0 + 20, "thread 4 · starts empty again", "lb");
     else { tx(ph, px0 + 8, py0 + 16, "thread 4", "lb"); tx(ph, px0 + pw / 2, py0 + Math.round(th / 2) + 4, "starts empty again", "lb", { a: "middle" }); }
@@ -811,12 +818,13 @@
     if (L.n) { t4 = g(p); bx(t4, px0, py0, pw, slotH, "bx"); tx(t4, px0 + 8, py0 + 20, "thread 4 · the same 3 lines, again", "lt"); }
     else t4 = thread(L, p, bxp + 8, by + t2y, tw, 4, null, null);
     L.r.t4 = t4; t4.classList.add("fd"); t4.style.opacity = "0";
-    var b = kg(p, "from", "t5"), yb = L.n ? by + sh2 + 16 : sh + 16;
+    var b = gh(kg(p, "from", "t5")), yb = L.n ? by + sh2 + 16 : sh + 16;
     ln(b, "M0.5 " + (yb - 6) + "V" + (yb + 0.5) + "H" + (W - 0.5) + "V" + (yb - 6), "l-mut");
     tx(b, W / 2, yb + 20, "typed again in every thread", "lb", { a: "middle" });
     return yb + 28;
   }, {
     ticks: 36, rest: "t5",
+    focus: { t1: false },                                            // step 1 adds no part: its previews are not its subject
     inputs: [{ id: "open", label: "open a new thread", momentary: true }],
     onInput: function (api) {
       if (s1extra) { s1extra = false; s1.lays.forEach(function (L) { L.r.t4.style.opacity = "0"; L.r.ph.style.opacity = ""; }); s1.play(); return; }
@@ -1216,10 +1224,11 @@
     // the output pane
     var og = gh(kg(p, "from", "out"));
     bx(og, out.x, out.y, out.w, out.h); tx(og, out.x + 8, out.y + 16, "what this button sends", "lb");
-    var blk = g(og);
+    var blk = g(og); blk.setAttribute("class", "pn-blk");
     bx(blk, out.x + 8, out.y + 28, bw, 84 + ox, "s-violet");
     bl.forEach(function (o, i) { var t = typeof o === "string" ? o : o[0], ind = typeof o === "string" || !o[1] ? 0 : Math.round(2 * CH); tx(blk, out.x + 16 + ind, out.y + 46 + i * 18, t, "lb-i"); });
     var pr = tx(og, out.x + 8, out.y + 136 + ox, EX.prompt, "lb-i", { w: out.w - 16 });
+    pr.classList.add("pn-pr");
     var cmp = g(og); fl(cmp, out.x + 8, out.y + 128 + ox, bw, 12, "f-res"); tx(cmp, out.x + 8, out.y + 156 + ox, "Groq’s shorter rewrite, in place of the prompt", "lb", { w: bw });
     var none = tx(og, out.x + 8, out.y + 46, "nothing is sent", "lb");
     // the panel
@@ -1258,6 +1267,8 @@
     return n ? PY + 360 + ep : Math.max(360 + ep, out.h + 8);
   }, {
     ticks: 22, rest: "out",
+    // a short screen keeps what is sent, the block and the prompt, in view, not the whole pane around them
+    focus: { out: '[data-from="out"] | .pn-blk, .pn-pr' },
     inputs: [{ id: "with", label: "Send with memory ✓", momentary: true }, { id: "skip", label: "Skip memory", momentary: true }, { id: "x", label: "×", momentary: true }, { id: "comp", label: "prompt compression (off by default)" }, { id: "cs", label: "Compress & Send", momentary: true }],
     onInput: function (api, id, on) {
       if (id === "comp") { pComp = on; if (!on && pChoice === "comp") pChoice = "with"; replay(s8, 0, "out"); syncCS(); return; }
@@ -1335,7 +1346,7 @@
     else { tx(ls, q.x + 8, lsy + 14, "keywords ·", "lb f-cyan"); tx(ls, q.x + 8, lsy + 28, "importance } ]", "lb f-cyan"); }
     // the instructions, the checks
     var R = n ? { x: 0, y: s.y + s.h + 16 } : { x: 0, y: 216 };
-    var ins = kg(p, "from", "groq"); ins.setAttribute("data-until", "list");
+    var ins = gh(kg(p, "from", "groq")); ins.setAttribute("data-until", "list"); ins.classList.add("gw");   // empty outlines until the backend sends them
     tx(ins, R.x, R.y + 14, "instructions sent with it", "lb");
     var cx = n ? 0 : 184, cy = n ? R.y + 24 : R.y;
     [["fact · project · preference · episode"], ["importance 1-10"], ["reply with a JSON list"], ["[] if nothing"]].forEach(function (c, j) {

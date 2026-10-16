@@ -299,7 +299,14 @@
   scene("sc-rate", { ticks: 4, tps: 1 });
   /* fig 3: as each step arrives, a square travels the arrows it turns on: the call, the rows, the prose that hits the wall,
      the claim on its way to the rules, the nudge riding back. Restarted on every step, so prev, next and replay show it again */
-  scene("sc-loop", { ticks: 5, tps: 1, onKey: function (api, i, name) {
+  scene("sc-loop", { ticks: 5, tps: 1,
+    // a short screen that cannot show the whole first row of boxes keeps the hooks and the log, which the words name
+    focus: function (api, i, name) {
+      if (name !== "call") return null;
+      var all = [].slice.call(api.fig.querySelectorAll('.sc-stage [data-from="call"]'));
+      return api.scene.fits(all, i) ? all : all.slice(2);
+    },
+    onKey: function (api, i, name) {
     [].forEach.call(api.fig.querySelectorAll('[data-from="' + name + '"] .pl, [data-from="' + name + '"].pl'), function (p) { p.classList.remove("go"); void p.offsetWidth; p.classList.add("go"); });
   } });
 
@@ -320,7 +327,7 @@
     scene("sc-rec", {
       ticks: 6, tps: 1, inputsLabel: Deep.coarse ? "tap a command" : "click a command",
       // the wall step names the agent's sentence and the wall in the log; a short phone keeps the wall alone
-      focus: { before: ".hk-b, .seal", after: ".hk-a, .seal", stop: ".hk-s", wall: ".say, .lp-wall | .lp-wall" },
+      focus: { before: ".hk-b, .seal | .hk-b, #rec-file", after: ".hk-a, .seal", stop: ".hk-s", wall: ".say, .lp-wall | .lp-wall" },
       inputs: PRE.map(function (c, i) { return { id: "p" + i, label: c, momentary: true }; }),
       onInput: function (api, id) { show(PRE[+id.slice(1)]); }
     });
@@ -367,7 +374,11 @@
     $("red-before").textContent = before; $("red-after").textContent = redact(before);
     var inp = $("chain-edit"); inp.value = TRAP_OUT.replace(/\n/g, " ");
     // on a phone, the rows a step fingerprints or breaks, and the verdict line under them
-    function focus(api, i, name) { var b = $("chain-art").querySelectorAll(".blk-r"), p = $("chain-art").querySelector(":scope > p"); return name === "r1" ? [b[0], b[1]] : [b[2], b[3], p]; }
+    // a screen too short for both lower rows and the verdict keeps the row that no longer checks and the verdict
+    function focus(api, i, name) {
+      var b = $("chain-art").querySelectorAll(".blk-r"), p = $("chain-art").querySelector(":scope > p"), all = [b[2], b[3], p];
+      return name === "r1" ? [b[0], b[1]] : api.scene.fits(all, i) ? all : [b[3], p];
+    }
     S = scene("sc-chain", { ticks: 3, tps: 1, focus: focus, draw: function (api) { paint(api.key); }, onKey: function () { edited = null; inp.value = TRAP_OUT.replace(/\n/g, " "); } });
     inp.addEventListener("input", function () { hold(S); edited = inp.value === TRAP_OUT.replace(/\n/g, " ") ? TRAP_OUT : inp.value; paint("live"); });
   })();
@@ -402,9 +413,11 @@
           return '<div class="sp-it"><span class="tag">' + (stage === "full" ? "not a claim?" : "not a claim · " + esc(p.why) + (q.length > 1 ? " · " + q.length + " pieces" : "")) + '</span><span class="lbi">' + q.map(function (o) { return "“" + esc(o.text) + "”"; }).join(" ") + "</span></div>";
         }).join("");
       }
+      blanks(0);
       if (stage === "full") {                                      // the pieces the cut will give, dimmed until it falls
         $("sp-text").innerHTML = esc(report).replace(/\n/g, "<br>");
         $("sp-list").innerHTML = rows(function (p) { return '<div class="sp-it"><span class="tag">claim?</span><span class="lbi">“' + esc(p.text) + "”</span></div>"; });
+        blanks(1);
         return;
       }
       $("sp-text").innerHTML = pcs.map(function (p) { return '<span class="sp-pc' + (p.type ? "" : " no") + '">' + esc(p.text) + "</span>"; }).join('<span class="sp-cut" aria-hidden="true"></span>');
@@ -413,6 +426,17 @@
         var weak = (p.type === "edit" || p.type === "create" || p.type === "delete") && !p.objects.length;
         return '<div class="sp-it"><span class="chip-c tr">' + mark(p.text, p.objects) + '</span><span class="tag ink">' + p.type + (weak ? " · names no file" : "") + (p.objects.length ? " · " + esc(p.objects.join(", ")) : "") + "</span></div>";
       }) || '<p class="lbi">no claims</p>';
+      if (stage === "cut") blanks(1);
+    }
+    /* before the claims lift out, the rest of the stage's held height holds the rows to come as empty outlines, no words */
+    var bls = document.createElement("div"); bls.className = "sp-bls"; bls.setAttribute("aria-hidden", "true");
+    $("sp-list").parentNode.insertBefore(bls, $("sp-list").nextSibling);
+    function blanks(on) {
+      bls.innerHTML = "";
+      var cx = bls.parentNode, mh = parseFloat(cx.style.minHeight) || 0;
+      if (!on || !mh) return;
+      var free = cx.getBoundingClientRect().top + mh - $("sp-list").getBoundingClientRect().bottom - 16, n = Math.min(3, Math.floor((free + 8) / 34));
+      for (var i = 0; i < n; i++) { var r = document.createElement("i"); r.style.width = [88, 56, 72][i] + "%"; bls.appendChild(r); }
     }
     var STEP = { full: ["trap", "full"], cut: ["trap", "cut"], lift: ["trap", "lift"], ok: ["ok", "lift"], advice: ["advice", "lift"] };
     S = scene("sc-split", {
@@ -423,6 +447,9 @@
       onInput: function (api, id) { custom = [REPORTS[id][0], REPORTS[id][1], api.keyIndex]; hold(S); }
     });
     srcRow("sc-split", "Olivesz/custos-code@f3737f8:eval/scoreboard.py#L129-L143");
+    // "or write one" joins the reports to tap, under the stepper: the stage keeps only the report and its pieces
+    var wr = $("sc-split").querySelector(".cx-in"), tapRow = $("sc-split").querySelector(".sc-in");
+    if (wr && tapRow) { tapRow.parentNode.insertBefore(wr, tapRow.nextSibling); wr.classList.add("sp-wr"); }
     $("sp-free").addEventListener("input", function () { if (!S) return; hold(S); custom = ["yours", $("sp-free").value || " ", S.k]; paint(custom[0], custom[1], "lift"); });
   })();
 
@@ -573,7 +600,7 @@
     }
     S = scene("sc-nudge", {
       ticks: 34, tps: 8, inputsLabel: Deep.coarse ? "tap to try" : "click to try",
-      focus: { receipt: "#ng-rec, #ng-gate", block: "#ng-gate, #ng-pass", nudge: "#ng-text", reword: "#ng-gate, #ng-pass", rerun: "#ng-log .nw, #ng-gate, #ng-pass", hold: "#ng-gate, #ng-pass" },
+      focus: { receipt: "#ng-rec, #ng-gate", block: "#ng-gate, #ng-pass", nudge: "#ng-text", reword: "#ng-gate, #ng-pass", rerun: "#ng-log .nw, #ng-gate, #ng-pass | #ng-log .nw, #ng-pass | #ng-log .nw", hold: "#ng-gate, #ng-pass" },
       inputs: [{ id: "reword", label: "reword the claim", momentary: true }, { id: "rerun", label: "run the tests again", momentary: true }],
       draw: function (api, t) { if (custom && api.mode !== "auto" && api.mode !== "seg") return paint("x", 99); paint(api.key, t); },
       onKey: function (api, i) { if (custom && custom[1] !== i) custom = null; },
@@ -773,8 +800,8 @@
       if (!els.length) els = [S.art];
       els.forEach(function (el, i) { el.style.minHeight = ""; max[i] = 0; });
       S.keys.forEach(function (k) { S.show(k.at); els.forEach(function (el, i) { max[i] = Math.max(max[i], el.getBoundingClientRect().height); }); });
-      S.show(t);
       els.forEach(function (el, i) { el.style.minHeight = Math.ceil(max[i]) + "px"; });
+      S.show(t);                                                     // drawn again in the held height, which a step may fill
       if (S.dock) S.dock();                                          // the held height can tip a phone scene past one screen
     });
   }

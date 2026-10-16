@@ -702,6 +702,14 @@
     return e;
   }
   function end(api) { var u = USED[api.scene.id] || {}, L = api.scene.labels; for (var id in L) if (!L[id].lead && !u[id]) L[id].e.hidden = true; }
+  /* a note not yet true at this step: a 1 px rule where its line will stand, about as long as its words, and no words */
+  var CH = 0;
+  function blank(api, text, x, y, o) {
+    var g = G(api);
+    if (!CH) { var f = g.c.font; g.c.font = "400 11px " + getComputedStyle(document.documentElement).getPropertyValue("--mono"); CH = g.c.measureText("0").width + 0.44; g.c.font = f; }
+    var p = api.pitch, y0 = y + ((o.dy || 0) + 8) / p, x0 = x + (o.dx || 0) / p;
+    hr(api, x0, x0 + text.length * CH / p, y0, "rule");
+  }
 
   /* a row of range inputs under a scene, before its stepper; native controls, so the keyboard works */
   function sliders(figId, defs, cls) {
@@ -1892,8 +1900,9 @@
   (function () {
     var BASE = [0, 16, 32, 48];
     Deep.scene("sc-gates", {
-      grid: { cols: 88, get rows() { return PHONE() ? 54 : 30; }, pitch: 8, pitchPhone: 4 },
-      space: { top: 24, get bottom() { return PHONE() ? 56 : 40; } },
+      // the canvas runs down to the last note's row, so a note still to come can hold it as a rule; the stage is as tall as before
+      grid: { cols: 88, get rows() { return PHONE() ? 58 : window.innerHeight < 500 ? 28 : 34; }, pitch: 8, pitchPhone: 4 },
+      space: { top: 24, get bottom() { return PHONE() ? 40 : window.innerHeight < 500 ? 16 : 8; } },
       ticks: 66, tps: 12,
       check: function () { return PIN.length === 47 && ERA.every(function (e) { return PIN.length - e.drop.length === e.n; }); },
       draw: function (api, tick) {
@@ -1913,13 +1922,26 @@
           if (at) { fill(api, x - 0.5, y - 0.5, ts + 1, ts + 1, "ink"); fill(api, x, y, ts, ts, g === "risk" ? "v-amber" : "v-green"); }
         });
         var rows = Math.ceil(PIN.length / per), yb = 1 + rows * tw + 1;
-        if (e === 1) lab(api, "slot", ph ? "dashed: no gate on the overlay’s direction" : "the dashed slot: no gate yet on the overlay’s direction", 0, yb, { dy: 4, cls: "i" });
-        if (e >= 2) lab(api, "x27", ph ? "amber: X27, overlay direction + leverage" : "amber: X27, the risk overlay’s direction, leverage and financing", 0, yb, { dy: 4, k: "kr-a", src: R + "tests/run_all.py#L50-L51" });
-        if (e === 3) lab(api, "split", ph ? "all in CI on real prices · none skipped" : "all 47 run in CI on the committed real prices · nothing skipped", 0, yb + (ph ? 5 : 3), { dy: 4, src: R + "README.md#L44-L46" });
-        if (k >= 4) {
-          lab(api, "b1", ph ? "badge 47 = list 47 · checked every run" : "README badge 47 = list 47 · the runner checks before it runs", 0, yb + (ph ? 10 : 6), { dy: 8, k: "kr-g", src: R + "tests/run_all.py#L75-L79" });
-          lab(api, "b0", ph ? "at 7383e32: badge 30, list 31" : "at 7383e32 the badge said 30 while the list held 31", 0, yb + (ph ? 10 : 6), { dy: 28, src: "Olivesz/kronos-quant@7383e32:README.md#L10" });
-        }
+        var sw = !ph && window.innerHeight < 500, sh = ph || sw, nb = sw ? 44 : 0;
+        if (e === 1) lab(api, "slot", sh ? "dashed: no gate on the overlay’s direction" : "the dashed slot: no gate yet on the overlay’s direction", 0, yb, { dy: 4, cls: "i" });
+        // the notes still to come hold their rows as bare rules, so the tiles never sit over an empty stage and no note is
+        // read before its step; on a short wide screen (a phone on its side) the notes take two columns, so the last of
+        // them clears the docked words
+        var T = {
+          x27: sh ? "amber: X27, overlay direction + leverage" : "amber: X27, the risk overlay’s direction, leverage and financing",
+          split: sh ? "all in CI on real prices · none skipped" : "all 47 run in CI on the committed real prices · nothing skipped",
+          b1: sh ? "badge 47 = list 47 · checked every run" : "README badge 47 = list 47 · the runner checks before it runs",
+          b0: sh ? "at 7383e32: badge 30, list 31" : "at 7383e32 the badge said 30 while the list held 31"
+        };
+        var at = {
+          x27: [0, yb, 4], split: [0, yb + (ph ? 5 : sw ? 0 : 3), sw ? 24 : 4],
+          b1: [nb, yb + (ph ? 10 : sw ? 0 : 6), sw ? 4 : 8], b0: [nb, yb + (ph ? 10 : sw ? 0 : 6), sw ? 24 : 28]
+        };
+        function note(id, on, o) { var q = at[id]; o.dy = q[2]; if (on) lab(api, id, T[id], q[0], q[1], o); else blank(api, T[id], q[0], q[1], o); }
+        if (e !== 1) note("x27", e >= 2, { k: "kr-a", src: R + "tests/run_all.py#L50-L51" });
+        note("split", e === 3, { src: R + "README.md#L44-L46" });
+        note("b1", k >= 4, { k: "kr-g", src: R + "tests/run_all.py#L75-L79" });
+        note("b0", k >= 4, { src: "Olivesz/kronos-quant@7383e32:README.md#L10" });
         end(api);
       }
     });
