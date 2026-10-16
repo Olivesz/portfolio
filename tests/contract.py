@@ -1457,6 +1457,68 @@ def a_targets(v):
                    + (": " + ", ".join(u[:8]) if u else ""))
 
 
+# what a visitor sees of a card's link or button at height y: 0 under any hidden ancestor, else the product of every
+# ancestor's opacity and of its mask's alpha at y (a top-to-bottom linear-gradient, the form cardMasks writes)
+ALPHA_OF_JS = r"""(t, y) => {
+  const alphaAt = (m, at, h) => {
+    const g = /linear-gradient\((.*)\)\s*$/.exec(m); if (!g) return 1;
+    const parts = []; let d = 0, cur = '';
+    for (const ch of g[1]) { if (ch === '(') d++; if (ch === ')') d--; if (ch === ',' && d === 0) { parts.push(cur.trim()); cur = ''; } else cur += ch; }
+    parts.push(cur.trim());
+    const st = parts.map(p => /^(rgba?\([^)]*\)|transparent|black|white)\s*(.*)$/.exec(p)).filter(Boolean).map(c => {
+      const a = c[1] === 'transparent' ? 0 : c[1].startsWith('rgba') ? +c[1].slice(5, -1).split(',')[3] : 1, q = c[2].trim();
+      return [a, q.endsWith('px') ? parseFloat(q) : q.endsWith('%') ? parseFloat(q) / 100 * h : null]; });
+    if (!st.length) return 1;
+    if (st[0][1] == null) st[0][1] = 0;
+    if (st[st.length - 1][1] == null) st[st.length - 1][1] = h;
+    for (let i = 1; i < st.length; i++) if (st[i][1] == null) st[i][1] = st[i - 1][1];
+    if (at <= st[0][1]) return st[0][0];
+    for (let i = 1; i < st.length; i++) if (at < st[i][1]) { const [a0, p0] = st[i - 1], [a1, p1] = st[i]; return p1 > p0 ? a0 + (a1 - a0) * (at - p0) / (p1 - p0) : a1; }
+    return st[st.length - 1][0];
+  };
+  let a = 1;
+  for (let e = t; e && e !== document.documentElement; e = e.parentElement) {
+    const cs = getComputedStyle(e);
+    if (cs.visibility === 'hidden' || cs.display === 'none') return 0;
+    a *= +cs.opacity;
+    const m = [cs.maskImage, cs.webkitMaskImage].find(v => v && v !== 'none');
+    if (m) { const er = e.getBoundingClientRect(); a *= alphaAt(m, y - er.top, er.height); }
+  }
+  return a; }"""
+
+
+FADED_TAPS_JS = "() => { const alphaOf = " + ALPHA_OF_JS + r""", out = []; let live = 0;
+  for (const c of __walk.cards()) for (const t of c.el.querySelectorAll('a,button')) {
+    const r = t.getBoundingClientRect(); if (!r.width || !r.height) continue;
+    const x = r.left + r.width / 2, y = r.top + r.height / 2; if (y <= 0 || y >= innerHeight || x <= 0 || x >= innerWidth) continue;
+    const h = document.elementFromPoint(x, y); if (!h || !t.contains(h)) continue;
+    const a = alphaOf(t, y);
+    if (a < 0.5) out.push(c.id + ' ' + (t.textContent || '').trim().slice(0, 12) + ' a ' + a.toFixed(2) + ' at y ' + Math.round(y)); else live++; }
+  return { out, live }; }"""
+
+
+def a_fadedtaps(v):
+    # a card's link or button faded under half (by its opacity or its mask) takes no tap: from each station's hold, at every
+    # 100px notch for 10 notches on (into the pull-back after the last), none is the topmost hit at its own centre
+    g = v.geometry()
+    bad, live, n = [], 0, 0
+    for st in g["stations"]:
+        v.scroll_s(st[2])
+        v.settle(2500)
+        pb_mouse(v)
+        for k in range(1, 11):
+            v.page.mouse.wheel(0, 100)
+            v.page.wait_for_timeout(60)
+            v.settle(1500)
+            v.page.wait_for_timeout(120)
+            r = v.js(FADED_TAPS_JS)
+            n += 1; live += r["live"]
+            bad += [f"{st[0]} +{k}: {o}" for o in r["out"]]
+    v.cur = None
+    return not bad, (f"{len(bad)} faded links or buttons hit-testable at {n} positions ({live} visible ones were)"
+                     + (": " + "; ".join(bad[:4]) if bad else ""))
+
+
 def a_tabreach(v):
     # each figure input is reached by forward Tab from the top; focusing it scrolls its beat in, where it registers live over its cells
     want = {"fn-in": "emergence", "fk-in": "kronos"}
@@ -2648,10 +2710,22 @@ PB_REPLAY_POLL = r"""async ({ id, max }) => { const W = __walk, out = [], t0 = _
     if (p.state === 'done' || performance.now() - t0 > max) return out; } }"""
 
 
+# a card's replay button, as a visitor sees it: its centre on screen, visible there (ALPHA_OF_JS at least 0.5), and
+# hit-tested to it (not under the strip or a phone's art band). A card leaving the reading zone fades by its mask and goes
+# to opacity 0 once wholly masked: a button faded under half returns 'hidden', one off screen or covered returns null.
+PB_RP_SEEN = "id => { const alphaOf = " + ALPHA_OF_JS + r""";
+  const b = document.querySelector('#b-' + id + ' .rp'); if (!b || !__walk.playback(id).replay) return null;
+  const r = b.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
+  if (!(y > 0 && y < innerHeight)) return null;
+  if (alphaOf(b, y) < 0.5) return 'hidden';
+  const hit = document.elementFromPoint(x, y);
+  return hit && b.contains(hit) ? [x, y] : null; }"""
+
+
 def a_playreplay(v):
     """Each card's replay button plays its station again from p 0 to done within 200 + ms (+ PLAY_TOL) of the click, and
     ends on the same end state as the first arrival. Clicked away from the station too (1, 3, 6 and 10 notches past its
-    hold, wherever the card and its button are still on screen and not under the strip or a phone's art band): the page first brings the station back, and in every
+    hold, wherever the card and its button are still on screen, visible, and not under the strip or a phone's art band): the page first brings the station back, and in every
     frame the clock advances the station is the scene, its figure is the current one, in frame, and in its own medium
     (a native layer on screen inside the art region), never cells or off frame."""
     nat = pb_natural(v)
@@ -2696,12 +2770,9 @@ def a_playreplay(v):
                 w.page.wait_for_timeout(60)
             w.settle(2500)
             w.page.wait_for_timeout(300)
-            box = w.js("""id => { const b = document.querySelector('#b-' + id + ' .rp'); if (!b || !__walk.playback(id).replay) return null;
-                const r = b.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-                const hit = y > 0 && y < innerHeight ? document.elementFromPoint(x, y) : null;   // on screen and not under the strip or a phone's art band
-                return hit && b.contains(hit) ? [x, y] : null; }""", sid)
-            if box is None:
-                away.append(f"+{notches} off screen")
+            box = w.js(PB_RP_SEEN, sid)
+            if box is None or box == "hidden":
+                away.append(f"+{notches} {'faded' if box else 'off screen'}")
                 continue
             here = w.js("() => __walk.sceneId(scrollY / __walk.S())")
             w.js("() => { __ct.pbT0 = performance.now(); }")
@@ -2717,8 +2788,11 @@ def a_playreplay(v):
                 why.append(f"+{notches} (from {here}): {len(wrong)} of {len(moving)} playing frames not the station in frame as itself"
                            f" {wrong[:1]}, ended {end[1]} at {end[0]}ms (<= {lim2})")
             away.append(f"+{notches} from {here} {len(moving)} frames")
-        if not any("frames" in a for a in away):
-            why.append("the button was never on screen away from the hold")
+        # every card's button must be clicked at least once away from its hold, with one exception: a phone's last card,
+        # faded under half by its first notch past the hold as the pull-back starts, leaves nothing to click there
+        last_ph = w.phone and sid == g["stations"][-1][0] and away and away[0] == "+1 faded"
+        if not any("frames" in a for a in away) and not last_ph:
+            why.append("the button was never visible and on screen away from the hold")
         rows.append(f"{sid} done {r['at']}ms, {n}px off; away: {', '.join(away)}")
         if why:
             bad.append(f"{sid}: " + ", ".join(why))
@@ -3997,7 +4071,7 @@ ASSERTIONS = [
     ("playbudget", ("desktop", "phone"), a_playbudget, "each first arrival is done within the hook's lead + ms of the scroll that reached it, + 150ms"),
     ("playthrough", ("desktop", "phone"), a_playthrough, "a flick from the top past the last hold: no clock advances out of frame or runs ahead of itself, so a station passed unfinished is paused; each hold, visited back, resumes where it stopped and ends on the full play's end state"),
     ("playreverse", ("desktop", "phone"), a_playreverse, "wheeling back up into each played station: done at p 1 at every notch, and its hold matches the end state"),
-    ("playreplay", ("desktop", "phone"), a_playreplay, "each card's replay button plays its station again from p 0 to done within 200 + ms (+150), ending on the same end state; clicked 1, 3, 6 and 10 notches past the hold, the station comes back and replays as itself, in frame, in its own medium"),
+    ("playreplay", ("desktop", "phone"), a_playreplay, "each card's replay button plays its station again from p 0 to done within 200 + ms (+150), ending on the same end state; clicked where it is visible 1, 3, 6 and 10 notches past the hold, the station comes back and replays as itself, in frame, in its own medium"),
     ("playwalk", ("desktop", "phone") + LANDS, a_playwalk, "a visitor at a normal pace (110px every 120ms): stopping 1.5s at each hold, every station plays from p 0 to done; never stopping, no clock advances out of frame or runs ahead of itself to its end"),
     ("playreduced", ("desktop", "phone"), a_playreduced, "reduced motion: done at p 1 in every frame from each arrival, never playing; replay hidden and refused"),
     ("places", PHONES + ("phone-small-1x",), a_places, "pull-back to the résumé every 0.02 screen: no shown place row's text crosses a card's text"),
@@ -4029,6 +4103,7 @@ ASSERTIONS = [
     ("newtab", ("desktop", "phone"), a_newtab, "every off-page link on index.html (built ones included) and each work/*.html has target=_blank and rel with noopener and noreferrer; same-page anchors carry no target"),
     ("jumpfocus", ("desktop", "phone"), a_jumpfocus, "Enter on each strip jump, map place and walk link, then Tab: scrollY moves less than one screen"),
     ("tabreach", ("desktop", "phone"), a_tabreach, "forward Tab from the top reaches the NAND inputs and the KRONOS switch, and each is live over its figure once focused"),
+    ("fadedtaps", ("desktop", "phone", "phone-small"), a_fadedtaps, "from each hold, 1 to 10 notches on: no card link or button faded under half alpha is the topmost hit at its centre"),
     ("targets", ("desktop", "phone", "phone-small"), a_targets, "every link, button and input on screen is at least 24 CSS px a side with a fine pointer, 32 on touch"),
     ("pitch", ("desktop", "phone", "desktop-125"), a_pitch, "every blit and cell rect lands on whole device pixels at an integer scale, every frame"),
     ("fills", ("desktop", "phone"), a_fills, "canvas fill/stroke styles and bitmap values are packed tokens; no glow, no filter"),

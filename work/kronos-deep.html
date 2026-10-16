@@ -67,6 +67,9 @@
 .sc-l.kr-s0{color:var(--v-blue)} .sc-l.kr-s1{color:var(--v-violet)} .sc-l.kr-s2{color:var(--v-red)}
 /* fig 1's recipe tour: the moods not in focus step down to muted */
 .sc-l.kr-dim{color:var(--muted)}
+/* fig 11's notes for the steps still to come: copper, the colour of a tile not yet added, so a note never reads as true
+   of the commit on screen; a note about a later commit holds its place (the stepper brings its row into view) unseen */
+.sc-l.kr-later{color:var(--copper)} .sc-l.kr-off{visibility:hidden}
 /* a label that sits on the art (fig 4's stays, fig 5's state names, fig 12's readout) gets a void tag so it stays readable */
 .sc-l.kr-tag{background:var(--void);padding:0 4px}
 /* a chapter's one-line opener under its title: where the story stands, for a reader who lands from the contents */
@@ -525,7 +528,7 @@
 <h3>The control: from a label to a book</h3>
 <div class="lx-duo">
 <div class="lx-txt">
-<p>This was the shipped book until <span data-derived="commit date of c19c5ca">13 October</span>, and it still runs as the control. Every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L104">21</span> trading days the label picks a signal mix, the mix ranks the names, and <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/black_litterman.py#L1-L7">the book is a hierarchical-risk-parity backbone with a Black-Litterman tilt, which feeds the signal into the weights as a view</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L100-L101">Equal weight replaced all of that in the shipped book</span>; the overlay in the next step sizes either one.</p>
+<p>This was the shipped book until <span data-derived="commit date of c19c5ca, in the commit’s own time zone">13 October</span>, and it still runs as the control. Every <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L104">21</span> trading days the label picks a signal mix, the mix ranks the names, and <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/black_litterman.py#L1-L7">the book is a hierarchical-risk-parity backbone with a Black-Litterman tilt, which feeds the signal into the weights as a view</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L100-L101">Equal weight replaced all of that in the shipped book</span>; the overlay in the next step sizes either one.</p>
 </div>
 <div class="lx-fig">
 <figure class="scene lx-fr" id="sc-book" aria-labelledby="sc-book-cap">
@@ -596,11 +599,11 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="e1" data-at="0"><span data-derived="commit date of 454fe62">13 July</span>, the first commit: <span data-derived="len(GATES) at 454fe62 = 27" data-inputs="Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29">27</span> gates.</li>
-            <li data-key="e2" data-at="16"><span data-derived="commit date of 0c1b53b">15 July</span>: <span data-src="Olivesz/kronos-quant@0c1b53b:README.md#L10">30</span> gates, all green. None of them asks which way the drawdown brake pushes.</li>
-            <li data-key="e3" data-at="32"><span data-derived="commit date of 7383e32">11 August</span>: the fix lands with the missing gate, the <span data-derived="30 + X27 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L40-L41">31</span>st. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L50-L51">X27 checks the risk overlay’s direction, its leverage and its financing.</span></li>
-            <li data-key="e4" data-at="48"><span data-derived="commit date of c19c5ca">13 October</span>: <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47 gates, all run in CI on the committed real prices with nothing skipped</span>, and again on a synthetic market.</li>
-            <li data-key="badge" data-at="64">The count itself once drifted: the README badge said <span data-src="Olivesz/kronos-quant@7383e32:README.md#L10">30</span> while the list held <span data-derived="len(GATES) at 7383e32 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42">31</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L75-L79">The runner now refuses to pass if the badge disagrees with the list.</span></li>
+            <li data-key="e1" data-at="0"><span data-derived="commit date of 454fe62, in the commit’s own time zone">13 July</span>, the first commit: <span data-derived="len(GATES) at 454fe62 = 27" data-inputs="Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29">27</span> gates.</li>
+            <li data-key="e2" data-at="16"><span data-derived="commit date of 0c1b53b, in the commit’s own time zone">15 July</span>: <span data-src="Olivesz/kronos-quant@0c1b53b:README.md#L10">30</span> gates, all green. None of them asks which way the drawdown brake pushes.</li>
+            <li data-key="e3" data-at="32"><span data-derived="commit date of 7383e32, in the commit’s own time zone">10 August</span>: the fix lands with the missing gate, the <span data-derived="30 + X27 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L40-L41">31</span>st. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L50-L51">X27 checks the risk overlay’s direction, its leverage and its financing.</span></li>
+            <li data-key="e4" data-at="48"><span data-derived="commit date of c19c5ca, in the commit’s own time zone">13 October</span>: <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47 gates, all run in CI on the committed real prices with nothing skipped</span>, and again on a synthetic market.</li>
+            <li data-key="badge" data-at="64">The README badge once said <span data-src="Olivesz/kronos-quant@7383e32:README.md#L10">30</span> while the list held <span data-derived="len(GATES) at 7383e32 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42">31</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L75-L79">The runner now refuses to pass if the badge disagrees with the list.</span></li>
           </ol>
           <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 11</span>The gate list at each commit, in run order, one tile per gate. Between steps the runner re-checks them in order.</figcaption>
         </figure>
@@ -820,14 +823,6 @@
     return e;
   }
   function end(api) { var u = USED[api.scene.id] || {}, L = api.scene.labels; for (var id in L) if (!L[id].lead && !u[id]) L[id].e.hidden = true; }
-  /* a note not yet true at this step: a 1 px rule where its line will stand, about as long as its words, and no words */
-  var CH = 0;
-  function blank(api, text, x, y, o) {
-    var g = G(api);
-    if (!CH) { var f = g.c.font; g.c.font = "400 11px " + getComputedStyle(document.documentElement).getPropertyValue("--mono"); CH = g.c.measureText("0").width + 0.44; g.c.font = f; }
-    var p = api.pitch, y0 = y + ((o.dy || 0) + 8) / p, x0 = x + (o.dx || 0) / p;
-    hr(api, x0, x0 + text.length * CH / p, y0, "rule");
-  }
 
   /* a row of range inputs under a scene, before its stepper; native controls, so the keyboard works */
   function sliders(figId, defs, cls) {
@@ -1529,7 +1524,9 @@
           lab(api, "ls", ph ? "smoothed · every day" : "smoothed · each day reads every day, later ones too", 0, L.yS, { dy: -20, cls: "i" });
           ribbon(api, L.yF, h, function (t, kk) { return Wd.F[3 * t + kk]; }, t0, 0, SPAN);
           ribbon(api, L.yS, h, function (t, kk) { return Wd.Sm[3 * t + kk]; }, t0, 0, SPAN);
-          // the cut's row to come, an outlined slot under a muted name until step 3 fills it
+          // the cut's row to come: an outlined slot under a muted name, with its reading up to the cut ghosted in until
+          // step 3 draws it, so the row never stands empty
+          fill(api, 0, L.yS2, cx, h, "muted", 0.45);
           box(api, 0, L.yS2, W, h, "rule");
           // a phone sets step 2's note on this name's line, so the slot goes unnamed for that step
           if (!(ph && k === 1)) lab(api, "ls2", ph ? "smoothed · after the cut" : "smoothed · read again after the cut", 0, L.yS2, { dy: -20 });
@@ -2015,17 +2012,29 @@
   var ERA = [
     { n: 27, sha: "454fe62", date: "13 Jul 2026", drop: ["tails", "decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "transfer", "crypto", "risk", "lever", "regime_engine", "harvest", "live", "momtilt", "ewbar", "pinned", "headline", "live_pnl", "overlay_warmup", "shipped_stream"] },
     { n: 30, sha: "0c1b53b", date: "15 Jul 2026", drop: ["decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "risk", "lever", "regime_engine", "harvest", "live", "momtilt", "ewbar", "pinned", "headline", "live_pnl", "overlay_warmup", "shipped_stream"] },
-    { n: 31, sha: "7383e32", date: "11 Aug 2026", drop: ["decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "lever", "regime_engine", "harvest", "live", "momtilt", "ewbar", "pinned", "headline", "live_pnl", "overlay_warmup", "shipped_stream"] },
+    { n: 31, sha: "7383e32", date: "10 Aug 2026", drop: ["decathlon2", "decathlon3", "decathlon4", "robustness", "robustness2", "lever", "regime_engine", "harvest", "live", "momtilt", "ewbar", "pinned", "headline", "live_pnl", "overlay_warmup", "shipped_stream"] },
     { n: 47, sha: "c19c5ca", date: "13 Oct 2026", drop: [] }
   ];
   (function () {
     var BASE = [0, 16, 32, 48];
     Deep.scene("sc-gates", {
-      // the canvas runs down to the last note's row, so a note still to come can hold it as a rule; the stage is as tall as before
+      // the canvas runs down to the last note's row, so a note still to come holds its row in copper
       grid: { cols: 88, get rows() { return PHONE() ? 58 : window.innerHeight < 500 ? 28 : 34; }, pitch: 8, pitchPhone: 4 },
-      space: { top: 24, get bottom() { return PHONE() ? 40 : window.innerHeight < 500 ? 16 : 8; } },
+      space: { top: 24, get bottom() { return PHONE() || window.innerHeight < 500 ? 16 : 8; } },
       ticks: 66, tps: 12,
       check: function () { return PIN.length === 47 && ERA.every(function (e) { return PIN.length - e.drop.length === e.n; }); },
+      // the tile rows the canvas paints, the runner's ring included, so the docked words never cut a row of tiles in two
+      rows: function (api) {
+        var ph = api.phone, per = ph ? 11 : 14, tw = ph ? 7 : 5, ts = ph ? 6 : 4, out = [];
+        for (var i = 0; i < PIN.length; i += per) { var n = Math.min(per, PIN.length - i); out.push([-0.5, 1 + i / per * tw - 0.5, (n - 1) * tw + ts + 1, ts + 1]); }
+        return out;
+      },
+      // what a step changes, for a stepper click on a docked figure to bring into view (the slot's note and X27's share
+      // a row, so whichever is drawn when the click lands stands for it)
+      focus: function (api, i, name) {
+        var L = api.scene.labels, ids = { e2: ["slot", "x27"], e3: ["x27", "slot"], e4: ["split"], badge: ["b1", "b0"] }[name];
+        return ids ? ids.map(function (id) { return L[id] && L[id].e; }).filter(Boolean) : false;
+      },
       draw: function (api, tick) {
         begin(api);
         var k = api.keyIndex, e = Math.min(3, k), E = ERA[e], ph = api.phone, per = ph ? 11 : 14, tw = ph ? 7 : 5, ts = ph ? 6 : 4;
@@ -2045,24 +2054,23 @@
         var rows = Math.ceil(PIN.length / per), yb = 1 + rows * tw + 1;
         var sw = !ph && window.innerHeight < 500, sh = ph || sw, nb = sw ? 44 : 0;
         if (e === 1) lab(api, "slot", sh ? "dashed: no gate on the overlay’s direction" : "the dashed slot: no gate yet on the overlay’s direction", 0, yb, { dy: 4, cls: "i" });
-        // the notes still to come hold their rows as bare rules, so the tiles never sit over an empty stage and no note is
-        // read before its step; on a short wide screen (a phone on its side) the notes take two columns, so the last of
-        // them clears the docked words
+        // the notes still to come stand in their rows in copper, the colour of a tile not yet added, and light at their
+        // step, so the tiles never sit over an empty stage; the last (about 7383e32, which the story reaches at step 5)
+        // holds its row unseen until then. On a short wide screen (a phone on its side) the notes take two columns
         var T = {
           x27: sh ? "amber: X27, overlay direction + leverage" : "amber: X27, the risk overlay’s direction, leverage and financing",
           split: sh ? "all in CI on real prices · none skipped" : "all 47 run in CI on the committed real prices · nothing skipped",
           b1: sh ? "badge 47 = list 47 · checked every run" : "README badge 47 = list 47 · the runner checks before it runs",
           b0: sh ? "at 7383e32: badge 30, list 31" : "at 7383e32 the badge said 30 while the list held 31"
         };
-        var at = {
-          x27: [0, yb, 4], split: [0, yb + (ph ? 5 : sw ? 0 : 3), sw ? 24 : 4],
-          b1: [nb, yb + (ph ? 10 : sw ? 0 : 6), sw ? 4 : 8], b0: [nb, yb + (ph ? 10 : sw ? 0 : 6), sw ? 24 : 28]
-        };
-        function note(id, on, o) { var q = at[id]; o.dy = q[2]; if (on) lab(api, id, T[id], q[0], q[1], o); else blank(api, T[id], q[0], q[1], o); }
+        // one note every 20 px under the tiles, whatever the pitch; two columns of two on a short wide screen
+        var at = sw ? { x27: [0, yb, 4], split: [0, yb, 24], b1: [nb, yb, 4], b0: [nb, yb, 24] }
+          : { x27: [0, yb, 4], split: [0, yb, 24], b1: [0, yb, 44], b0: [0, yb, 64] };
+        function note(id, on, o) { var q = at[id]; o.dy = q[2]; if (!on) { o.k = id === "b0" ? "kr-off" : "kr-later"; o.cls = ""; } lab(api, id, T[id], q[0], q[1], o); }
         if (e !== 1) note("x27", e >= 2, { k: "kr-a", src: R + "tests/run_all.py#L50-L51" });
-        note("split", e === 3, { src: R + "README.md#L44-L46" });
+        note("split", e === 3, { cls: "i", src: R + "README.md#L44-L46" });
         note("b1", k >= 4, { k: "kr-g", src: R + "tests/run_all.py#L75-L79" });
-        note("b0", k >= 4, { src: "Olivesz/kronos-quant@7383e32:README.md#L10" });
+        note("b0", k >= 4, { cls: "i", src: "Olivesz/kronos-quant@7383e32:README.md#L10" });
         end(api);
       }
     });
@@ -2219,7 +2227,8 @@
           }
           if (u1 > 0) {
             hr(api, 0, W, YM(1), "rule", 1, true); hr(api, 0, W, YM(0.25), "rule", 1, true);
-            lab(api, "m1", "1", W - 0.5, YM(1), { align: "right", dy: -18 }); lab(api, "m2", "0.25", W - 0.5, YM(0.25), { align: "right", dy: -18, src: R + "config.py#L91" });
+            // the floor's value sits on its own rule, on a void tag, clear of the as-found trace that runs at 0.5 above it
+            lab(api, "m1", "1", W - 0.5, YM(1), { align: "right", dy: -18 }); lab(api, "m2", "0.25", W - 0.5, YM(0.25), { align: "right", dy: -8, k: "kr-tag", src: R + "config.py#L91" });
             var pw = [], pf = []; for (d = A; d <= A + (B - A) * u1; d++) { pw.push([X(d), YM(mW[d])]); pf.push([X(d), YM(mF[d])]); }
             line(api, pw, "v-red", 2); line(api, pf, "v-amber", 2);
             lab(api, "tw", "as found", X(A + 4), YM(mW[A]), { dy: 4, k: "kr-t" }); lab(api, "tf", "fixed", X(A + 10), YM(1), { dy: -20, k: "kr-a" });
@@ -2254,13 +2263,14 @@
           var U = (W - (ph ? 14 : 8)) / 1.5; function XB(v) { return v * U; }
           lab(api, "h0", ph ? "calm book · lever 1.5 · brakes at 1" : "a calm book · lever capped at 1.5 · both brakes at 1", 0, 0, { dy: -24, cls: "i" });
           [[ph ? "smallest of lever and brakes" : "the smallest of the lever and the brakes", 1.0, "copper", "old rule", "Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L44-L45"], [ph ? "lever × tighter brake" : "the lever times the tighter brake", 1.5, "v-amber", "new rule", R + "kronos/risk.py#L89-L93"]].forEach(function (q, i) {
-            // the new rule arrives with its own step; until then its row stands as an outlined slot under a muted name
+            // the new rule arrives with its own step; until then its row stands as a muted ghost of its bar and value
             var yy = (ph ? 3 : 2) + i * (ph ? 14 : 9), wait = i && k0 === 0;
             lab(api, "mp" + i, q[3] + " · " + q[0], 0, yy, { dy: 0, cls: i && !wait ? "i" : "", src: q[4] });
-            if (wait) box(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, "rule");
+            if (wait) { fill(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, "muted", 0.45); box(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, "rule"); }
             else fill(api, 0, yy + (ph ? 5 : 3), XB(q[1]), ph ? 5 : 4, q[2]);
             vr(api, XB(1), yy + (ph ? 4 : 2), yy + (ph ? 11 : 8), "ink", 1, true);
-            if (!wait) lab(api, "mv" + i, fmt(q[1], 1) + "×", XB(q[1]), yy + (ph ? 5 : 3), { dx: 8, dy: ph ? 2 : 8, cls: "r" });
+            var mv = lab(api, "mv" + i, fmt(q[1], 1) + "×", XB(q[1]), yy + (ph ? 5 : 3), { dx: 8, dy: ph ? 2 : 8, cls: "r" });
+            if (mv) mv.style.color = wait ? "var(--muted)" : "";
           });
           lab(api, "one", ph ? "1×: the brakes’ top" : "1×: where the brakes top out", XB(1), ph ? 30 : 21, { align: ph ? "right" : "center", dy: 4, src: R + "docs/design/DESIGN15.md#L39-L41" });
         } else if (k === 1) {

@@ -261,6 +261,8 @@ p.flip{display:grid} p.flip>span{grid-area:1/1} p.flip .fl-gh,p.flip.ghost .fl-n
 /* fig 14: the score as ten cells */
 .bd-strip{display:flex;gap:4px;margin-top:8px}
 .bd-strip span{width:16px;height:16px;border:1px solid var(--copper)}
+.bd-strip span.gh{border-color:var(--muted)}
+.bd-score .v.gh{color:var(--muted)}
 .bd-strip span.g{background:var(--v-green);border-color:var(--v-green)}
 .bd-strip span.r{background:var(--v-red);border-color:var(--v-red)}
 @media (prefers-reduced-motion:no-preference){
@@ -851,7 +853,7 @@ button.vd{min-height:24px}
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art">
               <div class="cx jg">
-                <div class="jg-m" data-from="read" data-src="Olivesz/custos-code@f3737f8:src/custos_code/verdicts.py#L170-L179"><span class="lb">judge · an optional model</span><p class="ink" id="jg-say">reads the log</p><p class="lbi" id="jg-note"></p></div>
+                <div class="jg-m" data-src="Olivesz/custos-code@f3737f8:src/custos_code/verdicts.py#L170-L179"><span class="lb">judge · an optional model</span><p class="ink" id="jg-say">reads the log</p><p class="lbi" id="jg-note"></p></div>
                 <div class="jg-g" data-from="read"><span class="lbi">gate</span><span class="gt" id="jg-gt"></span><span class="lbi" id="jg-gl"></span></div>
                 <div data-src="Olivesz/custos-code@f3737f8:src/custos_code/review.py#L273-L303"><span class="lb">each claim’s verdict</span><div id="jg-rows"></div></div>
               </div>

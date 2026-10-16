@@ -209,7 +209,8 @@
      scene comes up from the foot of the screen (the stepper paints over the overlap once docked) */
   .scene.js.docked>.sc-keys::before{content:"";position:absolute;left:0;right:0;bottom:-2px;z-index:-1;height:calc(var(--dock-h,100%) + 2px);border-top:1px solid var(--rule);background:var(--void)}
   /* the backing runs 4 px of void above its rule, so a line of the art cut by the dock never shows a sliver of its
-     tops over the rule */
+     tops over the rule (and deep.js clips a row the edge would cut in two from its top, so the art above the words
+     always ends on whole rows) */
   .scene.js.docked>.sc-keys::after{content:"";position:absolute;left:0;right:0;bottom:var(--dock-h,100%);z-index:-1;height:4px;background:var(--void)}
   .scene.js.docked>.sc-keys li{align-self:end;padding-top:12px}
   /* the backing spans the column (a phone on its side is wider than the words' measure), the words keep their measure */

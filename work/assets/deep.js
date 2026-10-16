@@ -417,6 +417,82 @@
      flow (so nothing below the figure moves), but only the current step's words are drawn on the void */
   SP.dockWords = function () {
     if (this.fig.classList.contains("docked")) this.fig.style.setProperty("--dock-h", this.wordsH(this.wk) + "px");
+    this.rowMask();
+  };
+  /* a docked scene's art meets its words a row at a time: a row of the art that the words' backing would cut in two (a
+     line of text, a chip, a short boxed row) is clipped whole, the art's lower edge stepping up to that row's top over
+     the row's own width only, so a column beside it keeps its rows; the reader never stops on a half-drawn row, and the
+     row comes back whole once it clears the words */
+  var ROW_MAX = 64;
+  // the rows of the art with any part between lo and hi: boxes (tol 2: a box that only shares a border with the edge
+  // stays) and lines of text (tol 0.5)
+  function rowAtoms(stage, lo, hi) {
+    var out = [], els = stage.querySelectorAll("*"), rg = document.createRange(), gone = [];
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i], r = e.getBoundingClientRect();
+      if (!r.height || r.top >= hi || r.bottom <= lo) continue;
+      // a part inside a faded-out group draws nothing either
+      if (gone.some(function (g) { return g.contains(e); })) continue;
+      var c = getComputedStyle(e);
+      if (+c.opacity === 0) { gone.push(e); continue; }
+      if (c.visibility === "hidden") continue;
+      var boxed = r.height <= ROW_MAX && (/^(CANVAS|SVG|svg|IMG|INPUT|BUTTON)$/.test(e.tagName) || c.backgroundColor !== "rgba(0, 0, 0, 0)" ||
+        parseFloat(c.borderTopWidth) > 0 || parseFloat(c.borderLeftWidth) > 0 || parseFloat(c.borderBottomWidth) > 0);
+      if (boxed) { out.push({ l: r.left, r: r.right, t: r.top, b: r.bottom, tol: 2 }); continue; }
+      for (var t = e.firstChild; t; t = t.nextSibling) {
+        if (t.nodeType !== 3 || !/\S/.test(t.nodeValue)) continue;
+        rg.selectNodeContents(t);
+        var ls = rg.getClientRects();
+        for (var j = 0; j < ls.length; j++) if (ls[j].bottom > lo && ls[j].top < hi) out.push({ l: ls[j].left, r: ls[j].right, t: ls[j].top, b: ls[j].bottom, tol: 0.5 });
+      }
+    }
+    return out;
+  }
+  SP.rowMask = function () {
+    var S = this, fig = S.fig, keys = fig.querySelector(".sc-keys"), clip = "";
+    if (fig.classList.contains("docked") && keys && S.stage && dockable()) {
+      // the backing's top edge: deep.css draws 4 px of void above the rule over the words
+      var dh = parseFloat(fig.style.getPropertyValue("--dock-h")) || 0;
+      var D = keys.getBoundingClientRect().bottom - dh - 4, st = S.stage.getBoundingClientRect();
+      if (D > st.top && D < st.bottom && st.bottom > 0 && st.top < root.innerHeight) {
+        var atoms = rowAtoms(S.stage, D - 3 * ROW_MAX, D), steps = [], level;
+        // a canvas is one tall element to the DOM, so a scene names the rows it paints: spec.rows(api) gives
+        // [x, y, w, h] bands in cells, each kept whole like a boxed row
+        if (S.spec.rows && S.canvas) {
+          var cr = S.canvas.getBoundingClientRect(), p = S.pitch || 1;
+          (S.spec.rows(S.api) || []).forEach(function (q) {
+            var t = cr.top + q[1] * p, b = cr.top + (q[1] + q[3]) * p;
+            if (b > D - 3 * ROW_MAX && t < D) atoms.push({ l: cr.left + q[0] * p, r: cr.left + (q[0] + q[2]) * p, t: t, b: b, tol: 2 });
+          });
+        }
+        // the edge over a row's width: the backing's edge, or the top of a clipped row it overlaps
+        level = function (a) { var y = D; steps.forEach(function (q) { if (q.r - a.l > 1 && a.r - q.l > 1) y = Math.min(y, q.t); }); return y; };
+        // a row the edge cuts is clipped from its top; a row the stepped edge cuts in turn goes too
+        for (var n = 0, more = true; n < 8 && more; n++) {
+          more = false;
+          atoms.forEach(function (a) {
+            if (a.done) return;
+            var y = level(a), tol = n ? a.tol : 0.5;
+            if (a.t < y - tol && a.b > y + tol) { a.done = more = true; steps.push(a); }
+          });
+        }
+        if (steps.length) {
+          var d = dprInt(), W = st.width, xs = [-200, W + 200], pts = [];
+          var px = function (v) { return Math.round(v * d) / d + "px"; };
+          steps.forEach(function (q) { xs.push(Math.max(-200, q.l - st.left), Math.min(W + 200, q.r - st.left)); });
+          xs = xs.sort(function (a, b) { return a - b; }).filter(function (x, i, a) { return !i || x > a[i - 1]; });
+          pts.push("-200px -200px", px(W + 200) + " -200px");
+          for (var k = xs.length - 1; k > 0; k--) {
+            var m = st.left + (xs[k] + xs[k - 1]) / 2, y = D;
+            steps.forEach(function (q) { if (q.l < m && q.r > m) y = Math.min(y, q.t); });
+            y = Math.floor((y - st.top) * d) / d;
+            pts.push(px(xs[k]) + " " + y + "px", px(xs[k - 1]) + " " + y + "px");
+          }
+          clip = "polygon(" + pts.join(",") + ")";
+        }
+      }
+    }
+    if (clip !== S.maskClip) { S.maskClip = clip; S.stage.style.clipPath = clip; }
   };
 
   /* ---------- rendering one moment ---------- */
@@ -430,6 +506,7 @@
     else if (S.spec.draw && (force || tick !== S.drawnTick || S.spec.smooth)) { S.spec.draw(S.api, tick, S.spec.smooth ? frac : 0); S.drawnTick = tick; }
     S.syncBar();
     S.syncProg();
+    if (S.fig.classList.contains("docked")) S.rowMask();
   };
   /* the autoplay's own clock, in ms, from its start to tick t: each stretch between steps, and each step's hold that is
      done (the one it sits on counts what has passed of it). A step at the very end gets no hold, as in advance(). */
@@ -695,12 +772,22 @@
     clearTimeout(rz);
     rz = setTimeout(relayout, 120);
   });
+  // scrolling moves a docked scene's art under its words: its row mask follows, once a frame
+  var rm = 0;
+  root.addEventListener("scroll", function () {
+    if (rm) return;
+    rm = requestAnimationFrame(function () {
+      rm = 0;
+      scenes.forEach(function (s) { if (s.fig.classList.contains("docked")) s.rowMask(); });
+    });
+  }, { passive: true });
   // a check that runs while a resize is still settling (or before its event) lays the scenes out first, so it reads the
   // size on screen
   function settle() { if (rz || root.innerWidth !== laidW || root.innerHeight !== laidH) { clearTimeout(rz); relayout(); } }
   /* text labels measure their own width, so place them again once the fonts are in (and the words' height, which
-     decides a phone scene's dock, is final) */
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.dock(); }); });
+     decides a phone scene's dock, is final). The frame is drawn again too, as relayout does: a page's own label rules
+     (keeping a label inside the column, wrapping one that runs long) run in its draw, after the plain placement */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.render(true); s.dock(); }); });
 
   if (COARSE) [].forEach.call(document.querySelectorAll(".verb"), function (v) { v.textContent = "tap"; });
 

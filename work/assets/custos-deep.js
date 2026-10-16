@@ -546,7 +546,7 @@
     ];
     function paint(k) {
       var rows = BASE.map(function (r) { return r.slice(); }), say = "reads the log", note = "", gt = "", gl = "", hi = -1;
-      if (k === "table") rows = rows.slice(0, 3);
+      if (k === "table") { rows = rows.slice(0, 3); say = "runs after the rules"; }
       if (k === "read") { rows = rows.slice(0, 3); note = "a long log is shortened, with a note that a missing line proves nothing"; }
       if (k === "upgrade" || k === "advise" || k === "agree") { rows[2] = [rows[2][0], "confirmed", "tier 4 · judge · cites a row"]; }
       if (k === "upgrade") { rows = rows.slice(0, 3); say = "proposes ✓ for row 3"; gt = "pass"; gl = "an upgrade: allowed"; hi = 2; }
@@ -785,10 +785,11 @@
           b.classList.toggle("fl-on", i >= 1 && !abl); b.classList.toggle("dim", abl);
         });
         var good = i === 0 ? 0 : i === 2 ? 9 : i === 3 ? 8 : 10, cells = "";
-        for (var c = 0; c < 10; c++) cells += '<span class="' + (i === 0 ? "" : c < good ? "g" : "r") + '" style="--i:' + c + '"></span>';
+        // before the run the target stands as a ghost, 10/10 and ten squares, so the run only lights them
+        for (var c = 0; c < 10; c++) cells += '<span class="' + (i === 0 ? "gh" : c < good ? "g" : "r") + '" style="--i:' + c + '"></span>';
         $("bd-strip").innerHTML = cells;
-        $("bd-v").textContent = i === 0 ? "–" : i === 2 ? "9/10" : i === 3 ? "8/10" : "10/10";
-        $("bd-k").textContent = i === 2 ? "scenarios passed · the full-output fix reverted" : i === 3 ? "scenarios passed · the count check off" : "scenarios passed";
+        $("bd-v").textContent = i === 2 ? "9/10" : i === 3 ? "8/10" : "10/10"; $("bd-v").classList.toggle("gh", i === 0);
+        $("bd-k").textContent = i === 0 ? "scenarios must pass" : i === 2 ? "scenarios passed · the full-output fix reverted" : i === 3 ? "scenarios passed · the count check off" : "scenarios passed";
       }
     });
   })();
