@@ -61,6 +61,31 @@ stepper control is a focusable native button, Space on the first square goes to 
 step 2. `cases` covers their errors, requests off the origin, fonts, tokens and sizes. About two minutes for both
 viewports; not in `--fast`.
 
+**The depth pages as a function of scroll position.** `depthpath` takes every page with the depth layer (`lx-`, the
+case studies and the deep dives) down, back up and down again through the same positions, on a fake clock: each
+figure's top just off the screen and a 24 px sliver of it at the foot, plus eighths of the page where there are few
+figures. On a phone the toolbar slides as on a real one, 900 px tall going down and 844 coming up. At every position
+each deep-dive scene obeys one floor, 40% of its stage on screen or a fifth of the screen: it plays, or waits its turn,
+only on it, and on it it is never left held or unarrived after two beats; a case-study figure's clock never runs under
+its floor (a sixth of the screen, or half a short figure). A scene's frame is lit exactly while it is arrived, and
+replay never shows on a figure still to finish. Across the passes, the docked word blocks and the layout are the same
+at each position, the road is never un-laid and lies the same once laid, one ant is drawn, the same one on both
+downward passes, and at the top the same one as on a page loaded and left there. The road's ant, read back from the
+road canvas by colour, is drawn on the same cells at each position on every pass, up included (on a phone, whose toolbar
+moves its head between passes, the same shape around its head): it never turns to face the way the reader last
+scrolled. Two more paths: a reader who leaves
+at once (a case figure scrolled away mid-play and left 9 s is paused there and carries on when back, and the hero's
+ant lands while the reader is away), and on a phone a deep dive whose `deep.js` arrives after its fonts, as on a slow
+connection, which must lay out as one that loads fast. How far a figure has played and the road laid on the first
+pass are the designed history and are left out. About 100 s per viewport; run it by viewport.
+**Falsified** with `--root` on a copy of the pages before the fixes it came with: desktop 6,088 failures of
+6 kinds (replay shown before the end, a frame lit on a scene not arrived, a scene held on its floor, one playing under
+it, the road's ant at the top where the hero's belongs, a hero finished unseen); phone 6,601 of 11 (those, and the road
+un-laid and lying differently once laid, docked blocks and layout that differ by pass, and inf-mem-deep 22,253 px tall
+against 22,248 when its deep.js lands after its fonts). Every one passes after them. The hero ant's layout was
+falsified alone, on a copy with every other fix in: the ant at the top was the road's on every pass of kronos-deep,
+against the hero's on a page left there.
+
 **`--fast`** runs selfchecks, notch advance and planting on desktop; all the work on desktop and phone; colours, font sizes,
 inner scrollers and listeners on desktop and phone; overflow and errors on
 desktop, phone and phone-small. It skips the hold sweeps,
@@ -86,6 +111,7 @@ Nothing is taken on the page's word where it can be read back:
 - **Reading zone at a hold:** the card being read is the one stuck at its sticky top, not the one with the most overlap.
 - **Native figure layers** (HOOKS.md) are found by `data-native` or their module's root class. Colours, sizes, the phone text test and clipping all include them.
 - **Station playback:** a station's clock may run only while its figure is in frame (the share of its box in the art region, from `figVis`, at least 0.2 once running) and its own layer is on screen. `playwalk` logs every frame of a visitor at a normal pace (110px every 120ms, top to the map) twice: stopping 1.5s at each hold's start, every station plays from p 0 to done at p 1; never stopping, p never advances on a frame when the figure was out of frame (that frame and the one before, since the suite's poll and the page's frame may run in either order) and never runs ahead of its own clock (more than its fastest key segment allows in the time since the last frame, + 50ms and 0.005), so nothing snaps to its end. `playthrough` flicks past every station, then visits each hold: a paused clock resumes where it stopped and finishes. `playreplay` also clicks each card's replay button 1, 3, 6 and 10 notches past its hold, wherever the button is still on screen and not under the strip or a phone's art band: in every frame the clock advances, the station is the scene and the current figure, at least half in frame, with its native layer on screen inside `figure().art`.
+- **Path-free:** `pathfree` plays every station, then reaches each state edge, each station just past its build edge, a chapter-I frame, the pull-back, the map's edge and a phone's rests from above and from below at a reading pace, after a reading-pace oscillation, by a jump and fresh; and wherever a station is built and undimmed (just built, and at its dim edge) also by a flick (400px notches every 40ms) up from the page's foot and by an oscillation of flicks (y+1500, y−1500, y+900, y−600, y) that crosses the station's dim and build edges within a frame or two, so a dim clip is landed mid-way. Settled screenshots at one y differ by at most 24 CSS px, and at every capture each station's cells, read back from the world bitmap (`stationInk().tone`), are all in their own tokens before its dim edge and all one token down past it: a figure left part stepped down shows on no other hook.
 - **Colour at a hold:** `vivid` reads a screenshot of the whole viewport at every hold sample. Pixels within 16 per channel of any `--v-*` token inside the art region may be at most half of the figure's own ink, every non-ground pixel inside `figure().cells` (its native box included).
 - **Colours:**
   - Every rendered element's computed colours, including `::before`/`::after`, borders, outlines and SVG shapes, resolved to sRGB by painting them.
@@ -259,6 +285,8 @@ the colour and work checks, each run at 1440x900 against a copy with one rule pu
 | work | the themes not picked filled in `--copper` with a rim of their hue | FAIL | at rest: verify, systems, play and data not in their own hue, and no ring on agents & LLMs |
 | work | every theme wearing the ring, not only the picked one | FAIL | at rest: ring cells on all five (35 to 45 each), want only agents & LLMs |
 | workland | (at 844x390) a tap keeps the scroll where it was, so the panel opens below the screen | FAIL | agents & LLMs: status at 488, first project ends 693 |
+| pathfree | the old dim rule: a dim clip a later trigger lands mid-way keeps the level it reached (the page carries the `tone` hook) | FAIL | emergence just built, after the oscillation of flicks: desktop y 2753, 43 cells in full tone and 45 stepped down, 4487 px against the reading-pace arrival; phone y 2382, 35 and 37, 1869 px; no other path or position failed |
+| depthpath | the road's ant drawn with its trail behind the last scroll direction (the old case.js) | FAIL | desktop 197 positions and phone 200 on 11 pages, one kind: going up the trail lies below the head on the rail, right of it on the strip |
 
 Harness defects found by the first runs of these, and fixed: the shot a third of the way in waited for the page to
 settle, which under a clock means the end, so custos read 0px apart; the done time was read by the same loop that
@@ -267,6 +295,9 @@ hover colour put every replay 140px off. Also: the frame poll and the page's own
 advance is out of frame only when two frames in a row were; a replay button under a phone's art band is not on screen,
 so it is hit-tested, not just boxed; and a snap from 0.85 to the end was smaller than any fixed per-frame cap, so the
 check is the clock's own fastest segment over the time since the last frame.
+The first flick paths in `pathfree` landed at each station's build edge, just short of it, where the station is not
+yet built, so the part-dimmed figure was never drawn there and the copy above passed (0 px); they now land just past
+the build edge, and at the dim edge, where the station is drawn and undimmed.
 
 Harness defects found this way and fixed:
 

@@ -718,7 +718,7 @@ function drawSap(i) {
 }
 
 /* ---------- playback: case:play runs both beats on one clock, case:rest shows the final state ---------- */
-var raf = 0, t0 = 0, mode = "idle", nfNow = 0, snNow = 0, live = null, beat = -1;
+var raf = 0, t0 = 0, pz = 0, mode = "idle", nfNow = 0, snNow = 0, live = null, beat = -1;
 function beatTo(i) { if (i !== beat) { beat = i; stage.dispatchEvent(new CustomEvent("case:beat", { detail: { i: i, n: 3 } })); } }
 function nandState() {
   if (live) { var tr = live.tr; return { g: tr.g, a: tr.a, b: tr.b, rows: tr.rows, lamp: tr.lamp }; }
@@ -735,9 +735,18 @@ function frame(now) {
   else finish();
 }
 function finish() { cancelAnimationFrame(raf); raf = 0; if (mode === "play") { mode = "done"; snNow = NCLK - 1; paint(); stage.dispatchEvent(new CustomEvent("case:done")); } }
+function start(now) { t0 = now; frame(now); }
 function play() {
-  cancelAnimationFrame(raf); live = null; nfNow = 0; snNow = 0; mode = "play"; beat = -1;
-  raf = requestAnimationFrame(function (now) { t0 = now; frame(now); });
+  cancelAnimationFrame(raf); live = null; nfNow = 0; snNow = 0; mode = "play"; beat = -1; t0 = 0; pz = 0;
+  raf = requestAnimationFrame(start);
+}
+/* off screen the clock stops where it is, and carries on from there when the figure is back (case.js) */
+function pause() { if (mode !== "play" || pz) return; cancelAnimationFrame(raf); raf = 0; pz = performance.now(); }
+function resume() {
+  if (!pz) return;
+  var d = performance.now() - pz; pz = 0;
+  if (mode !== "play") return;
+  if (t0) { t0 += d; raf = requestAnimationFrame(frame); } else raf = requestAnimationFrame(start);
 }
 function rest() { cancelAnimationFrame(raf); live = null; mode = "rest"; nfNow = NF; snNow = NCLK - 1; paint(); beat = -1; beatTo(2); }
 
@@ -801,6 +810,8 @@ if (CHECK.ok && SAP_OK) {
   cvS.parentNode.appendChild(scrub);
   lay(); paint();
   stage.addEventListener("case:play", play);
+  stage.addEventListener("case:pause", pause);
+  stage.addEventListener("case:resume", resume);
   stage.addEventListener("case:rest", rest);
   var rz = 0;
   window.addEventListener("resize", function () { clearTimeout(rz); rz = setTimeout(function () { lay(); lastRow = -1; paint(); }, 120); });

@@ -1082,17 +1082,25 @@ root.FreeflowRuns = { before: BEFORE, derive: derive, replay: replay, score: sco
   var ready = (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(function () {
     ST.mount(stage, { phone: innerWidth < 768 }); on = true; draw();
   });
+  var t0 = 0, pz = 0, run = 0, go = false;
+  function tick(t) {
+    raf = 0;
+    u = Math.min(1, U0 + (1 - U0) * Math.max(0, (t - t0) / DUR)); draw();
+    if (u < 1) raf = requestAnimationFrame(tick); else { run = 0; stage.dispatchEvent(new CustomEvent("case:done", { bubbles: true })); }
+  }
   stage.addEventListener("case:play", function () {
-    cancelAnimationFrame(raf); beat = -1;
+    cancelAnimationFrame(raf); raf = 0; beat = -1; pz = 0; go = false;
+    var me = ++run;
     ready.then(function () {
-      var t0 = performance.now();
-      (function tick(t) {
-        u = Math.min(1, U0 + (1 - U0) * Math.max(0, (t - t0) / DUR)); draw();
-        if (u < 1) raf = requestAnimationFrame(tick); else stage.dispatchEvent(new CustomEvent("case:done", { bubbles: true }));
-      })(t0);
+      if (me !== run) return;
+      t0 = performance.now(); go = true;
+      if (pz) pz = t0; else tick(t0);                    // paused before the fonts were in: it starts from U0 once back
     });
   });
-  stage.addEventListener("case:rest", function () { cancelAnimationFrame(raf); beat = -1; ready.then(function () { u = ST.rest(1); draw(); }); });
+  // off screen the clock stops where it is, and carries on from there when the figure is back (case.js)
+  stage.addEventListener("case:pause", function () { if (!run || pz) return; cancelAnimationFrame(raf); raf = 0; pz = performance.now(); });
+  stage.addEventListener("case:resume", function () { if (!pz) return; var d = performance.now() - pz; pz = 0; if (run && go) { t0 += d; raf = requestAnimationFrame(tick); } });
+  stage.addEventListener("case:rest", function () { cancelAnimationFrame(raf); raf = 0; run = 0; pz = 0; beat = -1; ready.then(function () { u = ST.rest(1); draw(); }); });
   addEventListener("resize", draw);
 })();
 </script>

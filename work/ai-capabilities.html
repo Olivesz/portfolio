@@ -402,18 +402,23 @@
         }
       }
     }
+    var t0 = 0, pz = 0;
+    function tick(now) {
+      var t = now - t0;
+      if (t < END) { at(t); raf = requestAnimationFrame(tick); return; }
+      raf = 0; at(Infinity);
+      stage.dispatchEvent(new CustomEvent("case:done"));
+    }
     function play() {
-      cancelAnimationFrame(raf);
-      var t0 = performance.now();
+      cancelAnimationFrame(raf); pz = 0;
+      t0 = performance.now();
       at(0);
-      raf = requestAnimationFrame(function tick(now) {
-        var t = now - t0;
-        if (t < END) { at(t); raf = requestAnimationFrame(tick); return; }
-        at(Infinity);
-        stage.dispatchEvent(new CustomEvent("case:done"));
-      });
+      raf = requestAnimationFrame(tick);
     }
     stage.addEventListener("case:play", function () { beat = -1; play(); });
+    // off screen the clock stops where it is, and carries on from there when the figure is back (case.js)
+    stage.addEventListener("case:pause", function () { if (!raf || pz) return; cancelAnimationFrame(raf); raf = 0; pz = performance.now(); });
+    stage.addEventListener("case:resume", function () { if (!pz) return; t0 += performance.now() - pz; pz = 0; raf = requestAnimationFrame(tick); });
     stage.addEventListener("case:rest", function () {
       cancelAnimationFrame(raf); pick(); beat = -1; at(Infinity);
       // at rest from the first frame (reduced motion) the tabs' listener may not be attached yet: name the beat again

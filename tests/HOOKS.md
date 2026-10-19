@@ -57,7 +57,7 @@ every beat, since beats no longer have scroll positions.
 | `play()` | fn → object | The per-station table, `{id: {keys, ms, lead, hold, live, on0, vis}}`. `keys` are `[ms, p]` pairs, piecewise linear; `hold` is the hold's length in screens; `live` the `p` window per layout (`desk`, `phone`) in which the station's input is live; `on0` the scroll position, in screens, where the station builds; `vis` the in-frame share that starts its clock. |
 | `figVis(id, s)` | fn → number | The share of station `id`'s figure box inside the art region at scroll position `s`, by the projection the frame draws with; 0 unless the camera is at the station pitch. |
 | `ZOOM` | number | Where the pull-back's zoom starts: from `PULL` to here the camera rests on the last station while its card leaves. |
-| `stationInk(id)` | fn → object or null | `{cells, labels}` for the last drawn frame: `cells` is whether any of a cell figure's cells are drawn in the art region at the station pitch (always false for a native station), `labels` how many of its canvas labels were painted at alpha 0.5 or more. |
+| `stationInk(id)` | fn → object or null | `{cells, labels, tone}` for the last drawn frame: `cells` is whether any of a cell figure's cells are drawn in the art region at the station pitch (always false for a native station), `labels` how many of its canvas labels were painted at alpha 0.5 or more. `tone` is `[full, down]`, read back from the world bitmap over the station's cells whose token has a step down (the road's own cells left out): how many are drawn in their own token and how many one token down. At rest it is all `full` before the station's dim edge and all `down` past it, never both. |
 | `resolveLevel(id)` | fn → number or null | A native station's resolve level as last drawn: 1 its native layer, 0 its cells; between only while a clip runs (build, unbuild, or the 300ms pull-back dissolve that starts as the camera crosses `ZOOM` and reverses on the way back). Null for a cell figure. |
 
 Rules the page keeps:
@@ -117,7 +117,38 @@ These are fixed by the spec, not by a hook. The suite reads them directly:
 - **Tokens and sizes:** the colour table, `{72, 40, 15, 13, 11, 44, 30}` for DOM text and 11 or 13 for art-canvas text. `:root` must define all 19 tokens by their names (`--void` … `--rule`, then `--v-red` … `--v-violet`). Pink (`--trail` and the other two trail steps) may not appear in DOM colours, with two exceptions: the handoff square's halo `box-shadow`, which may use `--trail` at alpha, and `--trail` inside a native figure layer.
 - **Canvas:** every `drawImage` onto an on-screen canvas lands at an integer device offset and an integer scale ≥ 1, with smoothing off when it scales. Every `fillRect` uses whole device pixels, whatever the transform. Every `fillStyle`/`strokeStyle` is an opaque token. Every `putImageData` value is a packed opaque token or `0`. Gradient stops may only be `--trail` (the halo). Any `shadowBlur > 0` or canvas `filter` fails.
 - **Input:** no `wheel`, `touch*` or `key*` listener on any target, including `on*` properties and inline attributes. Keyboard control of the KRONOS handle therefore has to come from a native element (`<input type="range">`), never a `keydown` listener. Planting uses a passive `pointerdown` or a `click`.
-- **Scrolling:** the page may call `scrollTo`, `scrollBy`, `scrollIntoView` or set `scrollTop` only inside a click handler.
+- **Scrolling:** the page may call `scrollTo`, `scrollBy`, `scrollIntoView` or set `scrollTop` only inside a click handler,
+  with two exceptions that put the visitor back where they were: once per resize or rotation (inside the `resize` event),
+  and after a reload or a restored tab, once the page is laid out (and once more at load if a part laid out late),
+  unless the visitor has scrolled since.
+
+## Path-free (`pathfree`)
+
+What a settled frame shows is a function of the scroll position. The suite reaches each state edge (a station's build
+and dim, the lock, the map's pitch step), a chapter-I frame, the pull-back, the map's edge and a phone's rests between
+stations, and each station just past its build edge, from above, from below, after a wheel oscillation, by a jump from
+the top and fresh; and wherever a station is built and undimmed (just built, and at its dim edge) also by a flick (400px
+notches every 40ms) up from the page's foot and by an oscillation of flicks that crosses the station's dim and build
+edges within a frame or two. It compares settled screenshots (canvas, native layers and DOM together), and at every
+capture each station's `stationInk().tone`. The page keeps it so:
+
+- one threshold per state, never a band that remembers the direction: a station is built from `on0`, dimmed from its
+  hold end + 0.05 (the last from `ZOOM`), the lock beat is `[2.00, 2.40)`, and the map's places, tags and caption show
+  exactly where the camera's pitch is the fit pitch (and, upright, the last card is clear). The clips answer a wobble
+  across a threshold.
+- a clip that a later trigger lands, or that ends between two frames, leaves its state at the end it was going to:
+  only one clip runs, so a dim level, a ring or a resolve level is never left part-way once no clip of that station
+  runs. A station's cells at rest are all in their own tokens before its dim edge and all one token down past it.
+- a label at rest takes the first side in its order that fits; it keeps its side only while the camera glides.
+- a phone's rest frame is the next station's first frame as a fresh visitor meets it, whole in the band or not drawn.
+- `running()` turns false at rest everywhere, the document included.
+- a reload or a restored tab comes back to the same place (`placeAt`), as a resize does.
+
+The designed history effects are excluded by name, never by tolerance: station playback (a finished station shows its end
+state, a held input its state), the blooms a played station earns on the map, the visitor's planted ant, the hidden
+ants, and the intro clock (the chaos runs on from wherever the landing's clock stood at the first scroll, so a fresh
+load's chaos may run a few steps apart). The suite plays every station before it compares, and skips a fresh frame
+only where a station it has not played is drawn.
 
 ## Contract read by `tests/check-panels.py`
 
@@ -181,6 +212,6 @@ exposes `window.__lx`, read-only. `depth` reads it on every page that opts in.
 | hook | contract |
 |---|---|
 | `window.__lx` | `arrived()` → the hero ant has reached its corner (true at load under reduced motion); `ant()` → `'hero'` or `'road'`, whichever draws the one ant now; `road()` → `{maxR, maxB, wide}`, the furthest rail row or strip cell laid, never decreasing; `head()` → `{y, on}` of the hero ant's head cell; `reduce`. |
-| `canvas.lx-arrive-cv`, `canvas.lx-road` | the only canvases that draw the ant: exactly one `--ant` cell between them on screen. |
+| `canvas.lx-arrive-cv`, `canvas.lx-road` | the only canvases that draw the ant: exactly one `--ant` cell between them on screen. The road's ant is a function of the reading position: its `--trail` and `--trail-2` cells lie behind its head along the road (above it on the rail, left of it on the strip) whichever way the reader came; `depthpath` reads them back from the road canvas on every pass. |
 | `[data-lx-arrive].lit` | the hero frame's corners have taken the hue (the ant is in). |
 | `[data-read]` | a deep dive's read time, written by deep.js; its case study quotes the same minutes. |

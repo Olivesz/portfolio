@@ -19,19 +19,46 @@
 
 /* case studies: a figure marked [data-play] plays once when half of it is on screen (40% of the screen for a tall
    one; on the first screen, before any scroll, a sixth of the screen will do, so a phone opens on it playing rather
-   than on a still frame), keeps its final state and then offers replay. Figures listen for case:play and case:rest
-   on their stage and dispatch case:done when finished. No wheel, touch or key listeners: replay is a native button. */
+   than on a still frame), keeps its final state and then offers replay. While it plays, its clock runs only while it
+   is on screen: under a sixth of the screen (or half of a short figure) it pauses where it is (case:pause, state
+   "paused") and carries on when it is back (case:resume), so a reader who scrolls past mid-play and comes back meets
+   it where they left it, never finished unseen. Figures listen for case:play, case:pause, case:resume and case:rest on
+   their stage and dispatch case:done when finished. No wheel, touch or key listeners: replay is a native button. */
 (function () {
   "use strict";
   var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
   function fire(el, type) { el.dispatchEvent(new CustomEvent(type, { bubbles: true })); }
   var steps = [];
   for (var k = 0; k <= 20; k++) steps.push(k / 20);
+  // the clock's floor, measured now: a sixth of the screen on screen, or half of a figure shorter than that
+  function onFloor(stage) {
+    var r = stage.getBoundingClientRect(), v = Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0));
+    return r.height > 0 && v >= Math.min(r.height * 0.5, innerHeight / 6) - 1;
+  }
+  var running = [], wq = 0;                         // figures started and not finished
+  function weigh() {
+    wq = 0;
+    running.forEach(function (stage) {
+      var on = onFloor(stage), st = stage.dataset.state;
+      if (st === "playing" && !on) { stage.dataset.state = "paused"; fire(stage, "case:pause"); }
+      else if (st === "paused" && on) { stage.dataset.state = "playing"; fire(stage, "case:resume"); }
+    });
+  }
+  function weighSoon() { if (!wq && running.length) wq = requestAnimationFrame(weigh); }
+  window.addEventListener("scroll", weighSoon, { passive: true });
+  window.addEventListener("resize", weighSoon, { passive: true });
   function setup(stage) {
     var fig = stage.closest("figure"), btn = fig ? fig.querySelector(".replay") : null;
     if (btn) btn.hidden = true;
-    stage.addEventListener("case:done", function () { stage.dataset.state = "done"; if (btn && !reduce) btn.hidden = false; });
-    function play() { stage.dataset.state = "playing"; if (btn) btn.hidden = true; fire(stage, "case:play"); }
+    stage.addEventListener("case:done", function () {
+      stage.dataset.state = "done"; if (btn && !reduce) btn.hidden = false;
+      var i = running.indexOf(stage); if (i >= 0) running.splice(i, 1);
+    });
+    function play() {
+      stage.dataset.state = "playing"; if (btn) btn.hidden = true;
+      if (running.indexOf(stage) < 0) running.push(stage);
+      fire(stage, "case:play"); weigh();
+    }
     if (btn) btn.addEventListener("click", play);
     if (reduce || !("IntersectionObserver" in window)) { stage.dataset.state = "rest"; fire(stage, "case:rest"); return; }
     var io = new IntersectionObserver(function (es) {
@@ -211,7 +238,9 @@
       // desktop: into the top-left corner, heading down and to the left as on the index; below 1280 the figure spans
       // the column, so into the top-right corner, heading down and to the right, through the room beside the title
       var dir = wd ? [-1, 1] : [1, 1], cx = wd ? fb.left : fb.right, cy = fb.top;
-      var H = cy - (stripB() + 4), Wd;
+      // the band is the one the page has at its top, wherever the reader is when this runs: the strip's foot is
+      // measured on the page, not on the screen, so a reader who scrolls before the fonts are in still meets the ant
+      var H = cy + W.scrollY - (stripB() + 4), Wd;
       // the band is the largest square on the corner kept 12 px clear of the title's words: each line of the kicker, the
       // title and the one-liner is an obstacle, and a line ends the band's height unless it ends short of the band's
       // width on the side away from the corner
@@ -343,7 +372,12 @@
     var rcv = rail ? D.createElement("canvas") : null, bcv = bar ? D.createElement("canvas") : null;
     if (rcv) { rcv.className = "lx-road"; rcv.setAttribute("aria-hidden", "true"); rail.insertBefore(rcv, rail.firstChild); }
     if (bcv) { bcv.className = "lx-road"; bcv.setAttribute("aria-hidden", "true"); bar.appendChild(bcv); }
-    var tops = [], M = null, maxR = -1, maxB = -1, lastY = -1, dirR = 1, dirB = 1, raf = 0, key = "", bloom = [], timer = 0;
+    var tops = [], M = null, maxR = -1, maxB = -1, raf = 0, key = "", bloom = [], timer = 0;
+    /* how far the reader has been, kept in terms a new layout can read back: on the rail, a place among the sections
+       (farP, see readAt), on the strip, a share of the page's scroll (farU); and every station reached (bloom). A resize
+       (a phone's toolbar sliding in or out as the reader turns, a rotation, a window dragged) lays the same road again
+       at the new size: the road laid stays laid. */
+    var farP = -1, farU = -1;
     function measure() {
       var y = W.scrollY;
       tops = targets.map(function (t, i) { return local[i] ? Math.round(t.getBoundingClientRect().top + y) : -1; });
@@ -364,21 +398,49 @@
         M.st = tops.map(function (t, i) { return i === 0 ? 0 : t < 0 || links[i].parentNode.classList.contains("sub") ? -1 : Math.round(Math.max(0, Math.min(1, (t - vh * 0.35) / M.max)) * (Lc - 1)); });
         fit(bcv, Lc * p2, 3 * p2);
       }
-      lastY = -1; key = ""; paint(true);
+      // the road laid so far, at this size, and through every station reached
+      if (M.wd && rcv) {
+        maxR = farP < 0 ? -1 : rowAt(farP);
+        M.tick.forEach(function (s, k) { if (bloom[k]) maxR = Math.max(maxR, s); });
+      } else if (bcv) {
+        maxB = farU < 0 ? -1 : Math.round(farU * (M.L - 1));
+        M.st.forEach(function (s, k) { if (s >= 0 && bloom[k]) maxB = Math.max(maxB, s); });
+      }
+      key = ""; paint(true);
     }
-    // the rail: the ant's row, proportional through the section it is in, so it meets each station as its section does
-    function railRow(y) {
+    /* the reading line (35% down the screen) as a place among the sections: i, the section it is in, plus how far
+       through it toward the next section on this page, scaled to the gap between them, so it grows as the reader goes
+       down; the foot of the page is the last station. */
+    function readAt(y) {
       var read = y + M.vh * 0.35, n = tops.length, i = -1, k;
+      if (y >= M.max - 2) return n - 1;
       for (k = 0; k < n; k++) if (tops[k] >= 0 && tops[k] <= read) i = k;
       if (i < 0) { for (k = 0; k < n && tops[k] < 0; k++); i = Math.min(k, n - 1); }   // above the first station here
       var j = i + 1; while (j < n && tops[j] < 0) j++;
       var end = j < n ? tops[j] : M.docH - M.vh * 0.65, f = Math.max(0, Math.min(1, (read - tops[i]) / Math.max(1, end - tops[i])));
       if (tops[i] > read) f = 0;
-      var a = M.tick[i], b = j < n ? M.tick[j] : M.tick[i];
-      var r = Math.round(a + f * (b - a));
-      if (y >= M.max - 2) r = M.tick[n - 1];
-      return { r: r, i: i };
+      return i + f * (Math.min(j, n - 1) - i);
     }
+    // the section a place p is in: the last one on this page at or before it, else the first one on this page
+    function secAt(p) {
+      var n = tops.length, i = -1, k;
+      for (k = 0; k < n; k++) if (tops[k] >= 0 && k <= p + 1e-9) i = k;
+      if (i < 0) { for (k = 0; k < n && tops[k] < 0; k++); i = Math.min(k, n - 1); }
+      return i;
+    }
+    // the rail: the ant's row at a place p, proportional through the section it is in, so it meets each station as its
+    // section does
+    function rowAt(p) {
+      var n = M.tick.length, i = secAt(p), j = i + 1;
+      while (j < n && tops[j] < 0) j++;
+      if (p >= n - 1 - 1e-9) return M.tick[n - 1];
+      if (j >= n) return M.tick[i];
+      return Math.round(M.tick[i] + (p - i) / (j - i) * (M.tick[j] - M.tick[i]));
+    }
+    function railRow(y) { var p = readAt(y); return { r: rowAt(p), i: secAt(p), p: p }; }
+    /* the ant at rest is a function of the reading position: its trail always lies behind it along the road, up the
+       rail and left along the strip, as the index's walk runs back along its road when the reader scrolls up. It never
+       turns to face the way the reader last scrolled, so a place shows the same ant however it was reached. */
     function drawRail(r, antOn) {
       var g = rcv.getContext("2d"), p = M.p, first = M.tick[0], lastT = M.tick[M.tick.length - 1], now = performance.now();
       g.clearRect(0, 0, rcv.width, rcv.height);
@@ -394,7 +456,7 @@
         if (!links[k].parentNode.classList.contains("sub")) { cell(0, s, arm); cell(2, s, arm); }
         cell(1, s - 1, arm); cell(1, s + 1, arm);
       });
-      if (antOn) { cell(1, r - dirR, C.trail); cell(1, r - 2 * dirR, C.t2); cell(1, r, C.ant); }
+      if (antOn) { cell(1, r - 1, C.trail); cell(1, r - 2, C.t2); cell(1, r, C.ant); }
     }
     function drawBar(x, antOn) {
       var g = bcv.getContext("2d"), p = M.p, now = performance.now();
@@ -409,20 +471,21 @@
         var reached = s <= maxB, armsLit = reached && (REDUCE || (bloom[k] && now - bloom[k] >= 160)), arm = armsLit ? C.hue : C.copper;
         cell(s, 1, reached ? C.hue : C.copper); cell(s - 1, 1, arm); cell(s + 1, 1, arm); cell(s, 0, arm); cell(s, 2, arm);
       });
-      if (antOn) { cell(x - dirB, 1, C.trail); cell(x - 2 * dirB, 1, C.t2); cell(x, 1, C.ant); }
+      if (antOn) { cell(x - 1, 1, C.trail); cell(x - 2, 1, C.t2); cell(x, 1, C.ant); }
     }
     function paint(force) {
       raf = 0;
       if (!M) return;
-      var y = W.scrollY, dir = lastY < 0 ? 0 : y > lastY ? 1 : y < lastY ? -1 : 0; lastY = y;
-      var antOn = !heroAntShown(), now = performance.now(), k2;
+      var y = W.scrollY;
+      var antOn = !heroAntShown(), now = performance.now(), k2, u = Math.max(0, Math.min(1, y / M.max)), p = readAt(y);
+      if (u > farU) farU = u;
+      if (p > farP) farP = p;
       if (antOn && hero && hero.done && hero.retire) hero.retire();
       if (M.wd && rcv) {
         var rr = railRow(y);
-        if (dir) dirR = dir;
         if (rr.r > maxR) maxR = rr.r;
         M.tick.forEach(function (s, k) { if (s <= maxR && !bloom[k]) bloom[k] = now; });
-        k2 = [rr.r, maxR, antOn, dirR, rr.i].join();
+        k2 = [rr.r, maxR, antOn, rr.i].join();
         if (force || k2 !== key) {
           key = k2; drawRail(rr.r, antOn);
           for (var k = 0; k < links.length; k++) {
@@ -435,11 +498,10 @@
           if (!rail.classList.contains("lx-on")) requestAnimationFrame(function () { requestAnimationFrame(function () { rail.classList.add("lx-on"); }); });
         }
       } else if (bcv) {
-        var x = Math.round(Math.max(0, Math.min(1, y / M.max)) * (M.L - 1));
-        if (dir) dirB = dir;
+        var x = Math.round(u * (M.L - 1));
         if (x > maxB) maxB = x;
         M.st.forEach(function (s, k) { if (s >= 0 && s <= maxB && !bloom[k]) bloom[k] = now; });
-        k2 = [x, maxB, antOn, dirB].join();
+        k2 = [x, maxB, antOn].join();
         if (force || k2 !== key) { key = k2; drawBar(x, antOn); }
       }
       // a station that bloomed in the last 160 ms opens its arms one step later: one more paint, then nothing
@@ -447,7 +509,7 @@
     }
     if (rail || bar) {
       W.addEventListener("scroll", function () { if (!raf) raf = requestAnimationFrame(function () { paint(false); }); }, { passive: true });
-      W.addEventListener("resize", function () { maxR = -1; maxB = -1; bloom = []; measure(); }, { passive: true });
+      W.addEventListener("resize", measure, { passive: true });
       if (W.ResizeObserver) { var rq = 0; new ResizeObserver(function () { if (!rq) rq = requestAnimationFrame(function () { rq = 0; measure(); }); }).observe(D.body); }
       if (D.fonts && D.fonts.ready) D.fonts.ready.then(measure);
       measure();
@@ -509,7 +571,9 @@
     });
   }
   // frames: the corners turn the hue the moment the figure arrives: an inline figure when 40% of it is on screen, or a
-  // fifth of the screen; a scene when deep.js starts it. The hero's frame waits for the ant instead.
+  // fifth of the screen; a scene when deep.js starts it, for as long as the scene stays arrived (one skimmed past on
+  // its first step forgets its arrival, see deep.js away, and its corners go back with it). The hero's frame waits for
+  // the ant instead.
   var frames = [].slice.call(D.querySelectorAll(".lx-fr")).filter(function (f) { return !f.hasAttribute("data-lx-arrive"); });
   if (REDUCE || !IO) frames.forEach(function (f) { f.classList.add("lit"); });
   else {
@@ -525,9 +589,11 @@
     if (W.__deep) W.__deep.scenes().forEach(function (s) { if (s.arrived) arrivedScenes[s.id] = true; });
     frames.forEach(function (f) {
       if (f.classList.contains("scene") && W.__deep) {
-        // a scene: deep.js fires deep:arrive when it starts the figure (or a reader steps it first)
+        // a scene: deep.js fires deep:arrive when it starts the figure (or a reader steps it first), deep:leave when it
+        // forgets that arrival
         if (arrivedScenes[f.id]) f.classList.add("lit");
-        else f.addEventListener("deep:arrive", function () { f.classList.add("lit"); }, { once: true });
+        f.addEventListener("deep:arrive", function () { f.classList.add("lit"); });
+        f.addEventListener("deep:leave", function () { f.classList.remove("lit"); });
       } else fio.observe(f);
     });
   }

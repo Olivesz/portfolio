@@ -393,22 +393,27 @@
       return Math.max(b[1] - b[0], 300 + 261 * words);
     });
   }
+  var t0 = 0, W = [], pz = 0;
+  function tick(now) {
+    var e = now - t0;
+    for (var k = 0; k < BEATS.length; k++) {
+      if (e < W[k]) { at(Math.max(T0, BEATS[k][0] + Math.min(e, BEATS[k][1] - BEATS[k][0]))); line(String(k)); raf = requestAnimationFrame(tick); return; }
+      e -= W[k];
+    }
+    raf = 0; at(Infinity); line("end");
+    stage.dispatchEvent(new CustomEvent("case:done"));
+  }
   function play() {
-    cancelAnimationFrame(raf);
-    var t0 = performance.now(), W = spans();
+    cancelAnimationFrame(raf); pz = 0;
+    t0 = performance.now(); W = spans();
     beat = -1;
     at(T0); line("0");
-    raf = requestAnimationFrame(function tick(now) {
-      var e = now - t0;
-      for (var k = 0; k < BEATS.length; k++) {
-        if (e < W[k]) { at(Math.max(T0, BEATS[k][0] + Math.min(e, BEATS[k][1] - BEATS[k][0]))); line(String(k)); raf = requestAnimationFrame(tick); return; }
-        e -= W[k];
-      }
-      at(Infinity); line("end");
-      stage.dispatchEvent(new CustomEvent("case:done"));
-    });
+    raf = requestAnimationFrame(tick);
   }
   stage.addEventListener("case:play", play);
+  // off screen the clock stops where it is, and carries on from there when the figure is back (case.js)
+  stage.addEventListener("case:pause", function () { if (!raf || pz) return; cancelAnimationFrame(raf); raf = 0; pz = performance.now(); });
+  stage.addEventListener("case:resume", function () { if (!pz) return; t0 += performance.now() - pz; pz = 0; raf = requestAnimationFrame(tick); });
   stage.addEventListener("case:rest", function () {
     cancelAnimationFrame(raf); pick(); at(Infinity); beat = -1; line("end");
     // at rest from the first frame (reduced motion) the tabs' listener may not be attached yet: name the beat again

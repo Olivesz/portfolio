@@ -1283,7 +1283,7 @@ root.FigKronos = api;
   if (!stage || !S) return;
   var host = stage.querySelector(".k-host"), instr = document.getElementById("hero-instr"), btn = document.getElementById("hero-switch");
   var row = stage.parentNode.querySelector(".cap-row");
-  var u = 0, raf = 0, sraf = 0, t0 = 0, playing = false, shown = false, focusNext = false, DUR = 6000, HOLD = 1200, m = null, beat = -1;
+  var u = 0, raf = 0, sraf = 0, t0 = 0, pz = 0, playing = false, shown = false, focusNext = false, DUR = 6000, HOLD = 1200, m = null, beat = -1;
   // a phone shows one view at a time, so the clock holds the settled lock for HOLD ms before the gates take the frame
   function uAt(ms) {
     if (innerWidth >= 1024) return Math.min(1, ms / DUR);
@@ -1329,7 +1329,10 @@ root.FigKronos = api;
   if (m && m.input) { m.input.addEventListener("pointerdown", hold); m.input.addEventListener("input", hold); }
   // the view is set afresh, not swapped back across its boundary: hide() clears the held view, so beat 1 shows at once
   if (btn) btn.addEventListener("click", function () { var back = F.phoneView() !== 0; cancelAnimationFrame(raf); playing = false; F.hide(); u = back ? S.rest(0) : 1; focusNext = back; draw(); });
-  stage.addEventListener("case:play", function () { cancelAnimationFrame(raf); F.reset(); u = 0; beat = -1; t0 = 0; playing = true; draw(); raf = requestAnimationFrame(tick); });
+  stage.addEventListener("case:play", function () { cancelAnimationFrame(raf); F.reset(); u = 0; beat = -1; t0 = 0; pz = 0; playing = true; draw(); raf = requestAnimationFrame(tick); });
+  // off screen the clock stops where it is, and carries on from there when the figure is back (case.js)
+  stage.addEventListener("case:pause", function () { if (!playing || pz) return; cancelAnimationFrame(raf); raf = 0; pz = performance.now(); });
+  stage.addEventListener("case:resume", function () { if (!pz) return; var d = performance.now() - pz; pz = 0; if (!playing) return; if (t0) t0 += d; raf = requestAnimationFrame(tick); });
   stage.addEventListener("case:rest", function () { playing = false; shown = true; u = 1; beat = -1; draw(); });
   window.addEventListener("resize", function () { reserve(); draw(); });
   reserve(); draw();

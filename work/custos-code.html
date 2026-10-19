@@ -1261,21 +1261,26 @@ root.FigCustosNative = api;
     // centred in the stage on the cell lattice, as every case study's hero is
     S.draw(u, { x: Math.max(0, Math.floor((c.band.r - w) / 2 / c.cell) * c.cell), y: Math.round((c.band.b - h) / 2), w: w, h: h }, c);
   }
-  function play() {
-    cancelAnimationFrame(raf);
-    var t0 = null;
-    (function tick(t) {
-      if (t0 === null) t0 = t;
-      var k = Math.min(1, (t - t0) / DUR);
-      draw(k < 1 ? k * U_END : 1);
-      if (k < 1) raf = requestAnimationFrame(tick);
-      else stage.dispatchEvent(new CustomEvent("case:done"));
-    })(performance.now());
+  var t0 = 0, pz = 0, playing = false;
+  function tick(t) {
+    raf = 0;
+    var k = Math.min(1, (t - t0) / DUR);
+    draw(k < 1 ? k * U_END : 1);
+    if (k < 1) raf = requestAnimationFrame(tick);
+    else { playing = false; stage.dispatchEvent(new CustomEvent("case:done")); }
   }
-  function rest() { cancelAnimationFrame(raf); draw(1); }
+  function play() {
+    cancelAnimationFrame(raf); raf = 0; playing = true;
+    t0 = performance.now();
+    if (pz) pz = t0; else tick(t0);                      // paused before the station was ready: it starts once back
+  }
+  function rest() { cancelAnimationFrame(raf); raf = 0; playing = false; pz = 0; draw(1); }
   function when(f) { if (ready) f(); else queued = f; }
-  stage.addEventListener("case:play", function () { beat = -1; when(play); });
+  stage.addEventListener("case:play", function () { beat = -1; pz = 0; when(play); });
   stage.addEventListener("case:rest", function () { beat = -1; when(rest); });
+  // off screen the clock stops where it is, and carries on from there when the figure is back (case.js)
+  stage.addEventListener("case:pause", function () { if (pz) return; cancelAnimationFrame(raf); raf = 0; pz = performance.now(); });
+  stage.addEventListener("case:resume", function () { if (!pz) return; var d = performance.now() - pz; pz = 0; if (playing) { t0 += d; raf = requestAnimationFrame(tick); } });
   window.addEventListener("resize", function () { if (ready) draw(cur); });
   H.ready.then(function () { ready = true; draw(0); if (queued) { var f = queued; queued = null; f(); } });
 })();

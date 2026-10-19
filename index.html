@@ -3235,7 +3235,7 @@ function setSwitch(v) {
   for (var i = 0; i < onChange.length; i++) onChange[i](v);
   return true;
 }
-function reset() { setSwitch(SW0); dragging = false; }
+function reset() { setSwitch(SW0); dragging = false; PV.view = PV.from = -1; }   // and the phone's view: a reset figure starts from its first
 // off its beat the switch parks unseen at parkR in its control group, still in the tab order: focusing it scrolls beat 1 in natively
 function parkInp() {
   if (!inp) return;
@@ -4758,10 +4758,15 @@ function tickPlay(now) {
 // rest where neither is whole. Once it has rested REST_MS there, the band shows the next station's first frame, one
 // token down, where that station will arrive, under its line (previewFor): never an empty band, never a fragment
 var lastScrollT = -1e9, restTimer = 0, REST_MS = 300;
-function restedAt(now) { return now - lastScrollT >= REST_MS && shownS === targetS; }
+// the rest is read on the wall clock: a frame's own timestamp is its start, which can fall a few ms before the timer
+// that woke it, and a rest read as not yet reached there would stop the loop with nothing left to wake it
+function restedAt(now) { return Math.max(now, performance.now()) - lastScrollT >= REST_MS && shownS === targetS; }
+function armRest() { clearTimeout(restTimer); restTimer = (wide && !land) || RM ? 0 : setTimeout(restCheck, REST_MS + 4); }
 function restCheck() {
   restTimer = 0;
   if ((wide && !land) || RM) return;
+  var left = REST_MS - (performance.now() - lastScrollT);
+  if (left > 0) { restTimer = setTimeout(restCheck, left + 4); return; }
   if (shownS !== targetS) { restTimer = setTimeout(restCheck, 50); return; }   // the camera is still gliding in
   wake();
 }
@@ -4823,7 +4828,7 @@ function restOff(ch, s, keep) {
     return true;
   }
   function fits(o) { return bx + o[0] >= B.l * dpr && bx + o[0] + w <= B.r * dpr && by + o[1] >= B.t * dpr && by + o[1] + h <= B.b * dpr; }
-  if (clear([0, 0])) return [0, 0];
+  if (fits([0, 0]) && clear([0, 0])) return [0, 0];             // a frame stands whole in the band or not at all: never cut at its edge
   if (keep && fits(keep) && clear(keep)) return keep;
   var c = [[0, Math.ceil((yb + pa + pp - by) / pa) * pa], [Math.ceil((xb + pa + pp - bx) / pa) * pa, 0],
            [Math.floor((xa - pa - w - bx) / pa) * pa, 0], [0, Math.floor((ya - pa - h - by) / pa) * pa]];
@@ -4880,20 +4885,22 @@ function evalTriggers(s, now, instant) {
     // waits for the whole box), so a visitor who stops just short of the card's sticky top already has the figure;
     // its clock is tickPlay's
     var a0 = ch.on0 === undefined ? ch.arrive : ch.on0;
+    // each state is a function of s alone, one threshold each, whichever way the visitor came: a visitor who wobbles
+    // across one is answered by the clips (build 700ms, dim 240ms), never by a band that remembers the direction
     var st = chT(ch), f = null, g = null;
-    var on = st.on ? s >= a0 - 0.05 : s >= a0;
+    var on = s >= a0;
     if (on !== st.on) {
       st.on = on; f = { kind: on ? "build" : "unbuild", ch: ch, dur: ch.beats[0].native ? (on ? 700 : 720) : (on ? 736 : 480) };
       if (on) { playArrive(ch); ch.wait = !wide && !RM && !!ch.beats[0].native; } else playLeave(ch, now);
     }
     var dh = ch.k === CHAPTERS.length - 1 ? ZOOM - 0.05 : ch.hold;    // the last stays current through the pull-back's rest
-    var dim = st.dim ? s >= dh + 0.01 : s >= dh + 0.05;
+    var dim = s >= dh + 0.05;
     if (dim !== st.dim) { st.dim = dim; if (on) g = { kind: dim ? "dim" : "undim", ch: ch, dur: 240 }; }
     var b = syncBeat(ch); if (b) beats.push(b);
     if (f) fire.push(f); if (g) fire.push(g);
   });
   fire = beats.concat(fire);                                     // a build or dim outranks a beat that lands with it
-  var lk = lockOn ? (s >= LAND_CHAOS - 0.02 && s < LOCK_END) : (s >= LAND_CHAOS && s < LOCK_END - 0.02);
+  var lk = s >= LAND_CHAOS && s < LOCK_END;
   if (lk !== lockOn) { lockOn = lk; fire.push({ kind: lk ? "lockin" : "lockout", dur: 240 }); }
   if (instant || RM) { clip = null; return; }
   if (fire.length) startClip(fire[fire.length - 1], now);       // nothing queues: the last trigger plays, the rest land
@@ -4945,7 +4952,9 @@ function updStation(ch, s, now) {
     // which glides behind a fast scroll, has brought the whole box in: its build clip waits at its first frame until then
     var wasWait = ch.wait;
     if (ch.wait) {
-      if (!st.on || figVis(ch, s) >= WHOLE) ch.wait = false;
+      // the wait gates the way in only: a station built by a jump, a reload or a deep link past its hold is never whole
+      // again, and the map and the pull-back still draw it
+      if (!st.on || figVis(ch, s) >= WHOLE || s >= ch.hold) ch.wait = false;
       else if (mine && mine.kind === "build") { if (mine.tq === undefined) mine.tq = mine.t0; mine.t0 = now; ct = 0; }   // tq: when the scroll triggered it
     }
     if ((!wide || land) && rr > 0) {
@@ -4957,8 +4966,15 @@ function updStation(ch, s, now) {
     ch.r = rr;
   }
   var showing = (st.on && !ch.wait) || (mine && mine.kind === "unbuild");
-  if (st.dim !== (stDimL[ch.k] === 8) || (mine && (mine.kind === "dim" || mine.kind === "undim"))) {
-    var lvl = mine && mine.kind === "dim" ? Math.round(8 * clamp01(ct / 240)) : mine && mine.kind === "undim" ? 8 - Math.round(8 * clamp01(ct / 240)) : st.dim ? 8 : 0;
+  // the dim level rests at its end (8 dim, 0 not) whenever no dim clip of this station runs: a clip that ends between
+  // frames, or that a later trigger lands mid-way (a flick crosses the dim edge and the build edge in two frames), would
+  // otherwise leave the figure part stepped down, half its cells grey, with nothing left to redraw it. A clip runs from
+  // the level it finds, so a wobble across the edge never flashes the whole figure dim first
+  var dimMine = mine && (mine.kind === "dim" || mine.kind === "undim") ? mine : null;
+  if (stDimL[ch.k] !== (st.dim ? 8 : 0) || dimMine) {
+    if (dimMine && dimMine.l0 === undefined) dimMine.l0 = stDimL[ch.k];
+    var df = clamp01(ct / 240);
+    var lvl = !dimMine ? (st.dim ? 8 : 0) : dimMine.kind === "dim" ? Math.round(dimMine.l0 + (8 - dimMine.l0) * df) : Math.round(dimMine.l0 * (1 - df));
     if (lvl !== stDimL[ch.k]) { stDimL[ch.k] = lvl; for (var i0 = 0; i0 < ch.buf.length; i0++) if (ch.buf[i0]) { var j0 = wi(ch.F[0] + (i0 % ch.w), ch.F[1] + ((i0 / ch.w) | 0)); if (j0 >= 0) comp(j0); } }
   }
   // a phone draws a station only while its whole box is in the band, cells or layer, so no edge ever cuts a figure:
@@ -6190,6 +6206,9 @@ function render(s, now) {
       var pr = RM ? 1 : Math.max(1e-3, clamp01((now - PREV.t0) / 240)); if (pr < 1) fadesBusy = true;
       ch.nbox = null;
       var ab = arriveBox(ch), po = PREV.off || [0, 0];                // set aside from the ant where it would cover it (restOff)
+      // a rest frame is the station's first frame as a fresh visitor meets it, never what a finished run left in the
+      // module (KRONOS keeps its last phone view and switch); one the visitor holds keeps their switch
+      if (ch.id === "kronos" && ch.pb.state !== "held") FigKronos.reset();
       M.draw(nativeU(M, 0), { x: ab.x + po[0] / dpr, y: ab.y + po[1] / dpr, w: ab.w, h: ab.h }, stationCtx(pr, nativeOrg(ch), true));
       return;
     }
@@ -6270,6 +6289,7 @@ function placeCtl(sc) {
   });
 }
 var labSide = {}, labSig = [], labLast = [];
+function gliding() { return shownS !== targetS; }
 function trIx(i) { var n = 0; for (var j = 0; j < i; j++) if (TR[j].n > 0) n++; return n; }
 // the dated labels speak in chapter I only: they fade as the first station arrives, with the trails receding, so none
 // hangs over a figure later in the walk
@@ -6330,7 +6350,9 @@ function placeLabel(key, lines, bx0, by0, bx1, by1, pref, B, obst) {
     for (var j = 0; j < obst.length; j++) { var o = obst[j]; if (r[0] < o[2] && r[2] > o[0] && r[1] < o[3] && r[3] > o[1]) return null; }
     return r;
   }
-  var r = labSide[key] ? fits(labSide[key]) : null;           // keep a label's side while it still fits
+  // at rest a label takes the first side in its order that fits, so where it stands is a function of the frame alone;
+  // while the camera glides it keeps its side as long as that still fits, so a moving frame never shuffles it
+  var r = gliding() && labSide[key] ? fits(labSide[key]) : null;
   for (var q = 0; !r && q < pref.length; q++) { r = fits(pref[q]); if (r) labSide[key] = pref[q]; }
   if (r) obst.push(r);
   return r;
@@ -6372,7 +6394,7 @@ function phoneMarkers(cX, cY, R, now) {
     var vx = cx - mc[0], vy = cy - mc[1], k = labSide["pm" + i];
     var sides = ["l", "r", "t", "b"].sort(function (u, v) { return dot(v) - dot(u); });
     function dot(sd) { return sd === "l" ? -vx : sd === "r" ? vx : sd === "t" ? -vy : vy; }
-    if (k) hit = at(k[0], +k[1], k[2] === "1");
+    if (k && gliding()) hit = at(k[0], +k[1], k[2] === "1");        // kept only while the camera glides, as placeLabel's sides
     for (var pass = 0; !hit && pass < 10; pass++) for (var q = 0; !hit && q < sides.length; q++) {
       var dd = pass % 5, lo = pass >= 5;
       hit = at(sides[q], dd, lo); if (hit) labSide["pm" + i] = sides[q] + dd + (lo ? "1" : "0");
@@ -6528,6 +6550,9 @@ function layoutPlacesLive() {
     setLabel(p);
   });
   while (leaders.firstChild) leaders.removeChild(leaders.firstChild);
+  // the leaders' box is this layout's viewport: a size kept from a wider one (a rotation, a narrowed window) would
+  // overflow the page through the parked places and let a phone zoom the whole page out to fit it
+  leaders.setAttribute("width", VW); leaders.setAttribute("height", VH);
   PLACES.forEach(function (p) { p.ln = null; });
   if (!wide) {
     MAPPL = null;
@@ -6711,7 +6736,7 @@ var acks = [];
 
 /* ---------- one smoothing stage: shown += d * (1 - exp(-dt / 100ms)); stalls and jumps snap ---------- */
 var TAIL = 0.75;
-var running = false, lastT = 0, targetS = 0, shownS = 0, named = false, placesOn = false, placesWait = false, placesWaitT = 0, placesLive = null, parkT = 0, placesTop = 0, docTop = 1e9;
+var running = false, lastT = 0, targetS = 0, shownS = 0, named = false, syncOut = false, placesOn = false, placesWait = false, placesWaitT = 0, placesLive = null, parkT = 0, placesTop = 0, docTop = 1e9;
 // a phone lists the places in rows under its art band: only once the last card has left that column (its foot at or
 // above the first row) and the camera rests on the map pose (within 2 CSS px), so every row's marker is in the band
 function phoneMapClear(s, slack) {
@@ -6722,19 +6747,18 @@ function phoneMapClear(s, slack) {
 function syncDom() {
   ch1El.classList.toggle("on", targetS >= LAND && targetS < LOCK_END);   // chapter I's kicker arrives with the chaos and goes at the lock, so it never hangs alone over chapter II
   plantEl.classList.toggle("off", targetS >= P_ON);                  // in the same slot, the plant line holds while planting lives
-  if (!named && targetS >= NAME_S) { named = true; strip.classList.add("named"); }
-  else if (named && targetS < NAME_S - 0.005) { named = false; strip.classList.remove("named"); }
-  var fitNow = Math.round(camAt(targetS).pf) <= (mapHalf ? 1 : mapP) && targetS >= PULL;
-  var fitOff = targetS < PULL || Math.round(camAt(targetS).pf) > (mapHalf ? 1 : mapP) + 1;
-  if (!wide) { if (!phoneMapClear(targetS, 0)) fitNow = false; if (!phoneMapClear(targetS, 4)) fitOff = true; }
+  var nm = targetS >= NAME_S;
+  if (nm !== named) { named = nm; strip.classList.toggle("named", nm); }
+  // the map's places belong to the map pose and to nothing else: on wherever the camera's pitch is the fit pitch (an
+  // upright phone also needs the last card clear and the camera on the pose), off everywhere else, whichever way the
+  // visitor came. A pitch past the fit's is a different frame, and a label placed for the fit would sit on the wrong thing
+  var fitNow = targetS >= PULL && Math.round(camAt(targetS).pf) <= (mapHalf ? 1 : mapP) && (wide || phoneMapClear(targetS, 0));
   // the places come in over the map as drawn, never over a larger pitch or a dissolve still running: until then the
   // frame loop asks again each frame
   var tn = performance.now(), drawnFit = NV.pp > 0 && NV.pp <= (mapHalf ? 1 : mapP) && tn >= snapEnd;
   if (!placesWait) placesWaitT = tn;
   placesWait = !placesOn && fitNow && !drawnFit && tn - placesWaitT < 1200;      // bounded: the places never wait on a frame that will not come
-  if (placesWait) fitNow = false;
-  if (!placesOn && fitNow) placesOn = true;
-  else if (placesOn && fitOff) placesOn = false;
+  placesOn = fitNow && !placesWait;
   // the rising document slides over the places: they stay live until it reaches the highest one, and a place leaves
   // (sight and tab order) as soon as the document touches its box, so no label is ever drawn cut in half at the edge;
   // the caption row under the strip, which the document reaches last, goes with them
@@ -6742,6 +6766,7 @@ function syncDom() {
   // pull-back has begun, they come up under the band while the map forms above them, so that half is never left empty.
   // The map's tags and plates still wait for placesOn
   var lc = CROWS[CROWS.length - 1], early = !wide && targetS >= ZOOM && !!lc && lc.out;
+  syncOut = !!lc && lc.out;                    // what render() last read for the last card: frame() syncs again when it changes
   var dv = docTop - targetS * S, live = (placesOn || early) && dv > placesTop;
   if (live !== placesLive) {
     placesLive = live; clearTimeout(parkT);
@@ -6776,15 +6801,19 @@ function frame(now) {
   var plBusy = tickPlay(now);
   var cBusy = FigNand.tick(now);
   // once the document covers the whole viewport the art is out of sight: no redraw until it shows again
-  var pBusy = shownS * S >= docTop && targetS * S >= docTop ? false : render(shownS, now);
+  // (a fade a skipped frame would have advanced is not busy: the art is hidden, and it resumes on its clock when it shows)
+  var pBusy = shownS * S >= docTop && targetS * S >= docTop ? (fadesBusy = false) : render(shownS, now);
   var iBusy = shownS < LAND && introT0 >= 0 && introEnd < 0 && introLive(now) < INTRO_MAX;
-  if (placesWait) syncDom();
+  // the phone's early place rows read the last card's state, which render() has just measured at this position: a
+  // jump, a reload or a rotation lands here with the value its previous position left, so the rows sync again
+  var lcO = CROWS[CROWS.length - 1];
+  if (placesWait || (!!lcO && lcO.out) !== syncOut) syncDom();
   if (clip || pBusy || cBusy || plBusy || iBusy || fadesBusy || placesWait || zoomBusy(now) || FigKronos.swapping() || shownS !== targetS) requestAnimationFrame(frame);
   else running = false;
 }
 addEventListener("scroll", function () {
   if (introEnd < 0 && window.scrollY > 0) introFreeze(performance.now());
-  lastScrollT = performance.now(); clearTimeout(restTimer); restTimer = (wide && !land) || RM ? 0 : setTimeout(restCheck, REST_MS + 4);
+  lastScrollT = performance.now(); armRest();
   targetS = window.scrollY / S; evalTriggers(targetS, performance.now(), false); syncDom(); wake(); noteDocPlace();
 }, { passive: true });
 // where the visitor is, in terms a relayout keeps: the scene and the fraction through it, or the document line at the strip
@@ -6796,11 +6825,26 @@ function placeAt(s) {
     if (s < ch.hold) return { k: i, tr: false, f: (s - ch.arrive) / (ch.hold - ch.arrive) };
   }
   if (s < DOCS) return { pull: (s - PULL) / (DOCS - PULL) };
-  var els = d0.querySelectorAll("#doc h2, #doc h3, #doc p, #doc li, #doc dt, #doc dd, #doc tr");
-  for (var j = 0; j < els.length; j++) { var r = els[j].getBoundingClientRect(); if (r.height && r.bottom > STRIP) return { el: els[j], top: r.top }; }
+  // the document still rising under the map: its top edge at the same share of the viewport's height, so the same
+  // share of it shows after a relayout (a line found here, or the same px on a shorter screen, would put the visitor
+  // back in the map)
+  var dv = docTop - s * S;
+  if (dv > STRIP) return { dvf: dv / window.innerHeight };
+  // else the first line the reader sees below the strip, among what is drawn: never the résumé's 1px text copy, and
+  // the résumé page itself (an image that rescales) by the share of it above the strip
+  var els = d0.querySelectorAll(DOC_LINES);
+  for (var j = 0; j < els.length; j++) {
+    var e = els[j], r = e.getBoundingClientRect();
+    if (r.height <= 1 || r.bottom <= STRIP || e.closest(".sr-only")) continue;
+    return r.top < STRIP && r.height > 64 ? { el: e, di: j, f: (STRIP - r.top) / r.height } : { el: e, di: j, top: r.top };
+  }
   return { s: s };
 }
+var DOC_LINES = "#doc h2, #doc h3, #doc p, #doc li, #doc dt, #doc dd, #doc tr, #resume .rv-page";
 function sOfPlace(p) {
+  if (p.dvf !== undefined) return (docTop - p.dvf * window.innerHeight) / S;
+  if (!p.el && p.di !== undefined) p.el = d0.querySelectorAll(DOC_LINES)[p.di];
+  if (p.el && p.f !== undefined) { var r = p.el.getBoundingClientRect(); return (r.top + window.scrollY + p.f * r.height - STRIP) / S; }
   if (p.el) return (p.el.getBoundingClientRect().top + window.scrollY - p.top) / S;
   if (p.pull !== undefined) return PULL + p.pull * (DOCS - PULL);
   if (p.k !== undefined) { var ch = CHAPTERS[p.k]; return p.tr ? ch.from + p.f * (ch.arrive - ch.from) : ch.arrive + p.f * (ch.hold - ch.arrive); }
@@ -6810,10 +6854,15 @@ function sOfPlace(p) {
 // positions are gone (the text has already reflowed)
 var docPlace = null, docPlaceT = 0;
 function noteDocPlace() {
-  if (targetS < DOCS || docPlaceT) return;
-  docPlaceT = ric(function () { docPlaceT = 0; docPlace = targetS >= DOCS ? placeAt(targetS) : null; if (docPlace) docPlace.at = targetS; });
+  if (targetS < DOCS || docPlaceT || held()) return;
+  docPlaceT = ric(function () { docPlaceT = 0; if (held()) return; docPlace = targetS >= DOCS ? placeAt(targetS) : null; if (docPlace) docPlace.at = targetS; });
 }
-addEventListener("resize", function () {
+// a line a relayout could not bring back to its place (the page now ends sooner) stays the place until the visitor
+// scrolls, so the next relayout (rotating back) returns to it rather than to where the shorter page stopped
+function held() { return !!docPlace && docPlace.hold && docPlace.at === targetS; }
+// registered by start(), after every other part of the page has added its own: the work section and the eggs lay
+// themselves out in their resize listeners, and the visitor's line is found again only once they have
+function onResize() {
   var w = d0.documentElement.clientWidth, s = $("#pl").offsetHeight;
   if (w === lastW && (s === lastS || (TOUCH && Math.abs(s - lastS) < 160))) return;   // a touch toolbar is not a resize; a desktop window height is
   // targetS is still the last scroll position in the old layout's screens, whatever the browser did to scrollY since
@@ -6822,14 +6871,18 @@ addEventListener("resize", function () {
   // a new width or height rescales every section: the visitor stays at the same place in the same scene, scrolled there once
   var y = Math.max(0, Math.round(sOfPlace(at) * S));
   if (Math.abs(y - window.scrollY) >= 1) window.scrollTo(0, y);
+  if (at.el && Math.abs(window.scrollY - y) >= 1) { docPlace = at; at.hold = true; at.at = window.scrollY / S; }
   targetS = shownS = window.scrollY / S; settleClipsFor(targetS); syncDom(); wake(); warmStations();
-});
+  lastScrollT = performance.now(); armRest();                     // a relayout is a new rest: its frame comes up as a scroll's would
+}
 
 /* ---------- figure inputs: real controls over figure cells, created only when their check passes ---------- */
 var ctlN = $("#ctl-emergence"), NB0 = CHAPTERS[0].beats[0];
 if (FigNand.mount(ctlN, { onChange: wake })) ctlN.querySelectorAll(".fn-in").forEach(function (el) { el.setAttribute("data-check", "nand"); });
+// an input is taken by using it (a drag's input, a click or tap, a focus), never by a bare pointerdown: a thumb that
+// starts a scroll on the figure fires pointerdown too, and a scroll past a station must not hand it over
 [["emergence", ctlN], ["kronos", $("#ctl-kronos")]].forEach(function (q) {
-  if (q[1]) ["pointerdown", "input", "click", "focusin"].forEach(function (e) { q[1].addEventListener(e, function () { takeOver(chById(q[0])); }, { passive: true }); });
+  if (q[1]) ["input", "change", "click", "focusin"].forEach(function (e) { q[1].addEventListener(e, function () { takeOver(chById(q[0])); }, { passive: true }); });
 });
 CHAPTERS.forEach(function (ch) {
   var lk = $("#b-" + ch.id + " .lk"); if (!lk) return;
@@ -6891,8 +6944,53 @@ $("#bookend-end").textContent = END.toLocaleString("en-US");
 // the bookend row carries the walk's last step count itself: once it is on screen the strip's counter steps aside
 if (window.IntersectionObserver) new IntersectionObserver(function (es) { stepEl.style.visibility = es[es.length - 1].isIntersecting ? "hidden" : ""; }).observe($("#bookend"));
 var HASH_ALIAS = { index: "work", emrg: "emergence", markets: "kronos", mkt: "kronos", voice: "freeflow" };
+// a reload, or a phone restoring a tab it discarded, comes back to the visitor's place. The browser's own restore runs
+// against the document before layout() has sized its sections and lands in another scene, so the page keeps the place
+// itself: as it is hidden it saves where the visitor is (placeAt) and stops the browser restoring; the next load puts
+// the visitor back there once laid out, and hands Back between same-page jumps to the browser again
+var PLACE_KEY = "walk-place";
+function savePlace() {
+  try {
+    var p = placeAt(targetS), q = {};
+    for (var k in p) if (k !== "el") q[k] = p[k];
+    sessionStorage.setItem(PLACE_KEY, JSON.stringify({ p: q }));
+    history.scrollRestoration = "manual";
+  } catch (err) {}
+}
+addEventListener("pagehide", savePlace);
+d0.addEventListener("visibilitychange", function () {
+  if (d0.visibilityState === "hidden") savePlace();
+  else try { history.scrollRestoration = "auto"; } catch (err) {}
+});
+// it runs once every script has run and laid its part out (the work section and the eggs come after this one), and
+// once more at load for a part that waited for it, unless the visitor has scrolled since
+var restoreP = null, restoreY = -1;
+function restorePlace() {
+  try {
+    var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0], how = nav ? nav.type : "";
+    var saved = sessionStorage.getItem(PLACE_KEY); sessionStorage.removeItem(PLACE_KEY);
+    history.scrollRestoration = "auto";
+    if (!saved || location.hash || !(how === "reload" || how === "back_forward" || d0.wasDiscarded)) return;
+    restoreP = JSON.parse(saved).p;
+  } catch (err) { return; }
+  applyRestore();
+}
+function applyRestore() {
+  if (!restoreP || (restoreY >= 0 && Math.abs(window.scrollY - restoreY) >= 1)) { restoreP = null; return; }
+  var y = Math.max(0, Math.round(sOfPlace(restoreP) * S));
+  if (!isFinite(y)) { restoreP = null; return; }
+  if (Math.abs(y - window.scrollY) >= 1) window.scrollTo(0, y);
+  restoreY = window.scrollY;
+  introFreeze(performance.now(), INTRO_MAX);
+  targetS = shownS = window.scrollY / S;
+  settleClipsFor(targetS);
+  syncDom();
+  render(shownS, performance.now());
+  wake();
+}
 function start() {
   introT0 = performance.now() + 300;
+  addEventListener("resize", onResize);
   if (window.scrollY > 0) introFreeze(performance.now(), INTRO_MAX);   // a reload part way down: the landing is already whole
   layout();
   targetS = shownS = window.scrollY / S;
@@ -6914,7 +7012,14 @@ function jumpHash() {
 }
 layout(); render(0, performance.now());
 var started = (d0.fonts && d0.fonts.ready ? d0.fonts.ready : Promise.resolve()).then(start);
-function afterLoad() { started.then(function () { requestAnimationFrame(jumpHash); }); }
+// every script parsed: the page's own resize step moves behind the work section's and the eggs' (their layout first,
+// then the visitor's line is found in it), and a reload's place goes back one frame later, once their layout has run
+var parsed = new Promise(function (r) { if (d0.readyState !== "loading") r(); else d0.addEventListener("DOMContentLoaded", function () { r(); }); });
+Promise.all([started, parsed]).then(function () {
+  removeEventListener("resize", onResize); addEventListener("resize", onResize);
+  requestAnimationFrame(restorePlace);
+});
+function afterLoad() { started.then(function () { requestAnimationFrame(function () { applyRestore(); restoreP = null; jumpHash(); }); }); }
 if (d0.readyState === "complete") afterLoad(); else window.addEventListener("load", afterLoad);
 
 // read-only hooks for the contract tests
@@ -6976,9 +7081,19 @@ window.__walk = {
   get ZOOM() { return ZOOM; },
   // a native station's resolve level as last drawn: 1 its native layer, 0 its cells, between only while a clip runs
   resolveLevel: function (id) { var ch = chById(id); return ch && ch.beats[0].native ? +(ch.r || 0).toFixed(4) : null; },
-  // a station's figure in the last drawn frame: whether any of its cells are drawn in the art region, and how many of
-  // its labels were painted at alpha >= 0.5
-  stationInk: function (id) { var ch = chById(id); return ch ? { cells: !!ch.inkOn, labels: ch.inkLab || 0 } : null; },
+  // a station's figure in the last drawn frame: whether any of its cells are drawn in the art region, how many of its
+  // labels were painted at alpha >= 0.5, and its tones read back from the world bitmap: [cells drawn in their own
+  // token, cells drawn one token down], over the cells whose token has a step down (the road's cells are its own)
+  stationInk: function (id) {
+    var ch = chById(id); if (!ch) return null;
+    var full = 0, down = 0;
+    for (var i = 0; ch.buf && i < ch.buf.length; i++) {
+      var t = ch.buf[i]; if (!t || TDOWN[t] === t) continue;
+      var j = wi(ch.F[0] + (i % ch.w), ch.F[1] + ((i / ch.w) | 0)); if (j < 0 || mainLit[j]) continue;
+      if (px[j] === TOK32[t]) full++; else if (px[j] === TOK32[TDOWN[t]]) down++;
+    }
+    return { cells: !!ch.inkOn, labels: ch.inkLab || 0, tone: [full, down] };
+  },
   // the caption row as last drawn: its text and the station whose line it is (null for any other line or none)
   caption: function () { return { text: instr.text, who: instr.text ? instr.who : null }; },
   // whether station id's figure was drawn in the last frame, as cells or as its native layer

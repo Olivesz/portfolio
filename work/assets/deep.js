@@ -340,8 +340,24 @@
   }
   // a screen that docks: a phone, or any screen under 500 px tall (a phone held sideways), as deep.css's docked rules
   function dockable() { return root.innerWidth < 768 || root.innerHeight < 500; }
+  /* the screen a scene must fit to stay in the flow: the shortest this width has shown, with a phone's toolbar out
+     (100svh, where the browser knows it). The toolbar slides away and back as the reader turns, which changes the
+     height and fires resize; deciding against the shortest screen means it never re-docks a scene under the reader.
+     A new width (a rotation, a window dragged) starts again. */
+  var shortW = -1, shortH = Infinity;
+  function shortest() {
+    var w = root.innerWidth, h = root.innerHeight;
+    if (root.CSS && CSS.supports && CSS.supports("height", "100svh")) {
+      var p = mk("div", "", document.body);
+      p.style.cssText = "position:fixed;left:0;top:0;width:0;height:100svh;visibility:hidden;pointer-events:none";
+      h = Math.min(h, p.getBoundingClientRect().height || h);
+      document.body.removeChild(p);
+    }
+    if (w !== shortW) { shortW = w; shortH = h; } else shortH = Math.min(shortH, h);
+    return shortH;
+  }
   // the screen under the strip, less 16 px for a stage parked a little below the strip and 8 px under the stepper
-  function room() { return root.innerHeight - stripH() - 24; }
+  function room() { return shortest() - stripH() - 24; }
   // from the top of the stage (its rule) to the bottom of the stepper
   SP.reach = function () {
     var a = this.stage.getBoundingClientRect(), b = this.fig.querySelector(".sc-bar").getBoundingClientRect();
@@ -614,8 +630,9 @@
       if (cur) p.setAttribute("aria-current", "step"); else p.removeAttribute("aria-current");
       p.classList.toggle("done", !live && i < S.wk);
     });
-    // replay appears once the scene has played (or been stepped), never on a first frame that is still waiting its turn
-    S.replayB.classList.toggle("idle", S.mode === "auto" || !S.played || REDUCE);
+    // replay appears once the scene has played (or been stepped), never on a frame that is still waiting its turn,
+    // whether to start or to carry on
+    S.replayB.classList.toggle("idle", S.mode === "auto" || !S.played || S.queued || REDUCE);
   };
   /* show one tick, still */
   SP.show = function (tick) { this.stop(); this.mode = "still"; this.live = null; this.t = tick; this.render(true); };
@@ -700,60 +717,61 @@
     if (S.spec.inputs) { S.spec.inputs.forEach(function (inp) { S.inputs[inp.id] = !!inp.on; }); S.syncInputs(); }
   };
 
-  /* ---------- arrival: staggered by a beat ----------
-     A figure arrives when 40% of it (or a fifth of the screen, for a tall one) is on screen, as on the case studies, so
-     a reader who stops on it never waits over an unmoving first frame. If another figure on screen is already playing,
-     the newcomer shows its first frame and starts one beat (600 ms) later, beside it, rather than waiting for it to
-     end; two figures that arrive together start a beat apart, the higher first. A figure that has left the reading band
-     while it plays pauses where it is and carries on when it comes back into the band. A figure with a hidden stepper
-     (an ambient loop, like a hero) never makes another wait. Off screen a figure pauses (see away): it carries on when
-     it is back in the band and its turn comes, or, if it never got past its first step, it starts over. */
+  /* ---------- arrival: one floor, staggered by a beat ----------
+     The floor: 40% of a figure's stage on screen, or a fifth of the screen for a stage taller than that, as on the case
+     studies, measured now. It is the one rule for a figure arriving, waiting its turn and already playing, so which
+     figures play at a scroll position does not depend on how the reader got there. A figure arrives when it reaches the
+     floor, so a reader who stops on it never waits over an unmoving first frame. If another figure is already playing,
+     the newcomer shows its first frame and starts one beat (600 ms) later, beside it, rather than waiting for it to end;
+     two figures that arrive together start a beat apart, the higher first. A figure that falls below the floor while it
+     plays pauses where it is (see away) and carries on, a beat later, once it is back. A figure with a hidden stepper (an
+     ambient loop, like a hero) never makes another wait and keeps its own clock. */
   var BEAT = 600, kickT = 0;
-  function blocking(S) { return S.mode === "auto" && S.visible && !S.ambient; }
-  // where a stage sits against the reading band (the top 65% of the screen), measured now rather than at the last
-  // observer crossing, which can be a whole notch stale while the reader rests
-  function band(S) {
-    var r = S.stage.getBoundingClientRect(), bh = root.innerHeight * 0.65;
-    var vis = Math.max(0, Math.min(r.bottom, bh) - Math.max(r.top, 0));
-    return { top: r.top, share: r.height > 0 ? vis / r.height : 0, vis: vis, bh: bh };
-  }
-  // arrival, as on the case studies: 40% of the stage on screen, or a fifth of the screen for a stage taller than that
+  function blocking(S) { return S.mode === "auto" && !S.ambient; }
   function onScreen(S) {
     var r = S.stage.getBoundingClientRect(), h = root.innerHeight;
     var vis = Math.max(0, Math.min(r.bottom, h) - Math.max(r.top, 0));
     return r.height > 0 && (vis / r.height >= 0.4 || vis >= h * 0.2);
   }
-  function inBand(S) { return onScreen(S); }
-  // a playing figure keeps the floor only while at least half of it is in the band and its top is still on screen
-  function holds(S) { var b = band(S); return b.share >= 0.5 && b.top >= 0; }
+  // the next figure waiting on the floor starts a beat from now, the highest first; then the one after it
   function kick() {
     if (kickT) return;
     kickT = setTimeout(function () {
       kickT = 0;
-      var c = scenes.filter(function (S) { return S.queued && inBand(S); });
+      var c = scenes.filter(function (S) { return S.queued && onScreen(S); });
       if (!c.length) return;
-      // a figure still playing out of the reading band holds where it is, to carry on when it returns; one in the band
-      // plays on beside the newcomer
-      scenes.filter(blocking).forEach(function (o) {
-        if (holds(o)) return;
-        o.stop(); o.mode = "still"; o.paused = true; o.queued = true; o.render(true);
-      });
       c.sort(function (a, b) { return a.stage.getBoundingClientRect().top - b.stage.getBoundingClientRect().top; });
       var S = c[0]; S.queued = false;
       if (S.paused) { S.paused = false; S.mode = "auto"; S.target = S.T; S.render(true); S.run(); } else S.play();
-      if (c.length > 1) kick();                // the next one waiting starts a beat after this one
+      if (c.length > 1) kick();
     }, BEAT);
   }
-  /* a figure that leaves the screen while it plays. Left on its clock, it would carry on at its first pixel back, below
-     the reading band and beside whatever else is playing, so a reader coming back from the bottom of the page met every
-     figure part-way through. Instead: seen no further than the step it starts on (the reader skimmed past), it forgets that it
-     arrived and plays from the start at its next arrival; further along, it pauses where it is and waits its turn in the
-     reading band to carry on. A hero loop (ambient) never holds the floor, so it keeps its clock. */
+  /* every figure against the floor, as it stands now: run on each scroll frame, each observer crossing, a layout and
+     the end of a play. Those under it are held first, so a newcomer never waits on a figure that is leaving. */
+  function sched() {
+    if (REDUCE) { scenes.forEach(function (S) { S.inZone = onScreen(S); if (S.inZone && !S.arrived) S.arrive(); }); return; }
+    var on = scenes.map(onScreen);
+    scenes.forEach(function (S, i) { S.inZone = on[i]; if (!on[i]) S.away(); });
+    scenes.forEach(function (S, i) {
+      if (!on[i]) return;
+      if (!S.arrived) S.arrive(); else if (S.queued) kick();
+    });
+  }
+  var sq = 0;
+  function schedSoon() { if (!sq) sq = requestAnimationFrame(function () { sq = 0; sched(); }); }
+  /* a figure under the floor. Left on its clock, it would play on unseen, so a reader coming back met it part-way or at
+     its end. Instead, while it plays it pauses where it is and waits its turn to carry on. One its own autoplay brought
+     no further than the step it starts on (the reader skimmed past) forgets that it arrived: it shows its first frame as
+     it was before it arrived, its frame's corners unlit (deep:leave), and plays from the start at its next arrival. A
+     figure the reader stepped, or one played to its end, is left as it is. */
   SP.away = function () {
     var S = this; if (S.ambient) return;
-    S.mode = "still";
-    if (S.k <= S.startKey) { S.t = S.startAt; S.arrived = false; S.played = false; S.queued = false; S.paused = false; S.holdLeft = 0; }
-    else { S.paused = true; S.queued = true; }
+    var auto = S.mode === "auto";
+    if (auto) { S.stop(); S.mode = "still"; S.paused = true; S.queued = true; }
+    if ((auto || S.queued) && S.arrived && S.k <= S.startKey) {
+      S.t = S.startAt; S.arrived = false; S.played = false; S.queued = false; S.paused = false; S.holdLeft = 0;
+      S.fig.dispatchEvent(new CustomEvent("deep:leave"));
+    } else if (!auto) return;
     S.render(true);
   };
   SP.arrive = function () {
@@ -766,24 +784,17 @@
     var S = this, bar = S.fig.querySelector(".sc-bar");
     S.ambient = !!S.spec.ambient || !bar || getComputedStyle(bar).display === "none";
     if (!("IntersectionObserver" in root)) { S.visible = S.inZone = true; if (!REDUCE) { S.arrived = true; S.play(); } return; }
-    // on screen at all: the clock runs, or pauses
+    // on screen at all: the clock runs, or stops (a step played from the stepper carries on when it is back)
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
-        var was = S.visible; S.visible = e.isIntersecting;
+        S.visible = e.isIntersecting;
         if (S.visible && (S.mode === "auto" || S.mode === "seg" || (S.mode === "live" && S.liveBudget > 0))) S.run();
-        else if (!S.visible) { S.stop(); if (was && S.mode === "auto") { S.away(); kick(); } }
+        else if (!S.visible) S.stop();
       });
+      sched();
     }, { threshold: [0] }).observe(S.stage);
-    // on screen enough to start (see onScreen): the figure arrives, or starts if it is waiting
-    new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        var h = e.rootBounds ? e.rootBounds.height : root.innerHeight;
-        S.inZone = e.isIntersecting && (e.intersectionRatio >= 0.4 || e.intersectionRect.height >= h * 0.2);
-        if (S.inZone && !S.arrived) S.arrive();
-        else if (S.inZone && S.queued) kick();
-        else if (!S.inZone && S.mode === "auto" && scenes.some(function (o) { return o.queued; })) kick();
-      });
-    }, { threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.75, 1] }).observe(S.stage);
+    // crossings near the floor, and layout that moves a stage with no scroll: weigh every figure again
+    new IntersectionObserver(schedSoon, { threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.5, 0.75, 1] }).observe(S.stage);
   };
 
   /* ---------- the contents rail: the chapter (and step) you are reading ---------- */
@@ -814,18 +825,20 @@
 
   /* resize: lay every scene out again once the size settles */
   var rz = 0, laidW = root.innerWidth, laidH = root.innerHeight;
-  function relayout() { rz = 0; laidW = root.innerWidth; laidH = root.innerHeight; scenes.forEach(function (s) { s.layout(); s.render(true); }); }
+  function relayout() { rz = 0; laidW = root.innerWidth; laidH = root.innerHeight; scenes.forEach(function (s) { s.layout(); s.render(true); }); sched(); }
   root.addEventListener("resize", function () {
     clearTimeout(rz);
     rz = setTimeout(relayout, 120);
   });
-  // scrolling moves a docked scene's art under its words: its row mask follows, once a frame
+  // scrolling moves a docked scene's art under its words: its row mask follows, once a frame, and every figure is
+  // weighed against the floor
   var rm = 0;
   root.addEventListener("scroll", function () {
     if (rm) return;
     rm = requestAnimationFrame(function () {
       rm = 0;
       scenes.forEach(function (s) { if (s.fig.classList.contains("docked")) s.rowMask(); });
+      sched();
     });
   }, { passive: true });
   // a check that runs while a resize is still settling (or before its event) lays the scenes out first, so it reads the
@@ -833,8 +846,15 @@
   function settle() { if (rz || root.innerWidth !== laidW || root.innerHeight !== laidH) { clearTimeout(rz); relayout(); } }
   /* text labels measure their own width, so place them again once the fonts are in (and the words' height, which
      decides a phone scene's dock, is final). The frame is drawn again too, as relayout does: a page's own label rules
-     (keeping a label inside the column, wrapping one that runs long) run in its draw, after the plain placement */
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.render(true); s.dock(); }); });
+     (keeping a label inside the column, wrapping one that runs long) run in its draw, after the plain placement.
+     Once is not enough: fonts.ready can resolve before this file has even loaded (a slow connection, the fonts
+     preloaded) or before the faces are in use, and the page scripts add rows to a figure after it is built; so this
+     runs again when the page's scripts are done (DOMContentLoaded), when it has loaded, and whenever fonts finish
+     loading, and the page's layout no longer depends on which of those came first. */
+  function fontsIn() { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.render(true); s.dock(); }); sched(); }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fontsIn);
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", fontsIn);
+  if (document.readyState !== "complete") root.addEventListener("load", fontsIn);
 
   if (COARSE) [].forEach.call(document.querySelectorAll(".verb"), function (v) { v.textContent = "tap"; });
 
@@ -919,6 +939,6 @@
     return bad;
   }
   /* the page scripts that build the scenes run before DOMContentLoaded */
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { spy(); readTime(); });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", function () { spy(); readTime(); fontsIn(); });
   else { spy(); readTime(); }
 })(window);

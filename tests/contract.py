@@ -3932,6 +3932,253 @@ def a_depth(v):
     return not bad, (f"{len(pages)} pages opted in ({', '.join(p.name for p in pages)}), 26 samples each and a wheel from 0.2 s"
                      + (f", {len(bad)} failing: " + "; ".join(bad[:3]) if bad else ", one ant, road laid, digits shown, rest and read times agree"))
 
+# --- depthpath: a depth page is a function of its scroll position ---------------------------------------------------
+# Down, back up and down again through the same positions: at each one every figure obeys the floor whatever the path
+# (a deep-dive scene plays, or waits its turn, only with 40% of its stage on screen or a fifth of the screen, and every
+# scene on that floor is playing or done, never held; a case-study figure's clock stops under a sixth of the screen,
+# or half of a short figure, and never finishes there), a scene's frame is lit exactly while it is arrived, replay never
+# shows on a figure still to finish, the docked word blocks and the layout are the same on every pass, the road is never
+# un-laid and lies the same once laid, and one ant is drawn, the same one on both downward passes. On a phone the
+# toolbar slides as the reader turns (900 px tall going down, 844 coming up), as it does on a real one. A deep dive
+# whose deep.js arrives after its fonts (a slow connection) lays out the same as one that loads fast. The designed
+# history is left out: how far a figure has played, and the road laid on the first pass.
+DEPTHPATH_SNAP_JS = """() => {
+  const vh = innerHeight, out = { y: Math.round(scrollY), vh, docH: document.documentElement.scrollHeight, scenes: [], plays: [] };
+  for (const s of ((window.Deep && Deep.scenes) || [])) {
+    const r = s.stage.getBoundingClientRect(), vis = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+    const fr = s.fig.classList.contains('lx-fr') && !s.fig.hasAttribute('data-lx-arrive');
+    out.scenes.push({ id: s.id, top: Math.round(r.top + scrollY), h: Math.round(r.height), m: Math.round(vis - Math.min(r.height * 0.4, vh * 0.2)),
+      amb: !!s.ambient, mode: s.mode, q: !!s.queued, p: !!s.paused, a: !!s.arrived, lit: fr ? s.fig.classList.contains('lit') : null,
+      replay: !!(s.replayB && !s.replayB.classList.contains('idle')), dock: s.fig.classList.contains('docked') });
+  }
+  document.querySelectorAll('[data-play]').forEach((st, i) => {
+    const r = st.getBoundingClientRect(), vis = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+    out.plays.push({ id: (st.closest('figure') || st).id || st.id || 'play' + i, m: Math.round(vis - Math.min(r.height * 0.5, vh / 6)), state: st.dataset.state || '' });
+  });
+  out.road = window.__lx ? __lx.road() : null; out.which = window.__lx ? __lx.ant() : null;
+  // the road's ant as drawn: its cells read back from the road canvas on screen (rail or strip), by token colour
+  const cv = [...document.querySelectorAll('canvas.lx-road')].find(c => c.width > 0 && c.getClientRects().length && c.getBoundingClientRect().width > 0);
+  out.antCells = null;
+  if (cv) {
+    const rail = !!cv.closest('.lx-rail'), p = rail ? cv.width / 3 : cv.height / 3, cs = getComputedStyle(document.documentElement);
+    const rgb = n => { const h = cs.getPropertyValue('--' + n).trim().replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)).join(); };
+    const name = { [rgb('ant')]: 'ant', [rgb('trail')]: 'trail', [rgb('trail-2')]: 'trail-2' };
+    const d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, cells = [];
+    for (let r = 0; r < Math.floor(cv.height / p); r++) for (let c = 0; c < Math.floor(cv.width / p); c++) {
+      const i = ((r * p + (p >> 1)) * cv.width + c * p + (p >> 1)) * 4, k = name[[d[i], d[i + 1], d[i + 2]].join()];
+      if (k && d[i + 3] === 255) cells.push([c, r, k]); }
+    out.antCells = { rail, n: Math.floor((rail ? cv.height : cv.width) / p), cells };
+  }
+  return out; }"""
+DEPTHPATH_TOPS_JS = """() => ({ max: document.documentElement.scrollHeight - innerHeight, vh: innerHeight, scenes: ((window.Deep && Deep.scenes) || []).length,
+  stages: [...((window.Deep && Deep.scenes) || []).filter(s => !s.ambient).map(s => s.stage), ...document.querySelectorAll('[data-play]')]
+    .map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.top + scrollY), Math.round(r.height)]; }) })"""
+DEPTHPATH_LAYOUT_JS = """() => ({ docH: document.documentElement.scrollHeight,
+  docked: ((window.Deep && Deep.scenes) || []).filter(s => s.fig.classList.contains('docked')).map(s => s.id).join(','),
+  fit: window.__deep && __deep.selfCheck ? __deep.selfCheck().fit : [] })"""
+DEPTHPATH_ARRIVED_JS = "() => !document.querySelector('[data-lx-arrive]') || !!(window.__lx && __lx.arrived())"
+TOOLBAR = 56                                   # a phone's toolbar: out at load and going up, away going down
+
+
+def depthpath_antshape(a):
+    """The road ant's cells relative to its head, so a phone's toolbar, which moves the head, leaves it alone. None
+    where there is no road ant, or its head is within two cells of the road canvas's end, which cuts its trail."""
+    head = next(((c, r) for c, r, k in a["cells"] if k == "ant"), None)
+    if head is None or not 2 <= head[1 if a["rail"] else 0] <= a["n"] - 3:
+        return None
+    return " ".join(f"{k}{c - head[0]:+d},{r - head[1]:+d}" for c, r, k in sorted(a["cells"]))
+
+
+def depthpath_go(pg, y0, y1, vh):
+    """From y0 to y1 in steps of at most half a screen, each one seen by the page's observers and frame callbacks."""
+    n = max(1, math.ceil(abs(y1 - y0) / (vh * 0.5)))
+    for i in range(1, n + 1):
+        pg.evaluate(f"scrollTo(0, {round(y0 + (y1 - y0) * i / n)})")
+        pg.wait_for_timeout(20)                  # the observers report on the browser's own frames
+        pg.clock.run_for(20)
+
+
+def depthpath_settle(pg, scenes):
+    """On a deep dive, two beats on, a jump of the page's clock each (a newcomer and the one after it have started),
+    with a frame after each so what started has drawn; elsewhere a quarter of a second. Figures play on: the time
+    passes for them too, and a case study's figures (4 to 6 s) are still playing a few samples after they start."""
+    for _ in range(2 if scenes else 1):
+        pg.clock.fast_forward(700 if scenes else 250)
+        pg.clock.run_for(34)
+
+
+def depthpath_bad(s, pname, where):
+    """What a single snapshot breaks, as messages."""
+    bad = []
+    for c in s["scenes"]:
+        tag = f"{pname} {where} y={s['y']} {c['id']}"
+        if c["lit"] is not None and c["lit"] != c["a"]:
+            bad.append(f"{tag}: frame {'lit' if c['lit'] else 'dark'} but {'' if c['a'] else 'not '}arrived")
+        if c["amb"]:
+            continue
+        if c["mode"] == "auto" and c["m"] < -3:
+            bad.append(f"{tag}: plays under the floor ({c['m']} px)")
+        if c["m"] > 3 and not c["a"]:
+            bad.append(f"{tag}: on the floor, not arrived")
+        elif c["m"] > 3 and (c["q"] or c["p"]):
+            bad.append(f"{tag}: on the floor, held ({'paused' if c['p'] else 'queued'})")
+        if c["replay"] and (c["q"] or c["p"] or c["mode"] == "auto"):
+            bad.append(f"{tag}: replay shown while it still has to finish")
+    for f in s["plays"]:
+        if f["state"] == "playing" and f["m"] < -3:
+            bad.append(f"{pname} {where} y={s['y']} {f['id']}: clock runs under the floor ({f['m']} px)")
+    return bad
+
+
+def a_depthpath(v):
+    """Every depth page (lx-): down, up and down again through the same positions (on a phone with the toolbar sliding as
+    the reader turns); at each, the floor holds for every figure, frames are lit exactly while arrived, replay waits for
+    the end, docked word blocks and layout match on every pass, the road is never un-laid and matches once laid, one ant
+    shows and the same one on both downward passes; and a deep dive whose deep.js lands after its fonts lays out the
+    same."""
+    base = v.run.url.rsplit("/", 1)[0]
+    pages = [p for p in sorted((v.run.root / "work").glob("*.html"))
+             if re.search(r'class="lx-(rail|bar)"|data-lx-arrive', p.read_text())]
+    if not pages:
+        return True, "no work page opts into the depth layer yet"
+    phone = v.name in PHONES
+    W, H = VIEWPORTS[v.name]["viewport"]["width"], VIEWPORTS[v.name]["viewport"]["height"]
+    bad, n_samp = [], 0
+    for page in pages:
+        # the page loaded and left at the top: what every path must come back to there (its ant and its layout)
+        rctx = v.run.browser.new_context(**VIEWPORTS[v.name])
+        try:
+            rp = rctx.new_page()
+            rp.goto(f"{base}/work/{page.name}", wait_until="load")
+            t0 = time.time()
+            while time.time() - t0 < 8 and not rp.evaluate(DEPTHPATH_ARRIVED_JS):
+                rp.wait_for_timeout(50)
+            rest = dict(rp.evaluate(DEPTHPATH_LAYOUT_JS), which=rp.evaluate("() => window.__lx ? __lx.ant() : null"))
+        finally:
+            rctx.close()
+        ctx = v.run.browser.new_context(**VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.clock.install()
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => document.fonts.status === 'loaded'")
+            pg.wait_for_timeout(100)
+            # a reader who leaves at once: a case figure on the first screen starts 0.6 s after load; scrolled away
+            # mid-play and left 9 s, it is paused there, and back on screen it carries on rather than show its end.
+            # The title rises and the hero's ant lands while the reader is away.
+            pg.clock.run_for(700)
+            g = pg.evaluate(DEPTHPATH_TOPS_JS)
+            first = pg.evaluate(DEPTHPATH_SNAP_JS)["plays"]
+            depthpath_go(pg, 0, round(g["max"] / 2), g["vh"])
+            t0 = time.time()
+            while time.time() - t0 < 8 and not pg.evaluate(DEPTHPATH_ARRIVED_JS):
+                pg.wait_for_timeout(50)
+                pg.clock.run_for(50)
+            pg.clock.fast_forward(9000)
+            pg.clock.run_for(34)
+            away = pg.evaluate(DEPTHPATH_SNAP_JS)["plays"]
+            depthpath_go(pg, round(g["max"] / 2), 0, g["vh"])
+            pg.clock.run_for(100)
+            back = pg.evaluate(DEPTHPATH_SNAP_JS)["plays"]
+            for f0, fa, fb in zip(first, away, back):
+                if f0["state"] == "playing" and fa["m"] < -3 and (fa["state"] != "paused" or fb["state"] == "done"):
+                    bad.append(f"{page.name} {f0['id']}: left mid-play, {'finished unseen' if fb['state'] == 'done' else 'its clock ran on'} ({fa['state']} away 9 s, {fb['state']} back)")
+            load = pg.evaluate(DEPTHPATH_LAYOUT_JS)
+            if (load["docH"], load["docked"]) != (rest["docH"], rest["docked"]):
+                bad.append(f"{page.name}: back at the top it lays out differently (docH {load['docH']} docked [{load['docked']}], left at the top: docH {rest['docH']} docked [{rest['docked']}])")
+            g = pg.evaluate(DEPTHPATH_TOPS_JS)
+            vh, mx, deep = g["vh"], g["max"], g["scenes"]
+            ys = {0, mx}
+            for top, h in g["stages"]:
+                ys.update({top + round(vh * 0.04), top - vh + 24})        # its top just off the screen; a sliver at the foot
+            if len(g["stages"]) < 4:                  # few figures: the road between them as well
+                ys.update(round(mx * k / 8) for k in range(1, 8))
+            ys = sorted(y for y in ys if 0 <= y <= mx)
+            ys = [y for i, y in enumerate(ys) if i == 0 or y - ys[i - 1] >= 8]
+            seq, snaps, at = [], {}, 0
+            for pas, order in (("down", ys), ("up", ys[::-1]), ("down again", ys)):
+                if phone:
+                    pg.set_viewport_size({"width": W, "height": H + (0 if pas == "up" else TOOLBAR)})
+                    pg.wait_for_timeout(34)
+                    pg.clock.run_for(300)                # deep.js lays out again 120 ms after a resize
+                for y in order:
+                    depthpath_go(pg, at, y, vh)
+                    at = y
+                    depthpath_settle(pg, deep)
+                    s = pg.evaluate(DEPTHPATH_SNAP_JS)
+                    s["ants"] = pg.evaluate(DEPTH_ANTS_JS)
+                    s["pass"] = pas
+                    seq.append(s)
+                    snaps.setdefault(y, {})[pas] = s
+                    bad += depthpath_bad(s, page.name, pas)
+            n_samp += len(seq)
+            # one ant, always; the road never un-laid; a case figure never finishes under the floor
+            for s in seq:
+                if s["ants"] != 1:
+                    bad.append(f"{page.name} {s['pass']} y={s['y']}: {s['ants']} ants")
+            key = "maxR" if seq and seq[0]["road"] and seq[0]["road"].get("wide") else "maxB"
+            for a, b in zip(seq, seq[1:]):
+                if a["road"] and b["road"] and b["road"].get(key, 0) < a["road"].get(key, 0):
+                    bad.append(f"{page.name} {a['pass']} y={a['y']} -> {b['pass']} y={b['y']}: road un-laid ({key} {a['road'].get(key)} -> {b['road'].get(key)})")
+                for fa, fb in zip(a["plays"], b["plays"]):
+                    if fb["state"] == "done" and fa["state"] in ("playing", "paused") and fa["m"] < -3 and fb["m"] < -3:
+                        bad.append(f"{page.name} {fa['id']} {a['pass']} y={a['y']} -> y={b['y']}: finished under the floor")
+            # the same position on every pass: docked blocks, layout; the road once laid; on a downward pass, the ant
+            for y, by in snaps.items():
+                docks = {k: ",".join(c["id"] for c in s["scenes"] if c["dock"]) for k, s in by.items()}
+                if len(set(docks.values())) > 1:
+                    bad.append(f"{page.name} y={y}: docked differs by pass {docks}")
+                lay = {k: (s["docH"], tuple((c["id"], c["top"], c["h"]) for c in s["scenes"])) for k, s in by.items()}
+                if len(set(lay.values())) > 1:
+                    bad.append(f"{page.name} y={y}: layout differs by pass (docH {[x[0] for x in lay.values()]})")
+                if "up" in by and "down again" in by and by["up"]["road"] != by["down again"]["road"]:
+                    bad.append(f"{page.name} y={y}: road differs, up {by['up']['road']} vs down again {by['down again']['road']}")
+                if "down" in by and "down again" in by and by["down"]["which"] != by["down again"]["which"]:
+                    bad.append(f"{page.name} y={y}: ant differs, {by['down']['which']} going down, {by['down again']['which']} down again")
+                # the road's ant at rest is a function of the position: the same cells whichever way the reader came (on a
+                # phone, whose toolbar moves the head between passes, the same shape around its head)
+                ants = {k: s["antCells"] for k, s in by.items() if s.get("antCells") and depthpath_antshape(s["antCells"])}
+                shapes = {k: depthpath_antshape(a) for k, a in ants.items()}
+                if len(set(shapes.values())) > 1:
+                    bad.append(f"{page.name} y={y}: the road ant faces differently by pass {shapes}")
+                elif not phone and len({str(a["cells"]) for a in ants.values()}) > 1:
+                    bad.append(f"{page.name} y={y}: the road ant is drawn at different cells by pass {dict((k, a['cells']) for k, a in ants.items())}")
+                if y == 0 and any(s["which"] != rest["which"] for s in by.values()):
+                    bad.append(f"{page.name} y=0: ant differs from the page left at the top ({[s['which'] for s in by.values()]} vs {rest['which']})")
+            # load order: deep.js after the fonts, as on a slow connection
+            if phone and page.name.endswith("-deep.html"):
+                held = []
+                lctx = v.run.browser.new_context(**VIEWPORTS[v.name])
+                try:
+                    lctx.route("**/assets/deep.js", lambda r: held.append(r))
+                    lp = lctx.new_page()
+                    lp.goto(f"{base}/work/{page.name}", wait_until="commit")
+                    t0 = time.time()
+                    while time.time() - t0 < 8 and not (held and lp.evaluate("() => [...document.fonts].filter(f => f.status === 'loaded').length >= 2")):
+                        lp.wait_for_timeout(25)
+                    if held:
+                        held[0].fulfill(path=str(v.run.root / "work" / "assets" / "deep.js"), content_type="application/javascript")
+                    lp.wait_for_load_state("load")
+                    lp.wait_for_timeout(1200)
+                    late = lp.evaluate(DEPTHPATH_LAYOUT_JS)
+                    if (late["docH"], late["docked"]) != (rest["docH"], rest["docked"]) or late["fit"]:
+                        bad.append(f"{page.name}: deep.js after the fonts lays out differently (docH {late['docH']} docked [{late['docked']}] unfit {late['fit']}, "
+                                   f"loaded fast: docH {rest['docH']} docked [{rest['docked']}])")
+                finally:
+                    lctx.close()
+        finally:
+            ctx.close()
+    kinds = {}
+    for m in bad:                                # by kind of failure, the commonest first, one example each
+        k = re.sub(r"\d+", "#", re.split(r" [\(\{\[]", m.split(": ", 1)[-1])[0])
+        kinds.setdefault(k, []).append(m)
+    rank = sorted(kinds.items(), key=lambda kv: -len(kv[1]))
+    return not bad, (f"{len(pages)} pages, {n_samp} samples down, up and down again"
+                     + (" (toolbar sliding)" if phone else "")
+                     + (f"; {len(bad)} bad in {len(kinds)} kinds: " + "; ".join(f"{len(ms)}x {k} [{ms[0]}]" for k, ms in rank)
+                        if bad else "; every figure on its floor, frames, replay, docks, layout, road and ant agree"))
+
+
 # --- the deep dives under work/*-deep.html: their steppers ----------------------------------------------------------
 # `cases` covers the rest of a deep dive's contract (errors, requests off the origin, fonts, tokens, no pink words, sizes,
 # overflow, listeners, link names, targets, and __deep.selfCheck(), which fails when a scene hid itself or has no
@@ -4051,6 +4298,254 @@ def a_deep(v):
         msg += f", slowest start {longest[0] / 1000:.1f}s ({longest[1]})"
     return not bad, msg + (f"; {len(bad)} bad: " + "; ".join(bad[:5]) if bad else "; all play and step")
 
+
+# ---------------------------------------------------------------- pathfree
+# What is on screen is a function of the scroll position. The designed history effects are the only exceptions, and
+# they are excluded by name, never by tolerance: station playback (a finished station shows its end state, an unplayed
+# one its first frame), the blooms a played station earns on the map, the visitor's planted ant and the hidden ants. The
+# assertion plays every station first, so playback is the same on every path it compares, and it never plants or finds.
+PF_TOL = 24           # CSS px two settled arrivals at one y may differ by (text antialiasing); the defects measured 198 to 39498
+PF_PACE = (105, 120)  # a reading pace: px per wheel notch, ms between notches
+PF_FLICK = (400, 40)  # a flick: one crosses a station's dim edge and its next trigger within a frame or two
+PF_SIG_JS = r"""() => { const W = __walk, ids = W.stations.map(s => s[0]), s = scrollY / W.S();
+  const pl = document.getElementById('places'), mc = document.getElementById('mapcap'), v = W.view();
+  const vis = e => { const r = e.getBoundingClientRect(), c = getComputedStyle(e); return r.width > 0 && c.visibility === 'visible' && +c.opacity > 0; };
+  const lab = pl ? [...pl.querySelectorAll('a, button')].filter(vis).map(e => { const r = e.getBoundingClientRect(); return e.textContent.trim().slice(0, 16) + '@' + Math.round(r.left) + ',' + Math.round(r.top); }) : [];
+  return { y: scrollY, s: +s.toFixed(4), scene: W.sceneId(s), built: W.built(), view: v ? [v.pp, v.Ox, v.Oy, v.step] : null,
+    places: pl ? pl.className : null, mapcap: mc ? mc.className : null, labels: lab.sort(), marks: W.marks().map(m => m.n + '@' + (m.tag || []).map(Math.round).join(',')).sort(),
+    drawn: W.drawn().filter(d => d[3] >= 0.5).map(d => d[0].slice(0, 24) + '@' + Math.round(d[1]) + ',' + Math.round(d[2])).sort(),
+    natives: __ct.natives().map(n => JSON.stringify(n).slice(0, 80)).sort(),
+    nativeText: [...document.querySelectorAll('%NATIVE%')].filter(vis).map(e => e.className.baseVal === undefined ? e.className + ':' + e.innerText.replace(/\s+/g, ' ').slice(0, 120) : '').sort(),
+    pb: Object.fromEntries(ids.map(id => { const p = W.playback(id); return [id, p.state + ' ' + (+p.p).toFixed(3)]; })),
+    tone: Object.fromEntries(W.stations.map((st, i, a) => { const k = W.stationInk(st[0]), dimAt = (i === a.length - 1 ? W.ZOOM - 0.05 : st[2]) + 0.05;
+      return [st[0], k && Array.isArray(k.tone) ? [k.tone[0], k.tone[1], s >= dimAt ? 1 : 0] : null]; })),
+    vis: Object.fromEntries(ids.map(id => [id, +W.figVis(id, s).toFixed(3)])),
+    over: document.documentElement.scrollWidth - document.documentElement.clientWidth, running: W.running() }; }"""
+
+
+def pf_positions(w):
+    """The y values compared: the edges where a state switches (a station's build and its dim, the lock, the map's
+    labels), each station just built, a chapter-I frame with every dated label up, the pull-back, and on a phone the
+    rests between stations."""
+    g = w.geometry()
+    play = w.js("() => __walk.play()")
+    Z, MAPS, PULL = w.js("() => [__walk.ZOOM, __walk.MAPS, __walk.PULL]")
+    sts = g["stations"]
+    out = [("chaos labels", 1.0), ("lock in", 1.99), ("lock out", 2.39)]
+    for i, st in enumerate(sts):
+        on0 = play[st[0]].get("on0", st[1])
+        dh = Z - 0.05 if i == len(sts) - 1 else st[2]
+        out += [(st[0] + " build edge", on0 - 0.02), (st[0] + " built", on0 + 0.01), (st[0] + " dim edge", dh + 0.03)]
+        if w.phone and i:
+            out.append((st[0] + " rest", (sts[i - 1][2] + st[1]) / 2))
+    band = w.js("""([P, M]) => { const f = __walk.mapFit(), want = (f.half ? 1 : f.p) + 1, hit = [];
+        for (let s = P; s < M; s += 0.002) if (Math.round(__walk.camAt(s)[2]) === want) hit.push(s);
+        return hit.length ? hit[hit.length >> 1] : null; }""", [PULL, MAPS])
+    if band is not None:
+        out.append(("map pitch + 1", band))
+    out += [("pull-back", (Z + MAPS) / 2), ("map edge", MAPS - 0.04)]
+    out = sorted(((n, round(s * w.S)) for n, s in out), key=lambda x: x[1])
+    keep = []
+    for n, y in out:                       # one y per state edge: two names closer than 8px are one position
+        if keep and y - keep[-1][1] < 8:
+            continue
+        keep.append((n, y))
+    return keep, MAPS, g["DOCS"]
+
+
+def pf_wheel_to(w, y, pace=PF_PACE):
+    """Wheel from where the page is to exactly y at a reading pace, the last notch the remainder."""
+    for _ in range(400):
+        d = y - w.js("scrollY")
+        if abs(d) < 1:
+            break
+        step = max(-pace[0], min(pace[0], d))
+        w.page.mouse.wheel(0, step)
+        w.page.wait_for_timeout(pace[1])
+    w.cur = None
+    return w.js("scrollY")
+
+
+def pf_flick_to(w, y):
+    """Flick to exactly y: 400px notches every 40ms, then wait for the wheel's scroll to land (a reading-pace notch
+    corrects a landing off by a pixel or two, too small to cross any trigger)."""
+    pf_wheel_to(w, y, PF_FLICK)
+    for _ in range(40):
+        if abs(w.js("scrollY") - y) < 1:
+            break
+        w.page.wait_for_timeout(25)
+    if abs(w.js("scrollY") - y) >= 1:
+        pf_wheel_to(w, y)
+    w.cur = None
+    return w.js("scrollY")
+
+
+def pf_tone(sig):
+    """At rest a station's cells are all in their own tokens before its dim edge and all one token down past it,
+    read back from the world bitmap (stationInk().tone): never part stepped down, which no other hook can see."""
+    out = []
+    for sid, t in sig["tone"].items():
+        if t is None:
+            raise Missing("__walk.stationInk(id).tone is absent")
+        full, down, dim = t
+        if full and down:
+            out.append(f"{sid} {full} cells in full tone, {down} stepped down")
+        elif dim and full:
+            out.append(f"{sid} {full} cells in full tone past its dim edge")
+        elif not dim and down:
+            out.append(f"{sid} {down} cells stepped down before its dim edge")
+    return out
+
+
+def pf_capture(w, ms=2500):
+    w.settle(ms)
+    w.page.wait_for_timeout(350)               # caption and place crossfades run on real time
+    return {"sig": w.js(PF_SIG_JS.replace("%NATIVE%", NATIVE_SEL)), "shot": pb_shot(w, settled=False)}
+
+
+def pf_playall(w):
+    """Every station played to its end on this page, so playback is the same on every path compared after it."""
+    pb_walk(w, 1500, w.geometry()["PULL"])
+    play = w.js("() => __walk.play()")
+    for st in w.geometry()["stations"]:
+        if w.js("id => __walk.playback(id).state", st[0]) != "done":
+            w.scroll_s(pb_s(st))
+            w.settle(int(play[st[0]]["lead"] + play[st[0]]["ms"] + 1500))
+    return {st[0]: w.js("id => __walk.playback(id).state", st[0]) for st in w.geometry()["stations"]}
+
+
+def pf_diff(a, b):
+    keys = [k for k in ("built", "view", "places", "mapcap", "labels", "marks", "drawn", "natives", "nativeText", "tone", "over")
+            if a["sig"][k] != b["sig"][k]]
+    det = []
+    for k in keys[:3]:
+        x, y = a["sig"][k], b["sig"][k]
+        if isinstance(x, list) and isinstance(y, list):
+            det.append(f"{k} -{sorted(set(x) - set(y))[:2]} +{sorted(set(y) - set(x))[:2]}")
+        else:
+            det.append(f"{k} {x} vs {y}")
+    return keys, det
+
+
+def a_pathfree(v):
+    """The same y shows the same frame however it was reached. Every station is played first, on one page; then each
+    position (pf_positions) is reached at a reading pace from above, from below (from the document, past the map) and,
+    for the edges, after a wheel oscillation that ends going up; the map, the pull-back and the phone's rests also by a
+    jump from the top; wherever a station is built and undimmed also by a flick up from the page's foot and by an
+    oscillation of flicks. A reload at the position (fresh: nothing played) is compared where no station it has not
+    played is drawn. At every capture each station's cells are all in their own tokens before its dim edge and all one
+    token down past it. Each pair of settled screenshots (canvas, native layers and DOM together) differs by at most
+    PF_TOL CSS px, the horizontal overflow is 0, and the page stops its frame loop. A reload at a station's edge and in
+    the document comes back to the same y, and the loop stops there too."""
+    w = pb_view(v, "pfW")
+    pos, MAPS, DOCS = pf_positions(w)
+    played = pf_playall(w)
+    pb_mouse(w)
+    caps = {n: {} for n, _ in pos}
+    y_of = dict(pos)
+    # from above, one reading-pace descent that stops at each position
+    w.js("() => __ct.scrollTo(0, 0)"); w.settle(2500); pb_mouse(w)
+    for n, y in pos:
+        pf_wheel_to(w, y)
+        caps[n]["above"] = pf_capture(w)
+    # from below: from the document, past the map, one ascent that stops at each position
+    w.js("y => __ct.scrollTo(0, y)", round((DOCS + 0.6) * w.S)); w.settle(2500)
+    for n, y in reversed(pos):
+        pf_wheel_to(w, y)
+        caps[n]["below"] = pf_capture(w)
+    # an oscillation that ends going up, at the edges
+    names = [n for n, _ in pos]
+    edges = [n for n in names if n.endswith("build edge")][:1] + [n for n in names if n.endswith("dim edge")][-1:]
+    osc = [n for n in names if n in ["lock out", "map pitch + 1"] + edges]
+    for n in osc:
+        y = y_of[n]
+        w.js("y => __ct.scrollTo(0, y)", max(0, y - 300)); w.settle(2500)
+        for d in (300, -200, 200, -300, 300, 100, -100):
+            pf_wheel_to(w, w.js("scrollY") + d, (100, 120))
+        if abs(w.js("scrollY") - y) < 1:
+            caps[n]["osc"] = pf_capture(w)
+    # flicks, wherever a station is built and not yet dimmed (just past its build edge, and at its dim edge): up from the
+    # page's foot, and an oscillation of flicks (y+1500, y-1500, y+900, y-600, y) that crosses the station's dim edge
+    # and its build edge, or the next station's, within a frame or two, so a dim clip is landed mid-way
+    mx = w.js("document.documentElement.scrollHeight - innerHeight")
+    for n in [n for n in names if n.endswith(" built") or n.endswith(" dim edge")]:
+        y = y_of[n]
+        w.js("y => __ct.scrollTo(0, y)", mx); w.settle(2500)
+        if abs(pf_flick_to(w, y) - y) < 1:
+            caps[n]["flick below"] = pf_capture(w)
+        for t in (y + 1500, y - 1500, y + 900, y - 600, y):
+            pf_flick_to(w, max(0, min(mx, t)))
+        if abs(w.js("scrollY") - y) < 1:
+            caps[n]["flick osc"] = pf_capture(w)
+    # a jump from the top
+    for n in [n for n in names if n in ("pull-back", "map pitch + 1", "map edge", "kronos rest")]:
+        w.js("() => __ct.scrollTo(0, 0)"); w.settle(1500)
+        w.js("y => __ct.scrollTo(0, y)", y_of[n])
+        w.page.wait_for_timeout(1200)          # a phone's rest frame comes up REST_MS after the last scroll
+        caps[n]["jump"] = pf_capture(w, 4000)
+    # fresh: a reload at the top, then the position
+    f = pb_view(v, "pfF")
+    for n in [n for n in names if n in ("chaos labels", "lock out", "kronos rest")]:
+        f.js("() => __ct.scrollTo(0, 0)")
+        f.page.reload(wait_until="load")
+        f.page.wait_for_timeout(900)
+        f.js("y => __ct.scrollTo(0, y)", y_of[n]); f.cur = None
+        f.page.wait_for_timeout(1200)
+        caps[n]["fresh"] = pf_capture(f, 4000)
+    bad, excl, n_cmp, worst = [], [], 0, 0
+    # a reload where the visitor stopped (a phone restoring a discarded tab is one) comes back to that place, and the
+    # frame loop stops there, in the document as well as over the art
+    rs = [n for n in names if n.endswith(" rest")][:1] or [n for n in names if n.endswith("dim edge")][:1]
+    yr = f.js("() => Math.round(Math.min(document.querySelector('#resume').getBoundingClientRect().top + scrollY - 120, document.documentElement.scrollHeight - innerHeight))")
+    for n, y in [(n, y_of[n]) for n in rs] + [("résumé", yr)]:
+        f.js("y => __ct.scrollTo(0, y)", y); f.cur = None
+        f.page.wait_for_timeout(700)
+        y0 = f.js("scrollY")
+        f.page.reload(wait_until="load")
+        f.page.wait_for_timeout(900)
+        ms, y1 = f.settle(4000), f.js("scrollY")
+        if abs(y1 - y0) > 1:
+            bad.append(f"reload at y {y0} ({n}) came back at y {y1}")
+        if ms < 0:
+            bad.append(f"reload at y {y0} ({n}): the frame loop still runs at rest")
+    for n, y in pos:
+        c = caps[n]
+        base = c.get("above")
+        for how, x in c.items():
+            tones = pf_tone(x["sig"])
+            if tones:
+                bad.append(f"y {y} ({n}) {how}: " + "; ".join(tones))
+            if how == "above":
+                continue
+            # the designed history: a station whose playback differs between the two paths, while it is drawn
+            dpb = [i for i in base["sig"]["pb"] if base["sig"]["pb"][i] != x["sig"]["pb"][i]
+                   and (base["sig"]["vis"][i] > 0 or x["sig"]["vis"][i] > 0 or base["sig"]["scene"] in ("pull-back", "map")
+                        or any(i in z for z in base["sig"]["natives"] + x["sig"]["natives"]))]
+            if dpb:
+                excl.append(f"{n} {how}: playback of {','.join(dpb)}")
+                continue
+            # the intro clock: the scroll walk goes on from wherever the landing's clock stood at the first scroll, so a
+            # reload's chaos runs a few steps apart from the page that was scrolled sooner (tests/HOOKS.md, stepAt)
+            if how == "fresh" and base["sig"]["scene"] in ("chaos", "lock") and (base["sig"]["view"] or [0] * 4)[3] != (x["sig"]["view"] or [0] * 4)[3]:
+                excl.append(f"{n} fresh: intro clock")
+                continue
+            px, area = pb_diff(w, base["shot"], x["shot"])
+            n_cmp += 1
+            worst = max(worst, px)
+            keys, det = pf_diff(base, x)
+            if px > PF_TOL or px < 0 or x["sig"]["over"] > 0 or base["sig"]["over"] > 0:
+                bad.append(f"y {y} ({n}) above vs {how}: {px}px" + (f" [{'; '.join(det)}]" if det else "")
+                           + (f" overflow {x['sig']['over']}" if x["sig"]["over"] > 0 else ""))
+    stuck = [n for n in caps for how, x in caps[n].items() if x["sig"]["running"]]
+    for n in sorted(set(stuck))[:3]:
+        bad.append(f"{n}: the frame loop still runs at rest")
+    ok = not bad and n_cmp and all(s == "done" for s in played.values())
+    return ok, (f"{len(pos)} positions, {n_cmp} path pairs compared (worst {worst}px, tol {PF_TOL}); excluded as designed "
+                f"history: {len(excl)}" + (f" ({'; '.join(excl[:3])})" if excl else "")
+                + ("" if all(s == "done" for s in played.values()) else f"; not all played: {played}")
+                + (f"; {len(bad)} differ: " + " | ".join(bad[:8]) if bad else ""))
+
+
 # name -> (viewports, fn, what it measures)
 ASSERTIONS = [
     ("selfchecks", ("desktop",), a_selfchecks, "every __walk.selfChecks() entry ok, and nand/em/kronos-dd/lock equal answers known outside the page"),
@@ -4116,7 +4611,9 @@ ASSERTIONS = [
     ("errors", ("desktop", "phone", "phone-small", "desktop-125") + LANDS, a_errors, "no page errors or console errors"),
     ("cases", ("desktop", "phone", "phone-small"), a_cases, "each case study and deep dive under work/: no error, no request off the origin, its two fonts from work/assets, tokens only (no pink words, alpha or effect), DOM sizes, no overflow, no wheel/touch/key listener, link names, targets 24px fine and 32px touch, the hero done (desktop) or at rest (reduced motion), every self-check it exposes ok"),
     ("depth", ("desktop", "phone"), a_depth, "the work pages that opt into the depth layer (lx-): exactly one ant on screen at 26 scroll positions down and back up and under a wheel from 0.2 s, the road never un-laid, no result digit hidden or crowding its words, the hero at rest with its frame lit under reduced motion, and a deep dive's read time equal to its line and to its case study's"),
+    ("depthpath", ("desktop", "phone"), a_depthpath, "every depth page down, up and down again through the same positions (a phone's toolbar sliding as it turns): every figure on its floor whatever the path (a scene plays or waits only on it, never held there; a case figure's clock never runs or finishes under it), frames lit exactly while arrived, replay only once done, docked words and layout the same on every pass, the road never un-laid and the same once laid, one ant and the same one going down, the road's ant drawn the same at each position on every pass, up included; a deep dive whose deep.js lands after its fonts lays out the same"),
     ("deep", ("desktop", "phone"), a_deep, "each deep dive under work/: every figure.scene became a scene with a stepper (none failed its self-check); with motion each one, scrolled to, starts playing on its own and moves on a step, and a square, next and prev move it; with reduced motion each rests on a step and the stepper still moves it; every stepper control is a focusable native button, and Space on a square and Enter on next move the scene"),
+    ("pathfree", ("desktop", "phone", "desktop-1280", "phone-640", "land"), a_pathfree, "every station played, each state edge, the map, the pull-back and the phone rests reached from above, from below, after an oscillation, by a jump and fresh, and each station just built and at its dim edge by a flick up from the foot and an oscillation of flicks: settled screenshots (canvas, native layers, DOM) differ by at most 24 CSS px, every station's cells all in their own tokens before its dim edge and all one down past it (stationInk().tone), no horizontal overflow, the loop stops; playback, blooms, plants and hidden ants are the designed history and are excluded by name"),
     ("perf", ("phone", "desktop"), None, "p95 script time per frame <= 2.3ms at 4x CPU throttle, median of 3 runs (rAF and scroll handlers, timed in-page)"),
 ]
 # --fast: the checks an edit breaks most often, on fewer viewports, in under a minute.
