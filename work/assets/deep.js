@@ -279,6 +279,7 @@
       S.canvas.style.width = cw + "px"; S.canvas.style.height = ch + "px";
       S.canvas.style.position = "absolute"; S.canvas.style.left = S.padL + "px"; S.canvas.style.top = S.padT + "px";
       S.ctx = S.canvas.getContext("2d"); S.ctx.imageSmoothingEnabled = false;
+      if (spec.rows === inkRows || spec.ink) inkTrack(S);
       var aw = cw + S.padL + S.padR, ah = ch + S.padT + S.padB;
       S.art.style.width = aw + "px"; S.art.style.height = ah + "px";
       var align = spec.align || "center";
@@ -424,6 +425,52 @@
      the row's own width only, so a column beside it keeps its rows; the reader never stops on a half-drawn row, and the
      row comes back whole once it clears the words */
   var ROW_MAX = 64;
+  /* the painted rows of a canvas scene that declares rows: Deep.inkRows (or ink: true, for a rows function that adds
+     its own to them). Every filled rectangle the scene paints is noted
+     in a map of CSS pixels (a fill of the whole canvas starts it again; a fill in the ground colour
+     takes its area back), and each column's runs of ink no taller than ROW_MAX are its rows, side by side runs of the
+     same height joined into one. Strokes are left out: a line a pixel or two across is not a row. */
+  function inkTrack(S) {
+    var g = S.spec.grid, c = S.ctx;
+    var w = Math.ceil(g.cols * S.pitch), h = Math.ceil(g.rows * S.pitch);
+    S.ink = { cols: w, h: h, cw: S.dp / S.pitch, ys: S.dp / S.pitch, m: new Uint8Array(w * h), rows: null };
+    if (c.__ink) { c.__ink = S.ink; return; }
+    var raw = c.fillRect;
+    c.__ink = S.ink;
+    c.fillRect = function (x, y, w, h) {
+      raw.call(c, x, y, w, h);
+      var I = c.__ink, cw = c.canvas.width, ch = c.canvas.height;
+      if (!I) return;
+      I.rows = null;
+      if (x <= 0 && y <= 0 && x + w >= cw && y + h >= ch) { I.m.fill(0); return; }
+      if (w < 0) { x += w; w = -w; } if (h < 0) { y += h; h = -h; }
+      if (I.bare === undefined) { var was = c.fillStyle; c.fillStyle = tokens().void || "#000"; I.bare = c.fillStyle; c.fillStyle = was; }
+      var bare = c.fillStyle === I.bare;
+      if (bare && c.globalAlpha < 0.5) return;
+      var c0 = Math.max(0, Math.floor(x / I.cw)), c1 = Math.min(I.cols, Math.ceil((x + w) / I.cw));
+      var y0 = Math.max(0, Math.floor(y / I.ys)), y1 = Math.min(I.h, Math.ceil((y + h) / I.ys)), v = bare ? 0 : 1;
+      for (var cx = c0; cx < c1; cx++) for (var yy = y0; yy < y1; yy++) I.m[yy * I.cols + cx] = v;
+    };
+  }
+  function inkRows(api) {
+    var I = api.scene.ink, p = api.scene.pitch || 1;
+    if (!I) return [];
+    if (I.rows) return I.rows;
+    var out = [], open = {};
+    for (var cx = 0; cx < I.cols; cx++) {
+      var now = {};
+      for (var y = 0; y < I.h; y++) {
+        if (!I.m[y * I.cols + cx]) continue;
+        var t = y; while (y + 1 < I.h && I.m[(y + 1) * I.cols + cx]) y++;
+        if (y + 1 - t > ROW_MAX) continue;
+        var key = t + ":" + (y + 1), q = open[key];
+        if (q && q[4] === cx) { q[2] += 1 / p; q[4]++; } else { q = [cx / p, t / p, 1 / p, (y + 1 - t) / p, cx + 1]; out.push(q); }
+        now[key] = q;
+      }
+      open = now;
+    }
+    return (I.rows = out);
+  }
   // the rows of the art with any part between lo and hi: boxes (tol 2: a box that only shares a border with the edge
   // stays) and lines of text (tol 0.5)
   function rowAtoms(stage, lo, hi) {
@@ -810,7 +857,7 @@
   }
 
   var Deep = {
-    tokens: tokens, reduce: REDUCE, coarse: COARSE, scenes: scenes, readTime: readTime,
+    tokens: tokens, reduce: REDUCE, coarse: COARSE, scenes: scenes, readTime: readTime, inkRows: inkRows,
     /* from a click on a docked phone scene's own controls: bring these elements between the strip and the dock */
     reveal: function (id, els) { scenes.forEach(function (s) { if (s.id === id) s.reveal(0, [].concat(els).filter(Boolean)); }); },
     scene: function (id, spec) {

@@ -636,10 +636,10 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="path" data-at="11"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L28-L33">Gate X27’s engineered path: flat, a steady slide, then a recovery</span>, <span data-derived="days 300 to 340 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">40</span> days down and <span data-derived="days 340 to 420 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L32">80</span> back up. The slide bottoms near <span data-derived="0.99278^40 − 1 = −25.2%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">−25%</span>.</li>
+            <li data-key="path" data-at="11"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L28-L33">Gate X27’s engineered path</span>: <span data-derived="days 300 to 340 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">40</span> days down to near <span data-derived="0.99278^40 − 1 = −25.2%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">−25%</span>, then <span data-derived="days 340 to 420 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L32">80</span> back up.</li>
             <li data-key="traces" data-at="23">Both throttles on that path, day by day: as found in red, fixed in amber.</li>
             <li data-key="checks" data-at="24">X27’s checks: <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L38-L52">exactly 1 at every high-water mark, never more exposure for a deeper drawdown, strictly between the floor and 1</span> from <span data-derived="−0.10 = −10%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L51">−10%</span> to <span data-derived="−0.18 = −18%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L51">−18%</span>, and the floor past <span data-derived="−0.20 = −20%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L90">−20%</span>.</li>
-            <li data-key="fails" data-at="25">Graded the same way, the throttle as written fails every one of them, starting on day one.</li>
+            <li data-key="fails" data-at="25">Graded the same way, the throttle as written (fig 11) fails every one of them, starting on day one.</li>
             </ol>
           <figcaption class="sc-cap" id="sc-repair-cap"><span class="n">fig 13</span>Gate X27 replayed on its own path, computed in the browser. <span class="verb cap">click</span> grade as found to put the old throttle through the same checks.</figcaption>
         </figure>
@@ -900,6 +900,7 @@
     function wipe() { if (Deep.reduce) return; wipe0 = performance.now(); if (!raf) raf = requestAnimationFrame(pump); }
     function tour() { if (Deep.reduce) return; tour0 = performance.now(); if (!raf) raf = requestAnimationFrame(pump); }
     sc = Deep.scene("sc-market", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, rows: 32, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 72 : 64; } },
       ticks: 30, tps: 8,
@@ -1292,6 +1293,7 @@
     }
     function daysAt(tick) { return tick <= 30 ? tick : Math.min(NT, 30 + Math.round((tick - 30) / 10 * (NT - 30))); }
     sc3 = Deep.scene("sc-chain", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, get rows() { return PHONE() ? 86 : 38; }, pitch: 8, pitchPhone: 4 },
       space: { top: 8, get bottom() { return PHONE() ? 40 : 16; } },
       ticks: 42, tps: 8, check: function () { return world().s.length === NT; },
@@ -1375,6 +1377,7 @@
       }
     }
     sc4 = Deep.scene("sc-em", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, get rows() { return PHONE() ? 57 : 43; }, pitch: 8, pitchPhone: 4 },
       space: { top: 8, get bottom() { return PHONE() ? 168 : 8; } },
       ticks: 54, tps: 8, check: function () { var w = world(); return w.fit.hist.length > 2 && isFinite(w.fit.ll); },
@@ -1510,6 +1513,7 @@
     }
     function lay(ph) { return ph ? { yF: 4, yS: 19, yS2: 34, h: 9, ro: 44 } : { yF: 2, yS: 12, yS2: 22, h: 6, ro: 28 }; }
     sc5 = Deep.scene("sc-causal", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, get rows() { return PHONE() ? 46 : 29; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 64 : 48; } },
       ticks: 30, tps: 8, check: function () { var c = cutData(); return c.maxF < 1e-9; },
@@ -1583,6 +1587,7 @@
     placeKeys();
     function lay(api) { return api.phone ? { y0: 2, y1: 30, by: 33, bh: 3, ry: 39 } : { y0: 2, y1: 24, by: 27, bh: 3, ry: 33 }; }
     sc6 = Deep.scene("sc-hyst", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, get rows() { return PHONE() ? 42 : 36; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 40 : 8; } },
       // step 4's words name the flip before the urgent one: Bear to Bull, 7 days before Volatile passes 0.90
@@ -1678,6 +1683,7 @@
     function data(gauss) { var key = gauss ? "g" : "t"; if (!cache[key]) cache[key] = sample(gauss); return cache[key]; }
     function lay(api) { return api.phone ? { y0: 1, y1: 24, sy: 30, sh: 7, dy: 39 } : { y0: 1, y1: 22, sy: 25.5, sh: 4, dy: 31 }; }
     Deep.scene("sc-tails", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, get rows() { return PHONE() ? 40 : 32; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 72 : 48; } },
       ticks: 5, tps: 1, check: function () { var d = data(false); return d.t.nu > 3 && d.t.nu < 9; },
@@ -1866,6 +1872,7 @@
       return out;
     }
     sc9 = Deep.scene("sc-book", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, get rows() { return PHONE() ? 64 : 40; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, bottom: 16 },
       ticks: 4, tps: 1, check: function () { var t = tilt(B, 0); return t.w.every(function (v) { return v <= 0.12 + 1e-9; }); },
@@ -2252,6 +2259,7 @@
      ====================================================================================================== */
   (function () {
     Deep.scene("sc-pay", {
+      rows: Deep.inkRows,                                   // the docked words clip its painted rows whole
       grid: { cols: 88, get rows() { return PHONE() ? 46 : 26; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() ? 24 : 24; } },
       ticks: 3, tps: 1,

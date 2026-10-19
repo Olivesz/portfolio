@@ -1456,7 +1456,7 @@
     tx(p, q.x + 8, q.y + 36, "llama-3.1-8b-instant", "lb-i", { w: q.w - 16 });
     var gp = gh(kg(p, "from", "list")); tx(gp, q.x + 8, q.y + 52, "temperature 0.3", "lb", { src: "backend/extractor.py#L115" }); tx(gp, q.x + 8, q.y + 68, "up to 1024 tokens", "lb", { src: "backend/extractor.py#L116" });
     var lsy = n ? q.y + 52 : q.y + 104;
-    var ls = gh(kg(p, "from", "list")); if (n) ls.setAttribute("transform", "translate(144,-16)");
+    var ls = gh(kg(p, "from", "list")); if (n) ls.setAttribute("transform", "translate(136,-16)");   // the closing bracket keeps 8 px inside the box
     tx(ls, q.x + 8, lsy + (n ? 16 : 0), "[ { text · type ·", "lb f-cyan");
     if (n) tx(ls, q.x + 8, lsy + 30, "keywords · importance } ]", "lb f-cyan", { w: 180 });
     else { tx(ls, q.x + 8, lsy + 14, "keywords ·", "lb f-cyan"); tx(ls, q.x + 8, lsy + 28, "importance } ]", "lb f-cyan"); }

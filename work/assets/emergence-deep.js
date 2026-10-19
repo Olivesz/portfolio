@@ -176,6 +176,7 @@
       ro.setAttribute("data-src", "page:rule-count");
     }
     Deep.scene("sc-count", {
+      rows: Deep.inkRows,
       check: function () {
         var r = [0, 1, 2, 3].map(function (k) { var w = world(["nw", "e", "s"].slice(0, k)); w.step(); return w.isHead(1, 1); });
         return ok("rule 1 or 2 fires, 0 and 3 do not", !r[0] && r[1] && r[2] && !r[3]) && WW.selfTest().ok;
@@ -209,6 +210,7 @@
       lbl(api, "lk", "clock", 35, 4, { align: "center", dy: -4, cls: "b" }); lbl(api, "lt", "tap", 36, 9, { dx: 4 });
     }
     fast(Deep.scene("sc-wire", {
+      rows: Deep.inkRows,
       check: function () {
         var g6 = frames[6], gL = frames[TB + 4];
         var c1 = hx(g6, 1, 1, 26).length === 1 && hx(g6, 1, 1, 26)[0] === 8;
@@ -267,6 +269,7 @@
       lbl(api, "l3", "a stored bit", rM[0] + 1, rM[1], { dy: -16, cls: act === rM ? "i" : "" });
     }
     fast(Deep.scene("sc-gaps", {
+      rows: Deep.inkRows,
       check: function () { return ok("or fires on a alone, leaks back up b; xor both is dark; memory keeps one electron", tOut > 0 && tLeak > 0 && tThree > 0 && !xorOut && tHold > 0); },
       grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 11 }, space: { top: 16, bottom: 8 },
       ticks: TICKS, tps: 8, pause: 1400, rest: "three",
@@ -305,6 +308,7 @@
       if (lf.getAttribute("data-n") !== "1") { lf.innerHTML = '<span class="g">■</span> ' + cs + '1,446</span> nand gates  <span class="am">■</span> ' + cs + '175</span> flip-flops'; lf.setAttribute("data-n", "1"); }
     }
     fast(Deep.scene("sc-plan", {
+      rows: Deep.inkRows,
       check: function () { return ok("field draws one square per part", COLS * ROWS >= NN + ND); },
       grid: { cols: COLS, rows: ROWS, pitch: 8, pitchPhone: 8 }, space: { top: 16, bottom: 32 },
       ticks: TICKS, tps: 16, pause: 1400, rest: "count", draw: draw
@@ -334,6 +338,7 @@
       lbl(api, "br", "bridge", 15, 1, { align: "center", dy: -24 });
     }
     Deep.scene("sc-diode", {
+      rows: Deep.inkRows,
       check: function () { return ok("diode passes forward, stops backward", WW.selfTest().ok && tOut > 0 && tDie > 0 && !back && tGone > 0); },
       grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 10 }, space: { top: 24, bottom: 8 },
       ticks: TICKS, tps: 8, rest: "dies",
@@ -421,6 +426,7 @@
     if (o.leads) setLead(id, o.leads(res, P));
     var live0 = null;
     return fast(Deep.scene(id, {
+      rows: Deep.inkRows,
       check: function () { var got = [0, 1, 2, 3].map(function (c) { return c in PRE ? PRE[c] : res[CASES.indexOf(c)].out; }); return ok(id + " truth table " + got.join("") + (o.skew ? " (wanted 0001)" : ""), got.join("") === (o.got || o.want).join("") && (!o.extraCheck || o.extraCheck(res, frames, pp, COLS, ROWS, base))); },
       grid: { cols: COLS, rows: ROWS, pitch: o.pitch, pitchPhone: o.pitchPhone, min: 2 },
       space: PHONE ? { top: 24, bottom: 136 } : { top: 24, bottom: 8, right: 112 },
@@ -509,6 +515,7 @@
       tb.setAttribute("data-src", "page:nand-table"); api.scene.placeLabel(api.scene.labels.tt);
     }
     fast(Deep.scene("sc-nand", {
+      rows: Deep.inkRows,
       check: function () { return ok("nand cell 1,1,1,0 and recovers after 1,1", res.map(function (r) { return r.out; }).join("") === "11101" && res[3].crowd > 0 && P > 0); },
       grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 8 }, space: PHONE ? { top: 8, bottom: 136 } : { top: 8, bottom: 8, right: 112 },
       ticks: TICKS, tps: 16, pause: 1300, rest: "nab",
@@ -534,6 +541,7 @@
     }));
     /* the hero: the same cell and the same run, small, looping, no controls */
     var hero = Deep.scene("sc-hero", {
+      rows: Deep.inkRows,
       grid: { cols: COLS, rows: ROWS, pitch: 12, pitchPhone: 8 }, space: PHONE ? { top: 8, bottom: 112 } : { top: 8, bottom: 8, right: 112 },
       ticks: TICKS, tps: 24, pause: 0,
       draw: function (api, tick) { tick = Math.min(tick, TICKS); paintF(api, frames[tick], tableAt(tick), litAt(tick)); crowdsRecent(frames, tick, COLS, ROWS, [J[0] - 1, J[1] - 1, J[0] + 1, J[1] + 1]).forEach(function (c) { ring(api, c[0], c[1]); }); }
@@ -580,6 +588,7 @@
       var n = lbl(api, "n", "clear needs a stored 1: see fig 19", 8, ROWS - 1, { dy: 4, cls: "i" }); n.hidden = !note;
     }
     fast(Deep.scene("sc-mem", {
+      rows: Deep.inkRows,
       check: function () { return ok("memory: hold, on-time clear leaves 0 electrons, set again", LAP > 0 && OFF > 0 && reads.filter(function (x) { return x < tInj; }).length >= 1 && empty && again > 0 && tSet > 0); },
       grid: { cols: COLS, rows: ROWS, pitch: 14, pitchPhone: 8 }, space: { top: 24, bottom: 24 },
       ticks: TICKS, tps: 20, pause: 1300, rest: "clear",
@@ -662,6 +671,7 @@
       tb.setAttribute("data-src", "page:gates-table"); api.scene.placeLabel(api.scene.labels.tt);
     }
     Deep.scene("sc-gates", {
+      rows: Deep.inkRows,
       check: function () {
         var good = ORDER.every(function (nm) { return ROWSET[nm].every(function (r) { var G = GATES[nm], val = evalG(G, r); return val[G.nodes[G.nodes.length - 1][0]] === WANT[nm](r); }); });
         var c = new Circuit(), a = c.net(0), b = c.net(0), x = c.xor_(a, b), n0 = c.nands.length;
@@ -746,6 +756,7 @@
       lbl(api, "rm", show ? "after the edge" : "before the edge", X0 + 20, 3, { dx: 16, dy: -4 });
     }
     Deep.scene("sc-ff", {
+      rows: Deep.inkRows,
       check: function () {
         var waits = Q[3] === 0 && Q[4] === 1, toggles = TQ.filter(function (x, i) { return i > 0 && i % 2 === 0; }).join("").indexOf("1010") === 0;
         var holds = Q[13] === 0 && Dseq[13] === 1, ram = after[5] === 0xA6 && after.every(function (v, i) { return i === 5 || v === 0; });
@@ -851,6 +862,7 @@
     var CYC = [c4 - 3, c4 - 2, c4 - 1, c4, c4 + 1, c4 + 2, jn, jt];
     function tapeAt(cy) { return FIB.outs.filter(function (v, k) { return FIB.at[k] <= cy; }); }
     Deep.scene("sc-bus", {
+      rows: Deep.inkRows,
       check: function () {
         var want = [["Ep", "Lm"], ["Cp"], ["CE", "Li"], ["Ei", "Lm"], ["CE", "Lb"], ["Eu", "La"]];
         var good = want.every(function (w, k) { var sg = S[CYC[k]].sigs.filter(function (x) { return x !== "Su" && x !== "Hlt"; }); return sg.slice().sort().join() === w.slice().sort().join(); });
@@ -899,6 +911,7 @@
     var rs = null;
     var TICKS = 29;
     Deep.scene("sc-alu", {
+      rows: Deep.inkRows,
       check: function () {
         // the same nands in the same order, 32 input pairs at a time (one per bit of a word; lane l is b = 32 hi + l), so
         // all 131,072 cases run in a few ms instead of blocking the first paint
@@ -1013,7 +1026,13 @@
       if (carry >= 0) { var cb = Math.floor(carry / per), cx = carry % per, con = carry <= cy; rect(Math.min(per - 2, cx), bandTop(cb) + LBL + 4, 2, TICK + 4 + BAR + 4, con ? "v-cyan" : "copper"); carL.className = "sc-l" + (con ? " c" : ""); }
       if (cy >= 0 && cy < N) { var pb = Math.floor(cy / per), px = cy % per, py = bandTop(pb) + LBL + 4; rect(px, py, 1, TICK + 4 + BAR, "ink"); }
     }
-    return { layout: layout, draw: draw, el: el };
+    /* the strip's painted rows for the docked words' clip, in the scene's cells: each band's ticks and bars, one row */
+    function bandRows(api) {
+      var cr = api.scene.canvas.getBoundingClientRect(), sr = cv.getBoundingClientRect(), p = api.pitch || 1, out = [];
+      for (var b = 0; b < bands; b++) out.push([(sr.left - cr.left) / p, (sr.top - cr.top + bandTop(b) + LBL + 4) / p, per / p, (TICK + 4 + BAR + 4) / p]);
+      return out;
+    }
+    return { layout: layout, draw: draw, el: el, rows: bandRows };
   }
 
   /* fig 15: SAP-1 runs Fibonacci */
@@ -1029,6 +1048,7 @@
     setLead("sc-sap", leads);
     function tapeAt(cy) { return FIB.outs.filter(function (v, k) { return FIB.at[k] <= cy; }); }
     fast(Deep.scene("sc-sap", {
+      ink: true, rows: function (api) { return Deep.inkRows(api).concat(strip ? strip.rows(api) : []); },
       check: function () { return ok("fibonacci tape on the netlist", SAPOK && TRACE_OK && !!strip && FIB.outs.join(",") === WANT_OUT.fib.join(",") && S[last].halt === 1); },
       layout: function (api, avail) { if (strip) strip.layout(avail); },
       grid: { cols: PCOLS, rows: PROWN, pitch: 16, pitchPhone: 8 }, space: PHONE ? { top: 16, bottom: 216 } : { top: 16, bottom: 16, right: 128 },
@@ -1123,6 +1143,7 @@
     }
     var out = null, inp = null;
     var sc = fast(Deep.scene("sc-slack", {
+      rows: Deep.inkRows,
       check: function () { return ok("clear only on time: offsets -2..+2 clear only at 0; empty-loop clear floods", sw.join() === "false,false,true,false,false" && flood > 2); },
       grid: { cols: COLS, rows: ROWS, pitch: 8, pitchPhone: 8 }, space: { top: 24, bottom: 8 },
       ticks: TK, tps: 14, pause: 1400, rest: "late",
