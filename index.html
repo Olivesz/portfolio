@@ -614,7 +614,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <p class="np" data-src="Olivesz/freeflow@19c0217:README.md#L49">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
       <p class="pf" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
       <p class="cv fr"><span class="kr" data-src="Olivesz/freeflow@19c0217:README.md#L57-L60">word errors: <span class="nw">6.7% live,</span> <span class="nw">5.4% whole clip</span></span><br><span data-src="Olivesz/freeflow@19c0217:README.md#L55-L59"><span class="nw">20 held-out speakers</span> · <span class="nw">19.7% before the fix</span></span></p>
-      <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log, whisper.cpp on the JFK sample.</p>
+      <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log: freeflow’s streaming loop, whisper.cpp base.en, on a synthesized reading of Mark Twain’s coyote lines from Roughing It.</p>
       <p class="lk"><a class="rm dd" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
   </div>
@@ -1824,7 +1824,8 @@ root.FigCustos = api;
 <script>
 /* freeflow station: the focused app filling in as someone talks, the key and pill that start it, and below a rule
    the two latest recognition passes over the audio they re-read. Every pass is read from a real pass log: the shipped
-   streamer, whisper.cpp base.en, on the public JFK sample. Every visual is a pure function of (u, box, r); the cell footprint the engine
+   streamer, whisper.cpp base.en, on a synthesized reading of Mark Twain's coyote lines from Roughing It (1872).
+   Every visual is a pure function of (u, box, r); the cell footprint the engine
    stamps comes from the same layout, so the Bayer handoff swaps cell for cell. */
 (function (root) {
 "use strict";
@@ -1838,67 +1839,67 @@ var SRC = {
   minWin: PIN + "mac/Sources/FreeflowCore/Session.swift#L24",         // no pass under 0.5 s of window
   keys: PIN + "mac/Sources/Freeflow/Settings.swift#L11-L20",
   hud: PIN + "mac/Sources/Freeflow/HUDView.swift#L18",
-  log: PIN + "bench/results/9832030/timing/logs/jfk.jsonl#L1-L33",
-  script: "page:passlog"                                             // a figure read from the pass log; check-panels lists page: sources
+  script: "page:passlog"                                             // a figure read from the pass log below; check-panels lists page: sources
 };
 var TOKS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule", "v-blue"];
 
-/* ---------- the run: every pass of a real pass log, whisper.cpp base.en on the JFK sample ---------- */
-// bench/results/9832030/timing/logs/jfk.jsonl at freeflow@19c0217, one row per pass:
+/* ---------- the run: every pass of a real pass log, whisper.cpp base.en on a synthesized reading of Twain ---------- */
+// The clip: Mark Twain's coyote lines from Roughing It (1872, ch. V, public domain), as they were read, in modern
+// spelling: "The coyote is a living, breathing allegory of Want. He is always hungry. He is always poor, out of luck,
+// and friendless." Spoken by macOS `say -v Samantha` and converted to 16 kHz mono 16-bit PCM, 7.326 s. The log:
+// freeflow@19c0217's bench binary run on that clip with no flags, which is the shipped streaming loop (350 ms tick,
+// a 3 s window trimmed to 1.5 s of context, greedy decoding, whisper.cpp base.en with the Core ML encoder), the
+// settings of the repo's bench/results/9832030/timing run. A second run gave the same passes, decode times aside.
+// Its 20 passes, one row each:
 // [audio_end, window_start, decode ms, hypothesis [[word, start, end]...], committed [[word, start, end]...]]
 // the last row is the final pass when the audio ends; empty-string tokens are dropped
 var LOG = [
-  [70,0,30,[],[]],
-  [105,0,182,[["\"And",6,68],["so",68,91],["am",91,104],["I!\"",104,200]],[]],
-  [140,0,160,[["And",32,42],["so,",42,102],["my",102,137],["fe-",137,170]],[]],
-  [175,0,169,[["And",28,33],["so",33,43],["my",43,69],["fellow",69,112],["Americans",112,194]],[["And",28,33]]],
-  [210,0,225,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans.",117,200]],[["so",33,45],["my",45,68],["fellow",68,117]]],
-  [245,0,214,[["and",10,33],["soul",33,68],["my",68,74],["fellow",74,123],["Americans.",123,250]],[["Americans.",123,245]]],
-  [280,0,240,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans!",117,278]],[]],
-  [315,0,98,[["And",10,33],["so,",33,68],["my",68,73],["fellow",73,122],["Americans!",122,300]],[]],
-  [350,0,109,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans!",117,300]],[]],
-  [385,0,122,[["And",31,33],["so",33,68],["my",68,73],["fellow",73,137],["Americans",137,328],["ask",328,400]],[]],
-  [420,0,241,[["And",32,38],["so",38,69],["my",69,88],["fellow",88,164],["Americans",164,278],["ask",278,329],["not",329,355],["to...",355,500]],[["ask",278,329]]],
-  [455,128,107,[["fellow",137,198],["americans",198,328],["ask",328,403],["not",403,428]],[["not",403,428]]],
-  [490,128,86,[["fellow",137,207],["Americans.",207,361],["Ask",361,403],["not.",403,428]],[]],
-  [525,128,86,[["fellow",137,207],["Americans.",207,361],["Ask",361,403],["not.",403,428]],[]],
-  [560,128,186,[["fellow",137,328],["Americans",328,403],["ask",403,419],["not",419,470],["watch",470,552],["the",552,553],["video.",553,558]],[]],
-  [595,128,141,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538]],[]],
-  [630,128,96,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538]],[]],
-  [665,128,108,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538],["watch",538,565],["your",565,597],["country",597,626],["can",626,658]],[]],
-  [700,128,105,[["fellow",137,207],["Americans",207,329],["ask",329,402],["not",402,428],["what",428,490],["your",490,541],["country",541,639],["can",639,663],["do",663,680],["for",680,682],["you.",682,688]],[]],
-  [735,128,110,[["fellow",137,207],["Americans",207,329],["ask",329,402],["not",402,428],["what",428,490],["your",490,541],["country",541,639],["can",639,662],["do",662,692],["for",692,704],["you.",704,728]],[["what",428,490],["your",490,541],["country",541,639],["can",639,662],["do",662,692],["for",692,704],["you.",704,728]]],
-  [770,554,179,[["your",554,582],["country",582,632],["can",632,653],["do",653,667],["for",667,688],["you.",688,734]],[]],
-  [805,554,186,[["your",554,622],["country",622,736],["can",736,784],["do",784,805],["for",805,805],["you.",805,924]],[]],
-  [840,554,255,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,832]],[]],
-  [875,554,94,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,866]],[]],
-  [910,554,100,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,864],["Ask",864,864],["what",864,891],["you...",891,904]],[]],
-  [945,554,108,[["What",554,597],["your",597,630],["country",630,701],["can",701,726],["do",726,745],["for",745,771],["you,",771,819],["ask",819,836],["what",836,864],["you",864,891],["can",891,909],["do.",909,946]],[["ask",819,836],["what",836,864]]],
-  [980,686,280,[["ask",686,728],["what",728,819],["you",819,827],["can",827,869],["do",869,897],["for",897,944],["you.",944,1000]],[["you",819,827],["can",827,869]]],
-  [1015,686,128,[["for",686,719],["you,",719,774],["ask",774,819],["what",819,864],["you",864,891],["can",891,917],["do",917,944],["for",944,976],["your",976,1009],["country.",1009,1014]],[["do",917,944],["for",944,976]]],
-  [1050,686,145,[["for",686,715],["you,",715,760],["ask",760,819],["what",819,827],["you",827,863],["can",863,891],["do",891,902],["for",902,930],["your",930,972],["country.",972,1042]],[["your",930,972],["country.",972,1042]]],
-  [1085,822,301,[["Ask",822,846],["what",846,891],["you",891,903],["can",903,927],["do",927,944],["for",944,973],["your",973,999],["country.",999,1086]],[]],
-  [1100,822,200,[["Ask",822,844],["what",844,874],["you",874,896],["can",896,918],["do",918,933],["for",933,955],["your",955,985],["country.",985,1066]],[]]
-].map(function (p) {          // times are kept in hundredths of a second, as integers
+  [70,0,29,[],[]],
+  [105,0,186,[["The",1,16],["Coyote",16,42],["is",42,51],["a",51,55],["living.",55,100]],[]],
+  [140,0,175,[["The",1,19],["Coyote",19,57],["is",57,72],["a",72,76],["living",76,118]],[["The",1,19],["Coyote",19,57],["is",57,72],["a",72,76]]],
+  [175,0,207,[["The",1,19],["Coyote",19,56],["is",56,72],["a",72,74],["living,",74,143],["breathing...",143,300]],[]],
+  [210,0,228,[["The",1,16],["Coyote",16,45],["is",45,55],["a",55,60],["living,",60,100],["breathing",100,145],["allegory.",145,204]],[["living,",60,100]]],
+  [245,0,265,[["The",1,16],["Coyote",16,39],["is",39,47],["a",47,51],["living,",51,85],["breathing",85,143],["allegory",143,158],["of",158,166],["Mother's",166,200],["Blood.",200,240]],[["breathing",85,143]]],
+  [280,0,255,[["The",1,17],["coyote",17,51],["is",51,62],["a",62,66],["living,",66,113],["breathing",113,166],["allegory",166,212],["of",212,223],["wont.",223,272]],[["allegory",166,212],["of",212,223]]],
+  [315,0,114,[["The",1,21],["coyote",21,63],["is",63,77],["a",77,84],["living,",84,143],["breathing",143,206],["allegory",206,259],["of",259,272],["want.",272,312]],[]],
+  [350,0,107,[["The",1,20],["Coyote",20,60],["is",60,73],["a",73,79],["living,",79,143],["breathing",143,192],["allegory",192,245],["of",245,258],["want.",258,312]],[["want.",258,312]]],
+  [385,108,226,[["breathing",108,177],["allegory",177,242],["of",242,253],["wand",253,299],["he",299,311],["is",311,314],["always",314,364],["hungry",364,388]],[]],
+  [420,108,113,[["breathing",108,177],["allegory",177,242],["of",242,253],["wand.",253,311],["He",311,318],["is",318,328],["always",328,359],["hungry.",359,408]],[]],
+  [455,108,111,[["breathing",108,179],["allegory",179,242],["of",242,258],["wand.",258,311],["He",311,320],["is",320,335],["always",335,376],["hungry.",376,444]],[["He",311,320],["is",320,335],["always",335,376],["hungry.",376,444]]],
+  [490,226,256,[["of",226,242],["wand.",242,294],["He",294,306],["is",306,311],["always",311,344],["hungry,",344,394],["he",394,405],["is",405,445],["always--",445,478]],[]],
+  [525,226,256,[["of",226,242],["wand.",242,298],["He",298,311],["is",311,311],["always",311,351],["hungry.",351,411],["He",411,437],["is",437,446],["always",446,477],["put.",477,522]],[["He",411,437],["is",437,446]]],
+  [560,226,121,[["of",226,248],["wand.",248,326],["He",326,336],["is",336,346],["always",346,377],["hungry.",377,442],["He",442,446],["is",446,458],["always",458,516],["poor.",516,538]],[["always",458,516]]],
+  [595,226,135,[["of",226,248],["wand.",248,326],["He",326,339],["is",339,352],["always",352,393],["hungry,",393,447],["he",447,460],["is",460,473],["always",473,516],["poor,",516,564],["out",564,575],["of",575,586],["love.",586,594]],[]],
+  [630,226,126,[["of",226,242],["want,",242,301],["he",301,311],["is",311,316],["always",316,362],["hungry,",362,438],["he",438,446],["is",446,453],["always",453,499],["poor,",499,564],["out",564,581],["of",581,595],["luck.",595,626]],[["poor,",499,564],["out",564,581],["of",581,595]]],
+  [665,431,233,[["He",446,448],["is",448,465],["always",465,518],["poor",518,564],["out",564,579],["of",579,596],["luck",596,651],["and-",651,671]],[]],
+  [700,431,247,[["he",446,452],["is",452,473],["always",473,538],["poor,",538,602],["out",602,651],["of",651,655],["luck",655,698],["and",698,699],["friendly.",699,855]],[["luck",655,698]]],
+  [732.6,431,111,[["He",446,446],["is",446,461],["always",461,516],["poor,",516,564],["out",564,571],["of",571,586],["luck,",586,651],["and",651,652],["friendless.",652,735]],[["and",651,652],["friendless.",652,732.6]]]
+].map(function (p) {          // times are kept in hundredths of a second (the clip ends at 732.6)
   function w(q) { return [q[0], q[1] / 100, q[2] / 100]; }
   return [p[0] / 100, p[1] / 100, p[2], p[3].map(w), p[4].map(w)];
 });
-var STREAMED = "And so my fellow Americans. ask not what your country can do for you. ask what you can do for your country.";
+var STREAMED = "The Coyote is a living, breathing allegory of want. He is always hungry. He is always poor, out of luck and friendless.";
 var TICK = 0.35;                   // Dictation.swift tickMs = 350
 var MIN_WIN = 0.5;                 // Session.swift minWindowSamples 8000: no pass on under 0.5 s of window
 var WORDS = [];                    // what was typed, in order, with the times the pass that typed it gave
 LOG.forEach(function (p) { p[4].forEach(function (w) { WORDS.push(w); }); });
 var T_STOP = LOG[LOG.length - 1][0];
-// the scrub opens on the first pass that types a word (pass 4 types "And", which pass 3 heard too), with the pill
+// the scrub opens on the first pass that types a word (pass 3 types "The Coyote is a", which pass 2 heard too), with the pill
 // listening, so the first frame already shows the app's text, the two passes that agreed on it and the audio so far;
 // the speech runs to U_SIL, the tail to U_DONE, then the stopped state
 var T_OPEN = LOG.filter(function (p) { return p[4].length; })[0][0];
 var U_KEY = 0, U_REC = 0, U_SIL = 0.84, U_DONE = 0.97;
 
 function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+// a heard word as the page sets it: typeset apostrophes, and none of the quote marks whisper may wrap a line in,
+// which would stand alone in a column
+function shown(w) { return String(w).replace(/^"|"$/g, "").replace(/'/g, "\u2019"); }
 function norm(s) { return String(s).toLowerCase().replace(/[^a-z0-9']/g, ""); }
 // each hypothesis word gets the slot of the typed word it stands for: the best in-order match of the words
-// (ties go to the closer time), and a word no typed word matches takes a free slot between its matched neighbours
+// (ties go to the closer time), and a word no typed word matches takes a free slot between its matched neighbours.
+// Past a pass's last matched word there is no right neighbour to bound it: the pass ran out of audio there, so its
+// unmatched tail is one guess at the next word ("Mother's Blood." where "want." is said), and only the tail's first
+// word takes a slot; the rest sit between that slot and the next, never matching a typed word
 function slots(hyp) {
   var n = hyp.length, m = WORDS.length, D = [], i, j;
   for (i = 0; i <= n; i++) { D.push([]); for (j = 0; j <= m; j++) D[i].push(0); }
@@ -1909,8 +1910,11 @@ function slots(hyp) {
     if (sc(i, j) > 0 && Math.abs(D[i][j] - (sc(i, j) + D[i + 1][j + 1])) < 1e-9) { at[i] = j; used[j] = 1; i++; j++; }
     else if (D[i][j] === D[i + 1][j]) i++; else j++;
   }
+  var tail = n;                        // the first word of the unmatched run that ends the hypothesis
+  while (tail > 0 && at[tail - 1] == null) tail--;
   for (i = 0; i < n; i++) {
     if (at[i] != null) continue;
+    if (i > tail) { at[i] = at[i - 1] + (Math.floor(at[i - 1]) + 1 - at[i - 1]) / 2; continue; }
     var lo = -1, hi = m;
     for (j = i - 1; j >= 0; j--) if (at[j] != null) { lo = at[j]; break; }
     for (j = i + 1; j < n; j++) if (at[j] != null) { hi = at[j]; break; }
@@ -1945,13 +1949,18 @@ var COMMIT_T = WORDS.map(function (w, i) {
   return Infinity;
 });
 // each word some pass heard one way BEFORE it was typed another, with what was typed in its slot, in slot order; a pass
-// that re-reads an already typed word differently is a re-read, not a guess the typed word won over
+// that re-reads an already typed word differently is a re-read, not a guess the typed word won over. The words a pass's
+// tail sets between this slot and the next (slots) are part of the same guess
 var OVERTURNED = (function () {
   var out = [], seen = {};
   SIM.ticks.concat([SIM.fin]).forEach(function (p) {
-    p.full.forEach(function (w) {
-      if (w.i % 1 || !norm(w.w) || norm(w.w) === norm(WORDS[w.i][0]) || p.t >= COMMIT_T[w.i] || seen[w.i + "|" + norm(w.w)]) return;
-      seen[w.i + "|" + norm(w.w)] = 1; out.push({ i: w.i, heard: w.w, typed: WORDS[w.i][0], t: p.t });
+    p.full.forEach(function (w, k) {
+      if (w.i % 1 || !norm(w.w) || norm(w.w) === norm(WORDS[w.i][0]) || p.t >= COMMIT_T[w.i]) return;
+      var said = [w.w];
+      for (var q = k + 1; q < p.full.length && p.full[q].i % 1 && p.full[q].i < w.i + 1; q++) said.push(p.full[q].w);
+      var key = w.i + "|" + said.map(norm).join(" ");
+      if (seen[key]) return;
+      seen[key] = 1; out.push({ i: w.i, heard: said.join(" "), typed: WORDS[w.i][0], t: p.t });
     });
   });
   return out.sort(function (a, b) { return a.i - b.i || a.t - b.t; });
@@ -1964,7 +1973,7 @@ var APP = WORDS.map(function (w, i) {
   return start ? w[0].charAt(0).toUpperCase() + w[0].slice(1) : w[0];
 });
 // one guess per typed word for the end state: the one from the pass that misheard the most words, so a misheard
-// phrase stays together ("watch the video." over "what your country"); ties go to the earlier pass
+// phrase stays together; ties go to the earlier pass ("Mother's Blood." before "wont.", both heard for "want.")
 var HEARD = (function () {
   var per = {}, out = {};
   OVERTURNED.forEach(function (e) { per[e.t] = (per[e.t] || 0) + 1; });
@@ -1972,8 +1981,7 @@ var HEARD = (function () {
     var o = out[e.i];
     if (!o || per[e.t] > per[o.t] || (per[e.t] === per[o.t] && e.t < o.t)) out[e.i] = e;
   });
-  // a guess is shown without the quote marks whisper wrapped the line in ("And so am I!"), which would stand alone here
-  Object.keys(out).forEach(function (i) { out[i] = { i: out[i].i, heard: out[i].heard.replace(/^"|"$/g, ""), typed: out[i].typed, t: out[i].t }; });
+  Object.keys(out).forEach(function (i) { out[i] = { i: out[i].i, heard: shown(out[i].heard), typed: out[i].typed, t: out[i].t }; });
   return out;
 })();
 // the end state's interlinear rows, in mono character columns: the typed words a + 1..b set as the app typed them, one
@@ -2104,8 +2112,8 @@ function scene(u, L) {
   });
   if (S.t >= 0) {
     // once stopped the pill is the app's stopped HUD: its dot stays lit, it keeps the newest words (head-truncated) and
-    // a copy button (HUDView.swift L11-L50); it widens into the free room beside the keys to hold them
-    var cw = lbW("copy") + 6 + 3 * c, tail = "", pw = S.rec ? H.pw * c : Math.ceil((4 * c + sgW("…for your country.", 13) + 8 + cw) / c) * c;
+    // a copy button (HUDView.swift L11-L50); it widens into the free room beside the keys to hold the last three
+    var cw = lbW("copy") + 6 + 3 * c, tail = "", pw = S.rec ? H.pw * c : Math.ceil((4 * c + sgW("…" + APP.slice(-3).join(" "), 13) + 8 + cw) / c) * c;
     var px = Math.max(kx + c, Math.round((L.W - pw) / 2 / c) * c), tx0 = px + 4 * c;
     pw = Math.min(pw, L.W - px);
     if (!S.rec) for (var ti = APP.length - 1; ti >= 0; ti--) { var cand = "…" + APP.slice(ti).join(" "); if (tx0 + sgW(cand, 13) + 8 + cw > px + pw) break; tail = cand; }
@@ -2128,8 +2136,9 @@ function scene(u, L) {
   if (S.done) rowP = [];               // once stopped, the rows keep what the run caught instead (below)
   if (S.done) {                        // the typed text as a sentence, each misheard word struck above the word it lost to
     // interlinear (interlin): the typed row reads as typed, one space between words, and each guess sits over its word;
-    // the excerpt is the run of words that fits the width and shows the most misheard text, preferring one that ends
-    // a sentence, then one that starts one; an excerpt that starts mid-sentence opens with an ellipsis
+    // the excerpt is the run of words that fits the width and ends on the last typed word (so the typed row never looks
+    // cut short), then shows the most misheard text, preferring one that starts a sentence; an excerpt that starts
+    // mid-sentence opens with an ellipsis
     var fitN = Math.floor((L.W + 1) / mono), best = EXCERPT[fitN];
     if (!best) {                       // once per width
       for (var a0 = 0; a0 < APP.length; a0++) {
@@ -2137,7 +2146,7 @@ function scene(u, L) {
         for (var b0 = a0; b0 < APP.length; b0++) {
           if (interlin(a0, b0, st0).w > fitN) break;
           if (HEARD[b0]) gch += HEARD[b0].heard.length;
-          var sc0 = [gch, /[.!?]$/.test(WORDS[b0][0]) ? 1 : 0, st0 ? 1 : 0, -a0, b0 - a0];
+          var sc0 = [b0 === APP.length - 1 ? 1 : 0, gch, /[.!?]$/.test(WORDS[b0][0]) ? 1 : 0, st0 ? 1 : 0, -a0, b0 - a0];
           if (!best || sc0.some(function (v, k) { return sc0.slice(0, k).every(function (q, j) { return q === best.s[j]; }) && v > best.s[k]; })) best = { a: a0, b: b0, s: sc0, st: st0 };
         }
       }
@@ -2162,7 +2171,7 @@ function scene(u, L) {
   if (S.cur) { (S.cur.idx || []).forEach(function (j) { before[j] = 1; }); (S.cur.got || []).forEach(function (j) { got[j] = 1; delete before[j]; }); }
   var rowsW = rowP.map(function (P) { return P && !P.skip ? P.full.filter(function (w) { return w.s >= S.offset - 0.05; }) : null; });
   var slots = {}, order = [];
-  rowsW.forEach(function (ws) { if (ws) ws.forEach(function (w) { if (!(w.i in slots)) { slots[w.i] = 0; order.push(w.i); } slots[w.i] = Math.max(slots[w.i], w.w.length); }); });
+  rowsW.forEach(function (ws) { if (ws) ws.forEach(function (w) { if (!(w.i in slots)) { slots[w.i] = 0; order.push(w.i); } slots[w.i] = Math.max(slots[w.i], shown(w.w).length); }); });
   order.sort(function (a, b) { return a - b; });
   var total = function (from) { var n = 0; for (var q = from; q < order.length; q++) n += slots[order[q]] + 1; return n * mono; };
   var first = 0;
@@ -2181,8 +2190,8 @@ function scene(u, L) {
       if (!(w.i in col)) return;
       var cls = before[w.i] ? "wc" : got[w.i] ? "wa" : (r === 0 && rowP[1] && nw[w.i] !== w.w) ? "wo" : "wg";
       var wx = L.lab + Math.round(col[w.i] * mono);
-      run(wx, y, w.w, cls, SRC.script, 24);
-      bars.push({ x: wx, y: y, w: Math.ceil(w.w.length * mono), lh: 24, row: true, tok: cls === "wa" ? "ink" : cls === "wg" ? "signal" : "copper", a: anchor(wx, y, 24, c) });
+      run(wx, y, shown(w.w), cls, SRC.script, 24);
+      bars.push({ x: wx, y: y, w: Math.ceil(shown(w.w).length * mono), lh: 24, row: true, tok: cls === "wa" ? "ink" : cls === "wg" ? "signal" : "copper", a: anchor(wx, y, 24, c) });
     });
   });
   // audio in whole cells: in question (signal-2), typed and still in the window (muted), trimmed (copper)
@@ -2407,8 +2416,8 @@ function selfCheck() {
     need((ph ? (ph === "short" ? "short phone" : "phone") : "desktop") + " heard-first pair fits the box", rr.length > 3 && rr.every(function (q) { return q.x >= 0 && q.x + q.t.length * mo <= L.W + 0.5; }) &&
       textW("whisper.cpp base.en", 11, "mono") + 0.44 * 19 + 8 <= sc.runs.filter(function (q) { return q.cls === "kk"; })[0].x, rr.map(function (q) { return q.t; }).join(" "));
   });
-  // TextProcessor capitalises a word after . ! or ?, so the app shows "Ask" where the pass log has "ask"
-  need("app text is the log's text, capitalised at sentence starts", APP.join(" ") === "And so my fellow Americans. Ask not what your country can do for you. Ask what you can do for your country." &&
+  // TextProcessor capitalises a word after . ! or ?; whisper already began each sentence of this log with a capital
+  need("app text is the log's text, capitalised at sentence starts", APP.join(" ") === "The Coyote is a living, breathing allegory of want. He is always hungry. He is always poor, out of luck and friendless." &&
     APP.every(function (w, i) { return w.toLowerCase() === WORDS[i][0].toLowerCase(); }), APP.join(" "));
   // append-only: each tick's typed words extend the last tick's, so the backspace count shown is the true count
   var back = 0, prevT = [];
@@ -2465,7 +2474,7 @@ function beat(res, instruction) {
   return { len: 0.75, w: SIZE.desk.w, h: SIZE.desk.h, pw: SIZE.phone.w, ph: SIZE.phone.h,
     build: function (F, u) { var q = res(false); cells(u, q.r, q.org, false).forEach(function (k) { F(k[0], k[1], k[2]); }); },
     phoneBuild: function (F, u) { var q = res(true); cells(u, q.r, q.org, true).forEach(function (k) { F(k[0], k[1], k[2]); }); },
-    instruction: instruction || "A real pass log, JFK sample. Typed once two passes agree.", input: null, selfCheck: "freeflow" };
+    instruction: instruction || "Real pass log, synthesized Twain. Typed once two passes agree.", input: null, selfCheck: "freeflow" };
 }
 
 /* ---------- the station facade the three native figures share ---------- */
@@ -2492,7 +2501,7 @@ var station = {
   hide: function () { if (M) M.el.style.visibility = "hidden"; },
   unmount: unmount,
   selfCheck: selfCheck,
-  instruction: function () { return "A real pass log, JFK sample. Typed once two passes agree."; },
+  instruction: function () { return "Real pass log, synthesized Twain. Typed once two passes agree."; },
   rest: function () { return 1; },
   len: 0.75,
   version: function () { return "ff1"; }
@@ -4294,10 +4303,11 @@ function emergenceKeys(phone) {
 // needs no scroll for it.
 var PLAY = {
   emergence: { keys: emergenceKeys(), phone: emergenceKeys(true), live: { desk: [0, 1], phone: [0, 0.4] } },
-  // freeflow opens on the first word typed ("And"); the passes run brisk through the first sentence (to 3.99 s of
-  // audio), then slow from pass 15, which hears "watch the video." where "what your country" is said, through the
-  // passes that overturn it (to 6.32 s), and on to pass 19, which agrees; the rest runs out to the stop
-  freeflow:  { keys: [[0, 0], [450, 0.2127], [700, 0.3667], [1250, 0.4338], [1450, 0.5145], [1850, 0.84], [2050, 1]] },
+  // freeflow opens on the first words typed ("The Coyote is a"); the passes run brisk to pass 6 (2.45 s of audio), which
+  // hears "Mother's Blood." where "want." is said, then slow through pass 7's "wont." and pass 8's "want." to pass 9,
+  // which agrees and types it (3.5 s); the rest runs out to the stop, whose final pass types "and friendless."
+  // (u = (t - 1.4) / 5.7 * 0.84 up to U_SIL)
+  freeflow:  { keys: [[0, 0], [300, 0.1548], [1000, 0.3095], [1850, 0.84], [2050, 1]] },
   // KRONOS, for a visitor who sees it once: EM's four passes (p 0.08 each) are each read for 250 ms, pass 4 of 4
   // included, and the station holds still on the lock, its key moment, for 0.45 s. Each row below comes in by colour
   // in under 0.1 s while its count is already running: the gates run and rest briefly on 47 of 47 (the row stays

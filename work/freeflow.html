@@ -12,10 +12,10 @@
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="freeflow: a dictated sentence typed into the focused app, above two Whisper passes and the audio they read.">
+<meta property="og:image:alt" content="freeflow: a synthesized reading of Mark Twain’s coyote lines typed into the focused app, above two Whisper passes and the audio they read.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://olivesz.github.io/portfolio/work/og/freeflow.jpg">
-<meta name="twitter:image:alt" content="freeflow: a dictated sentence typed into the focused app, above two Whisper passes and the audio they read.">
+<meta name="twitter:image:alt" content="freeflow: a synthesized reading of Mark Twain’s coyote lines typed into the focused app, above two Whisper passes and the audio they read.">
 <meta name="theme-color" content="#0a0b14">
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230a0b14'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23ff3d81'/%3E%3Crect x='10' y='2' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3Crect x='2' y='10' width='2' height='2' fill='%23ff3d81' opacity='.5'/%3E%3C/svg%3E">
@@ -27,7 +27,7 @@
 <link rel="stylesheet" href="assets/case.css">
 <style>/* the hero in the page's hue: words once typed are blue, in the message and in the pass rows */
 #hero .ff .fw,#hero .ff .wa{color:var(--v-blue)} #hero .ff .wa{text-decoration-color:var(--v-blue)}
-/* section 03: the JFK sample typed before and after the fix (typed words blue, words never typed boxed in red), and
+/* section 03: the coyote reading typed before and after the fix (typed words blue, words never typed boxed in red), and
    the two passes that lost a word: typed blue, heard but not yet typed light cyan, a re-heard repeat copper, lost red;
    amber is the time rule's cut, green the cut by text */
 .ty{display:grid;row-gap:4px}
@@ -79,7 +79,7 @@
       <div class="stage" id="hero" data-play data-native="freeflow" style="--stage-h:408px;--stage-h-phone:304px"></div>
       <p class="look"><span class="lk">look for</span><span style="--c:var(--v-blue)">a word typed for good</span><span style="--c:var(--signal)">a guess the next pass can still change</span></p>
       <figcaption class="cap-row">
-      <p class="instr" id="hero-cap"><span class="n">fig 0</span><span data-src="Olivesz/freeflow@19c0217:README.md#L9-L12">A real pass log</span>: whisper.cpp base.en on the JFK sample. A word is typed once <span data-src="Olivesz/freeflow@19c0217:README.md#L79">two</span> passes agree.</p>
+      <p class="instr" id="hero-cap"><span class="n">fig 0</span><span data-src="page:passlog">A real pass log</span>: a synthesized reading of Mark Twain’s coyote lines, run through the shipped streamer. A word is typed once <span data-src="Olivesz/freeflow@19c0217:README.md#L79">two</span> passes agree.</p>
       <button class="replay" type="button" hidden>replay</button>
     </figcaption>
     </figure>
@@ -110,7 +110,7 @@
         <p class="lx-foot"><span data-src="Olivesz/freeflow@19c0217:README.md#L60">3 of 523</span> words dropped <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L114-L116">lag is an upper bound</span> <span class="dot">·</span> bars start at zero<span class="def">; <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L60-L61">word error is all errors over all reference words</span>; commit lag is how long after a word ends it is typed</span></p>
       </section>
       <div class="lx-cta lx-up" style="--d:4">
-        <a class="lx-btn" href="freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth, about 15 minutes"><span>How it works, in depth</span><span class="k" data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 15 minutes</span><span class="ar" aria-hidden="true">→</span></a>
+        <a class="lx-btn" href="freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth, about 16 minutes"><span>How it works, in depth</span><span class="k" data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 16 minutes</span><span class="ar" aria-hidden="true">→</span></a>
         <a class="lx-btn q" href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer"><span>github.com/Olivesz/<wbr>freeflow</span><span class="ar" aria-hidden="true">→</span></a>
       </div>
       <dl class="facts lx-up" style="--d:5">
@@ -214,25 +214,25 @@
       <figure class="ig lx-fr ff-ty" data-reveal aria-labelledby="figT-cap" style="--rv-step:520ms">
           <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
         <div class="ty">
-          <p class="ty-h"><span class="k">before the fix</span><span data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/summary.csv#L2">6 of 22 words never typed</span><span data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/summary.csv#L2" data-at="0.273">27.3% word error</span></p>
-          <p class="ty-s" data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/summary.csv#L2">And so my fellow Americans. Ask not. <span class="gone rv-f" style="--o:1">what your</span> Country can <span class="gone rv-f" style="--o:1">do</span> for you? Ask what you <span class="gone rv-f" style="--o:1">can do for</span> your country.</p>
-          <p class="ty-h rv-f" style="--o:2"><span class="k">after the fix</span><span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">0 errors</span></p>
-          <p class="ty-s rv-f" style="--o:2" data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">And so my fellow Americans. Ask not what your country can do for you. Ask what you can do for your country.</p>
+          <p class="ty-h"><span class="k">before the fix</span><span data-src="page:passlog-before" data-ck="before-dropped">2 of 22 words never typed</span><span data-src="page:passlog-before" data-ck="before-wer">9.1% word error</span></p>
+          <p class="ty-s" data-src="page:passlog-before" data-ck="before-text">The Coyote is a <span class="gone rv-f" style="--o:1">living</span> breathing allegory of want. He is always hungry. He is always poor, out of luck, and <span class="gone rv-f" style="--o:1">friendless</span></p>
+          <p class="ty-h rv-f" style="--o:2"><span class="k">after the fix</span><span data-src="page:passlog" data-ck="after-wer">0 errors</span></p>
+          <p class="ty-s rv-f" style="--o:2" data-src="page:passlog" data-ck="after-text">The Coyote is a living, breathing allegory of want. He is always hungry. He is always poor, out of luck and friendless.</p>
         </div>
-        <figcaption id="figT-cap"><span class="n">fig 2</span>The JFK sample as the app types it, before and after the fix: the streamer’s words from the benchmark, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/TextProcessor.swift#L211-L215">with each sentence start capitalised</span> (<span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L48-L50">on by default</span>). Boxed in red: words never typed.</figcaption>
+        <figcaption id="figT-cap"><span class="n">fig 2</span>Mark Twain’s coyote lines from Roughing It, read by a synthesized voice, as the app types them before and after the fix: the streamer’s words from each pass log, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/TextProcessor.swift#L211-L215">with each sentence start capitalised</span> (<span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L48-L50">on by default</span>). Boxed in red: words never typed.</figcaption>
       </figure>
     </div>
     <div class="lx-body lx-duo">
       <div class="lx-txt">
-        <p>The commit rule kept a new pass’s words only if they started after the last typed word ended. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">whisper.cpp re-times words by up to a second from one pass to the next</span>, so words that both passes heard fell through the gap. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L83-L84">On JFK, “can” moved to start 0.4 s before the end of the typed “you” and was discarded.</span></p>
+        <p>The commit rule kept a new pass’s words only if they started after the last typed word ended. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L80-L83">whisper.cpp re-times words by up to a second from one pass to the next</span>, so words that both passes heard fell through the gap. In the coyote reading, “living” moved to start <span data-src="page:passlog-before" data-ck="living-early">0.16</span> s before the end of the typed “a” and was discarded. On the last pass the same rule cut “friendless”, which started <span data-src="page:passlog-before" data-ck="friendless-early">0.54</span> s before the typed “and” ended.</p>
         <p><span data-src="Olivesz/freeflow@19c0217:README.md#L62-L67">The fix (commit 262c910) finds the boundary between typed and new words by matching text</span> instead of trusting the times. On <span data-src="Olivesz/freeflow@19c0217:README.md#L55">20</span> held-out LibriSpeech speakers, streaming had dropped <span data-src="Olivesz/freeflow@19c0217:README.md#L59">78 of 523</span> words before it. Streamed word error fell from <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span> to <span data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span>, against <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> offline.</p>
       </div>
       <div class="lx-fig">
         <figure class="ig lx-fr" data-reveal aria-labelledby="figC-cap">
           <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-        <svg class="ig-w" id="figC-w" width="704" height="216" viewBox="0 0 704 216" role="img" aria-labelledby="figC-w-t figC-w-d" xmlns="http://www.w3.org/2000/svg"><title id="figC-w-t">How the time rule lost “can”: two passes of the JFK log before the fix</title><desc id="figC-w-d">Before the fix, the pass at 9.45 s had typed “Ask what you” and heard “can” right after it. The pass at 9.80 s moved “can” 0.4 s earlier, before the time cut at 8.97 s, so the time rule took it for a word already typed, and it was never typed. Cut by text after “Ask what you”, as the fix does, the new words of that pass are “can do for your family.”</desc><g data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/logs/jfk.jsonl#L27" data-at="9.4499999999999993"><text class="lb-i" x="0" y="50">the pass at 9.45 s</text><rect class="ff-t rv-x" style="--o:0" x="151" y="42" width="178" height="8"/><text class="ff-lt rv-f" style="--o:0" x="240" y="34" text-anchor="middle">Ask</text><rect class="ff-t rv-x" style="--o:0" x="331" y="42" width="86" height="8"/><text class="ff-lt rv-f" style="--o:0" x="374" y="34" text-anchor="middle">what</text><rect class="ff-t rv-x" style="--o:0" x="419" y="42" width="83" height="8"/><text class="ff-lt rv-f" style="--o:0" x="460" y="34" text-anchor="middle">you</text><rect class="ff-g rv-x" style="--o:0" x="504" y="42" width="70" height="8"/><text class="ff-lg rv-f" style="--o:0" x="539" y="34" text-anchor="middle">can</text><rect class="ff-g rv-x" style="--o:0" x="576" y="42" width="106" height="8"/><text class="ff-lg rv-f" style="--o:0" x="629" y="34" text-anchor="middle">do?</text></g><g data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/logs/jfk.jsonl#L28" data-at="9.8000000000000007"><text class="lb-i" x="0" y="106">the pass at 9.80 s</text><rect class="ff-r rv-x" style="--o:1" x="210" y="98" width="119" height="8"/><text class="lb rv-f" style="--o:1" x="270" y="90" text-anchor="middle">Ask</text><rect class="ff-r rv-x" style="--o:1" x="331" y="98" width="29" height="8"/><text class="lb rv-f" style="--o:1" x="346" y="90" text-anchor="middle">what</text><rect class="ff-r rv-x" style="--o:1" x="362" y="98" width="63" height="8"/><text class="lb rv-f" style="--o:1" x="394" y="90" text-anchor="middle">you</text><rect class="ff-x rv-x" style="--o:1" x="427" y="98" width="63" height="8"/><text class="ff-lx rv-f" style="--o:1" x="458" y="90" text-anchor="middle">can</text><rect class="ff-g rv-x" style="--o:1" x="492" y="98" width="45" height="8"/><text class="ff-lg rv-f" style="--o:1" x="514" y="90" text-anchor="middle">do</text><rect class="ff-g rv-x" style="--o:1" x="539" y="98" width="59" height="8"/><text class="ff-lg rv-f" style="--o:1" x="568" y="90" text-anchor="middle">for</text><rect class="ff-g rv-x" style="--o:1" x="600" y="98" width="43" height="8"/><text class="ff-lg rv-f" style="--o:1" x="622" y="90" text-anchor="middle">your</text><rect class="ff-g rv-x" style="--o:1" x="645" y="98" width="39" height="8"/><text class="ff-lg rv-f" style="--o:1" x="647" y="90">family.</text></g><path class="ff-mv rv-f" style="--o:2" d="M504.5 50V66.5H458.5V72"/><path class="ff-hx rv-f" style="--o:2" d="M455 71h7l-3.5 5z"/><text class="ff-lx rv-f" style="--o:2" x="458" y="122" text-anchor="middle" data-src="Olivesz/freeflow@19c0217:bench/README.md#L83-L84">0.4 s earlier</text><path class="ff-cut rv-f" style="--o:2" d="M483.5 20V110"/><text class="ff-la rv-f" style="--o:2" x="483" y="14" text-anchor="middle" data-derived="the typed “you” ends at 9.07 s in log line 27; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)">8.97 s</text><path class="ff-tx rv-f" style="--o:4" d="M426.5 76V110"/><path class="ax" d="M136 136.5H685"/><path class="ax" d="M195.5 136V140"/><text class="lb" x="195" y="154" text-anchor="middle">7.5</text><path class="ax" d="M293.5 136V140"/><text class="lb" x="293" y="154" text-anchor="middle">8.0</text><path class="ax" d="M391.5 136V140"/><text class="lb" x="391" y="154" text-anchor="middle">8.5</text><path class="ax" d="M489.5 136V140"/><text class="lb" x="489" y="154" text-anchor="middle">9.0</text><path class="ax" d="M587.5 136V140"/><text class="lb" x="587" y="154" text-anchor="middle">9.5</text><path class="ax" d="M685.5 136V140"/><text class="lb" x="685" y="154" text-anchor="middle">10.0</text><text class="lb" x="0" y="154">seconds into the clip</text><rect class="ff-a rv-f" style="--o:3" x="0" y="176" width="8" height="8"/><text class="lb rv-f" style="--o:3" x="16" y="184"><tspan class="lb-i">before the fix, by time:</tspan> new words start after <tspan data-derived="the typed “you” ends at 9.07 s in log line 27; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)">8.97 s</tspan> → <tspan class="ff-lg">do for your family.</tspan> <tspan class="ff-lx">“can” is lost.</tspan></text><rect class="ff-v rv-f" style="--o:4" x="0" y="200" width="8" height="8"/><text class="lb rv-f" style="--o:4" x="16" y="208"><tspan class="lb-i">the fix, by text:</tspan> new words follow “Ask what you” → <tspan class="ff-lg">can do for your family.</tspan></text></svg>
-        <svg class="ig-n" id="figC-n" width="328" height="280" viewBox="0 0 328 280" role="img" aria-labelledby="figC-n-t figC-n-d" xmlns="http://www.w3.org/2000/svg"><title id="figC-n-t">How the time rule lost “can”: two passes of the JFK log before the fix</title><desc id="figC-n-d">Before the fix, the pass at 9.45 s had typed “Ask what you” and heard “can” right after it. The pass at 9.80 s moved “can” 0.4 s earlier, before the time cut at 8.97 s, so the time rule took it for a word already typed, and it was never typed. Cut by text after “Ask what you”, as the fix does, the new words of that pass are “can do for your family.”</desc><g data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/logs/jfk.jsonl#L27" data-at="9.4499999999999993"><text class="lb-i" x="0" y="12">the pass at 9.45 s</text><rect class="ff-t rv-x" style="--o:0" x="9" y="42" width="50" height="8"/><text class="ff-lt rv-f" style="--o:0" x="34" y="34" text-anchor="middle">Ask</text><rect class="ff-t rv-x" style="--o:0" x="61" y="42" width="59" height="8"/><text class="ff-lt rv-f" style="--o:0" x="90" y="34" text-anchor="middle">what</text><rect class="ff-t rv-x" style="--o:0" x="122" y="42" width="55" height="8"/><text class="ff-lt rv-f" style="--o:0" x="150" y="34" text-anchor="middle">you</text><rect class="ff-g rv-x" style="--o:0" x="179" y="42" width="48" height="8"/><text class="ff-lg rv-f" style="--o:0" x="203" y="34" text-anchor="middle">can</text><rect class="ff-g rv-x" style="--o:0" x="229" y="42" width="71" height="8"/><text class="ff-lg rv-f" style="--o:0" x="264" y="34" text-anchor="middle">do?</text></g><g data-src="Olivesz/freeflow@19c0217:bench/results/0f70dcd/shipped/logs/jfk.jsonl#L28" data-at="9.8000000000000007"><text class="lb-i" x="0" y="76">the pass at 9.80 s</text><rect class="ff-r rv-x" style="--o:1" x="9" y="106" width="50" height="8"/><text class="lb rv-f" style="--o:1" x="34" y="98" text-anchor="middle">Ask</text><rect class="ff-r rv-x" style="--o:1" x="61" y="106" width="20" height="8"/><text class="lb rv-f" style="--o:1" x="71" y="98" text-anchor="middle">what</text><rect class="ff-r rv-x" style="--o:1" x="83" y="106" width="42" height="8"/><text class="lb rv-f" style="--o:1" x="104" y="98" text-anchor="middle">you</text><rect class="ff-x rv-x" style="--o:1" x="127" y="106" width="42" height="8"/><text class="ff-lx rv-f" style="--o:1" x="148" y="98" text-anchor="middle">can</text><rect class="ff-g rv-x" style="--o:1" x="171" y="106" width="30" height="8"/><text class="ff-lg rv-f" style="--o:1" x="186" y="98" text-anchor="middle">do</text><rect class="ff-g rv-x" style="--o:1" x="203" y="106" width="40" height="8"/><text class="ff-lg rv-f" style="--o:1" x="223" y="98" text-anchor="middle">for</text><rect class="ff-g rv-x" style="--o:1" x="245" y="106" width="29" height="8"/><text class="ff-lg rv-f" style="--o:1" x="260" y="98" text-anchor="middle">your</text><rect class="ff-g rv-x" style="--o:1" x="276" y="106" width="26" height="8"/><text class="ff-lg rv-f" style="--o:1" x="278" y="98">family.</text></g><path class="ff-mv rv-f" style="--o:2" d="M179.5 50V66.5H148.5V80"/><path class="ff-hx rv-f" style="--o:2" d="M145 79h7l-3.5 5z"/><text class="ff-lx rv-f" style="--o:2" x="148" y="130" text-anchor="middle" data-src="Olivesz/freeflow@19c0217:bench/README.md#L83-L84">0.4 s earlier</text><path class="ff-cut rv-f" style="--o:2" d="M165.5 20V118"/><text class="ff-la rv-f" style="--o:2" x="165" y="14" text-anchor="middle" data-derived="the typed “you” ends at 9.07 s in log line 27; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)">8.97 s</text><path class="ff-tx rv-f" style="--o:4" d="M126.5 84V118"/><path class="ax" d="M8 140.5H303"/><path class="ax" d="M35.5 140V144"/><text class="lb" x="35" y="158" text-anchor="middle">8.0</text><path class="ax" d="M102.5 140V144"/><text class="lb" x="102" y="158" text-anchor="middle">8.5</text><path class="ax" d="M169.5 140V144"/><text class="lb" x="169" y="158" text-anchor="middle">9.0</text><path class="ax" d="M236.5 140V144"/><text class="lb" x="236" y="158" text-anchor="middle">9.5</text><path class="ax" d="M303.5 140V144"/><text class="lb" x="303" y="158" text-anchor="middle">10.0</text><text class="lb" x="0" y="178">seconds into the clip</text><rect class="ff-a rv-f" style="--o:3" x="0" y="198" width="8" height="8"/><text class="lb rv-f" style="--o:3" x="16" y="206"><tspan class="lb-i">before the fix, by time:</tspan></text><text class="lb rv-f" style="--o:3" x="16" y="222">new words start after <tspan data-derived="the typed “you” ends at 9.07 s in log line 27; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)">8.97 s</tspan></text><text class="lb rv-f" style="--o:3" x="16" y="238">→ <tspan class="ff-lg">do for your family.</tspan> <tspan class="ff-lx">“can” is lost.</tspan></text><rect class="ff-v rv-f" style="--o:4" x="0" y="254" width="8" height="8"/><text class="lb rv-f" style="--o:4" x="16" y="262"><tspan class="lb-i">the fix, by text:</tspan> new words follow</text><text class="lb rv-f" style="--o:4" x="16" y="278">“Ask what you” → <tspan class="ff-lg">can do for your family.</tspan></text></svg>
-        <figcaption id="figC-cap"><span class="n">fig 3</span>Two passes of the JFK log before the fix, on one time axis. Amber: the time rule’s cut. Green: the fix’s cut by text, applied to the same pass.</figcaption>
+        <svg class="ig-w" id="figC-w" width="704" height="216" viewBox="0 0 704 216" role="img" aria-labelledby="figC-w-t figC-w-d" xmlns="http://www.w3.org/2000/svg"><title id="figC-w-t">How the time rule lost “living”: two passes of the coyote log before the fix</title><desc id="figC-w-d">Before the fix, “The Coyote is a” was already typed when the pass at 1.75 s heard “living,” right after it. The pass at 2.10 s moved “living,” 0.14 s earlier, before the time cut at 0.66 s, so the time rule took it for a word already typed, and it was never typed. Cut by text after the typed “a”, as the fix does, the new words of that pass are “living, breathing allegory.”</desc><g data-src="page:passlog-before" data-ck="fig3-row0"><text class="lb-i" x="0" y="50">the pass at 1.75 s</text><rect class="ff-t rv-x" style="--o:0" x="144" y="42" width="44" height="8"/><text class="ff-lt rv-f" style="--o:0" x="166" y="34" text-anchor="middle">The</text><rect class="ff-t rv-x" style="--o:0" x="190" y="42" width="92" height="8"/><text class="ff-lt rv-f" style="--o:0" x="236" y="34" text-anchor="middle">Coyote</text><rect class="ff-t rv-x" style="--o:0" x="284" y="42" width="39" height="8"/><text class="ff-lt rv-f" style="--o:0" x="292" y="34" text-anchor="middle">is</text><rect class="ff-t rv-x" style="--o:0" x="325" y="42" width="3" height="8"/><text class="ff-lt rv-f" style="--o:0" x="326" y="34" text-anchor="middle">a</text><rect class="ff-g rv-x" style="--o:0" x="330" y="42" width="175" height="8"/><text class="ff-lg rv-f" style="--o:0" x="418" y="34" text-anchor="middle">living,</text><rect class="ff-g rv-x" style="--o:0" x="507" y="42" width="178" height="8"/><text class="ff-lg rv-f" style="--o:0" x="596" y="34" text-anchor="middle">breathing...</text></g><g data-src="page:passlog-before" data-ck="fig3-row1"><text class="lb-i" x="0" y="106">the pass at 2.10 s</text><rect class="ff-r rv-x" style="--o:1" x="144" y="98" width="36" height="8"/><text class="lb rv-f" style="--o:1" x="162" y="90" text-anchor="middle">The</text><rect class="ff-r rv-x" style="--o:1" x="182" y="98" width="72" height="8"/><text class="lb rv-f" style="--o:1" x="218" y="90" text-anchor="middle">Coyote</text><rect class="ff-r rv-x" style="--o:1" x="256" y="98" width="24" height="8"/><text class="lb rv-f" style="--o:1" x="268" y="90" text-anchor="middle">is</text><rect class="ff-r rv-x" style="--o:1" x="282" y="98" width="11" height="8"/><text class="lb rv-f" style="--o:1" x="288" y="90" text-anchor="middle">a</text><rect class="ff-x rv-x" style="--o:1" x="295" y="98" width="100" height="8"/><text class="ff-lx rv-f" style="--o:1" x="345" y="90" text-anchor="middle">living,</text><rect class="ff-g rv-x" style="--o:1" x="397" y="98" width="113" height="8"/><text class="ff-lg rv-f" style="--o:1" x="454" y="90" text-anchor="middle">breathing</text><rect class="ff-g rv-x" style="--o:1" x="512" y="98" width="149" height="8"/><text class="ff-lg rv-f" style="--o:1" x="586" y="90" text-anchor="middle">allegory.</text></g><path class="ff-mv rv-f" style="--o:2" d="M329.5 50V64.5H300"/><path class="ff-hx rv-f" style="--o:2" d="M294 64.5l6-3.5v7z"/><text class="ff-lx rv-f" style="--o:2" x="335" y="69" data-derived="“living,” starts at 0.74 s in the pass at 1.75 s and at 0.60 s in the pass at 2.10 s" data-ck="fig3-shift">0.14 s earlier</text><path class="ff-cut rv-f" style="--o:2" d="M309.5 20V110"/><text class="ff-la rv-f" style="--o:2" x="309" y="14" text-anchor="middle" data-derived="the typed “a” ends at 0.76 s in the pass at 1.40 s; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)" data-ck="fig3-cut">0.66 s</text><path class="ff-tx rv-f" style="--o:4" d="M294.5 76V110"/><path class="ax" d="M136 136.5H685"/><path class="ax" d="M268.5 136V140"/><text class="lb" x="268" y="154" text-anchor="middle">0.5</text><path class="ax" d="M396.5 136V140"/><text class="lb" x="396" y="154" text-anchor="middle">1.0</text><path class="ax" d="M524.5 136V140"/><text class="lb" x="524" y="154" text-anchor="middle">1.5</text><path class="ax" d="M652.5 136V140"/><text class="lb" x="652" y="154" text-anchor="middle">2.0</text><text class="lb" x="0" y="154">seconds into the clip</text><rect class="ff-a rv-f" style="--o:3" x="0" y="176" width="8" height="8"/><text class="lb rv-f" style="--o:3" x="16" y="184"><tspan class="lb-i">before the fix, by time:</tspan> new words start after <tspan data-derived="the typed “a” ends at 0.76 s in the pass at 1.40 s; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)">0.66 s</tspan> → <tspan class="ff-lg">breathing allegory.</tspan> <tspan class="ff-lx">“living” is lost.</tspan></text><rect class="ff-v rv-f" style="--o:4" x="0" y="200" width="8" height="8"/><text class="lb rv-f" style="--o:4" x="16" y="208"><tspan class="lb-i">the fix, by text:</tspan> new words follow the typed “a” → <tspan class="ff-lg">living, breathing allegory.</tspan></text></svg>
+        <svg class="ig-n" id="figC-n" width="328" height="280" viewBox="0 0 328 280" role="img" aria-labelledby="figC-n-t figC-n-d" xmlns="http://www.w3.org/2000/svg"><title id="figC-n-t">How the time rule lost “living”: two passes of the coyote log before the fix</title><desc id="figC-n-d">Before the fix, “The Coyote is a” was already typed when the pass at 1.75 s heard “living,” right after it. The pass at 2.10 s moved “living,” 0.14 s earlier, before the time cut at 0.66 s, so the time rule took it for a word already typed, and it was never typed. Cut by text after the typed “a”, as the fix does, the new words of that pass are “living, breathing allegory.”</desc><g data-src="page:passlog-before" data-ck="fig3-row0"><text class="lb-i" x="328" y="12" text-anchor="end">the pass at 1.75 s</text><rect class="ff-t rv-x" style="--o:0" x="16" y="42" width="66" height="8"/><text class="ff-lt rv-f" style="--o:0" x="49" y="34" text-anchor="middle">Coyote</text><rect class="ff-t rv-x" style="--o:0" x="84" y="42" width="27" height="8"/><text class="ff-lt rv-f" style="--o:0" x="90" y="34" text-anchor="middle">is</text><rect class="ff-t rv-x" style="--o:0" x="113" y="42" width="2" height="8"/><text class="ff-lt rv-f" style="--o:0" x="114" y="34" text-anchor="middle">a</text><rect class="ff-g rv-x" style="--o:0" x="117" y="42" width="125" height="8"/><text class="ff-lg rv-f" style="--o:0" x="180" y="34" text-anchor="middle">living,</text><rect class="ff-g rv-x" style="--o:0" x="244" y="42" width="59" height="8"/><text class="ff-lg rv-f" style="--o:0" x="274" y="34" text-anchor="middle">breathing...</text></g><g data-src="page:passlog-before" data-ck="fig3-row1"><text class="lb-i" x="328" y="80" text-anchor="end">the pass at 2.10 s</text><rect class="ff-r rv-x" style="--o:1" x="10" y="106" width="52" height="8"/><text class="lb rv-f" style="--o:1" x="36" y="98" text-anchor="middle">Coyote</text><rect class="ff-r rv-x" style="--o:1" x="64" y="106" width="16" height="8"/><text class="lb rv-f" style="--o:1" x="72" y="98" text-anchor="middle">is</text><rect class="ff-r rv-x" style="--o:1" x="82" y="106" width="7" height="8"/><text class="lb rv-f" style="--o:1" x="86" y="98" text-anchor="middle">a</text><rect class="ff-x rv-x" style="--o:1" x="91" y="106" width="72" height="8"/><text class="ff-lx rv-f" style="--o:1" x="130" y="98" text-anchor="middle">living,</text><rect class="ff-g rv-x" style="--o:1" x="165" y="106" width="81" height="8"/><text class="ff-lg rv-f" style="--o:1" x="206" y="98" text-anchor="middle">breathing</text><rect class="ff-g rv-x" style="--o:1" x="248" y="106" width="55" height="8"/><text class="ff-lg rv-f" style="--o:1" x="276" y="98" text-anchor="middle">allegory.</text></g><path class="ff-mv rv-f" style="--o:2" d="M116.5 50V60H96"/><path class="ff-hx rv-f" style="--o:2" d="M90 60l6-3.5v7z"/><text class="ff-lx rv-f" style="--o:2" x="122" y="64.5" data-derived="“living,” starts at 0.74 s in the pass at 1.75 s and at 0.60 s in the pass at 2.10 s" data-ck="fig3-shift">0.14 s earlier</text><path class="ff-cut rv-f" style="--o:2" d="M101.5 20V118"/><text class="ff-la rv-f" style="--o:2" x="101" y="14" text-anchor="middle" data-derived="the typed “a” ends at 0.76 s in the pass at 1.40 s; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)" data-ck="fig3-cut">0.66 s</text><path class="ff-tx rv-f" style="--o:4" d="M90.5 84V118"/><path class="ax" d="M8 140.5H303"/><path class="ax" d="M72.5 140V144"/><text class="lb" x="72" y="158" text-anchor="middle">0.5</text><path class="ax" d="M164.5 140V144"/><text class="lb" x="164" y="158" text-anchor="middle">1.0</text><path class="ax" d="M256.5 140V144"/><text class="lb" x="256" y="158" text-anchor="middle">1.5</text><text class="lb" x="0" y="178">seconds into the clip</text><rect class="ff-a rv-f" style="--o:3" x="0" y="198" width="8" height="8"/><text class="lb rv-f" style="--o:3" x="16" y="206"><tspan class="lb-i">before the fix, by time:</tspan></text><text class="lb rv-f" style="--o:3" x="16" y="222">new words start after <tspan data-derived="the typed “a” ends at 0.76 s in the pass at 1.40 s; the time rule keeps only words that start after that end less 0.1 s (Streamer.swift#L125-L131)">0.66 s</tspan></text><text class="lb rv-f" style="--o:3" x="16" y="238">→ <tspan class="ff-lg">breathing allegory.</tspan> <tspan class="ff-lx">“living” is lost.</tspan></text><rect class="ff-v rv-f" style="--o:4" x="0" y="254" width="8" height="8"/><text class="lb rv-f" style="--o:4" x="16" y="262"><tspan class="lb-i">the fix, by text:</tspan> new words follow</text><text class="lb rv-f" style="--o:4" x="16" y="278">the typed “a” → <tspan class="ff-lg">living, breathing allegory.</tspan></text></svg>
+        <figcaption id="figC-cap"><span class="n">fig 3</span>Two passes of the coyote log before the fix, on one time axis. Amber: the time rule’s cut. Red: the word it lost. Green: the fix’s cut by text, applied to the same pass.</figcaption>
       </figure>
       </div>
     </div>
@@ -242,14 +242,14 @@
         <span class="to" data-lx="up" style="--d:1">→</span>
         <div data-lx="up" style="--d:2"><span class="lx-big a" data-src="Olivesz/freeflow@19c0217:README.md#L59-L60">3</span><span class="k" data-src="Olivesz/freeflow@19c0217:bench/README.md#L61">after, of 523 words</span></div>
       </div>
-      <p><span data-src="Olivesz/freeflow@19c0217:bench/README.md#L92-L94">The window and decoder were chosen on</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L67">the other 20 speakers and JFK</span>; <span data-src="Olivesz/freeflow@19c0217:README.md#L67-L68">the held-out speakers were first scored after the fix was committed</span>. Before the fix, <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L72">a bigger 8.0 / 2.0 s window still lost words (15.5% word error)</span>, and <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L77-L78">so did no trimming at all</span>, so the window was not the cause.</p>
+      <p><span data-src="Olivesz/freeflow@19c0217:bench/README.md#L92-L94">The window and decoder were chosen on</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L67">the other 20 speakers and a separate reference clip</span> (not the reading above); <span data-src="Olivesz/freeflow@19c0217:README.md#L67-L68">the held-out speakers were first scored after the fix was committed</span>. Before the fix, <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L72">a bigger 8.0 / 2.0 s window still lost words (15.5% word error)</span>, and <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L77-L78">so did no trimming at all</span>, so the window was not the cause.</p>
     </div>
   </section>
 
   <section class="lxb lx-sec" aria-labelledby="s-results">
     <header class="lx-sh lx-arrive" style="--at:.8">
       <h2 class="lx-sk" id="s-results" data-lx="up"><span class="n">04 <span class="of">/ 05</span></span>results</h2>
-      <p class="lx-state long" data-lx="up" style="--d:1">On all <span data-src="Olivesz/freeflow@19c0217:README.md#L51">41</span> public clips, streaming scores <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">5.8%</span> word error against <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">4.4%</span> for offline decoding of the same audio, and JFK streams with <span data-src="Olivesz/freeflow@19c0217:bench/results/9832030/timing/summary.csv#L2">0</span> errors.</p>
+      <p class="lx-state long" data-lx="up" style="--d:1">On all <span data-src="Olivesz/freeflow@19c0217:README.md#L51">41</span> public clips, streaming scores <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">5.8%</span> word error against <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">4.4%</span> for offline decoding of the same audio.</p>
     </header>
     <div class="lx-body lx-duo">
       <div class="lx-txt">
@@ -258,14 +258,14 @@
           <span class="lx-big a" data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="Executed 55 tests">55</span>
           <div><span class="k">Swift tests, all passed</span><span class="b">on CI, with <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="36 passed">36</span> Python tests over the same fixtures</span><ol aria-hidden="true"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ol></div>
         </div>
-        <p><span data-src="Olivesz/freeflow@19c0217:README.md#L100-L103">CI builds the release app and replays the benchmark’s gate clips through it with the real model; it fails if streaming word error exceeds offline by more than 2 points</span>, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">or if the JFK clip loses a word</span>. A control run with a broken window must fail, and does on both counts: <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="stream WER 0.143">14.3%</span>, with <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="jfk dropped 2 words">2</span> JFK words lost.</p>
+        <p><span data-src="Olivesz/freeflow@19c0217:README.md#L100-L103">CI builds the release app and replays the benchmark’s gate clips through it with the real model; it fails if streaming word error exceeds offline by more than 2 points</span>, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">or if the benchmark’s reference clip loses a word</span>. A control run with a broken window must fail, and does on both counts: <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="stream WER 0.143">14.3%</span>, with <span data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 2 words">2</span> words lost from the benchmark’s reference clip.</p>
       </div>
       <div class="lx-fig">
         <figure class="ig lx-fr" data-build aria-labelledby="fig5-cap">
           <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-        <svg class="ig-w" id="fig5-w" width="704" height="128" viewBox="0 0 704 128" role="img" aria-labelledby="fig5-w-t fig5-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig5-w-t">The CI gate on the release app: streamed word error with a 3.0 s and a 0.5 s window</title><desc id="fig5-w-d">Run 38482789778 replays the 9 gate clips, 237 words, through the release app with whisper.cpp base.en. The gate fails a run whose streamed word error is more than 2 points above offline decoding of the same audio, 3.8%, or that drops a word from the JFK clip. With the shipped 3.0 s window, streaming scores 4.6% with 1 word dropped, and the gate passes. The control run, with a 0.5 s window, scores 14.3% with 15 words dropped, 2 of them from JFK, and the gate fails it on both counts, as it must.</desc><text class="lb" x="0" y="16">the CI gate · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="9 clips">9</tspan> clips, <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> words</text><text style="--i:0" class="lb-i bld-o" x="0" y="68"><tspan data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0 s</tspan> window · <tspan class="ff-lt">pass</tspan></text><rect style="--i:0" class="cell bld" x="152" y="56" width="92" height="16"/><text style="--i:2" class="lb bld-o" x="276" y="68"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.046">4.6%</tspan> streamed · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 1/237">1</tspan> of <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> dropped</text><text style="--i:1" class="lb-i bld-o" x="0" y="108"><tspan data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L35-L36">0.5 s</tspan> window · <tspan class="ff-lx">fail</tspan></text><rect style="--i:1" class="ff-x bld" x="152" y="96" width="286" height="16"/><text style="--i:3" class="lb bld-o" x="446" y="108"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.143">14.3%</tspan> streamed · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 15/237">15</tspan> of <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> dropped</text><text style="--i:3" class="lb bld-o" x="139" y="40">offline <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="offline 0.038">3.8%</tspan></text><text style="--i:3" class="ff-la bld-o" x="272" y="40">gate: offline + <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="margin 0.02">2</tspan> points</text><line style="--i:3" class="ln-ref bld-o" x1="228.5" y1="46" x2="228.5" y2="120"/><line style="--i:3" class="ff-cut bld-o" x1="268.5" y1="46" x2="268.5" y2="120"/></svg>
-        <svg class="ig-n" id="fig5-n" width="328" height="172" viewBox="0 0 328 172" role="img" aria-labelledby="fig5-n-t fig5-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig5-n-t">The CI gate on the release app: streamed word error with a 3.0 s and a 0.5 s window</title><desc id="fig5-n-d">Run 38482789778 replays the 9 gate clips, 237 words, through the release app with whisper.cpp base.en. The gate fails a run whose streamed word error is more than 2 points above offline decoding of the same audio, 3.8%, or that drops a word from the JFK clip. With the shipped 3.0 s window, streaming scores 4.6% with 1 word dropped, and the gate passes. The control run, with a 0.5 s window, scores 14.3% with 15 words dropped, 2 of them from JFK, and the gate fails it on both counts, as it must.</desc><text class="lb" x="0" y="16">the CI gate · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="9 clips">9</tspan> clips, <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> words</text><text style="--i:0" class="lb-i bld-o" x="0" y="44"><tspan data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0 s</tspan> window · <tspan class="ff-lt">pass</tspan></text><rect style="--i:0" class="cell bld" x="8" y="52" width="55" height="16"/><text style="--i:2" class="lb bld-o" x="86" y="64"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.046">4.6%</tspan> · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 1/237">1</tspan> dropped</text><line style="--i:3" class="ln-ref bld-o" x1="54.5" y1="48" x2="54.5" y2="72"/><line style="--i:3" class="ff-cut bld-o" x1="78.5" y1="48" x2="78.5" y2="72"/><text style="--i:1" class="lb-i bld-o" x="0" y="92"><tspan data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L35-L36">0.5 s</tspan> window · <tspan class="ff-lx">fail</tspan></text><rect style="--i:1" class="ff-x bld" x="8" y="100" width="172" height="16"/><text style="--i:3" class="lb bld-o" x="188" y="112"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.143">14.3%</tspan> · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 15/237">15</tspan> dropped</text><line style="--i:3" class="ln-ref bld-o" x1="54.5" y1="96" x2="54.5" y2="120"/><line style="--i:3" class="ff-cut bld-o" x1="78.5" y1="96" x2="78.5" y2="120"/><rect style="--i:3" class="c-ref bld-o" x="0" y="134" width="1" height="12"/><text style="--i:3" class="lb bld-o" x="10" y="144">offline <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="offline 0.038">3.8%</tspan></text><line style="--i:3" class="ff-cut bld-o" x1="0.5" y1="154" x2="0.5" y2="166"/><text style="--i:3" class="ff-la bld-o" x="10" y="164">gate: offline + <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="margin 0.02">2</tspan> points; above it, CI fails</text></svg>
-        <figcaption id="fig5-cap"><span class="n">fig 4</span>The gate on the release app, on one scale: streamed word error against offline decoding of the same clips. Amber: the gate, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">which also fails any run that drops a word from the JFK clip</span>. The <span data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L35-L36">0.5 s window is the control, and must fail</span>.</figcaption>
+        <svg class="ig-w" id="fig5-w" width="704" height="128" viewBox="0 0 704 128" role="img" aria-labelledby="fig5-w-t fig5-w-d" xmlns="http://www.w3.org/2000/svg"><title id="fig5-w-t">The CI gate on the release app: streamed word error with a 3.0 s and a 0.5 s window</title><desc id="fig5-w-d">Run 38482789778 replays the 9 gate clips, 237 words, through the release app with whisper.cpp base.en. The gate fails a run whose streamed word error is more than 2 points above offline decoding of the same audio, 3.8%, or that drops a word from the benchmark’s reference clip. With the shipped 3.0 s window, streaming scores 4.6% with 1 word dropped, and the gate passes. The control run, with a 0.5 s window, scores 14.3% with 15 words dropped, 2 of them from the benchmark’s reference clip, and the gate fails it on both counts, as it must.</desc><text class="lb" x="0" y="16">the CI gate · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="9 clips">9</tspan> clips, <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> words</text><text style="--i:0" class="lb-i bld-o" x="0" y="68"><tspan data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0 s</tspan> window · <tspan class="ff-lt">pass</tspan></text><rect style="--i:0" class="cell bld" x="152" y="56" width="92" height="16"/><text style="--i:2" class="lb bld-o" x="276" y="68"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.046">4.6%</tspan> streamed · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 1/237">1</tspan> of <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> dropped</text><text style="--i:1" class="lb-i bld-o" x="0" y="108"><tspan data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L35-L36">0.5 s</tspan> window · <tspan class="ff-lx">fail</tspan></text><rect style="--i:1" class="ff-x bld" x="152" y="96" width="286" height="16"/><text style="--i:3" class="lb bld-o" x="446" y="108"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.143">14.3%</tspan> streamed · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 15/237">15</tspan> of <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> dropped</text><text style="--i:3" class="lb bld-o" x="139" y="40">offline <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="offline 0.038">3.8%</tspan></text><text style="--i:3" class="ff-la bld-o" x="272" y="40">gate: offline + <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="margin 0.02">2</tspan> points</text><line style="--i:3" class="ln-ref bld-o" x1="228.5" y1="46" x2="228.5" y2="120"/><line style="--i:3" class="ff-cut bld-o" x1="268.5" y1="46" x2="268.5" y2="120"/></svg>
+        <svg class="ig-n" id="fig5-n" width="328" height="172" viewBox="0 0 328 172" role="img" aria-labelledby="fig5-n-t fig5-n-d" xmlns="http://www.w3.org/2000/svg"><title id="fig5-n-t">The CI gate on the release app: streamed word error with a 3.0 s and a 0.5 s window</title><desc id="fig5-n-d">Run 38482789778 replays the 9 gate clips, 237 words, through the release app with whisper.cpp base.en. The gate fails a run whose streamed word error is more than 2 points above offline decoding of the same audio, 3.8%, or that drops a word from the benchmark’s reference clip. With the shipped 3.0 s window, streaming scores 4.6% with 1 word dropped, and the gate passes. The control run, with a 0.5 s window, scores 14.3% with 15 words dropped, 2 of them from the benchmark’s reference clip, and the gate fails it on both counts, as it must.</desc><text class="lb" x="0" y="16">the CI gate · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="9 clips">9</tspan> clips, <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="237  (9 clips)">237</tspan> words</text><text style="--i:0" class="lb-i bld-o" x="0" y="44"><tspan data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0 s</tspan> window · <tspan class="ff-lt">pass</tspan></text><rect style="--i:0" class="cell bld" x="8" y="52" width="55" height="16"/><text style="--i:2" class="lb bld-o" x="86" y="64"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.046">4.6%</tspan> · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 1/237">1</tspan> dropped</text><line style="--i:3" class="ln-ref bld-o" x1="54.5" y1="48" x2="54.5" y2="72"/><line style="--i:3" class="ff-cut bld-o" x1="78.5" y1="48" x2="78.5" y2="72"/><text style="--i:1" class="lb-i bld-o" x="0" y="92"><tspan data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L35-L36">0.5 s</tspan> window · <tspan class="ff-lx">fail</tspan></text><rect style="--i:1" class="ff-x bld" x="8" y="100" width="172" height="16"/><text style="--i:3" class="lb bld-o" x="188" y="112"><tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="streaming WER 0.143">14.3%</tspan> · <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="dropped 15/237">15</tspan> dropped</text><line style="--i:3" class="ln-ref bld-o" x1="54.5" y1="96" x2="54.5" y2="120"/><line style="--i:3" class="ff-cut bld-o" x1="78.5" y1="96" x2="78.5" y2="120"/><rect style="--i:3" class="c-ref bld-o" x="0" y="134" width="1" height="12"/><text style="--i:3" class="lb bld-o" x="10" y="144">offline <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="offline 0.038">3.8%</tspan></text><line style="--i:3" class="ff-cut bld-o" x1="0.5" y1="154" x2="0.5" y2="166"/><text style="--i:3" class="ff-la bld-o" x="10" y="164">gate: offline + <tspan data-src="https://github.com/Olivesz/freeflow/actions/runs/38482789778" data-at="margin 0.02">2</tspan> points; above it, CI fails</text></svg>
+        <figcaption id="fig5-cap"><span class="n">fig 4</span>The gate on the release app, on one scale: streamed word error against offline decoding of the same clips. Amber: the gate, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">which also fails any run that drops a word from the benchmark’s reference clip</span>. The <span data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L35-L36">0.5 s window is the control, and must fail</span>.</figcaption>
       </figure>
       </div>
     </div>
@@ -279,12 +279,12 @@
       <h2 class="lx-sk" id="s-src"><span class="n">05 <span class="of">/ 05</span></span>sources</h2>
     </header>
     <div class="lx-body">
-      <details class="srcs-d"><summary>sources · 58 lines pinned to freeflow@19c0217</summary>
+      <details class="srcs-d"><summary>sources · 53 lines pinned to freeflow@19c0217, and two pass logs in this page</summary>
       <ol class="srcs">
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L5-L7" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L5-L7</a> the one-line description</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L6-L7" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L6-L7</a> whisper.cpp, on-device</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L7" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L7</a> no account, no cloud, nothing to pay</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L9-L12" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L9-L12</a> words typed while the speaker talks; the JFK pass log the hero replays</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L9-L12" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L9-L12</a> words typed while the speaker talks</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L49" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L49</a> a pass every 350 ms over a short window</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L51" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L51</a> 41 public clips through the app’s own streamer</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/README.md?plain=1#L55" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · README.md#L55</a> held-out split: 20 speakers, 523 words</li>
@@ -300,21 +300,16 @@
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L71-L72" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L71-L72</a> before the fix: 3 / 1.5 s at 19.7%, 8 / 2 s at 15.5%</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L77-L78" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L77-L78</a> before the fix: even with no trimming it lost words</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L80-L83" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L80-L83</a> whisper.cpp re-times words by up to a second from one pass to the next</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L83-L84" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L83-L84</a> on JFK, “can” moved to start 0.4 s before the end of the committed “you” and was discarded</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L92-L94" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L92-L94</a> after the fix: the window and decoder were chosen on the dev columns only</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L60-L61" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L60-L61</a> corpus word error: all errors over all reference words in the split</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L121" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L121</a> the shipped run: 5.8% / 4.4% on all clips, lag 787 / 1,557 ms</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L122" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L122</a> the same streamer at a 600 ms tick: lag 1184 / 2119 ms</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L124-L126" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L124-L126</a> a word is typed a median 0.79 s after it ends at the 350 ms tick, 1.18 s at the old 600 ms tick</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L127" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L127</a> decode 165 ms per pass at the median</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/results/0f70dcd/shipped/summary.csv#L2" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/results/0f70dcd/shipped/summary.csv#L2</a> JFK before the fix: 6 of 22 words dropped, 27.3% word error, and the text typed</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/results/0f70dcd/shipped/logs/jfk.jsonl#L27-L28" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/results/0f70dcd/shipped/logs/jfk.jsonl#L27-L28</a> JFK before the fix: the passes at 9.45 s and 9.80 s, with every word’s times</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L4" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L4</a> the benchmark’s model: whisper.cpp base.en</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L24" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L24</a> 41 clips, 392 s, 1,036 reference words</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L26-L28" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L26-L28</a> the JFK sample and 40 LibriSpeech test-clean utterances: public read speech</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L26-L28" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L26-L28</a> a reference clip and 40 LibriSpeech test-clean utterances: public read speech</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/README.md?plain=1#L114-L116" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/README.md#L114-L116</a> the timing run ran with other work on the machine: an upper bound</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/results/9832030/timing/logs/jfk.jsonl#L1-L33" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/results/9832030/timing/logs/jfk.jsonl#L1-L33</a> the JFK pass log the hero replays, one row per pass</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/results/9832030/timing/summary.csv#L2" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/results/9832030/timing/summary.csv#L2</a> JFK: 22 words, 0 errors</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Package.swift#L1" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Package.swift#L1</a> swift package</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Package.swift#L6" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Package.swift#L6</a> macOS 14</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Sources/Freeflow/AudioCapture.swift#L3" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Sources/Freeflow/AudioCapture.swift#L3</a> resampled to 16 kHz mono</li>
@@ -334,22 +329,24 @@
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Sources/FreeflowCore/Streamer.swift#L26" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Sources/FreeflowCore/Streamer.swift#L26</a> localAgreement-2</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Sources/FreeflowCore/Streamer.swift#L44" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Sources/FreeflowCore/Streamer.swift#L44</a> the shipped window, 3.0 / 1.5 s</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/.github/workflows/ci.yml#L35-L36" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · .github/workflows/ci.yml#L35-L36</a> the control job: the same gate with a 0.5 s window, which must fail</li>
-        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/gate.py#L5-L7" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/gate.py#L5-L7</a> the gate fails a run that streams more than 2 points above offline, or that drops a JFK word</li>
+        <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/bench/gate.py#L5-L7" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · bench/gate.py#L5-L7</a> the gate fails a run that streams more than 2 points above offline, or that drops a word from the reference clip</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Sources/FreeflowCore/Streamer.swift#L125-L131" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Sources/FreeflowCore/Streamer.swift#L125-L131</a> the time rule: keep words that start after the last committed end, less 0.1 s</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Sources/FreeflowCore/TextProcessor.swift#L3-L8" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Sources/FreeflowCore/TextProcessor.swift#L3-L8</a> only what the current dictation typed</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Sources/FreeflowCore/TextProcessor.swift#L211-L215" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Sources/FreeflowCore/TextProcessor.swift#L211-L215</a> a word after a sentence end is typed with a capital</li>
         <li><a href="https://github.com/Olivesz/freeflow/blob/19c02177bc4a9fca0a0f60f8673c00d37e83fe5a/mac/Sources/Freeflow/Settings.swift#L48-L50" target="_blank" rel="noopener noreferrer">freeflow@19c0217 · mac/Sources/Freeflow/Settings.swift#L48-L50</a> auto-capitalisation is on by default</li>
         <li><a href="https://github.com/Olivesz/freeflow/actions/runs/38482789778" target="_blank" rel="noopener noreferrer">freeflow · CI run 38482789778</a> 55 Swift and 36 Python tests passed; the gate and its control</li>
+        <li>in this page · the pass log of figs 0 and 2: Mark Twain’s coyote lines from Roughing It (1872), read by the macOS voice Samantha into a 7.3 s, 16 kHz clip, replayed through the streamer at freeflow@19c0217 with its shipped settings (whisper.cpp base.en, greedy, a pass every 350 ms, 3.0 / 1.5 s window), one row per pass</li>
+        <li>in this page · the pass log of figs 2 and 3: the same clip through the streamer before the fix, at freeflow@0f70dcd, with the same settings; re-checked in the page by replaying its commit rule</li>
       </ol>
       </details>
     </div>
   </section>
 
   <div class="lxb">
-    <a class="lx-deep lx-fr" href="freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth, about 15 minutes">
+    <a class="lx-deep lx-fr" href="freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth, about 16 minutes">
       <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <span>
-        <span class="k">the full walkthrough <span class="sep">·</span> <span data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 15 minutes</span></span>
+        <span class="k">the full walkthrough <span class="sep">·</span> <span data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 16 minutes</span></span>
         <span class="t">How it works, in depth</span>
         <span class="d">the problem, the idea and the build, step by step, in figures you can play and pause</span>
       </span>
@@ -368,7 +365,8 @@
 <script>
 /* freeflow station: the focused app filling in as someone talks, the key and pill that start it, and below a rule
    the two latest recognition passes over the audio they re-read. Every pass is read from a real pass log: the shipped
-   streamer, whisper.cpp base.en, on the public JFK sample. Every visual is a pure function of u and the box it is drawn in. */
+   streamer, whisper.cpp base.en, on a synthesized reading of Mark Twain's coyote lines. Every visual is a pure function
+   of u and the box it is drawn in. */
 (function (root) {
 "use strict";
 
@@ -381,53 +379,44 @@ var SRC = {
   minWin: PIN + "mac/Sources/FreeflowCore/Session.swift#L24",
   keys: PIN + "mac/Sources/Freeflow/Settings.swift#L11-L20",
   hud: PIN + "mac/Sources/Freeflow/HUDView.swift#L18",
-  log: PIN + "bench/results/9832030/timing/logs/jfk.jsonl#L1-L33",
+  log: "page:passlog",
   autocap: PIN + "mac/Sources/FreeflowCore/TextProcessor.swift#L211-L215",
   script: "page:passlog"                                             // a figure read from the pass log; check-panels lists page: sources
 };
 var TOKS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule"];
 
-/* ---------- the run: every pass of a real pass log, whisper.cpp base.en on the JFK sample ---------- */
-// bench/results/9832030/timing/logs/jfk.jsonl at freeflow@19c0217, one row per pass:
+/* ---------- the run: every pass of a real pass log, whisper.cpp base.en on the coyote reading ---------- */
+// the clip: Mark Twain's coyote lines (Roughing It, ch. V), read by the macOS voice Samantha into 7.326 s of 16 kHz
+// mono, replayed through the streamer at freeflow@19c0217 with its shipped settings (3 s window trimmed to 1.5 s,
+// greedy decoding, a 350 ms tick, the Core ML encoder), one row per pass:
 // [audio_end, window_start, decode ms, hypothesis [[word, start, end]...], committed [[word, start, end]...]]
 // the last row is the final pass when the audio ends; empty-string tokens are dropped
 var LOG = [
-  [70,0,30,[],[]],
-  [105,0,182,[["\"And",6,68],["so",68,91],["am",91,104],["I!\"",104,200]],[]],
-  [140,0,160,[["And",32,42],["so,",42,102],["my",102,137],["fe-",137,170]],[]],
-  [175,0,169,[["And",28,33],["so",33,43],["my",43,69],["fellow",69,112],["Americans",112,194]],[["And",28,33]]],
-  [210,0,225,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans.",117,200]],[["so",33,45],["my",45,68],["fellow",68,117]]],
-  [245,0,214,[["and",10,33],["soul",33,68],["my",68,74],["fellow",74,123],["Americans.",123,250]],[["Americans.",123,245]]],
-  [280,0,240,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans!",117,278]],[]],
-  [315,0,98,[["And",10,33],["so,",33,68],["my",68,73],["fellow",73,122],["Americans!",122,300]],[]],
-  [350,0,109,[["And",22,33],["so",33,45],["my",45,68],["fellow",68,117],["Americans!",117,300]],[]],
-  [385,0,122,[["And",31,33],["so",33,68],["my",68,73],["fellow",73,137],["Americans",137,328],["ask",328,400]],[]],
-  [420,0,241,[["And",32,38],["so",38,69],["my",69,88],["fellow",88,164],["Americans",164,278],["ask",278,329],["not",329,355],["to...",355,500]],[["ask",278,329]]],
-  [455,128,107,[["fellow",137,198],["americans",198,328],["ask",328,403],["not",403,428]],[["not",403,428]]],
-  [490,128,86,[["fellow",137,207],["Americans.",207,361],["Ask",361,403],["not.",403,428]],[]],
-  [525,128,86,[["fellow",137,207],["Americans.",207,361],["Ask",361,403],["not.",403,428]],[]],
-  [560,128,186,[["fellow",137,328],["Americans",328,403],["ask",403,419],["not",419,470],["watch",470,552],["the",552,553],["video.",553,558]],[]],
-  [595,128,141,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538]],[]],
-  [630,128,96,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538]],[]],
-  [665,128,108,[["fellow",137,198],["americans",198,328],["ask",328,441],["not",441,538],["watch",538,565],["your",565,597],["country",597,626],["can",626,658]],[]],
-  [700,128,105,[["fellow",137,207],["Americans",207,329],["ask",329,402],["not",402,428],["what",428,490],["your",490,541],["country",541,639],["can",639,663],["do",663,680],["for",680,682],["you.",682,688]],[]],
-  [735,128,110,[["fellow",137,207],["Americans",207,329],["ask",329,402],["not",402,428],["what",428,490],["your",490,541],["country",541,639],["can",639,662],["do",662,692],["for",692,704],["you.",704,728]],[["what",428,490],["your",490,541],["country",541,639],["can",639,662],["do",662,692],["for",692,704],["you.",704,728]]],
-  [770,554,179,[["your",554,582],["country",582,632],["can",632,653],["do",653,667],["for",667,688],["you.",688,734]],[]],
-  [805,554,186,[["your",554,622],["country",622,736],["can",736,784],["do",784,805],["for",805,805],["you.",805,924]],[]],
-  [840,554,255,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,832]],[]],
-  [875,554,94,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,866]],[]],
-  [910,554,100,[["your",554,597],["country",597,653],["can",653,680],["do",680,701],["for",701,725],["you.",725,864],["Ask",864,864],["what",864,891],["you...",891,904]],[]],
-  [945,554,108,[["What",554,597],["your",597,630],["country",630,701],["can",701,726],["do",726,745],["for",745,771],["you,",771,819],["ask",819,836],["what",836,864],["you",864,891],["can",891,909],["do.",909,946]],[["ask",819,836],["what",836,864]]],
-  [980,686,280,[["ask",686,728],["what",728,819],["you",819,827],["can",827,869],["do",869,897],["for",897,944],["you.",944,1000]],[["you",819,827],["can",827,869]]],
-  [1015,686,128,[["for",686,719],["you,",719,774],["ask",774,819],["what",819,864],["you",864,891],["can",891,917],["do",917,944],["for",944,976],["your",976,1009],["country.",1009,1014]],[["do",917,944],["for",944,976]]],
-  [1050,686,145,[["for",686,715],["you,",715,760],["ask",760,819],["what",819,827],["you",827,863],["can",863,891],["do",891,902],["for",902,930],["your",930,972],["country.",972,1042]],[["your",930,972],["country.",972,1042]]],
-  [1085,822,301,[["Ask",822,846],["what",846,891],["you",891,903],["can",903,927],["do",927,944],["for",944,973],["your",973,999],["country.",999,1086]],[]],
-  [1100,822,200,[["Ask",822,844],["what",844,874],["you",874,896],["can",896,918],["do",918,933],["for",933,955],["your",955,985],["country.",985,1066]],[]]
+  [70,0,29,[],[]],
+  [105,0,186,[["The",1,16],["Coyote",16,42],["is",42,51],["a",51,55],["living.",55,100]],[]],
+  [140,0,175,[["The",1,19],["Coyote",19,57],["is",57,72],["a",72,76],["living",76,118]],[["The",1,19],["Coyote",19,57],["is",57,72],["a",72,76]]],
+  [175,0,207,[["The",1,19],["Coyote",19,56],["is",56,72],["a",72,74],["living,",74,143],["breathing...",143,300]],[]],
+  [210,0,228,[["The",1,16],["Coyote",16,45],["is",45,55],["a",55,60],["living,",60,100],["breathing",100,145],["allegory.",145,204]],[["living,",60,100]]],
+  [245,0,265,[["The",1,16],["Coyote",16,39],["is",39,47],["a",47,51],["living,",51,85],["breathing",85,143],["allegory",143,158],["of",158,166],["Mother's",166,200],["Blood.",200,240]],[["breathing",85,143]]],
+  [280,0,255,[["The",1,17],["coyote",17,51],["is",51,62],["a",62,66],["living,",66,113],["breathing",113,166],["allegory",166,212],["of",212,223],["wont.",223,272]],[["allegory",166,212],["of",212,223]]],
+  [315,0,114,[["The",1,21],["coyote",21,63],["is",63,77],["a",77,84],["living,",84,143],["breathing",143,206],["allegory",206,259],["of",259,272],["want.",272,312]],[]],
+  [350,0,107,[["The",1,20],["Coyote",20,60],["is",60,73],["a",73,79],["living,",79,143],["breathing",143,192],["allegory",192,245],["of",245,258],["want.",258,312]],[["want.",258,312]]],
+  [385,108,226,[["breathing",108,177],["allegory",177,242],["of",242,253],["wand",253,299],["he",299,311],["is",311,314],["always",314,364],["hungry",364,388]],[]],
+  [420,108,113,[["breathing",108,177],["allegory",177,242],["of",242,253],["wand.",253,311],["He",311,318],["is",318,328],["always",328,359],["hungry.",359,408]],[]],
+  [455,108,111,[["breathing",108,179],["allegory",179,242],["of",242,258],["wand.",258,311],["He",311,320],["is",320,335],["always",335,376],["hungry.",376,444]],[["He",311,320],["is",320,335],["always",335,376],["hungry.",376,444]]],
+  [490,226,256,[["of",226,242],["wand.",242,294],["He",294,306],["is",306,311],["always",311,344],["hungry,",344,394],["he",394,405],["is",405,445],["always--",445,478]],[]],
+  [525,226,256,[["of",226,242],["wand.",242,298],["He",298,311],["is",311,311],["always",311,351],["hungry.",351,411],["He",411,437],["is",437,446],["always",446,477],["put.",477,522]],[["He",411,437],["is",437,446]]],
+  [560,226,121,[["of",226,248],["wand.",248,326],["He",326,336],["is",336,346],["always",346,377],["hungry.",377,442],["He",442,446],["is",446,458],["always",458,516],["poor.",516,538]],[["always",458,516]]],
+  [595,226,135,[["of",226,248],["wand.",248,326],["He",326,339],["is",339,352],["always",352,393],["hungry,",393,447],["he",447,460],["is",460,473],["always",473,516],["poor,",516,564],["out",564,575],["of",575,586],["love.",586,594]],[]],
+  [630,226,126,[["of",226,242],["want,",242,301],["he",301,311],["is",311,316],["always",316,362],["hungry,",362,438],["he",438,446],["is",446,453],["always",453,499],["poor,",499,564],["out",564,581],["of",581,595],["luck.",595,626]],[["poor,",499,564],["out",564,581],["of",581,595]]],
+  [665,431,233,[["He",446,448],["is",448,465],["always",465,518],["poor",518,564],["out",564,579],["of",579,596],["luck",596,651],["and-",651,671]],[]],
+  [700,431,247,[["he",446,452],["is",452,473],["always",473,538],["poor,",538,602],["out",602,651],["of",651,655],["luck",655,698],["and",698,699],["friendly.",699,855]],[["luck",655,698]]],
+  [732.6,431,111,[["He",446,446],["is",446,461],["always",461,516],["poor,",516,564],["out",564,571],["of",571,586],["luck,",586,651],["and",651,652],["friendless.",652,735]],[["and",651,652],["friendless.",652,732.6]]]
 ].map(function (p) {          // times are kept in hundredths of a second, as integers
   function w(q) { return [q[0], q[1] / 100, q[2] / 100]; }
   return [p[0] / 100, p[1] / 100, p[2], p[3].map(w), p[4].map(w)];
 });
-var STREAMED = "And so my fellow Americans. ask not what your country can do for you. ask what you can do for your country.";
+var STREAMED = "The Coyote is a living, breathing allegory of want. He is always hungry. He is always poor, out of luck and friendless.";
 var TICK = 0.35;                   // Dictation.swift tickMs = 350
 var MIN_WIN = 0.5;                 // Session.swift minWindowSamples 8000: no pass on under 0.5 s of window
 var WORDS = [];                    // what was typed, in order, with the times the pass that typed it gave
@@ -512,25 +501,6 @@ function tOf(u) {
 }
 
 /* ---------- state at u: everything the figure shows, as data ---------- */
-var HOLD = (function () {
-  var best = null, prev = null;
-  SIM.ticks.forEach(function (p) {
-    if (p.skip) return;
-    if (prev) {
-      var got = {}, had = {}, kinds = {}, nw = {};
-      (p.got || []).forEach(function (j) { got[j] = 1; });
-      (p.idx || []).forEach(function (j) { had[j] = 1; });
-      p.full.forEach(function (w) {
-        if (w.s < p.offset - 0.05) return;
-        nw[w.i] = w.w; kinds[got[w.i] ? "wa" : had[w.i] ? "wc" : "wg"] = 1;
-      });
-      prev.full.forEach(function (w) { if (w.s >= p.offset - 0.05 && w.i in nw && nw[w.i] !== w.w) kinds.wo = 1; });
-      if (kinds.wa && kinds.wg && kinds.wo && kinds.wc) best = { prev: prev, cur: p, offset: p.offset };
-    }
-    prev = p;
-  });
-  return best;
-})();
 function stateAt(u) {
   u = cl(u);
   var t = tOf(u), done = u >= U_DONE, rec = t >= 0 && !done, p = null, prev = null, i;
@@ -541,7 +511,7 @@ function stateAt(u) {
   return { u: u, t: t, rec: rec, done: done, key: u >= U_KEY && u < U_REC, keysUsed: u >= U_REC,
     cur: cur, prev: done ? prev : (p && !p.skip ? prev : null),
     text: cur ? cur.text : [], offset: cur ? cur.offset : 0, lastTime: cur ? cur.lastTime : 0,
-    trims: SIM.ticks.filter(function (q) { return q.trimmed && q.t <= t + 1e-9; }), hold: done ? HOLD : null };
+    trims: SIM.ticks.filter(function (q) { return q.trimmed && q.t <= t + 1e-9; }) };
 }
 
 /* ---------- dither: the site's 4x4 Bayer order; org is the grid phase of the box's cell (0, 0) ---------- */
@@ -626,12 +596,13 @@ function scene(u, L) {
   // inside: a rule and a header that name what follows as the engine, not the app
   rects.push({ k: "hline", x: 0, y: L.rule, w: L.W, tok: "copper" });
   run(0, L.hdr, 'inside · <span data-src="' + SRC.stack + '">whisper.cpp base.en</span> · ' + (L.phone ? "" : "a pass ") + 'every <span data-src="' + SRC.tick + '">350</span> ms', "lb");
-  // two consecutive passes, word slots aligned so a disagreement sits in one column
-  var RS = S.hold || S, rowP = [RS.prev, RS.cur], mono = textW("0", 13, "mono"), avail = L.W - L.lab;
-  if (RS.cur && RS.cur.skip) rowP = [null, RS.cur];
+  // two consecutive passes, word slots aligned so a disagreement sits in one column; once stopped, the last pass and
+  // the final pass on stop, which types the rest
+  var rowP = [S.prev, S.cur], mono = textW("0", 13, "mono"), avail = L.W - L.lab;
+  if (S.cur && S.cur.skip) rowP = [null, S.cur];
   var before = {}, got = {};
-  if (RS.cur) { (RS.cur.idx || []).forEach(function (j) { before[j] = 1; }); (RS.cur.got || []).forEach(function (j) { got[j] = 1; delete before[j]; }); }
-  var rowsW = rowP.map(function (P) { return P && !P.skip ? P.full.filter(function (w) { return w.s >= RS.offset - 0.05; }) : null; });
+  if (S.cur) { (S.cur.idx || []).forEach(function (j) { before[j] = 1; }); (S.cur.got || []).forEach(function (j) { got[j] = 1; delete before[j]; }); }
+  var rowsW = rowP.map(function (P) { return P && !P.skip ? P.full.filter(function (w) { return w.s >= S.offset - 0.05; }) : null; });
   var slots = {}, order = [];
   rowsW.forEach(function (ws) { if (ws) ws.forEach(function (w) { if (!(w.i in slots)) { slots[w.i] = 0; order.push(w.i); } slots[w.i] = Math.max(slots[w.i], w.w.length); }); });
   order.sort(function (a, b) { return a - b; });
@@ -649,7 +620,10 @@ function scene(u, L) {
     newer.forEach(function (w) { nw[w.i] = w.w; });
     rowsW[r].forEach(function (w) {
       if (!(w.i in col)) return;
-      var cls = before[w.i] ? "wc" : got[w.i] ? "wa" : (r === 0 && rowP[1] && nw[w.i] !== w.w) ? "wo" : "wg";
+      // a typed slot is typed in both rows, as two passes agreed on it; the final pass types without a second pass, so
+      // a word the pass before heard differently there was overturned (friendly. under friendless.)
+      var lost = r === 0 && rowP[1] && norm(nw[w.i]) !== norm(w.w);
+      var cls = before[w.i] ? "wc" : got[w.i] && !lost ? "wa" : (r === 0 && rowP[1] && nw[w.i] !== w.w) ? "wo" : "wg";
       var wx = L.lab + Math.round(col[w.i] * mono);
       run(wx, y, w.w, cls, SRC.script, 24);
       bars.push({ x: wx, y: y, w: Math.ceil(w.w.length * mono), lh: 24, row: true, tok: cls === "wa" ? "ink" : cls === "wg" ? "signal" : "copper", a: anchor(wx, y, 24, c) });
@@ -761,7 +735,7 @@ function mount(host, opts) {
   el.className = "ff" + (opts.phone ? " ph" : "");
   el.setAttribute("data-native", "freeflow");
   el.setAttribute("role", "img");
-  el.setAttribute("aria-label", "a message window filling in as someone talks after a key tap. below a rule, the two latest recognition passes over the audio they re-read; a word is typed once both agree. every pass is from a real pass log, whisper.cpp on the JFK sample.");
+  el.setAttribute("aria-label", "a message window filling in as someone talks after a key tap. below a rule, the two latest recognition passes over the audio they re-read; a word is typed once both agree. every pass is from a real pass log, whisper.cpp on a synthesized reading of mark twain\u2019s coyote lines.");
   tx.className = "tx";
   el.appendChild(cv); el.appendChild(tx); host.appendChild(el);
   M = { host: host, el: el, cv: cv, tx: tx, style: st, phone: !!opts.phone, L: layoutFor(!!opts.phone), tok: tokens(), html: null, key: null };
@@ -833,7 +807,7 @@ function selfCheck() {
   var fin = SIM.fin.text.join(" ");
   need("final text is the log's streamed text", fin === STREAMED.replace(/\s+/g, " ").trim(), fin);
   var app = shown(SIM.fin.text).join(" ");
-  need("the app shows it with sentence starts capitalised", app === "And so my fellow Americans. Ask not what your country can do for you. Ask what you can do for your country.", app);
+  need("the app shows it with sentence starts capitalised", app === "The Coyote is a living, breathing allegory of want. He is always hungry. He is always poor, out of luck and friendless.", app);
   [false, true].forEach(function (ph) {
     var L = layoutFor(ph), F = L.fld;
     need((ph ? "phone" : "desktop") + " field shows its last lines inside the panel", F.y + F.lines * F.lh <= L.panel - 6 &&
@@ -866,6 +840,14 @@ function selfCheck() {
   need("the window start moves forward only, and it moves", trims.length > 0 && mono, trims.map(function (p) { return [p.t, p.offset]; }));
   need("misheard words are overturned before they are typed", OVERTURNED.length >= 3 && OVERTURNED.every(function (e) {
     return SIM.fin.text[e.i] === e.typed && norm(e.heard) !== norm(e.typed); }), OVERTURNED.map(function (e) { return e.heard + "→" + e.typed; }));
+  // stopped: the last pass above the final pass, whose typed words are the ones the log's final row commits, and a
+  // word the last pass heard differently in a typed column is shown overturned
+  var S1 = stateAt(1), L1 = layoutFor(false), sc1 = scene(1, L1), real = SIM.ticks.filter(function (p) { return !p.skip; });
+  var row0 = sc1.runs.filter(function (q) { return q.y === L1.rows[0] && /^w/.test(q.cls); }), row1 = sc1.runs.filter(function (q) { return q.y === L1.rows[1] && /^w/.test(q.cls); });
+  var typed1 = row1.filter(function (q) { return q.cls === "wa"; }).map(function (q) { return q.t; }).join(" ");
+  var over0 = row0.filter(function (q) { return q.cls === "wo" && row1.some(function (z) { return z.x === q.x && z.cls === "wa" && norm(z.t) !== norm(q.t); }); }).map(function (q) { return q.t; });
+  need("stopped: the last pass above the final pass, which types the rest", S1.cur === SIM.fin && S1.prev === real[real.length - 1] &&
+    typed1 === LOG[LOG.length - 1][4].map(function (w) { return w[0]; }).join(" ") && over0.length > 0, [S1.prev && S1.prev.n, S1.cur && S1.cur.n, typed1, over0]);
   // reversibility and footprint registration: the same u gives the same scene and the same cells, whatever came before
   var a1 = JSON.stringify(footprint(0.55, false)), z = footprint(1, false); footprint(0.1, true);
   need("footprint is a pure function of u", a1 === JSON.stringify(footprint(0.55, false)) && z.length > 0, z.length);
@@ -878,7 +860,7 @@ function beat(res, instruction) {
   return { len: 0.75, w: SIZE.desk.w, h: SIZE.desk.h, pw: SIZE.phone.w, ph: SIZE.phone.h,
     build: function (F, u) { var q = res(false); cells(u, q.r, q.org, false).forEach(function (k) { F(k[0], k[1], k[2]); }); },
     phoneBuild: function (F, u) { var q = res(true); cells(u, q.r, q.org, true).forEach(function (k) { F(k[0], k[1], k[2]); }); },
-    instruction: instruction || "a real pass log, JFK sample. typed once two passes agree.", input: null, selfCheck: "freeflow" };
+    instruction: instruction || "a real pass log, a synthesized reading. typed once two passes agree.", input: null, selfCheck: "freeflow" };
 }
 
 /* ---------- the station facade the three native figures share ---------- */
@@ -901,7 +883,7 @@ var station = {
   hide: function () { if (M) M.el.style.visibility = "hidden"; },
   unmount: unmount,
   selfCheck: selfCheck,
-  instruction: function () { return "a real pass log, JFK sample. typed once two passes agree."; },
+  instruction: function () { return "a real pass log, a synthesized reading. typed once two passes agree."; },
   rest: function () { return 1; },
   len: 0.75,
   version: function () { return "ff1"; }
@@ -917,6 +899,160 @@ root.FigFreeflow = {
 };
 })(typeof window !== "undefined" ? window : this);
 
+</script>
+<script>
+/* figs 2 and 3 and the prose beside them: the same clip through the streamer before the fix (freeflow@0f70dcd, shipped
+   settings), in the station's row format, and the text the clip reads, which both runs were scored against. Every
+   figure those parts of the page show is derived again here from the rows, and selfCheck() holds the page's own text
+   to it. */
+(function (root) {
+"use strict";
+var REF = "The coyote is a living, breathing allegory of Want. He is always hungry. He is always poor, out of luck, and friendless.";
+// [audio_end, window_start, decode ms, hypothesis [[word, start, end]...], committed [[word, start, end]...]], times in
+// hundredths of a second; the last row is the final pass when the audio ends; empty-string tokens are dropped
+var BEFORE = [
+  [70,0,31,[],[]],
+  [105,0,183,[["The",1,16],["Coyote",16,42],["is",42,51],["a",51,55],["living.",55,100]],[]],
+  [140,0,169,[["The",1,19],["Coyote",19,57],["is",57,72],["a",72,76],["living",76,118]],[["The",1,19],["Coyote",19,57],["is",57,72],["a",72,76]]],
+  [175,0,208,[["The",1,19],["Coyote",19,56],["is",56,72],["a",72,74],["living,",74,143],["breathing...",143,300]],[]],
+  [210,0,264,[["The",1,16],["Coyote",16,45],["is",45,55],["a",55,60],["living,",60,100],["breathing",100,145],["allegory.",145,204]],[]],
+  [245,0,271,[["The",1,16],["Coyote",16,39],["is",39,47],["a",47,51],["living,",51,85],["breathing",85,143],["allegory",143,158],["of",158,166],["Mother's",166,200],["Blood.",200,240]],[["breathing",85,143]]],
+  [280,0,315,[["The",1,17],["coyote",17,51],["is",51,62],["a",62,66],["living,",66,113],["breathing",113,166],["allegory",166,212],["of",212,223],["wont.",223,272]],[["allegory",166,212],["of",212,223]]],
+  [315,0,131,[["The",1,21],["coyote",21,63],["is",63,77],["a",77,84],["living,",84,143],["breathing",143,206],["allegory",206,259],["of",259,272],["want.",272,312]],[]],
+  [350,0,133,[["The",1,20],["Coyote",20,60],["is",60,73],["a",73,79],["living,",79,143],["breathing",143,192],["allegory",192,245],["of",245,258],["want.",258,312]],[["want.",258,312]]],
+  [385,162,321,[["allegory",164,225],["of",225,242],["wand.",242,304],["He",304,310],["is",310,311],["always",311,330],["hung...",330,378]],[]],
+  [420,162,223,[["allegory",164,229],["of",229,245],["wand.",245,311],["\"He",311,321],["is",321,335],["all",335,346],["was",346,361],["hungry.\"",361,414]],[]],
+  [455,162,274,[["allegory",164,231],["of",231,248],["want",248,300],["he",300,311],["is",311,317],["always",317,376],["hungry",376,442],["he",442,442]],[]],
+  [490,162,112,[["allegory",164,225],["of",225,242],["wand.",242,311],["He",311,311],["is",311,324],["always",324,364],["hungry.",364,446],["He",446,489],["is",489,489],["always",489,762]],[]],
+  [525,162,114,[["allegory",164,225],["of",225,242],["wand.",242,310],["He",310,311],["is",311,322],["always",322,359],["hungry.",359,434],["He",434,446],["is",446,450],["always",450,498],["put.",498,522]],[["He",310,311],["is",311,322],["always",322,359],["hungry.",359,434],["He",434,446],["is",446,450],["always",450,498]]],
+  [560,348,193,[["was",348,376],["hungry;",376,440],["he",440,446],["is",446,455],["always",455,501],["poor.",501,694]],[]],
+  [595,348,251,[["was",348,376],["hungry",376,443],["he",443,446],["is",446,460],["always",460,516],["poor",516,553],["out",553,558],["of",558,558]],[]],
+  [630,348,236,[["As",348,360],["always",360,396],["hungry,",396,446],["he",446,458],["is",458,470],["always",470,516],["poor,",516,561],["out",561,564],["of",564,573],["luck.",573,622]],[]],
+  [665,348,114,[["While",348,384],["was",384,405],["hungry,",405,462],["he",462,476],["is",476,490],["always",490,532],["poor,",532,576],["out",576,597],["of",597,611],["luck,",611,648],["and",648,648]],[["poor,",532,576],["out",576,597],["of",597,611]]],
+  [700,348,118,[["As",348,362],["always",362,404],["hungry,",404,460],["he",460,474],["is",474,488],["always",488,530],["poor,",530,574],["out",574,598],["of",598,613],["luck,",613,656],["and",656,674],["friendly.",674,700]],[["luck,",613,656],["and",656,674]]],
+  [732.6,524,208,[["Adhavlak,",524,598],["and",598,620],["Friendless.",620,722]],[]]
+].map(function (p) {
+  function w(q) { return [q[0], q[1] / 100, q[2] / 100]; }
+  return [p[0] / 100, p[1] / 100, p[2], p[3].map(w), p[4].map(w)];
+});
+var BEFORE_STREAMED = "The Coyote is a breathing allegory of want. He is always hungry. He is always poor, out of luck, and";
+var BEFORE_WER = 0.091;                 // the log's own stream_wer for the run
+
+function key(s) { return String(s).toLowerCase().replace(/[^a-z0-9']/g, ""); }
+function toks(s) { return s.split(/\s+/).filter(function (w) { return key(w); }); }
+// the app capitalises a sentence start, as the station does (TextProcessor.swift#L211-L215)
+function shown(ws) { return ws.map(function (w, i) { return i && /[.!?]$/.test(ws[i - 1]) ? w.charAt(0).toUpperCase() + w.slice(1) : w; }); }
+// word error against REF: the fewest substitutions, deletions and insertions, and which reference words were deleted
+function score(hyp) {
+  var r = toks(REF), h = toks(hyp), n = r.length, m = h.length, D = [], i, j;
+  for (i = 0; i <= n; i++) { D.push([]); for (j = 0; j <= m; j++) D[i].push(i && j ? 0 : i + j); }
+  for (i = 1; i <= n; i++) for (j = 1; j <= m; j++)
+    D[i][j] = Math.min(D[i - 1][j] + 1, D[i][j - 1] + 1, D[i - 1][j - 1] + (key(r[i - 1]) === key(h[j - 1]) ? 0 : 1));
+  var del = [];
+  for (i = n, j = m; i > 0 || j > 0;) {
+    if (i && j && D[i][j] === D[i - 1][j - 1] + (key(r[i - 1]) === key(h[j - 1]) ? 0 : 1)) { i--; j--; }
+    else if (i && D[i][j] === D[i - 1][j] + 1) { del.unshift(r[i - 1].replace(/[^A-Za-z']/g, "")); i--; }
+    else j--;
+  }
+  return { errors: D[n][m], words: n, deleted: del };
+}
+// the commit rule before the fix (freeflow@0f70dcd, Streamer.swift): drop words that start before the last typed end
+// less 0.1 s, then a boundary repeat of the typed tail; type the prefix two passes agree on; the final pass types the rest
+function replay() {
+  var committed = [], buf = [], last = 0, out = [];
+  function low(s) { return s.trim().toLowerCase(); }
+  function speech(w) { return /[A-Za-z0-9]/.test(w[0]) && !/[\[\]()♪*]/.test(w[0]); }
+  function strip(ws) {
+    ws = ws.filter(function (w) { return w[1] > last - 0.1; });
+    if (committed.length && ws.length) {
+      var tail = committed.slice(-6).map(function (w) { return low(w[0]); }), head = ws.slice(0, 6).map(function (w) { return low(w[0]); });
+      for (var k = Math.min(tail.length, head.length); k >= 1; k--)
+        if (tail.slice(-k).join("\u0000") === head.slice(0, k).join("\u0000")) { ws = ws.slice(k); break; }
+    }
+    return ws;
+  }
+  BEFORE.forEach(function (p, i) {
+    var ws = strip(p[3].filter(speech)), got = [];
+    if (i === BEFORE.length - 1) { got = ws; if (ws.length) last = ws[ws.length - 1][2]; }
+    else { var j = 0; while (j < ws.length && j < buf.length && low(ws[j][0]) === low(buf[j][0])) { got.push(ws[j]); last = ws[j][2]; j++; } buf = ws.slice(j); }
+    committed = committed.concat(got);
+    out.push(got.map(function (w) { return w[0]; }));
+  });
+  return out;
+}
+function at(t) { for (var i = 0; i < BEFORE.length; i++) if (Math.abs(BEFORE[i][0] - t) < 1e-6) return BEFORE[i]; return null; }
+function word(p, txt) { return p[3].filter(function (w) { return w[0] === txt; })[0]; }
+function r2(v) { return (Math.round(v * 100) / 100).toFixed(2); }
+
+function derive() {
+  var typedB = [], d = {};
+  BEFORE.forEach(function (p) { p[4].forEach(function (w) { typedB.push(w[0]); }); });
+  var after = root.FigFreeflow ? root.FigFreeflow.sim.fin.text : [];
+  var sb = score(typedB.join(" ")), sa = score(after.join(" "));
+  d.typedB = typedB; d.after = after; d.sb = sb; d.sa = sa;
+  d.text = { "before-dropped": sb.deleted.length + " of " + sb.words + " words never typed",
+    "before-wer": (Math.round(sb.errors / sb.words * 1000) / 10).toFixed(1) + "% word error",
+    "after-wer": sa.errors + " errors",
+    "before-text": shown(typedB).join(" "), "after-text": shown(after).join(" ") };
+  // fig 3: the pass at 1.40 s types "The Coyote is a"; the passes at 1.75 s and 2.10 s, and the time rule's cut
+  var p0 = at(1.4), p1 = at(1.75), p2 = at(2.1), a = p0[4][p0[4].length - 1], cut = a[2] - 0.1;
+  var l1 = word(p1, "living,"), l2 = word(p2, "living,");
+  d.fig3 = { typed: p0[4].map(function (w) { return w[0]; }), aEnd: a[2], cut: cut, l1: l1, l2: l2, p1: p1, p2: p2,
+    byTime: p2[3].filter(function (w) { return w[1] > cut; }).map(function (w) { return w[0]; }),
+    byText: (function () { var h = p2[3].map(function (w) { return key(w[0]); }), t = p0[4].map(function (w) { return key(w[0]); });
+      for (var i = 0; i + t.length <= h.length; i++) if (h.slice(i, i + t.length).join(" ") === t.join(" ")) return p2[3].slice(i + t.length).map(function (w) { return w[0]; });
+      return null; })() };
+  d.text["fig3-cut"] = r2(cut) + " s";
+  d.text["fig3-shift"] = r2(l1[1] - l2[1]) + " s earlier";
+  d.text["living-early"] = r2(a[2] - l2[1]);
+  // the last pass: the typed "and" ends in the pass at 7.00 s, and the final pass hears "Friendless." before it
+  var p7 = at(7), fin = BEFORE[BEFORE.length - 1], and = p7[4][p7[4].length - 1], fr = word(fin, "Friendless.");
+  d.fin = { and: and, fr: fr, typed: fin[4].length };
+  d.text["friendless-early"] = r2(and[2] - fr[1]);
+  return d;
+}
+
+function selfCheck() {
+  var d = {}, ok = true, D = derive();
+  function need(name, cond, got) { d[name] = { ok: !!cond, got: got }; if (!cond) ok = false; }
+  need("before: the typed words are the log's streamed text", D.typedB.join(" ") === BEFORE_STREAMED, D.typedB.join(" "));
+  var rp = replay(), same = rp.every(function (g, i) { return g.join(" ") === BEFORE[i][4].map(function (w) { return w[0]; }).join(" "); });
+  need("before: the old commit rule, replayed over the passes, types what the log typed, pass by pass", same && rp.length === 20, rp.map(function (g) { return g.length; }));
+  need("before: 2 of 22 reference words deleted, nothing else wrong", D.sb.errors === 2 && D.sb.words === 22 && D.sb.deleted.join(" ") === "living friendless", D.sb);
+  need("before: the word error rounds to the log's", Math.round(D.sb.errors / D.sb.words * 1000) / 1000 === BEFORE_WER, D.sb.errors / D.sb.words);
+  need("after: the station's typed text scores 0 errors", D.after.length === 22 && D.sa.errors === 0, D.sa);
+  need("fig 3: the pass at 1.40 s typed The Coyote is a", D.fig3.typed.join(" ") === "The Coyote is a", D.fig3.typed);
+  need("fig 3: living, starts after the cut in the pass at 1.75 s and before it at 2.10 s", D.fig3.l1[1] > D.fig3.cut && D.fig3.l2[1] < D.fig3.cut, [D.fig3.l1, D.fig3.l2, D.fig3.cut]);
+  need("fig 3: by time, the pass at 2.10 s keeps breathing allegory.", D.fig3.byTime.join(" ") === "breathing allegory.", D.fig3.byTime);
+  need("fig 3: by text, its new words are living, breathing allegory.", (D.fig3.byText || []).join(" ") === "living, breathing allegory.", D.fig3.byText);
+  need("the last pass: Friendless. starts before the cut and nothing is typed", D.fin.fr[1] < D.fin.and[2] - 0.1 && D.fin.typed === 0, [D.fin.and, D.fin.fr]);
+  // the page's own text, every place a figure from the logs is shown
+  if (typeof document !== "undefined") Object.keys(D.text).forEach(function (k) {
+    var els = [].slice.call(document.querySelectorAll('[data-ck="' + k + '"]'));
+    var got = els.map(function (e) {
+      if (k !== "before-text") return e.textContent.replace(/\s+/g, " ").trim();
+      var c = e.cloneNode(true); [].forEach.call(c.querySelectorAll(".gone"), function (g) { g.remove(); });
+      return c.textContent.replace(/\s+/g, " ").trim(); });
+    need("page shows " + k, els.length > 0 && got.every(function (g) { return g === D.text[k]; }), got);
+  });
+  if (typeof document !== "undefined") {
+    var gone = [].map.call(document.querySelectorAll('[data-ck="before-text"] .gone'), function (e) { return e.textContent.trim(); });
+    need("page boxes the words never typed", gone.join(" ") === D.sb.deleted.join(" "), gone);
+    [0, 1].forEach(function (r) {
+      var P = r ? D.fig3.p2 : D.fig3.p1;
+      [].forEach.call(document.querySelectorAll('[data-ck="fig3-row' + r + '"]'), function (g) {
+        var t = [].map.call(g.querySelectorAll("text"), function (e) { return e.textContent; }), hw = P[3].map(function (w) { return w[0]; });
+        var shownW = t.slice(1), tail = hw.slice(hw.length - shownW.length);
+        need("fig 3 row " + r + " (" + g.closest("svg").id + ") is the pass at " + r2(P[0]) + " s, its last words in order",
+          t[0] === "the pass at " + r2(P[0]) + " s" && shownW.length >= 4 && shownW.join(" ") === tail.join(" "), t);
+      });
+    });
+  }
+  return { ok: ok, details: d };
+}
+
+root.FreeflowRuns = { before: BEFORE, derive: derive, replay: replay, score: score, selfCheck: selfCheck };
+})(typeof window !== "undefined" ? window : this);
 </script>
 <script>
 /* fig 0: the freeflow station drawn 1:1, centred in the stage. Before it plays it already shows the first pass that heard
