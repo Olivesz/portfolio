@@ -91,6 +91,12 @@ a{color:inherit}
 .blk{position:absolute;left:0;right:0}
 .stick{position:sticky;margin-left:var(--gut);width:416px}
 @media (max-width:1023px){ .stick{margin:0 var(--gut);width:auto;max-width:520px} }
+/* an upright phone between stations: the next card's first lines (kicker, title, line) wait at its sticky top under
+   the caption row from the start of the transit, so the screen is never an empty band and void; the rest of the card
+   rises to join them, and at the arrival the card's own lines take over in the same place */
+#thead{position:fixed;z-index:3;margin:0;pointer-events:none;opacity:0;visibility:hidden;transition:opacity 240ms var(--ease-enter),visibility 0s 240ms}
+#thead.on{opacity:1;visibility:visible;transition:opacity 240ms var(--ease-enter),visibility 0s}
+.card .hd-off{visibility:hidden}
 /* a phone on its side keeps the words in a column at the left, beside the art (the engine sets --col) */
 @media (max-width:1023px) and (min-width:724px) and (orientation:landscape) and (max-height:500px){ .stick,.stick.hero{margin:0 0 0 var(--gut);width:var(--col,328px);max-width:none} }
 .hero h1{margin:0;font:500 72px/72px var(--sg);letter-spacing:-.025em;color:var(--ink)}
@@ -111,18 +117,30 @@ a{color:inherit}
 .hero .hk>p{grid-area:1/1}
 .hero .pl{margin:16px 0 0;font:400 13px/16px var(--mono);color:var(--body);transition:opacity var(--t-ui) var(--ease-enter) var(--t-ui),visibility 0s}
 .hero .pl.off{opacity:0;visibility:hidden;transition:opacity var(--t-ui) var(--ease-enter),visibility 0s var(--t-ui)}
+/* chapter I's papers and award, on a wide screen: under the kicker, each row in as its trail is born. Set out of flow
+   so the hero's height, and every span measured from it, is the same with or without them */
+.hero .hk{position:relative}
+.hero .trl{display:none;position:absolute;left:0;top:100%;width:416px;margin:16px 0 0;padding:0;list-style:none}
+.hero .trl li{margin:8px 0 0;opacity:0;visibility:hidden;transition:opacity var(--t-ui) var(--ease-enter),visibility 0s var(--t-ui)}
+.hero .trl li:first-child{margin-top:0}
+.hero .trl li.on{opacity:1;visibility:visible;transition:opacity var(--t-ui) var(--ease-enter),visibility 0s}
+.hero .trl a{display:block;font:400 13px/24px var(--mono);color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
+.hero .trl a:hover,.hero .trl a:focus-visible{text-decoration-color:var(--ink)}
+.hero .trl .tg{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+@media (min-width:1024px) and (min-height:501px){ .hero .trl{display:block} }
 @media (max-width:1023px){ .hero{width:auto} .hero h1{font-size:44px;line-height:48px} .hero .rec{margin-top:16px;font-size:13px;line-height:20px} .hero .hl{margin-top:12px;line-height:20px} .hero .date,.hero .pl{margin-top:12px} }
 #emergence,.place[data-ch=emergence]{--accent:var(--v-green)} #freeflow,.place[data-ch=freeflow]{--accent:var(--v-blue)}
 #kronos,.place[data-ch=kronos]{--accent:var(--v-amber)} #custos,.place[data-ch=custos]{--accent:var(--v-violet)}
 .card .date{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent,var(--muted));margin:0}
 .card h2{margin:8px 0 16px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
-.card .np{margin:0;font:400 15px/24px var(--sg);color:var(--ink)}
-.card .pf{margin:16px 0 0;font:400 15px/24px var(--sg);color:var(--body)}
+.card .pf{margin:0;font:400 15px/24px var(--sg);color:var(--ink)}
+.card .np{margin:16px 0 0;padding-left:12px;border-left:1px solid var(--accent,var(--muted));font:400 13px/20px var(--mono);color:var(--muted)}   /* the phrase is a set-off line, not body prose */
 .card .pt{margin:16px 0 0;border-collapse:collapse;font:400 13px/24px var(--mono);color:var(--body);font-variant-numeric:tabular-nums}
 .card .pt th,.card .pt td{padding:0 0 0 16px;text-align:right;font-weight:400;white-space:nowrap}
 .card .pt th:first-child{padding-left:0;text-align:left;color:var(--ink)}
 .card .pt thead th{font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--muted)} .card .pt thead th:first-child{color:var(--muted)}
 .card .cv{margin:0;font:400 13px/24px var(--mono);color:var(--body)} .card .cv .nw,.card .pf .nw{white-space:nowrap} .card .cv .kl{display:none}
+@media (min-width:1024px){ .card .kp-b{margin-top:16px} }   /* the self-audit stands clear of the table's footnote */
 /* KRONOS's results lead with what the run bought, then show it: each max drawdown is a bar on one scale from zero (a cell
    is 1/24 of SPY's), KRONOS in the chapter hue, equal weight an outline, SPY in the chart's SPY tone. The bars lay cell by
    cell once the table is in view, so the shortest one stops first; reduced motion and no script show them whole */
@@ -153,18 +171,18 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 @media (pointer:coarse){ .card .rp,.card .rt{height:32px;line-height:30px;margin:-4px 0 -4px 8px} }
 /* a phone card has no room for a second button in its link row: try it is a desktop control */
 @media (max-width:1023px){ .card .rt{display:none} }
-@media (max-width:1023px){ .card h2{font-size:30px;line-height:32px;margin:8px 0 12px} .card .pf,.card .pt,.card .meta{margin-top:12px} .card .lk{margin-top:8px} .card .pt th,.card .pt td{padding-left:12px} .card .pt thead th{letter-spacing:0}
+@media (max-width:1023px){ .card h2{font-size:30px;line-height:32px;margin:8px 0 12px} .card .np,.card .pt,.card .meta{margin-top:12px} .card .pf{margin-top:0} .card .lk{margin-top:8px} .card .pt th,.card .pt td{padding-left:12px} .card .pt thead th{letter-spacing:0}
   .card h2{margin-bottom:8px} .card .lk{margin-top:4px}
   /* a phone card is the phrase and the proof: every card fits its text band down to 360x640, and the note line is read, not shown */
   .card .np,.card .pf{line-height:20px}
   .card .meta{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
   /* KRONOS on a phone rests on its results table: the self-audit is the chart beat's caption, and the case study's */
   .card .kp-b{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)}
-  .card .ki{margin-top:8px} .card .ki .kx{display:none}
+  .card .ki+.np{margin-top:8px} .card .ki .kx{display:none}
   .card .kp .pt th,.card .kp .pt td{line-height:20px} .card .kp .cv{font-size:11px;line-height:16px;letter-spacing:0} .card .kp .cv .kw{display:none} .card .kp .cv .kl{display:inline}
   .card .kk{margin-top:12px;letter-spacing:0} .card .fr{margin-top:12px;font-size:11px;line-height:16px;letter-spacing:0} .card .kh{margin-top:12px} .card .kt{margin-top:4px} .card .kt .kb{--kc:2px;padding-left:12px} .card .kt .kb+td{padding-left:6px} .card .kt .kb i{height:6px} }
 /* the shortest phones keep each card to its band: KRONOS closes up its results and keeps every caveat; custos's proof line goes to screen-reader text */
-@media (max-width:767px) and (max-height:700px){ .card .kk,.card .cu{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)} .card .ki,.card .kh{margin-top:4px} .card .kt{margin-top:0} .card .kp .kt thead th{line-height:16px} }
+@media (max-width:767px) and (max-height:700px){ .card .kk,.card .cu{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip-path:inset(50%)} .card .ki+.np,.card .kh{margin-top:4px} .card .kt{margin-top:0} .card .kp .kt thead th{line-height:16px} }
 
 /* map places: a click teleports, never flies */
 #places{position:fixed;z-index:3;left:0;top:0;width:100%;height:100lvh;pointer-events:none;opacity:0;transition:opacity 200ms var(--ease-enter)}
@@ -186,7 +204,7 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 #places svg.leaders line{stroke:var(--copper);stroke-width:1;shape-rendering:crispEdges}
 
 /* document: the résumé, the index and the colophon rise over the map in ordinary flow; the map shows only above it */
-#doc{position:relative;z-index:4;background:var(--void);padding:0 0 64px}
+#doc{position:relative;z-index:4;background:var(--void);padding:0}
 #doc [id]{scroll-margin-top:calc(var(--strip) + 16px)}
 @media screen{
 :is(#resume,#end) .cv-mono,:is(#resume,#end) .cv-head,:is(#resume,#end) .cv-when,:is(#resume,#end) .cv-skills dt,:is(#resume,#end) .cv-bookend{font-family:var(--mono,"JetBrains Mono",ui-monospace,Menlo,monospace);font-variant-numeric:tabular-nums}
@@ -228,8 +246,9 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
   :is(#resume,#end) .cv-skills dd+dt{margin-top:8px}
 }
 }
-:is(#resume,#end) h2.cv-rule{display:flex;align-items:center;font:400 13px/24px var(--mono);color:var(--body);font-variant-numeric:tabular-nums}
-:is(#resume,#end) h2.cv-rule .cv-ant{flex:none}
+/* the bookend is the ending's heading: the rule in the title face, its square centred about 10px over the baseline */
+:is(#resume,#end) h2.cv-rule{display:flex;align-items:baseline;font:500 30px/32px var(--sg);letter-spacing:-.02em;color:var(--ink)}
+:is(#resume,#end) h2.cv-rule .cv-ant{flex:none;position:relative;top:-6px}   /* its foot sits on the baseline; 6px up puts its centre 10px over it */
 :is(#resume,#end) .cv-contact{margin-top:8px;font:400 13px/24px var(--mono);color:var(--body);overflow-wrap:anywhere}
 :is(#resume,#end) .cv-bookend{margin-bottom:40px}
 :is(#resume,#end) .cv-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px}
@@ -238,8 +257,8 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 @supports (margin-left:round(down,1px,8px)){ #colophon{margin-left:max(0px,round(down,(100% - 896px) / 2,8px));margin-right:0} }
 #colophon a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
 #colophon a:hover,#colophon a:focus-visible{text-decoration-color:var(--ink)}
-/* ---------- hidden ants: three lone cells after chapter I, on the map, after all the work and at the very end. Each is a
-   native button; it plants one ant in its own hue, which runs a fixed number of steps inside its own box and comes home ---------- */
+/* ---------- the hidden ant: one lone cell on the map. It is a native button; it plants one ant in its own hue, which
+   runs a fixed number of steps inside its own box and comes home ---------- */
 .egg{position:absolute;z-index:1;left:0;top:0;width:24px;height:24px;margin:0;padding:0;border:0;border-radius:0;background:none;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
 @media (pointer:coarse){ .egg{width:32px;height:32px} }
 .egg i{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:var(--eh)}
@@ -250,79 +269,37 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 .egg.l .egg-h{left:auto;right:100%}
 @media (hover:hover){ .egg:not([aria-disabled=true]):hover::before,.egg:not([aria-disabled=true]):hover .egg-h{visibility:visible} }
 .egg:focus-visible::before,.egg:not([aria-disabled=true]):focus-visible .egg-h{visibility:visible}   /* a found ant keeps its focus ring */
-/* the first time an egg is in view and settled there: its ring blinks twice and, in the document, the hint shows, once,
-   so a visitor without a pointer to hover learns it is there */
-#doc .egg.cue:not([aria-disabled=true]) .egg-h{visibility:visible}   /* on the map the ring alone: a hint there would cover a label */
-/* and in the document the hint stays up whenever its egg is whole in view and not yet found, however it was reached */
-#doc .egg.inv:not([aria-disabled=true]) .egg-h{visibility:visible}
+/* the first time the egg is on screen and settled there its ring blinks twice, once, so a visitor without a pointer to
+   hover learns it is there; the hint stays off the map, where it would cover a label */
 .egg.cue:not([aria-disabled=true])::before{animation:egg-cue 600ms steps(1,end) 2}
 @keyframes egg-cue{0%{visibility:visible}50%{visibility:hidden}}
 @media (prefers-reduced-motion:reduce){ .egg.cue:not([aria-disabled=true])::before{animation:none;visibility:visible} }
 .egg[aria-disabled=true]{cursor:default}
 .egg[aria-disabled=true] i{visibility:hidden}
 .egg-cv{position:absolute;left:0;top:0;pointer-events:none}
-/* under a found ant, once it has settled: how many of the three are found, so the finder knows there are more */
-.egg-n{position:absolute;left:0;top:0;transform:translateX(-50%);font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);white-space:nowrap;visibility:hidden;pointer-events:none}
-.egg-n.r{transform:translateX(-100%)}   /* an ant flush with the column's right edge: its count ends where its box does */
+/* under the found ant, once it has settled: what it is. It starts at the box's left edge, or ends at its right edge when
+   the ant is in the screen's right half; where one line has no room it sets on three */
+.egg-n{position:absolute;left:0;top:0;padding:0 4px;background:var(--void);font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);text-align:left;white-space:nowrap;visibility:hidden;pointer-events:none}   /* left-set, not the button's centring */
+.egg-n.r{transform:translateX(-100%);text-align:right}
 .egg-n b{font-weight:400;color:var(--eh)}
-/* the last find made away from the end: a link down to where all of them gather */
-.egg-win{position:absolute;left:0;top:0;margin:0;padding:0 4px;box-sizing:border-box;background:var(--void);font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);opacity:0;transition:opacity 400ms var(--ease-enter);pointer-events:auto}
-.egg-win.r{text-align:right}
-.egg-win.on{opacity:1}
-.egg-win a{display:inline-block;min-height:24px;line-height:24px;color:var(--ink);text-decoration:underline 1px var(--muted);text-underline-offset:3px}
-@media (pointer:coarse){ .egg-win a{min-height:32px;line-height:32px} }
+.egg-n.st b,.egg-n.st span{display:block} .egg-n.st .sp{display:none}
 .egg.done .egg-n{visibility:visible}
-#places.park .egg,#places.park .egg-win{pointer-events:none}
-.egg-end{height:128px}
-/* all found: the ants gather after the colophon, one row in the column, each regrowing its figure in its hue; its name
-   takes the hue as it comes home. The row is sized to one line of the column (12px cells on a desktop, 6 on a phone,
-   less if the column needs it) */
-.egg-fin{width:896px;margin:0 auto;padding:24px 0 0}
-@supports (margin-left:round(down,1px,8px)){ .egg-fin{margin-left:max(0px,round(down,(100% - 896px) / 2,8px));margin-right:0} }
-@media (max-width:1023px){ .egg-fin{width:auto;margin-left:16px;margin-right:16px} }
-.egg-fin .ef-k{margin:0 0 8px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
-.egg-fin .ef-h{margin:0 0 24px;font:500 30px/32px var(--sg);letter-spacing:-.02em;color:var(--ink)}
-.egg-fin .ef-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 40px;margin:0;padding:0;list-style:none}
-@media (max-width:1023px){ .egg-fin .ef-row{gap:16px} }
-.egg-fin .ef-row li{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:0}
-.egg-fin canvas{display:block}
-.egg-fin .ef-n{margin:0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);opacity:0;transition:opacity 400ms var(--ease-enter)}
-.egg-fin li.go .ef-n{opacity:1}   /* a name shows with its figure, never under an empty slot */
-.egg-fin .ef-n b{display:block;font-weight:400;color:var(--body);transition:color 400ms var(--ease-enter)}
-.egg-fin li.home .ef-n b{color:var(--eh)}
-.egg-fin .ef-t{max-width:416px;margin:24px 0 0;font:400 15px/24px var(--sg);color:var(--body)}
-.egg-fin .ef-t a{display:inline-block;min-height:24px;font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--ink);text-decoration:underline 1px var(--muted);text-underline-offset:3px}
-@media (pointer:coarse){ .egg-fin .ef-t a{min-height:32px;line-height:32px} }
-/* the map's caption row, under the strip where the rising document reaches it last: what the labels do, then the
-   tally of hidden ants (three cells outlined in each ant's hue, so a visitor knows the colours to look for, and filled
-   once that ant is found). A phone sets the caption in its
-   band's caption row, on two lines, with the tally at the right of its first line, clear of the art */
+#places.park .egg{pointer-events:none}
+/* the map's caption row, under the strip where the rising document reaches it last: what the labels do, and, while the
+   hidden ant is unfound, that it is there. A phone sets the caption in its band's caption row, on two lines, with that
+   line at the right of its first line, clear of the art */
 #mapcap{position:fixed;z-index:3;left:0;top:0;width:100%;height:0;pointer-events:none;opacity:0;transition:opacity 200ms var(--ease-enter)}
 #mapcap.on{opacity:1}
 #mapcap p{position:absolute;margin:0;font:400 11px/16px var(--mono);letter-spacing:.04em;white-space:nowrap}
 #mapcap .mc-t{left:var(--gut);top:var(--mc-t,52px);color:var(--body)}
 #mapcap.ph .mc-t span{display:block}
-#mapcap .egg-tally{right:var(--gut);top:var(--mc-y,52px);display:flex;align-items:center;gap:8px;color:var(--muted)}
+#mapcap .egg-tally{right:var(--gut);top:var(--mc-y,52px);color:var(--muted)}
+#mapcap .egg-tally .eg-sq{display:inline-block;width:6px;height:6px;margin:0 8px 0 0;vertical-align:1px;background:var(--v-cyan)}   /* a legend item: the colour to look for */
 #mapcap.ph .egg-tally{left:auto;right:var(--gut)}
 #mapcap.lo .egg-tally{right:auto;left:var(--gut);transition:opacity 200ms var(--ease-enter)}
 #mapcap.lo.tg .egg-tally{opacity:0}   /* on the bottom row the rising document would cover it: it goes before the document reaches it */
-#mapcap .egg-tally a{display:inline-block;padding:4px 0;margin:-4px 0;color:var(--ink);text-decoration:underline 1px var(--muted);text-underline-offset:3px;pointer-events:auto}
-@media (pointer:coarse){ #mapcap .egg-tally a{padding:8px 0;margin:-8px 0} }   /* a 24 or 32px target on the row's 16px line */
-#mapcap:not(.on) .egg-tally a,#mapcap.lo.tg .egg-tally a{pointer-events:none}
-#mapcap .egg-tally.won{color:var(--body)}
-#mapcap .egg-tally.won a{text-decoration:underline 2px var(--eh,var(--muted))}
-#mapcap .egg-tally .cue a{animation:egg-cue 600ms steps(1,end) 2}
-@media (prefers-reduced-motion:reduce){ #mapcap .egg-tally .cue a{animation:none} }
-#mapcap.won .mc-t{visibility:hidden}   /* the payoff takes the whole row: the caption steps aside while it shows */
-#mapcap.won .egg-tally{left:var(--gut);right:auto}
-#mapcap.ph.won .egg-tally{right:var(--gut);top:calc(var(--mc-y,52px) - 6px);white-space:normal;align-items:flex-start}   /* from the top of the caption's reserved row: three lines end clear of the list */
-#mapcap.ph.won .egg-tally .egg-tm{margin-top:4px}
-body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the step counter's place; the bookend row below carries the count */
-.egg-tally .egg-tm{display:flex;gap:4px}
-.egg-tally .egg-tm i{display:block;width:8px;height:8px;box-sizing:border-box;border:1px solid var(--eh)}
-.egg-tally .egg-tm i.on{border:0;background:var(--eh)}
-.egg-tally .egg-tm i[hidden]{display:none}
-#colophon{margin-top:48px}
+body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row takes the step counter's place; the bookend row below carries the count */
+#colophon{margin-top:48px;padding-bottom:64px}
 .colo{margin:0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 /* hit targets: 24 CSS px a side with a fine pointer, 32 on touch; margins take the padding back, so no text moves */
 #strip a{padding:4px 2px;margin:0 -2px}
@@ -337,7 +314,6 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
   #colophon a{padding:9px 4px}
 }
 @media (max-width:1023px){
-  #doc{padding:0 0 48px}
   :is(#resume,#end) .cv-contact .sep{display:none}
   :is(#resume,#end) .cv-contact{margin-top:0}
   :is(#resume,#end) .cv-contact a{display:table;line-height:32px;padding:0;margin:0}
@@ -509,6 +485,8 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
 #resume.rv{position:relative;z-index:25;background:var(--void);color:var(--body);width:896px;margin:0 auto;padding:16px 0;
   scroll-margin-top:calc(var(--strip,40px) + 16px);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:32px;align-items:start}
 @media (min-width:1024px){ #resume.rv{margin-left:max(0px,round(down,(100% - 896px) / 2,8px));margin-right:0} }
+/* a laptop or larger: the page is read at about 14px body text and runs past the fold; its controls stay beside it */
+@media (min-width:1280px) and (min-height:880px){ #resume.rv{width:auto;grid-template-columns:var(--rv-w,640px) 160px} #resume.rv .rv-head{position:sticky;top:72px} }
 #resume.rv .rv-head{grid-column:2;grid-row:1;font:400 13px/24px var(--mono);font-variant-numeric:tabular-nums}
 #resume.rv .rv-head h2{margin:8px 0 16px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
 #resume.rv .rv-ctl{margin:0;display:flex;flex-direction:column;align-items:flex-start}
@@ -592,7 +570,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
       <h1>Oliver <em>Zhang</em></h1>
       <p class="rec"><span class="f" data-src="public_resume.tex#L34-L35">CS at UT&nbsp;Austin, Turing Scholars ’28</span><span class="sep"> · </span><span class="f" data-src="public_resume.tex#L41-L51">SWE intern at tradeInsight.ai (fall&nbsp;2026) and&nbsp;IBM&nbsp;(summer&nbsp;2026)</span></p>
       <p class="hl"><a href="https://github.com/Olivesz" target="_blank" rel="noopener noreferrer">github</a> · <a href="https://www.linkedin.com/in/oliver-zhang1" target="_blank" rel="noopener noreferrer">linkedin</a> · <a href="mailto:oliver.zhang@utexas.edu" target="_blank" rel="noopener noreferrer">email</a> · <a href="resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a></p>
-      <div class="hk"><p class="pl" id="plant" aria-hidden="true">Click anywhere to plant an ant.</p><p class="date" id="ch1">chapter i · 2023 to 2024</p></div>
+      <div class="hk"><p class="pl" id="plant" aria-hidden="true">Click anywhere to plant an ant.</p><p class="date" id="ch1">chapter i · 2023 to 2024</p><ol class="trl" id="ch1-trails"><li><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" data-src="public_resume.tex#L121-L124">2023 · IEEE IPCCC · LLM inference energy</a><span class="tg">paper · coauthor</span></li><li><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer">2023 · IARIA GREEN · <span data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">2.6M+ Azure VMs</span></a><span class="tg">paper · coauthor</span></li><li><a href="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement" target="_blank" rel="noopener noreferrer">2024 · Carbon Hack · <span data-src="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement">Best Under 18</span></a><span class="tg">award · team member</span></li></ol></div>
       <p class="sr-only">One Langton’s ant walks the grid as the page scrolls: right on a dark cell, left on a lit one. Scrolling up runs it backward.</p>
       <p class="sr-only">Chapter one: dated trails from 2023 and 2024 beside the ant’s early chaos, until it falls into a repeating cycle and lays a straight road.</p>
     </div>
@@ -602,8 +580,8 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
     <article class="stick card" id="emergence" tabindex="-1">
       <p class="date">chapter ii</p>
       <h2>emergence</h2>
+      <p class="pf" data-src="Olivesz/emergence@910b296:README.md#L5">Eight cellular automata, one engine.</p>
       <p class="np">a truth table. every rung verified, up to the CPU.</p>
-      <p class="pf" data-src="Olivesz/emergence@910b296:README.md#L5">Eight cellular automata, one engine: from a <span class="nw">one-line rule</span> to a CPU.</p>
       <p class="cv fr"><span class="nw" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">SAP-1 (1,446 NAND gates, 175 flip-flops)</span> <span class="nw" data-src="Olivesz/emergence@910b296:cpu/README.md#L24">runs five test programs as a gate-level netlist.</span><br><span class="kr" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52"><span class="nw">In raw Wireworld, a full adder, a 4-bit counter</span> <span class="nw">and a D flip-flop match the netlist every clock.</span></span></p>
       <p class="sr-only">A NAND cell in raw Wireworld fills its truth table, inputs A and B as buttons; then the SAP-1’s recorded gate-level run replays Fibonacci, clock by clock, from PC and RAM over the bus to OUT.</p>
       <p class="lk"><a class="rm dd" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></p>
@@ -615,8 +593,8 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
     <article class="stick card" id="freeflow" tabindex="-1">
       <p class="date">chapter iii</p>
       <h2>freeflow</h2>
-      <p class="np" data-src="Olivesz/freeflow@19c0217:README.md#L49">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
       <p class="pf" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
+      <p class="np" data-src="Olivesz/freeflow@19c0217:README.md#L49">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
       <p class="cv fr"><span class="kr" data-src="Olivesz/freeflow@19c0217:README.md#L57-L60">word errors: <span class="nw">6.7% live,</span> <span class="nw">5.4% whole clip</span></span><br><span data-src="Olivesz/freeflow@19c0217:README.md#L55-L59"><span class="nw">20 held-out speakers</span> · <span class="nw">19.7% before the fix</span></span></p>
       <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log: freeflow’s streaming loop, whisper.cpp base.en, on a synthesized reading of Mark Twain’s coyote lines from Roughing It.</p>
       <p class="lk"><a class="rm dd" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
@@ -627,8 +605,8 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
     <article class="stick card" id="kronos" tabindex="-1">
       <p class="date">chapter iv</p>
       <h2>KRONOS</h2>
-      <p class="np">a planted answer. no estimator touches a real price until it finds one.</p>
       <p class="pf ki" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">A regime-aware quant platform<span class="kx">, every model hand-implemented in Python</span>.</p>
+      <p class="np">a planted answer. no estimator touches a real price until it finds one.</p>
       <div class="kp"><div class="kp-a">
       <p class="cv kk" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157">the result · risk control, not alpha</p>
       <p class="cv kh"><span class="kr" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">about equal-weight’s Sharpe, 64% of its drawdown</span></p>
@@ -653,8 +631,8 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
     <article class="stick card" id="custos" tabindex="-1">
       <p class="date">chapter v</p>
       <h2>custos-code</h2>
-      <p class="np">the log. the harness’s record of what the agent did.</p>
       <p class="pf"><span data-src="Olivesz/custos-code@f3737f8:README.md#L3">Checks a coding agent’s final report against its own log, claim by claim.</span> In <span data-src="Olivesz/custos-code@f3737f8:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with a nudge.</p>
+      <p class="np">the log. the harness’s record of what the agent did.</p>
       <p class="cv fr cu"><span class="kr" data-src="Olivesz/custos-code@f3737f8:README.md#L29-L33">six log sources · ten scenarios with known truth</span></p>
       <p class="meta" data-src="public_resume.tex#L79-L82">2026 hackathon. Led a team of 3, designed the core engine.</p>
       <p class="sr-only">The agent says the suite is green; its log shows failing tests: the claim is marked contradicted and the stop blocked. A passing run stops.</p>
@@ -847,8 +825,8 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
    as the footprints dissolve.
    Heading ants, in ink (pink stays the main ant's), walk their heading, turn and lay the section rule. After a hold, the paper slides down the page behind
    a 4x4 Bayer edge, and each coloured line turns into its own line of print as the paper passes it. It plays once on
-   a clock, only after the page image has decoded; leaving mid-play or clicking the page finishes it; reduced motion
-   shows the page at once. Click or tap zooms; while zoomed the mouse pans by moving, touch pans by dragging.
+   a clock, only after the page image has decoded; leaving mid-play or clicking the page finishes it; reduced motion,
+   a touch screen and a short screen show the page at once, with the build behind replay. Click or tap zooms; while zoomed the mouse pans by moving, touch pans by dragging.
    Inputs: click, pointer events, focusin, IntersectionObserver. No wheel, touch, key or scroll listeners. */
 (function () {
   var root = document.getElementById("resume"), data = document.getElementById("rv-layout");
@@ -887,11 +865,14 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
   });
 
   function vh() { return window.innerHeight; }
-  // whole-pixel page box. Desktop: fit the viewport height beside the rail, but never below 1 px per pt (the page
-  // then scrolls with the document). Below 1024px (phones, narrow or zoomed windows): the full column width.
+  // whole-pixel page box. A large screen: up to 842px wide, read like print, running past the fold. Other desktops:
+  // fit the viewport height beside the rail, but never below 1 px per pt (the page then scrolls with the document).
+  // Below 1024px (phones, narrow or zoomed windows): the full column width.
   function fit() {
     var wide = matchMedia("(min-width: 1024px)").matches, col = root.clientWidth, h = vh();
-    if (wide) { H = Math.min(Math.max(Math.floor(h - 72), PH), Math.floor((col - 32 - 160) * PH / PW)); W = Math.round(H * PW / PH); }
+    if (matchMedia("(min-width: 1280px) and (min-height: 880px)").matches) {      // read, not fitted: about 14px body text, the controls in a 160px column beside it
+      W = Math.min(842, Math.floor(innerWidth - 64 - root.getBoundingClientRect().left - 32 - 160)); H = Math.round(W * PH / PW);
+    } else if (wide) { H = Math.min(Math.max(Math.floor(h - 72), PH), Math.floor((col - 32 - 160) * PH / PW)); W = Math.round(H * PW / PH); }
     else { W = col; H = Math.round(W * PH / PW); }
     root.style.setProperty("--rv-w", W + "px"); root.style.setProperty("--rv-h", H + "px");
     lastW = innerWidth; lastVH = h;
@@ -1124,7 +1105,9 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's tally takes the 
 
   if (state === "idle") {
     draw(0);
-    if (vh() < 500) finish();           // a short screen (a phone on its side): the page is screens tall, so it shows built
+    // a short screen (a phone on its side), where the page is screens tall, and any touch screen, where a thumb-flick
+    // lands mid-build, show the page built on arrival; the build plays from replay
+    if (vh() < 500 || matchMedia("(hover: none)").matches) finish();
     else if (window.IntersectionObserver) {
       // the build starts once the box's top is a screen below the fold, so a reading-pace arrival lands on the paper
       // sliding in and the words turning to print, never on an empty box. An arrival faster than a screen and a half a
@@ -4383,7 +4366,7 @@ CHAPTERS.forEach(function (ch) {
 var TR = [
   { id: "ipccc",  label: "2023 · IEEE IPCCC · LLM inference energy", short: "IEEE IPCCC ’23", ph3: ["IEEE", "IPCCC ’23"], cx: -22, cy: -30, dir: 1, a: 2600, b: 3500, side: "l" },
   { id: "iaria",  label: "2023 · IARIA GREEN · 2.6M+ Azure VMs",     short: "IARIA GREEN ’23", ph3: ["IARIA", "GREEN ’23"], cx: 24,  cy: -28, dir: 2, a: 3100, b: 4000, side: "r" },
-  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Carbon Hack ’24 · best under 18", ph: ["Carbon Hack ’24", "best under 18"], ph2: ["Carbon Hack ’24", "best U18"], ph3: ["Carbon Hack", "’24 · U18"], cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
+  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Carbon Hack ’24 · best under 18", ph: ["Carbon Hack ’24", "best under 18"], ph3: ["Carbon Hack", "’24 · best", "under 18"], cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
 ];
 var TR_LEN = 400;
 // '2.6M+' and 'Under 18' are covered by FACTS iaria_vms and carbon_u18 (https sources: no repo line holds them)
@@ -5214,7 +5197,7 @@ function updStation(ch, s, now) {
 
 /* ---------- layout: one screen is the fixed 100lvh probe; section heights come from the chapter table ---------- */
 var $ = function (q) { return d0.querySelector(q); };
-var cv = $("#world"), ctx = cv.getContext("2d"), ch1El = $("#ch1"), plantEl = $("#plant");
+var cv = $("#world"), ctx = cv.getContext("2d"), ch1El = $("#ch1"), plantEl = $("#plant"), trlEls = d0.querySelectorAll("#ch1-trails li");
 var snapCv = $("#snap"), hit = $("#hit"), stepEl = $("#step"), strip = $("#strip"), placesEl = $("#places");
 var dpr = 1, VW = 0, VH = 0, S = 900, SVH = 900, BAND = 900, wide = true, PF = false, land = false, STRIP = 40, SKIRT = 8, CAP = 40, ART_L = 576, EDGE_L = 480, ART_R = 1376, ABW = 0, ABH = 0;
 // a phone on its side: the words keep a column at the left and the art the rest, with the phone's figures and pitches
@@ -5566,9 +5549,12 @@ function layout() {
   // card lets go at the hold end and the pull-back sets off one step later, so the card and its figure leave together
   // (the conveyor's pairing) and the figure never stands beside an empty column; the art stays clear of the card's
   // column until it has passed under the strip
-  var lc0 = CHAPTERS[CHAPTERS.length - 1], lt0 = lc0.card.querySelector("h1,h2");
-  var lgo = PF && lt0 ? lc0.ctop + lt0.getBoundingClientRect().top - lc0.card.getBoundingClientRect().top : lc0.ctop + lc0.cardH;
-  PULL = t; ZOOM = PULL + (PF ? Math.min(0.8, Math.max(0, lgo - (wide ? STRIP : BAND)) / S + 0.02) : 0.05);
+  // A desktop's last figure stays native and whole while its card scrolls away beside it, and becomes cells only once
+  // the card's last row (its links) has passed under the strip: no cell form of it ever stands beside a legible card
+  var lc0 = CHAPTERS[CHAPTERS.length - 1], lt0 = lc0.card.querySelector("h1,h2"), lk0 = PF ? null : lc0.card.querySelector(".lk");
+  var lgo = PF && lt0 ? lc0.ctop + lt0.getBoundingClientRect().top - lc0.card.getBoundingClientRect().top
+    : lk0 ? lc0.ctop + lk0.getBoundingClientRect().bottom - lc0.card.getBoundingClientRect().top : lc0.ctop + lc0.cardH;
+  PULL = t; ZOOM = PULL + (PF ? Math.min(0.8, Math.max(0, lgo - (wide ? STRIP : BAND)) / S + 0.02) : Math.max(0.05, (lgo - STRIP) / S + 0.02));
   // camera poses
   // the landing frames its whole walk (to INTRO_MAX) at the largest whole device pitch that keeps it inside LAND_FILL
   // of the art box: the chaos grows into the frame while the name is read, and then owns it
@@ -5818,6 +5804,7 @@ function cardMasks(now) {
       if (lq.tabOff !== off) { lq.tabOff = off; if (off) lq.setAttribute("tabindex", "-1"); else lq.removeAttribute("tabindex"); }
     }
   }
+  phoneHead();                           // after the masks: it reads which cards have gone
 }
 
 // the map is framed so the road's head cell sits under the bookend square; scrolled to it, the square carries the ant
@@ -6054,7 +6041,7 @@ function sceneId(s) {
   return "document";
 }
 function mapMix(s) { return RM ? (s >= (ZOOM + MAPS) / 2 ? 1 : 0) : ss((s - ZOOM) / (MAPS - ZOOM)); }
-var LOCK_TXT = "", MAP_TXT = "The whole walk. " + (TOUCH ? "Tap" : "Click") + " a label to go back there.";
+var LOCK_TXT = "", MAP_HEAD = "The whole walk.", MAP_TXT = MAP_HEAD + " " + (TOUCH ? "Tap" : "Click") + " a label to go back there.";
 // the landing says 'scroll ↓' first; its three-cell cue steps down on a 400ms clock and stops for good on the first scroll
 var SCROLL_TXT = "scroll ↓";
 // the hero's own line, worded for the pointer in hand: a tap or click anywhere on the landing plants (clearOfFigure)
@@ -6065,10 +6052,14 @@ var cueOn = true, cueT0 = -1, cueTimer = 0, CUE_MS = 400, leftLanding = false;
 var capWho = null;                // the station whose line instrAt last returned, if any
 // a line without its invitation, in either wording (a touch screen says Tap where the source says Click)
 function untry(ch, said) { return ch.tryClause ? said.replace(" " + ch.tryClause, "").replace(" " + ch.tryClause.replace("Click", "Tap"), "") : said; }
+// chapter I's first line, in sentence case like the lock line after it, names the rule the ending's heading repeats.
+// Where its first sentence cannot take a row of its own (an upright phone) it starts at the rule, so the row keeps two lines
+var CH1_A = "Scrolling walks the ant: right on dark, left on lit.", CH1_B = "Right on dark, left on lit.", CH1_C = "Scroll up and it runs backward.";
+function ch1Txt() { return (wide || textW(CH1_A, 11) <= (VW - 128) * dpr ? CH1_A : CH1_B) + " " + CH1_C; }
 function instrAt(s) {
   capWho = null;
   if (s < T0_ON) return LAND_TXT;
-  if (s < LAND_CHAOS) return "Scrolling walks the ant. Scroll up and it runs backward.";   // sentence case, like the lock line after it
+  if (s < LAND_CHAOS) return ch1Txt();
   if (s < LOCK_END) return LOCK_TXT;
   if (PREV.ch) {                     // a rest frame has no inputs placed yet, so its line does not invite the touch
     capWho = PREV.ch.id; var b0 = PREV.ch.beats[0], pv = b0.instructionAt ? b0.instructionAt(nativeU(b0.native, 0)) : b0.instruction;
@@ -6104,7 +6095,10 @@ function instrAt(s) {
       return ch.tryClause && !st.dim && st.bi > 0 && lw && ch.pb.p > lw[0] && ch.pb.p <= lw[1] ? said + " " + ch.tryClause : said;
     }
   }
-  return "";                         // the map's caption is the DOM row #mapcap, shown with the places
+  // from the pull-back on, the row names what the camera is pulling back to, until the DOM row #mapcap takes over
+  // with the places
+  if (s >= ZOOM && !placesLive) return MAP_HEAD;
+  return "";
 }
 
 /* ---------- small triggered fades for canvas text (never scrubbed by scroll) ---------- */
@@ -6372,7 +6366,7 @@ function render(s, now) {
       var t = TR[i], al = fade("tr" + i, t.n > 0 && trailLabelsOn(targetS), now, 200);
       if (al <= 0) continue;
       // the label sits beside its own turmite, which is the box it is placed around rather than an obstacle
-      var lines = !PF ? [t.label] : t.ph || [t.short], own = t.n > 0 ? obst.splice(1 + trIx(i), 1) : null;
+      var lines = !PF ? [trlShown() ? t.short : t.label] : t.ph || [t.short], own = t.n > 0 ? obst.splice(1 + trIx(i), 1) : null;
       var r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), t.side === "l" ? ["l", "tl", "bl", "t", "b", "r", "tg"] : ["r", "tr", "br", "t", "b", "l", "lb", "lt", "tg"], bounds, obst);
       if (!r2 && PF && t.ph2) { lines = t.ph2; r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), t.side === "l" ? ["l", "tl", "bl", "t", "b", "r", "tg"] : ["r", "tr", "br", "t", "b", "l", "lb", "lt", "tg", "tz"], bounds, obst); }   // a narrower phone: the shorter award, the name and year never split
       if (!r2 && PF && t.ph3) { lines = t.ph3; r2 = placeLabel("tr" + i, lines, cX(t.bb[0]), cY(t.bb[1]), cX(t.bb[2]), cY(t.bb[3]), ["b", "t", "tg", "bl", "tl", "br", "tr", "l", "r", "tz"], bounds, obst); }   // its slot taken (a small phone's lock): the year alone, under or over its trail
@@ -6530,6 +6524,19 @@ function render(s, now) {
     M.draw(nativeU(M, beatU(ch, 0, s)), { x: a[0], y: a[1], w: bt.bw * c, h: bt.bh * c }, stationCtx(r, nativeOrg(ch), chT(ch).dim));
     edgeText(ch, [R.x / dpr, R.y / dpr, R.x1 / dpr, R.y1 / dpr]);
   });
+  // the pull-back's names: from the first blooms until the places take over at the map, each station the visitor
+  // reached is named at its figure's top-left corner, in its chapter's hue on a ground plate, so no frame of the
+  // zoom is a field of unnamed figures
+  var pbNames = s >= ZOOM && !placesLive && (RM || (ZD.on && zoomV(now) <= 0 && mapMix(s) >= BLOOM_M0));
+  for (i = 0; i < CHAPTERS.length; i++) {
+    var pc = CHAPTERS[i], pa2 = fade("pbn" + i, pbNames && pc.pb.state !== "idle", now, 200);
+    if (pa2 <= 0) continue;
+    var nx0 = cX(pc.F[0] + pc.beats[0].o[0]), ny0 = cY(pc.F[1] + pc.beats[0].o[1]) - 6 * dpr, nw = textW(pc.title, 11);
+    if (ny0 - 12 * dpr < R.y) ny0 = R.y + 12 * dpr;
+    ctx.globalAlpha = pa2; ctx.fillStyle = TOKCSS[T_VOID]; ctx.fillRect(Math.round(nx0 - 4 * dpr), Math.round(ny0 - 12 * dpr), Math.round(nw + 8 * dpr), Math.round(16 * dpr));
+    txt(pc.title, nx0, ny0, 11, TOKCSS[CH_ACCENT[pc.id]], pa2, "left");
+    ctx.globalAlpha = 1;
+  }
   // the current figure's drawn cells, for the hooks
   lastFig = null;
   for (i = 0; i < CHAPTERS.length; i++) {
@@ -6559,7 +6566,12 @@ function render(s, now) {
     var ix = wide ? ART_L : 16;
     ix = Math.round(ix * dpr);
     var maxw = wide ? W - ix - (VW - ART_R + 96) * dpr : W - 32 * dpr - 96 * dpr;
-    var kk = instr.kd = instr.k ? capLead(instr.k, instr.text, maxw) : "", linesI = wrap((kk ? kk + " · " : "") + instr.text, maxw, 11);
+    // a line that already opens with its figure's name gets no prefix: the name it leads with takes the accent instead.
+    // Any other line leads with as much of the chapter's name as keeps the row to two lines (capLead)
+    var kk = "", linesI = null;
+    if (instr.k && instr.text && instr.k.kickT && instr.text.indexOf(instr.k.kickT) === 0) { kk = instr.k.kickT; linesI = wrap(instr.text, maxw, 11); }
+    if (!linesI) { kk = instr.k && instr.text ? capLead(instr.k, instr.text, maxw) : ""; linesI = wrap((kk ? kk + " · " : "") + instr.text, maxw, 11); }
+    instr.kd = kk;
     var lh = !wide && linesI.length > 2 ? 14 : 16;                 // three lines still sit inside the 44px row
     var by2 = wide ? H - Math.round((land ? 12 : 16) * dpr) - (linesI.length - 1) * Math.round(16 * dpr) : Math.round((sc.artB + CAP / 2 - (linesI.length - 1) * lh / 2 + 4) * dpr);
     for (var w2 = 0; w2 < linesI.length; w2++) {
@@ -6616,6 +6628,8 @@ function gliding() { return shownS !== targetS; }
 function trIx(i) { var n = 0; for (var j = 0; j < i; j++) if (TR[j].n > 0) n++; return n; }
 // the dated labels speak in chapter I only: they fade as the first station arrives, with the trails receding, so none
 // hangs over a figure later in the walk
+// chapter I's list under the kicker is up (a wide screen, chapter I on screen): the canvas labels then take their short form
+function trlShown() { return wide && !land && targetS >= LAND && targetS < LOCK_END && trailLabelsOn(targetS); }
 function trailLabelsOn(s) {
   var ch = CHAPTERS[0];
   return s < Math.max(ch.from, (ch.on0 === undefined ? ch.arrive : ch.on0) - 0.04);
@@ -6787,8 +6801,9 @@ function wrap(t, maxw, size, trial) {
     }
     WR[wk] = out;
   }
-  // the caption row holds two lines: a longer one is drawn whole and reported, never cut (a trial fit only measures)
-  if (out.length > 2 && !trial && !wrapOver[t]) { wrapOver[t] = out.length; console.error("caption needs " + out.length + " lines at " + VW + "px: " + t); }
+  // the caption row holds two lines: a longer one is drawn whole and recorded (__walk.wrapOver), never cut (a trial
+  // fit only measures)
+  if (out.length > 2 && !trial) wrapOver[t] = out.length;
   return out;
 }
 // what an upright phone's caption row leads with while a chapter's card title is off screen (capKick): the chapter's
@@ -6975,9 +6990,10 @@ function eggMapLayout(toCss, box, taken, segs) {
   TR.forEach(function (t) { if (t.bb) { cb[0] = Math.min(cb[0], t.bb[0]); cb[1] = Math.min(cb[1], t.bb[1]); cb[2] = Math.max(cb[2], t.bb[2]); cb[3] = Math.max(cb[3], t.bb[3]); } });
   a = toCss(cb[0], cb[1]); b = toCss(cb[2] + 1, cb[3] + 1); ob.push([a[0], a[1], b[0], b[1]]);
   for (q = LOCK; q <= END; q += 8) { a = toCss(posX[q], posY[q]); ob.push([a[0] - 2, a[1] - 2, a[0] + 3, a[1] + 3]); }
-  CHAPTERS.forEach(function (ch) { if (!ch.F) return; a = toCss(ch.F[0] - BLOOM_EXT, ch.F[1] - BLOOM_EXT); b = toCss(ch.F[0] + ch.w + BLOOM_EXT, ch.F[1] + ch.h + BLOOM_EXT); ob.push([a[0], a[1], b[0], b[1]]); });
+  var soft = [];                                   // the blooms' reach: a label on a plate may cover its edge, the egg may not
+  CHAPTERS.forEach(function (ch) { if (!ch.F) return; a = toCss(ch.F[0] - BLOOM_EXT, ch.F[1] - BLOOM_EXT); b = toCss(ch.F[0] + ch.w + BLOOM_EXT, ch.F[1] + ch.h + BLOOM_EXT); ob.push([a[0], a[1], b[0], b[1]]); soft.push(ob[ob.length - 1]); });
   PLACES.forEach(function (p) { if (p.pos && wide) ob.push([p.pos[0], p.pos[1], p.pos[0] + p.el.offsetWidth, p.pos[1] + p.el.offsetHeight]); });
-  window.__eggMapAt = { wide: wide, box: box, ob: ob, anchor: [MAPA[0], MAPA[1]] };
+  window.__eggMapAt = { wide: wide, box: box, ob: ob, soft: soft, anchor: [MAPA[0], MAPA[1]] };
   if (window.__eggMap) window.__eggMap(window.__eggMapAt);
 }
 
@@ -7077,8 +7093,36 @@ function phoneMapClear(s, slack) {
   var c = camAt(s), d = Math.hypot(c.c[0] - MAPC[0], c.c[1] - MAPC[1]) * mapPitch() / dpr;
   return cbot <= BAND + 16 + slack && d <= 2 + slack;
 }
+// an upright phone's transit: the incoming card's head stands at its sticky top (see #thead) once the card before it
+// has gone, until the card itself arrives there
+var thead = null, theadK = -1;
+function phoneHead() {
+  var want = -1, Y = Math.round(targetS * S);
+  if (PF && !land) for (var k = 0; k < CHAPTERS.length && want < 0; k++) {
+    var ch = CHAPTERS[k], c = null, pc = null;
+    for (var q = 1; q < CROWS.length; q++) if (CROWS[q].ch === ch) { c = CROWS[q]; pc = CROWS[q - 1]; }
+    if (!c || !pc || targetS < ch.from || targetS >= ch.hold) continue;
+    var top = Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y), ptop = Math.min(Math.max(pc.nat - Y, pc.T), pc.bot - pc.h - Y);
+    if (top > c.T + 0.5 && (pc.out || ptop + pc.h <= c.T)) want = k;
+  }
+  if (want === theadK) return;
+  if (theadK >= 0) CHAPTERS[theadK].card.querySelectorAll(".hd-off").forEach(function (e) { e.classList.remove("hd-off"); });
+  theadK = want;
+  if (!thead) { thead = d0.createElement("div"); thead.id = "thead"; thead.setAttribute("aria-hidden", "true"); d0.body.appendChild(thead); }
+  if (want < 0) { thead.classList.remove("on"); return; }
+  var card = CHAPTERS[want].card, cr = card.getBoundingClientRect(), heads = [card.querySelector(":scope > .date"), card.querySelector(":scope > h2"), card.querySelector(":scope > h2 + .pf")].filter(Boolean);
+  thead.className = card.className.replace(/\bstick\b/, "").trim();
+  thead.textContent = "";
+  heads.forEach(function (e) { var n = e.cloneNode(true); n.removeAttribute("id"); n.querySelectorAll("[data-src],[id]").forEach(function (x) { x.removeAttribute("data-src"); x.removeAttribute("id"); }); n.removeAttribute("data-src"); thead.appendChild(n); e.classList.add("hd-off"); });
+  var cs = thead.style; cs.left = Math.round(cr.left) + "px"; cs.width = Math.round(cr.width) + "px"; cs.top = Math.round(parseFloat(getComputedStyle(card).top) || 0) + "px";
+  cs.setProperty("--accent", getComputedStyle(card).getPropertyValue("--accent"));
+  void thead.offsetWidth; thead.classList.add("on");
+}
 function syncDom() {
   ch1El.classList.toggle("on", targetS >= LAND && targetS < LOCK_END);   // chapter I's kicker arrives with the chaos and goes at the lock, so it never hangs alone over chapter II
+  // its papers and award, listed under it on a wide screen, each from the step its trail is born until the dated labels go
+  var trlSt = trlShown() ? stepAt(targetS) : -1;
+  for (var ti = 0; ti < trlEls.length; ti++) trlEls[ti].classList.toggle("on", trlSt >= TR[ti].a);
   plantEl.classList.toggle("off", targetS >= P_ON);                  // in the same slot, the plant line holds while planting lives
   var nm = targetS >= NAME_S;
   if (nm !== named) { named = nm; strip.classList.toggle("named", nm); }
@@ -7401,6 +7445,7 @@ window.__walk = {
   stats: function () { return stats.slice(); },
   view: function () { return view && { pp: view.pp, k: view.k, half: view.sc.half, dpr: dpr, step: view.sc.step, Ox: view.Ox, Oy: view.Oy, cx: view.sc.c[0], cy: view.sc.c[1] }; },
   mapFit: function () { return { p: mapP, half: mapHalf, bb: BB.slice() }; }, marks: function () { return pmLast.slice(); }, shown: function () { return shownS; },
+  wrapOver: function () { return Object.assign({}, wrapOver); },
   camAt: function (s) { var c = camAt(s); return [c.c[0], c.c[1], c.pf]; }, reduced: RM, drawn: function () { return drawn.slice(); }, instrAt: instrAt,
   running: function () { return running; }, plants: function () { return plants.map(function (p) { return { n: p.n, x: p.x, y: p.y, tok: TOKENS[p.tok - 1] }; }); },
   plantCells: function () { var n = 0; for (var i = 0; i < plt.length; i++) if (plt[i]) n++; return n; }, fading: function () { return fading.length; },
@@ -7678,26 +7723,21 @@ window.__walk = {
 })();
 </script>
 <script>
-/* ---------- hidden ants: three eggs after chapter I; each plants exactly one ant, one runs at a time ---------- */
-// Each egg's ant is a turmite whose run of `steps` comes home to its egg on a symmetric figure: Langton's RL at 472,
-// LLRR at 5,480 and RLR at 616 (checked here: a run that does not end on its start cell keeps its egg hidden). Only
-// odd-state cells show, as in the blooms, so a many-state rule draws its lace rather than a slab.
+/* ---------- the hidden ant: one egg on the map; it plants exactly one ant ---------- */
+// The egg's ant is Langton's own RL, the page's two rules, run from a blank grid: it comes home to its egg on a
+// symmetric figure at step 472 (checked here: a run that does not end on its start cell keeps its egg hidden). Only
+// odd-state cells show, as in the blooms.
 // The run is computed once, so any step is exact; the clock eases it out over `ms`, and reduced motion plants the
 // last step at once. The ant draws on its own small canvas, a box no text, figure, road or bloom comes within 24px of
-// (16px on a map with no room at 24).
+// (16px on a map with no room at 24); the label it shows once home keeps 8px clear of the same.
 (function () {
   var d0 = document, RM = matchMedia("(prefers-reduced-motion: reduce)").matches, TOUCH = matchMedia("(hover: none)").matches;
-  var DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0], C = 4, M = 24, R = 64;
-  var EGGS = [
-    { id: "map", rule: "RL", steps: 472, hue: "v-cyan", ms: 1800 },
-    { id: "work", rule: "LLRR", steps: 5480, hue: "v-amber", ms: 3000 },
-    { id: "end", rule: "RLR", steps: 616, hue: "v-green", ms: 2000 }
-  ];
+  var DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0], C = 4, M = 24, R = 64, CW = 11 * 0.6 + 0.44;   // CW: one 11px mono cell, tracked .04em
+  var EGGS = [{ id: "map", rule: "RL", steps: 472, hue: "v-cyan", ms: 1800 }];
   var root = getComputedStyle(d0.documentElement), INK = root.getPropertyValue("--ink").trim();
-  var places = d0.getElementById("places"), doc = d0.getElementById("doc"), work = d0.getElementById("work"), resume = d0.getElementById("resume");
-  if (!places || !doc || !work || !resume) return;
-  var endSp = d0.createElement("div"); endSp.className = "egg-end"; doc.appendChild(endSp);
-  var active = null, tallyEl = null, marks = [], tallyT = null, win = null, last = null;
+  var places = d0.getElementById("places");
+  if (!places) return;
+  var active = null, tallyEl = null, found = false;
   EGGS.forEach(function (e) {
     var g = new Uint8Array(R * R), x = R >> 1, y = R >> 1, d = 0, n = e.rule.length, bx = [x, y, x, y];
     e.at = new Uint16Array(e.steps); e.to = new Uint8Array(e.steps); e.hp = new Uint16Array(e.steps);
@@ -7715,13 +7755,17 @@ window.__walk = {
     var mk = d0.createElement("i"); mk.setAttribute("aria-hidden", "true"); b.appendChild(mk);
     var h = d0.createElement("span"); h.className = "egg-h"; h.setAttribute("aria-hidden", "true");
     h.textContent = "a hidden ant · " + (TOUCH ? "tap" : "click") + " to let it out"; b.appendChild(h);
-    var fn = d0.createElement("span"); fn.className = "egg-n"; fn.setAttribute("aria-hidden", "true"); b.appendChild(fn); e.fn = fn;
+    // its label, one line or three: the ant in its hue, then what it is (the step count is the run's own)
+    var fn = d0.createElement("span"); fn.className = "egg-n"; fn.setAttribute("aria-hidden", "true");
+    var parts = ["a second ant", " · ", "the same two rules,", " ", "home at step " + e.steps];
+    parts.forEach(function (t, k) { var s = d0.createElement(k ? "span" : "b"); if (k & 1) s.className = "sp"; s.textContent = t; fn.appendChild(s); });
+    e.lw = [Math.ceil(parts.join("").length * CW), Math.ceil(Math.max(parts[0].length, parts[2].length, parts[4].length) * CW)];
+    b.appendChild(fn); e.fn = fn;
     var cv = d0.createElement("canvas"); cv.className = "egg-cv"; cv.setAttribute("aria-hidden", "true");
     b.addEventListener("click", function (ev) { ev.preventDefault(); ev.stopPropagation(); plant(e); });
-    e.b = b; e.cv = cv; e.par = e.id === "map" ? places : doc;
+    e.b = b; e.cv = cv; e.par = places;
     if (!e.home) { b.hidden = true; cv.hidden = true; }
-    if (e.id === "work") work.after(cv, b);         // in tab order right after the section it sits under, not after the colophon
-    else { e.par.appendChild(cv); e.par.appendChild(b); }
+    places.appendChild(cv); places.appendChild(b);
   });
   // the ant at step k: replayed forward from where it is, or from the start when k is behind it
   function seek(e, k) {
@@ -7735,7 +7779,7 @@ window.__walk = {
     for (var y = e.bx[1]; y <= e.bx[3]; y++) for (var x = e.bx[0]; x <= e.bx[2]; x++) if (e.g[y * R + x] & 1) g2.fillRect((x - e.bx[0]) * P, (y - e.bx[1]) * P, P, P);
     if (head && e.n > 0) { var hp = e.hp[e.n - 1]; g2.fillStyle = INK; g2.fillRect((hp % R - e.bx[0]) * P, (((hp / R) | 0) - e.bx[1]) * P, P, P); }
   }
-  function settle(e) { seek(e, e.steps); e.done = true; draw(e, false); e.b.classList.add("done"); if (active === e) active = null; if (e === last) reward(); }
+  function settle(e) { seek(e, e.steps); e.done = true; draw(e, false); e.b.classList.add("done"); if (active === e) active = null; }
   function tick(now) {
     var e = active; if (!e) return;
     var f = Math.min(1, (now - e.t0) / e.ms);
@@ -7744,60 +7788,38 @@ window.__walk = {
   }
   function plant(e) {
     if (e.t0 || !e.home) return;                        // one ant per egg
-    if (active) settle(active);                          // and one running at a time: the last one lands at its end
     e.t0 = performance.now(); e.b.classList.remove("cue");
-    e.b.setAttribute("aria-disabled", "true"); e.b.setAttribute("aria-label", "hidden ant found");
-    if (findable().every(function (q) { return q.t0; })) { last = e; gather(); if (e.id === "end") { ready = seen = true; show(); play(); } }
-    tally();
+    e.b.setAttribute("aria-disabled", "true"); e.b.setAttribute("aria-label", "hidden ant found: " + e.fn.textContent);
+    found = true; tally();
     if (RM) { settle(e); return; }
     active = e; draw(e, true); requestAnimationFrame(tick);
   }
-  // a box at (x, y) in its parent's CSS px: the canvas covers the ant's whole run, the egg sits on its start cell
+  // a box at (x, y) in the map's CSS px: the canvas covers the ant's whole run, the egg sits on its start cell
   function place(e, x, y) {
     x = Math.round(x); y = Math.round(y);
     var s = e.cv.style; s.left = x + "px"; s.top = y + "px"; s.width = e.W * C + "px"; s.height = e.H * C + "px";
     var bw = e.b.offsetWidth || 24, cx = x + ((R >> 1) - e.bx[0] + 0.5) * C, cy = y + ((R >> 1) - e.bx[1] + 0.5) * C;
     e.b.style.left = Math.round(cx - bw / 2) + "px"; e.b.style.top = Math.round(cy - bw / 2) + "px";
-    // the count sits centred under the ant's box, inside the 24px every box keeps clear
-    var pr = e.par.getBoundingClientRect(), rt = pr.left + cx > d0.documentElement.clientWidth / 2;
-    e.fn.style.left = Math.round(x + (rt ? e.W * C : e.W * C / 2) - (cx - bw / 2)) + "px"; e.fn.style.top = Math.round(y + e.H * C + 4 - (cy - bw / 2)) + "px";
-    e.fn.classList.toggle("r", rt); e.at0 = [x, y];
+    var rt = e.rt, sd = e.side === 1, lx = sd ? (rt ? x - 8 : x + e.W * C + 8) : x + (rt ? e.W * C : 0);
+    var ly = sd ? y : e.side === 2 ? y - (e.st ? 48 : 16) - 4 : y + e.H * C + 4;
+    lx += rt ? 4 : -4;                                   // its plate's 4px padding sits outside the label's box
+    e.fn.style.left = Math.round(lx - (cx - bw / 2)) + "px"; e.fn.style.top = Math.round(ly - (cy - bw / 2)) + "px";
+    e.fn.classList.toggle("r", rt); e.fn.classList.toggle("st", !!e.st);
     e.b.classList.toggle("l", rt);
-    if (win && last === e && e.par !== places) seat();
     if (e.t0) draw(e, active === e);
   }
-  // the eggs this layout can show: a map with no free spot keeps its egg hidden, and the count is then out of two
-  function findable() { return EGGS.filter(function (e) { return e.home && (e.t0 || !e.b.hidden); }); }
+  // the map's caption row says the ant is there until it is found, then the line goes
   function tally() {
-    var n = EGGS.filter(function (e) { return e.t0; }).length, N = Math.max(n, findable().length);
-    EGGS.forEach(function (e) {
-      e.fn.textContent = ""; var r = d0.createElement("b"); r.textContent = e.rule; e.fn.appendChild(r);
-      if (!fin) e.fn.appendChild(d0.createTextNode(" · " + n + " of " + N + " found"));
-    });
+    var e = EGGS[0], on = !found && e.home && e.free;
     if (!tallyEl) return;
-    // where the row has room, the tally points at the first ant, the one on this map, until it is found
-    var vw = d0.documentElement.clientWidth, m = EGGS[0], won = !!(win && last && last.par === places);
-    if (won) {                                        // the link stays in place across relayouts, so its one cue plays once
-      if (tallyT.lastChild !== win || tallyT.childNodes.length !== 2) { tallyT.textContent = ""; tallyT.appendChild(d0.createTextNode("")); tallyT.appendChild(win); }
-      tallyT.firstChild.nodeValue = n + " of " + N + " · ";
-    }
-    else tallyT.textContent = n + " of " + N + " hidden ants found" + (vw >= 600 && !m.t0 && m.free && m.home ? " · one is on this map" : "");
-    EGGS.forEach(function (e, i) { marks[i].classList.toggle("on", !!e.t0); marks[i].hidden = findable().indexOf(e) < 0; });
-    tallyEl.classList.toggle("won", won); fitWon();
+    // the line stays in the caption row and is only hidden, so a layout that finds a spot again (a rotation back) shows it
+    if (on && !tallyEl.firstChild) { var sq = d0.createElement("span"); sq.className = "eg-sq"; sq.setAttribute("aria-hidden", "true"); tallyEl.appendChild(sq); tallyEl.appendChild(d0.createTextNode("a hidden ant is on this map")); }
+    tallyEl.hidden = !on;
   }
-  // the payoff in the caption row: where it and the caption's first words cannot share the row (a phone, a short
-  // landscape) it takes the whole row and the caption steps aside while the map is up
-  function fitWon() {
-    var mc = d0.getElementById("mapcap"), won = tallyEl.classList.contains("won");
-    if (!mc) return;
-    mc.classList.remove("won");
-    if (!won) return;
-    var t = mc.querySelector(".mc-t").getBoundingClientRect(), r = tallyEl.getBoundingClientRect();
-    if (mc.classList.contains("ph") || (!mc.classList.contains("lo") && t.right + 24 > r.left)) mc.classList.add("won");
-  }
-  // the map: the free spot nearest the map's centre, on an 8px grid, every obstacle grown by the 24px margin; where
-  // that leaves no spot (a narrow phone's map), the same search at 16px
-  function freeSpot(o, m) {
+  // the free spot nearest the map's centre, on an 8px grid, every obstacle grown by the margin m; the label under the box
+  // (one line, else three), or above it, or beside it where neither has room, keeps 8px clear of every obstacle and 16px
+  // inside the screen. side: 0 under, 1 beside, 2 above
+  function freeSpot(o, m, st, side, lax) {
     var e = EGGS[0], bw = e.W * C, bh = e.H * C, G = 8, VW = d0.documentElement.clientWidth, VH = window.innerHeight;
     var gw = Math.ceil(VW / G) + 1, gh = Math.ceil(VH / G) + 1, I = new Int32Array((gw + 1) * (gh + 1)), occ = new Uint8Array(gw * gh);
     o.ob.forEach(function (r) {
@@ -7806,168 +7828,48 @@ window.__walk = {
       for (var y = y0; y < y1; y++) for (var x = x0; x < x1; x++) occ[y * gw + x] = 1;
     });
     for (var y = 0; y < gh; y++) for (var x = 0, rs = 0; x < gw; x++) { rs += occ[y * gw + x]; I[(y + 1) * (gw + 1) + x + 1] = I[y * (gw + 1) + x + 1] + rs; }
-    var cw = Math.ceil(bw / G), ch = Math.ceil(bh / G), best = null, bd = 1e18, FW = 124;   // FW: 'RL · 3 of 3 found' at 11px
+    var cw = Math.ceil(bw / G), ch = Math.ceil(bh / G), best = null, bd = 1e18, FW = e.lw[st ? 1 : 0], FH = st ? 48 : 16;
     for (var gy = Math.ceil(o.box[1] / G); (gy + ch) * G <= o.box[3]; gy++) for (var gx = Math.ceil(o.box[0] / G); (gx + cw) * G <= o.box[2]; gx++) {
       var sum = I[(gy + ch) * (gw + 1) + gx + cw] - I[gy * (gw + 1) + gx + cw] - I[(gy + ch) * (gw + 1) + gx] + I[gy * (gw + 1) + gx];
       if (sum) continue;
-      // the count under the box (centred, or ending with the box when its egg is in the right half) keeps 8px clear of every obstacle
-      var fl = gx * G + ((R >> 1) - e.bx[0] + 0.5) * C > VW / 2 ? gx * G + bw - FW : gx * G + bw / 2 - FW / 2, ft = gy * G + bh + 4;
-      if (fl < 8 || o.ob.some(function (r) { return r[0] - 8 < fl + FW && r[2] + 8 > fl && r[1] - 8 < ft + 16 && r[3] + 8 > ft; })) continue;
+      var rt = gx * G + ((R >> 1) - e.bx[0] + 0.5) * C > VW / 2;
+      var fl = side === 1 ? (rt ? gx * G - 8 - FW : gx * G + bw + 8) : (rt ? gx * G + bw - FW : gx * G);
+      var ft = side === 1 ? gy * G : side === 2 ? gy * G - FH - 4 : gy * G + bh + 4;
+      if (fl < 16 || fl + FW > VW - 16 || ft < 8 || ft + FH > VH - 8) continue;
+      if (o.ob.some(function (r) { return !(lax && o.soft && o.soft.indexOf(r) >= 0) && r[0] - 8 < fl + FW && r[2] + 8 > fl && r[1] - 8 < ft + FH && r[3] + 8 > ft; })) continue;
       var dx = gx * G + bw / 2 - o.anchor[0], dy = gy * G + bh / 2 - o.anchor[1], dd = dx * dx + dy * dy;
-      if (dd < bd) { bd = dd; best = [gx * G, gy * G]; }
+      if (dd < bd) { bd = dd; best = [gx * G, gy * G, rt]; }
     }
     return best;
   }
   window.__eggMap = function (o) {
-    var e = EGGS[0], best = freeSpot(o, M) || freeSpot(o, 16);
+    // one line under the box, then three, then three beside it; then the same at 16px; then above the box, at 24px and
+    // at 16px; then a label on its plate may cover the edge of a bloom's reach (a narrow phone's map); last, the same
+    // at 8px, the closest the ant comes to anything (the shortest phone's map)
+    var e = EGGS[0], best = null, tries = [[M, 0, 0], [M, 1, 0], [M, 1, 1], [16, 0, 0], [16, 1, 0], [16, 1, 1],
+      [M, 0, 2], [M, 1, 2], [16, 0, 2], [16, 1, 2], [16, 1, 0, 1], [16, 1, 1, 1], [16, 1, 2, 1], [8, 1, 0, 1], [8, 1, 1, 1], [8, 1, 2, 1]];
+    for (var k = 0; k < tries.length && !best; k++) { var t = tries[k]; best = freeSpot(o, t[0], t[1], t[2], t[3]); e.st = t[1]; e.side = t[2]; e.lax = !!t[3]; }
     e.free = !!best;
     e.b.hidden = e.cv.hidden = !best || !e.home;           // no free spot: this layout keeps the egg hidden
-    if (best) place(e, best[0], best[1]);
+    if (best) { e.rt = best[2]; place(e, best[0], best[1]); }
     if (!tallyEl) {
-      tallyEl = d0.createElement("p"); tallyEl.className = "egg-tally";
-      var tm = d0.createElement("span"); tm.className = "egg-tm"; tm.setAttribute("aria-hidden", "true");
-      EGGS.forEach(function (q) { var i = d0.createElement("i"); i.style.setProperty("--eh", "var(--" + q.hue + ")"); tm.appendChild(i); marks.push(i); });
-      tallyT = d0.createElement("span"); tallyEl.appendChild(tm); tallyEl.appendChild(tallyT); (d0.getElementById("mapcap") || places).appendChild(tallyEl);
+      tallyEl = d0.createElement("p"); tallyEl.className = "egg-tally"; (d0.getElementById("mapcap") || places).appendChild(tallyEl);
     }
     tally();
   };
   if (window.__eggMapAt) window.__eggMap(window.__eggMapAt);
-  // the document: one box in the gap between all the work and the résumé, one in the room after the colophon, each
-  // flush with the column's right edge
-  function layoutDoc() {
-    var dr = doc.getBoundingClientRect(), w = work.getBoundingClientRect(), r = resume.getBoundingClientRect(), sp = endSp.getBoundingClientRect();
-    var right = Math.min(w.right, d0.documentElement.clientWidth - 16) - dr.left, e = EGGS[1];
-    place(e, right - e.W * C, w.bottom - dr.top + (r.top - w.bottom - e.H * C) / 2);
-    e = EGGS[2]; place(e, right - e.W * C, sp.top - dr.top + (sp.height - e.H * C) / 2);
-  }
-  if (window.ResizeObserver) new ResizeObserver(layoutDoc).observe(work);
-  window.addEventListener("resize", function () { layoutDoc(); fsize(); });
-  if (d0.fonts && d0.fonts.ready) d0.fonts.ready.then(layoutDoc);
-  layoutDoc();
-  // all found: the ants gather after the colophon (gather, built at the last click so its room exists before it
-  // plays). The map's ant found last: the caption row links down to them (tally), never a plate over the map. The work
-  // gap's ant found last: a link beside it, level with its box's foot. The end's ant found last: the row starts
-  // regrowing in that click while the page brings it into view, so the scroll lands on figures already moving.
-  var fin = null, fsp = [], fC = 0, ready = false, played = false;
-  function gather() {
-    if (fin) return;
-    fin = d0.createElement("section"); fin.className = "egg-fin"; fin.id = "egg-fin"; fin.setAttribute("aria-label", "the hidden ants, found");
-    var k = d0.createElement("p"); k.className = "ef-k"; k.textContent = "hidden ants"; fin.appendChild(k);
-    var hd = d0.createElement("h2"); hd.className = "ef-h"; fin.appendChild(hd);
-    var row = d0.createElement("ol"); row.className = "ef-row"; row.setAttribute("data-src", "Olivesz/emergence@910b296:README.md#L23"); fin.appendChild(row);
-    findable().forEach(function (e) {
-      var li = d0.createElement("li"); li.style.setProperty("--eh", "var(--" + e.hue + ")");
-      var cv = d0.createElement("canvas"); cv.setAttribute("aria-hidden", "true"); li.appendChild(cv);
-      var n = d0.createElement("p"); n.className = "ef-n"; var b = d0.createElement("b"); b.textContent = e.rule; n.appendChild(b);
-      n.appendChild(d0.createTextNode(e.rule === "RL" ? "Langton’s ant" : "turmite")); li.appendChild(n);
-      row.appendChild(li); fsp.push({ e: e, li: li, cv: cv, g: new Uint8Array(R * R), n: 0 });
-    });
-    hd.textContent = (fsp.length === 3 ? "All three" : fsp.length === 2 ? "Both" : "All") + " found.";
-    var t = d0.createElement("p"); t.className = "ef-t";
-    t.appendChild(d0.createTextNode("One letter per cell colour: R turns right, L turns left. This page’s own ant is RL, Langton’s ant. "));
-    var a = d0.createElement("a"); a.href = "https://olivesz.github.io/emergence/"; a.target = "_blank"; a.rel = "noopener noreferrer";
-    a.textContent = "run any rule: emergence, act I\u00a0"; var ar = d0.createElement("span"); ar.setAttribute("aria-hidden", "true"); ar.textContent = "→"; a.appendChild(ar);
-    t.appendChild(a); fin.appendChild(t);
-    endSp.after(fin);
-    fsize();
-    if (window.IntersectionObserver) new IntersectionObserver(function (es) { if (es[0].intersectionRatio >= 0.5) { seen = true; play(); } }, { threshold: [0, 0.5, 1] }).observe(fin);
-    else seen = true;
-  }
-  var seen = false;
-  // the cell size: the largest (12, 6 on a phone) at which the row keeps to one line of the column
-  function fsize() {
-    if (!fin) return;
-    var row = fin.querySelector(".ef-row"), top = function () { return fsp.map(function (q) { return q.li.offsetTop + q.li.offsetHeight; }); };   // one line: every foot on the row's baseline
-    for (fC = d0.documentElement.clientWidth >= 1024 ? 12 : 6; fC >= 2; fC--) {
-      fsp.forEach(function (q) { q.cv.style.width = q.e.W * fC + "px"; q.cv.style.height = q.e.H * fC + "px"; });
-      var o = top(); if (o.every(function (y) { return y === o[0]; }) && row.scrollWidth <= row.clientWidth) break;
-    }
-    fsp.forEach(function (q) { fdraw(q, false); });
-  }
-  function fseek(q, k) {
-    if (k < q.n) { q.g.fill(0); q.n = 0; }
-    for (; q.n < k; q.n++) q.g[q.e.at[q.n]] = q.e.to[q.n];
-  }
-  function fdraw(q, head) {
-    var e = q.e, cv = q.cv, P = Math.max(1, Math.round(fC * (window.devicePixelRatio || 1)));
-    if (cv.width !== e.W * P || cv.height !== e.H * P) { cv.width = e.W * P; cv.height = e.H * P; }
-    var g2 = cv.getContext("2d"); g2.clearRect(0, 0, cv.width, cv.height); g2.fillStyle = e.col;
-    for (var y = e.bx[1]; y <= e.bx[3]; y++) for (var x = e.bx[0]; x <= e.bx[2]; x++) if (q.g[y * R + x] & 1) g2.fillRect((x - e.bx[0]) * P, (y - e.bx[1]) * P, P, P);
-    if (head && q.n > 0 && q.n < e.steps) { var hp = e.hp[q.n - 1]; g2.fillStyle = INK; g2.fillRect((hp % R - e.bx[0]) * P, (((hp / R) | 0) - e.bx[1]) * P, P, P); }
-  }
-  // all of them at once, a beat apart, each on its own run's clock (four fifths of its egg's); reduced motion: the end
-  function play() {
-    if (!ready || played || !seen) return;
-    played = true;
-    if (RM) { fsp.forEach(function (q) { fseek(q, q.e.steps); fdraw(q, false); q.li.classList.add("go", "home"); }); return; }
-    var t0 = performance.now();
-    (function step(now) {
-      var live = false;
-      fsp.forEach(function (q, i) {
-        var f = Math.max(0, Math.min(1, (now - t0 - i * 240) / (q.e.ms * 0.8)));
-        if (q.li.classList.contains("home")) return;
-        if (f > 0) q.li.classList.add("go");
-        fseek(q, Math.round(q.e.steps * (1 - Math.pow(1 - f, 3)))); fdraw(q, f < 1);
-        if (f < 1) live = true; else q.li.classList.add("home");
-      });
-      if (live) requestAnimationFrame(step);
-    })(t0);
-  }
-  // the end's own ant found last: in that click, scroll the row toward view, its foot in view where the screen is tall
-  // enough, never so far that the ant just let out leaves the top (the strip is over it)
-  function show() {
-    var r = fin.getBoundingClientRect(), a = EGGS[2].cv.getBoundingClientRect(), st = d0.getElementById("strip");
-    var dy = Math.round(Math.min(r.bottom + 24 - window.innerHeight, a.top - (st ? st.getBoundingClientRect().bottom : 40) - 16));
-    if (dy > 0) window.scrollBy({ top: dy, behavior: RM ? "auto" : "smooth" });
-  }
-  function reward() {
-    ready = true;
-    var map = last.par === places;
-    if (!win && last.id !== "end") {
-      win = d0.createElement("span");
-      var a = d0.createElement("a"); a.href = "#egg-fin"; a.textContent = "see all " + fsp.length + " together\u00a0";
-      var ar = d0.createElement("span"); ar.setAttribute("aria-hidden", "true"); ar.textContent = "↓"; a.appendChild(ar); win.appendChild(a);
-    }
-    if (map) {                                        // far from the ant just let out: underlined in its hue, it blinks once to be seen
-      win.className = ""; win.style.setProperty("--eh", "var(--" + last.hue + ")"); tally();
-      requestAnimationFrame(function () { win.classList.add("cue"); });
-    }
-    else if (win) {
-      if (win.tagName !== "P") { var p = d0.createElement("p"); p.className = "egg-win"; p.appendChild(win); win = p; }
-      if (win.parentNode !== last.par) last.par.appendChild(win);
-      seat();
-      requestAnimationFrame(function () { win.classList.add("on"); });
-    }
-    play();
-  }
-  function seat() {
-    if (!win || last.par === places) return;
-    var e = last, x = e.at0[0], y = e.at0[1], bw = e.W * C, VW = d0.documentElement.clientWidth, pr = e.par.getBoundingClientRect();
-    var col = e.par === doc ? work.getBoundingClientRect() : { left: 16, right: VW - 16 };
-    var lo = Math.max(16, col.left) - pr.left, hi = Math.min(VW - 16, col.right) - pr.left, gap = 16;
-    var left = x - gap - lo >= hi - (x + bw + gap) || e.par === doc, w = Math.min(320, left ? x - gap - lo : hi - (x + bw + gap));
-    win.classList.toggle("r", left); win.style.width = Math.round(w) + "px";
-    win.style.top = Math.round(y + e.H * C - win.offsetHeight) + "px";       // ends level with the box: the count under it stays clear
-    win.style.left = Math.round(left ? x - gap - w : x + bw + gap) + "px";
-  }
-  // the cue: an egg that has sat whole on screen for 700 ms blinks its ring and shows its hint once. The map's egg is on
-  // screen only while the places are (#places.on, not parked); the document's are watched by one IntersectionObserver
+  // the cue: once the map has formed and the egg has sat on screen for 700 ms, its ring blinks twice, once. The egg is on
+  // screen only while the places are (#places.on, not parked)
   function cue(e) {
     if (e.cued || e.t0 || e.b.hidden) return;
-    var W = window.__walk;                       // the map's egg cues once the map has formed, not while the pull-back zooms out
-    if (e === EGGS[0] && W && scrollY / W.S() < W.MAPS - 0.01) { e.ct = setTimeout(function () { cue(e); }, 300); return; }
+    var W = window.__walk;                       // the egg cues once the map has formed, not while the pull-back zooms out
+    if (W && scrollY / W.S() < W.MAPS - 0.01) { e.ct = setTimeout(function () { cue(e); }, 300); return; }
     e.cued = true; e.b.classList.add("cue");
     setTimeout(function () { e.b.classList.remove("cue"); }, 2400);
   }
   function arm(e, on) {
     clearTimeout(e.ct);
     if (on && !e.cued) e.ct = setTimeout(function () { cue(e); }, 700);
-  }
-  if (window.IntersectionObserver) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (x) { var e = EGGS.filter(function (q) { return q.b === x.target; })[0]; if (e) { arm(e, x.intersectionRatio >= 0.99); e.b.classList.toggle("inv", x.intersectionRatio >= 0.99); } });
-    }, { threshold: [0, 1] });
-    io.observe(EGGS[1].b); io.observe(EGGS[2].b);
   }
   if (window.MutationObserver) new MutationObserver(function () {
     arm(EGGS[0], places.classList.contains("on") && !places.classList.contains("park") && !EGGS[0].b.hidden);
@@ -7976,14 +7878,15 @@ window.__walk = {
   window.__eggs = {
     list: function () {
       return EGGS.map(function (e) {
-        var r = e.cv.getBoundingClientRect(), q = e.b.getBoundingClientRect(), lit = 0;
+        var r = e.cv.getBoundingClientRect(), q = e.b.getBoundingClientRect(), f = e.fn.getBoundingClientRect(), lit = 0;
         for (var i = 0; i < e.g.length; i++) if (e.g[i] & 1) lit++;
         return { id: e.id, hue: e.hue, home: e.home, shown: !e.b.hidden, planted: !!e.t0, done: !!e.done, running: active === e, n: e.n, steps: e.steps, lit: lit,
-          box: [r.left, r.top, r.width, r.height], egg: [q.left, q.top, q.width, q.height] };
+          box: [r.left, r.top, r.width, r.height], egg: [q.left, q.top, q.width, q.height], label: e.fn.textContent,
+          labelBox: [f.left, f.top, f.width, f.height], lax: !!e.lax, labelShown: getComputedStyle(e.fn).visibility === "visible" };
       });
     },
     running: function () { return active ? 1 : 0; },
-    tally: function () { return tallyEl ? tallyEl.textContent : null; }
+    tally: function () { return tallyEl && !tallyEl.hidden ? tallyEl.textContent : null; }
   };
 })();
 </script>

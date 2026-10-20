@@ -1245,20 +1245,8 @@ EGG_NEAR_JS = r"""(i) => { const e = __eggs.list()[i], b = e.box, M = 24, out = 
     return { near: out.slice(0, 4), scene: __walk.sceneId(scrollY / __walk.S()), inView: b[1] >= 40 && b[1] + b[3] <= innerHeight, e }; }"""
 
 
-# the gathering after the colophon, built by the last find: one li per findable ant, each canvas's lit pixels, every li's
-# foot on one line, the row's overflow, and the act I link's target
-EGG_FIN_JS = r"""() => { const f = document.getElementById('egg-fin'); if (!f) return null; const row = f.querySelector('.ef-row');
-    const lis = [...f.querySelectorAll('.ef-row > li')], a = f.querySelector('.ef-t a');
-    return { n: lis.length, home: lis.map(l => l.classList.contains('home')),
-      lit: lis.map(l => { const c = l.querySelector('canvas'); if (!c || !c.width) return 0; const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-        let k = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) k++; return k; }),
-      feet: lis.map(l => Math.round(l.getBoundingClientRect().bottom)), over: row.scrollWidth - row.clientWidth,
-      link: a ? [a.target, a.rel] : null,
-      strip: document.getElementById('strip') ? document.getElementById('strip').getBoundingClientRect().bottom : 40 }; }"""
-
-
 def egg_session(v, reduced):
-    """a fresh page: bring each egg into view (the map egg at the map), check its surroundings, then plant it"""
+    """a fresh page: bring the map's egg into view at the map, check its surroundings, then plant it"""
     ctx = v.run.browser.new_context(reduced_motion="reduce" if reduced else "no-preference", **VIEWPORTS[v.name])
     log, bad = [], []
     try:
@@ -1267,122 +1255,92 @@ def egg_session(v, reduced):
         pg.wait_for_function("() => window.__walk && window.__eggs && __walk.stations.length", timeout=20000)
         pg.wait_for_timeout(600)
         eggs = pg.evaluate("() => __eggs.list()")
-        if len(eggs) != 3:
-            return [f"{len(eggs)} eggs, not 3"], log
+        if len(eggs) != 1 or eggs[0]["id"] != "map":
+            return [f"{len(eggs)} eggs ({[e['id'] for e in eggs]}), not the map's one"], log
+        if pg.evaluate("() => document.querySelectorAll('.egg').length") != 1:
+            return ["more than one .egg button on the page"], log
         S = pg.evaluate("() => __walk.S()")
-        for i in range(3):
-            if i == 0:
-                y = round(pg.evaluate("() => __walk.MAPS") * S) + 4
+        y = round(pg.evaluate("() => __walk.MAPS") * S) + 4
+        y0 = pg.evaluate("scrollY")
+        for k in range(1, 9):
+            pg.evaluate(f"scrollTo(0, {round(y0 + (y - y0) * k / 8)})")
+            pg.wait_for_timeout(40)
+        pg.wait_for_timeout(900)
+        q = pg.evaluate(EGG_NEAR_JS, 0)
+        e = q["e"]
+        if not e["shown"] or not e["home"]:
+            return [f"egg {e['id']} is not shown (home {e['home']})"], log
+        if q["scene"] in ("landing", "chaos", "lock") or not q["inView"]:
+            bad.append(f"egg {e['id']} seen in scene {q['scene']}, box in view {q['inView']}")
+        if q["near"]:
+            bad.append(f"egg {e['id']} has {', '.join(q['near'])} within 24px of its box")
+        if e["planted"] or e["lit"] or e["labelShown"]:
+            bad.append(f"egg {e['id']} planted (or labelled) before a click")
+        tl0 = pg.evaluate("() => __eggs.tally()")
+        x, yy = e["egg"][0] + e["egg"][2] / 2, e["egg"][1] + e["egg"][3] / 2
+        (pg.touchscreen.tap if v.phone else pg.mouse.click)(x, yy)
+        pg.wait_for_timeout(30)
+        runs, last = [], None
+        for _ in range(30):                      # 2.4s: past its clock (1.8s)
+            st = pg.evaluate("() => [__eggs.running(), __eggs.list()]")
+            runs.append(st[0]); last = st[1]
+            if reduced and len(runs) == 1:
+                first = st[1][0]
+                if first["running"] or not first["done"] or first["n"] != first["steps"]:
+                    bad.append(f"egg at n {first['n']} of {first['steps']}, running {first['running']}, right after the click")
+            pg.wait_for_timeout(80)
+        me = last[0]
+        if not me["done"] or me["n"] != me["steps"] or me["running"] or not me["lit"]:
+            bad.append(f"egg did not settle: n {me['n']} of {me['steps']}, lit {me['lit']}, running {me['running']}")
+        if not reduced and len(set(runs)) < 2:
+            bad.append(f"egg never ran on a clock (running samples {sorted(set(runs))})")
+        # home: the run ends on the egg's own start cell, the cell under the egg's centre
+        home = pg.evaluate("() => { const e = __eggs.list()[0]; return e.home; }")
+        if not home:
+            bad.append("the egg's run does not end on its start cell")
+        # its label shows once home, inside the screen, clear of the map's text
+        lb = me["labelBox"]
+        vw = pg.evaluate("() => document.documentElement.clientWidth")
+        if not me["labelShown"] or "a second ant" not in me["label"] or f"home at step {me['steps']}" not in me["label"]:
+            bad.append(f"label {me['label']!r} shown {me['labelShown']}")
+        if lb[0] < 8 or lb[0] + lb[2] > vw - 8:
+            bad.append(f"label box {[round(t) for t in lb]} leaves the screen ({vw}px)")
+        # its plate cuts no bloom: the label box meets no bloom's reach (__eggMapAt.soft), unless the map had no spot
+        # short of the last-resort tries (lax), as on the 390px phone at 3x
+        if not me.get("lax"):
+            soft = pg.evaluate("() => window.__eggMapAt ? __eggMapAt.soft : null")
+            if soft is None:
+                bad.append("window.__eggMapAt.soft is absent")
             else:
-                y = pg.evaluate("(i) => { const e = __eggs.list()[i]; return Math.round(e.box[1] + scrollY + e.box[3] / 2 - innerHeight / 2); }", i)
-            y0 = pg.evaluate("scrollY")
-            for k in range(1, 9):
-                pg.evaluate(f"scrollTo(0, {round(y0 + (y - y0) * k / 8)})")
-                pg.wait_for_timeout(40)
-            pg.wait_for_timeout(900)
-            q = pg.evaluate(EGG_NEAR_JS, i)
-            e = q["e"]
-            if not e["shown"] or not e["home"]:
-                bad.append(f"egg {e['id']} is not shown (home {e['home']})")
-                continue
-            if q["scene"] in ("landing", "chaos", "lock") or not q["inView"]:
-                bad.append(f"egg {e['id']} seen in scene {q['scene']}, box in view {q['inView']}")
-            if q["near"]:
-                bad.append(f"egg {e['id']} has {', '.join(q['near'])} within 24px of its box")
-            if e["planted"] or e["lit"]:
-                bad.append(f"egg {e['id']} planted before a click")
-            x, yy = e["egg"][0] + e["egg"][2] / 2, e["egg"][1] + e["egg"][3] / 2
-            (pg.touchscreen.tap if v.phone else pg.mouse.click)(x, yy)
-            pg.wait_for_timeout(30)
-            runs, last = [], None
-            t0 = time.time(); early = None
-            for _ in range(45):                      # 3.6s: past the longest clock (3s)
-                st = pg.evaluate("() => [__eggs.running(), __eggs.list()]")
-                runs.append(st[0]); last = st[1]
-                if reduced and len(runs) == 1:
-                    first = st[1][i]
-                    if first["running"] or not first["done"] or first["n"] != first["steps"]:
-                        bad.append(f"egg {e['id']} at n {first['n']} of {first['steps']}, running {first['running']}, right after the click")
-                    if i == 2:                           # the last find: the gathering is drawn whole at once
-                        g = pg.evaluate(EGG_FIN_JS)
-                        if not g or not all(g["home"]) or not all(g["lit"]):
-                            bad.append(f"the gathering right after the last find: {g and (g['home'], g['lit'])}")
-                if i == 2 and not reduced and early is None and time.time() - t0 > 0.6:
-                    early, early_t = pg.evaluate(EGG_FIN_JS), time.time() - t0   # the end's ant found last: the row is already regrowing as the page brings it in
-                if i < 2 and len(runs) == 3 and not reduced:   # a second egg while this one runs: the first lands, one runs
-                    pass
-                pg.wait_for_timeout(80)
-            me = last[i]
-            if max(runs) > 1:
-                bad.append(f"{max(runs)} egg ants ran at once")
-            if not me["done"] or me["n"] != me["steps"] or me["running"] or not me["lit"]:
-                bad.append(f"egg {e['id']} did not settle: n {me['n']} of {me['steps']}, lit {me['lit']}, running {me['running']}")
-            if not reduced and len(set(runs)) < 2:
-                bad.append(f"egg {e['id']} never ran on a clock (running samples {sorted(set(runs))})")
-            # a second click plants nothing: the same one ant
-            (pg.touchscreen.tap if v.phone else pg.mouse.click)(x, yy)
-            pg.wait_for_timeout(120)
-            again = pg.evaluate("(i) => __eggs.list()[i]", i)
-            if (again["n"], again["lit"], again["running"]) != (me["n"], me["lit"], False):
-                bad.append(f"egg {e['id']} planted again on a second click")
-            log.append(f"{e['id']} {me['lit']} cells at step {me['n']}")
-            if i == 2:
-                if early is not None and not any(early["lit"]):
-                    bad.append(f"the gathering is still empty {early_t:.1f}s after the last find (lit {early['lit']})")
-                g = pg.evaluate(EGG_FIN_JS)
-                if g and me["box"][1] < g["strip"] - 0.5:
-                    bad.append(f"the end's ant was scrolled under the strip (top {me['box'][1]:.0f}, strip {g['strip']:.0f})")
-        # the cap: two eggs clicked back to back on one screen never run two ants; replay it on the hooks' own clock
-        cap = pg.evaluate("""() => { const L = __eggs.list(); return L.filter(e => e.planted).length; }""")
-        if cap != 3:
-            bad.append(f"{cap} of 3 eggs planted")
+                for r in soft:
+                    if r[0] < lb[0] + lb[2] and r[2] > lb[0] and r[1] < lb[1] + lb[3] and r[3] > lb[1]:
+                        bad.append(f"label box {[round(t) for t in lb]} covers a bloom's reach {[round(t) for t in r]}")
+        # a second click plants nothing: the same one ant
+        (pg.touchscreen.tap if v.phone else pg.mouse.click)(x, yy)
+        pg.wait_for_timeout(120)
+        again = pg.evaluate("() => __eggs.list()[0]")
+        if (again["n"], again["lit"], again["running"]) != (me["n"], me["lit"], False):
+            bad.append("egg planted again on a second click")
         tl = pg.evaluate("() => __eggs.tally()")
-        if not tl or "3 of 3 hidden ants found" not in tl:
-            bad.append(f"the map's tally reads {tl!r} after all three")
-        # the gathering: every findable ant home, lit, on one line of the column, and the act I link opens a new tab
-        try:
-            pg.wait_for_function("() => { const l = document.querySelectorAll('#egg-fin .ef-row > li'); return l.length && [...l].every(x => x.classList.contains('home')); }", timeout=6000)
-        except Exception:
-            pass
-        g = pg.evaluate(EGG_FIN_JS)
-        if not g:
-            bad.append("no gathering (#egg-fin) after all three")
-        else:
-            if g["n"] != cap or not all(g["home"]) or not all(g["lit"]):
-                bad.append(f"gathering: {g['n']} figures for {cap} found, home {g['home']}, lit pixels {g['lit']}")
-            if len(set(g["feet"])) > 1 or g["over"] > 0:
-                bad.append(f"gathering is not one line: feet {g['feet']}, overflow {g['over']}px")
-            if not g["link"] or g["link"][0] != "_blank" or "noopener" not in g["link"][1]:
-                bad.append(f"gathering link target/rel {g['link']}")
-            log.append(f"gathering {g['n']} figures home on one line")
+        cap = pg.evaluate("() => document.getElementById('mapcap').textContent + ' ' + document.getElementById('places').textContent")
+        for t in (tl0 or "", tl or "", cap):
+            if re.search(r"\d+\s+of\s+\d+", t):
+                bad.append(f"a tally with a denominator: {t!r}")
+        if tl:
+            bad.append(f"the map's line is still up after the find: {tl!r}")
+        log.append(f"{me['lit']} cells at step {me['n']}, line before {tl0!r}, label {'on a last-resort spot' if me.get('lax') else 'clear of every bloom'}")
     finally:
         ctx.close()
     return bad, log
 
 
-EGG_CAP_JS = r"""async () => { const L = () => __eggs.list(), b = [...document.querySelectorAll('.egg')];
-    const seen = []; b[1].click(); seen.push(__eggs.running()); b[2].click(); seen.push(__eggs.running());
-    const a = L(); await new Promise(r => setTimeout(r, 100)); seen.push(__eggs.running());
-    return { seen, first: [a[1].done, a[1].n, a[1].steps], second: [a[2].running, a[2].planted] }; }"""
-
-
 def a_eggs(v):
     if v.js("() => !!window.__eggs") is not True:
-        raise Missing("window.__eggs (the hidden ants) is absent")
+        raise Missing("window.__eggs (the hidden ant) is absent")
     bad, log = egg_session(v, False)
     rb, _ = egg_session(v, True)
     bad += ["reduced motion: " + b for b in rb]
-    # the cap, as one script: egg 2's click lands egg 1 (done at its last step) and only egg 2 runs
-    ctx = v.run.browser.new_context(**VIEWPORTS[v.name])
-    try:
-        pg = ctx.new_page(); pg.goto(v.run.url, wait_until="load")
-        pg.wait_for_function("() => window.__eggs && __eggs.list().length === 3", timeout=20000)
-        c = pg.evaluate(EGG_CAP_JS)
-        if max(c["seen"]) > 1 or c["first"][:1] != [True] or c["first"][1] != c["first"][2] or c["second"] != [True, True]:
-            bad.append(f"cap: running {c['seen']}, first egg done/n/steps {c['first']}, second running/planted {c['second']}")
-    finally:
-        ctx.close()
-    return not bad, "; ".join(bad[:4]) if bad else "3 eggs clear of text after chapter I; " + ", ".join(log) + "; one runs at a time; reduced motion plants the end state"
+    return not bad, "; ".join(bad[:4]) if bad else "one egg on the map, clear of text; " + ", ".join(log) + "; plants once, comes home, shows its label, no denominator; reduced motion plants the end state"
 
 
 def a_listeners(v):
@@ -3503,13 +3461,24 @@ def a_heldlabels(v):
     return not bad, f"{n} frames past a hold with a cell figure on screen, {len(bad)} without a label" + ("; " + "; ".join(bad[:3]) if bad else "")
 
 
+TITLES_JS = "() => [...document.querySelectorAll('.card h2')].map(h => h.textContent.trim()).filter(Boolean)"
+
+
+def named_twice(got, want, titles):
+    """the chapter titles a drawn caption row names more often than its own line does: a prefix that repeats the
+    title the line already opens with"""
+    return [t for t in titles if got.count(t) > max(1, want.count(t))]
+
+
 def a_caption(v):
     """The caption row draws its instruction whole. The canvas text drawn below the art box at a hold, joined in
-    line order, must equal the instruction for that scroll position: a line cut to fit the row fails here."""
+    line order, must equal the instruction for that scroll position: a line cut to fit the row fails here. No drawn
+    row names its figure's title twice."""
     g = v.geometry()
     if not v.hook("drawn") or not v.hook("instrAt"):
         raise Missing("__walk.drawn() or __walk.instrAt() is absent")
     bad, n, most = [], 0, 0
+    titles = v.js(TITLES_JS)
     for sid, s in station_samples(g):
         f = v.frame_at(s)
         fig, want, dr = f.get("figure"), f.get("instr"), f.get("drawn")
@@ -3522,7 +3491,18 @@ def a_caption(v):
         got = " ".join(d[0] for d in rows)
         if got != want:
             bad.append(f"{sid} s {s:.2f}: drew {got!r} for {want!r}")
+        tw = named_twice(got, want, titles)
+        if tw:
+            bad.append(f"{sid} s {s:.2f}: the row names {tw[0]} twice: {got[:60]!r}")
     m = f"{n - len(bad)} of {n} held frames draw the whole instruction below the art box, in at most {most} lines"
+    # an upright phone's row holds two lines: every caption it drew on the walk fitted them (the page records any that did not)
+    if v.phone and not v.name.startswith("land"):
+        over = v.js("() => __walk.wrapOver ? __walk.wrapOver() : null")
+        if over is None:
+            raise Missing("__walk.wrapOver() is absent")
+        if over:
+            bad.append(f"captions over two lines: {list(over.items())[:2]}")
+        m += f"; {len(over)} captions over two lines"
     if bad:
         m += "; " + "; ".join(bad[:2])
     return not bad, m
@@ -3605,16 +3585,23 @@ def a_named(v):
     g = v.geometry()
     st = g["stations"]
     bad, n = [], 0
+    titles = v.js(TITLES_JS)
     for i in range(1, len(st)):
         a, b = st[i - 1][2], st[i][1]
         for y in range(int(a * v.S) + 50, int(b * v.S), 50):
             v.scroll_s(y / v.S)
             v.settle(1200)
             v.page.wait_for_timeout(300)
+            # the caption row as drawn: the canvas text in the band's last 44px, with or without a figure above it
+            row = v.js("""(band) => { const d = __ct.get('drawn'); if (!Array.isArray(d)) return null;
+                return d.filter(x => x[2] > band - 48 && x[2] <= band + 4 && x[3] > 0.5).sort((p, q) => p[2] - q[2] || p[1] - q[1]).map(x => x[0]).join(' '); }""", v.band)
             q = v.js("""(band) => { const t = [...__ct.cards().list].some(c => { const h = c.el.querySelector('h1,h2'); if (!h) return false;
                 const r = h.getBoundingClientRect(), op = +getComputedStyle(c.el).opacity; return op > 0.5 && r.top >= band - 1 && r.bottom <= innerHeight; });
                 const c = __walk.caption(); return { t, who: c.who, kick: c.kick, text: c.text }; }""", v.band)
             n += 1
+            tw = named_twice(row or "", q["text"] or "", titles)
+            if tw:
+                bad.append(f"y {y}: the caption row names {tw[0]} twice: {row[:60]!r}")
             if q["t"]:
                 continue
             if not q["text"] or not q["who"] or not q["kick"]:
@@ -4780,7 +4767,7 @@ ASSERTIONS = [
     ("fills", ("desktop", "phone"), a_fills, "canvas fill/stroke styles and bitmap values are packed tokens; no glow, no filter"),
     ("work", ("desktop", "phone", "phone-small"), a_work, "all the work: five theme blobs in order, each naming its signature projects by the binding rule (each named once, the chapters in their own themes) and counting the rest, its area following its count; at rest the first theme open and picked where the panel has its own column (1024px and wider), else no list, line or chip; a pick opens every project in the theme, signatures first, all shown and sourced, every blob in its own hue and only the picked one ringed; the picked blob again rests, a tag picks its theme, a click between blobs picks nothing; tokens (the vivid set included) and DOM sizes only in every state, --t-* never on :root; at 1440x900 the section is <= 844px at rest and a pick keeps the status and first project in view with the blobs still; keyboard (desktop) and taps (phone) pick; the blobs grow once on arrival without moving anything, whole at once under reduced motion"),
     ("workland", ("land",), a_workland, "all the work on a phone on its side: a tap on a theme brings its status line and first project into view below the strip"),
-    ("eggs", ("desktop", "phone"), a_eggs, "three hidden ants after chapter I, none within 24px of text; each plants exactly one ant that runs on a clock and settles at its last step; one runs at a time; reduced motion plants the end state at once; the map's tally counts them; the last find gathers every found ant after the colophon, regrowing from that click, home on one line, its link in a new tab"),
+    ("eggs", ("desktop", "phone"), a_eggs, "one hidden ant on the map, none within 24px of text; it plants exactly one ant that runs on a clock, comes home at its last step and shows its label inside the screen; no tally carries a denominator, and the map's line goes once it is found; reduced motion plants the end state at once"),
     ("listeners", ("desktop", "phone"), a_listeners, "no wheel, touch or key listener at all, hooked before load"),
     ("scrollto", ("desktop", "phone"), a_scrollto, "no page-initiated scroll outside a click (a resize may restore the place, see resize)"),
     ("resize", ("desktop", "phone"), a_resize, "a resize or rotation at a transit, each hold and the résumé keeps the scene, its fraction and the résumé line"),

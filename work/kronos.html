@@ -52,11 +52,6 @@
 @media (max-width:1023px){ .k-switch[hidden]{display:inline-block;visibility:hidden} }
 .k-btns{display:flex;flex:none;gap:8px}
 @media (max-width:767px){ .k-btns{flex:1 1 100%;flex-wrap:wrap;row-gap:8px} .hero-fig .replay .rw{display:none} }
-/* a phone held sideways: the one-line lede joins the title on the first screen, and the hero frame follows it */
-@media (max-width:1023px) and (max-height:500px){
-  .lx-hero{grid-template-areas:"t" "l" "f"} .lx-hero-d{display:contents}
-  .lx-hero .lx-hero-d>.lx-lede{grid-area:l;margin-top:12px}
-}
 /* the drawdown column reads the other way from the Sharpe column beside it: a shorter bar is better. The cue sits at
    the header's right end, or on its own line on a phone, where 'worst fall', its share of SPY's and the cue take a line
    each and both keys hold three lines, so the two numbers stay level */

@@ -42,7 +42,7 @@
 .lg-r .kd{color:var(--body)}
 .lg-r.nw{border-left-color:var(--v-cyan)}
 .lg-nudge{display:flex;align-items:center;gap:8px;padding:4px 0}
-.lg-nudge::before{content:"";flex:1 1 auto;border-top:1px dashed var(--trail);order:2}
+.lg-nudge::before{content:"";flex:1 1 auto;border-top:1px dashed var(--v-cyan);order:2}
 .err{outline:1px solid var(--v-red);outline-offset:1px}
 .say{padding:8px 16px 7px;border:1px solid var(--copper);color:var(--ink);font:400 15px/24px var(--sg);min-height:41px}
 .cx-task{display:flex;gap:16px;align-items:baseline;padding:4px 0 12px;color:var(--ink)}
@@ -99,15 +99,15 @@
 .lp-wall .shaft{flex:0 0 96px;border-top:1px dashed var(--muted)}
 .lp-wall .wl{flex:none;width:2px;height:24px;background:var(--v-red)}
 .lp-back{display:flex;align-items:center;gap:8px;margin-top:16px}
-.lp-back .shaft{flex:1 1 auto;border-top:1px dashed var(--trail)}
-.lp-back .tipl{flex:none;border-style:solid;border-width:4px 7px 4px 0;border-color:transparent var(--trail) transparent transparent}
+.lp-back .shaft{flex:1 1 auto;border-top:1px dashed var(--v-cyan)}
+.lp-back .tipl{flex:none;border-style:solid;border-width:4px 7px 4px 0;border-color:transparent var(--v-cyan) transparent transparent}
 .lp-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 /* fig 3: a square travels each arrow as its step arrives */
 .sc-art .ar .pl,.lp-wall .pl,.lp-back .pl{position:absolute;width:6px;height:6px;opacity:0;pointer-events:none}
 .sc-art .ar .pl{left:4px;top:33px;background:var(--v-cyan)}
 .lp-wall .shaft,.lp-back .shaft{position:relative}
 .lp-wall .pl{left:0;top:-4px;background:var(--v-cyan)}
-.lp-back .pl{left:100%;top:-4px;background:var(--trail)}
+.lp-back .pl{left:100%;top:-4px;background:var(--v-cyan)}
 .scene.js .on .pl.go,.scene.js .on.pl.go{animation:pl-x 760ms var(--ease-enter) 160ms 1 both}
 .scene.js .lp-wall.on .pl.go{animation-name:pl-wall;animation-duration:900ms}
 .scene.js .lp-back.on .pl.go{animation-name:pl-back;animation-duration:1100ms}
@@ -175,7 +175,7 @@
 /* fig 10: the nudge */
 .ng-gate{display:flex;align-items:center;gap:8px;margin-top:8px;padding:4px 8px;border:1px solid var(--copper);color:var(--ink)}
 .ng-gate.shut{border-color:var(--trail)}
-.ng-text{margin-top:16px;padding:8px;border:1px dashed var(--trail);color:var(--ink);overflow-wrap:anywhere;white-space:pre-wrap}
+.ng-text{margin-top:16px;padding:8px;border:1px dashed var(--v-cyan);color:var(--ink);overflow-wrap:anywhere;white-space:pre-wrap}
 .ng-text.unsent,.ng-text.done{border-color:var(--rule)} .ng-text .wait{color:var(--muted)}
 /* fig 11, 12: the audit and the guard */
 .pth{color:var(--ink);overflow-wrap:anywhere}
@@ -595,7 +595,7 @@ button.vd{min-height:24px}
             <li data-key="nudge" data-at="4" data-src="Olivesz/custos-code@f3737f8:src/custos_code/hooks.py#L80">In auto mode (off by default), a contradicted claim blocks the stop and goes back to the agent.</li>
             <li data-key="legend" data-at="5">Every claim ends with one of <span data-derived="the five verdicts README.md#L5 names">five</span> verdicts. The rest of the page builds each part.</li>
           </ol>
-          <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 3</span>The whole loop on the demo session. Dashed pink: the path back to the agent in auto mode.</figcaption>
+          <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 3</span>The whole loop on the demo session. Dashed cyan: the path back to the agent in auto mode.</figcaption>
         </figure>
 <p class="lx-pull mid">The agent can say anything. The verdict only listens to the log.</p>
       </div>

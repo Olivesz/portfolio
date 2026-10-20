@@ -170,7 +170,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig .ln-ref{fill:none;stroke:var(--muted);stroke-width:1px}
 .ig .hd{fill:var(--copper)} .ig .hd-a{fill:var(--accent)}
 /* contradicted: the ant's pink, as a mark and never as text, the same on the index, the case study and the deep dive */
-.ig .ln-t{fill:none;stroke:var(--trail);stroke-width:1px} .ig .hd-t,.ig .mk-t{fill:var(--trail)}
+.ig .ln-t{fill:none;stroke:var(--v-cyan);stroke-width:1px} .ig .hd-t{fill:var(--v-cyan)} .ig .mk-t{fill:var(--trail)}
 .ig .cell{fill:var(--accent)} .ig .cell-i{fill:var(--ink)} .ig .cell-o{fill:var(--residue)} .ig .cell-g{fill:var(--copper)}
 .ig .ax{fill:none;stroke:var(--rule);stroke-width:1px}
 .ig .c-llm{fill:var(--t-llm)} .ig .c-verify{fill:var(--t-verify)} .ig .c-systems{fill:var(--t-systems)}
@@ -311,7 +311,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"t" "f" "d";padding-top:48px}
 .lx-hero-t{grid-area:t} .lx-hero-d{grid-area:d} .lx-hero .lx-shot{grid-area:f}
 .lx-hero h1{margin-top:8px;font:500 72px/72px var(--sg);letter-spacing:-.03em;color:var(--ink)}
-.lx-lede{margin-top:16px;max-width:448px;font:400 15px/24px var(--sg);color:var(--ink)}
+.lx-lede{margin-top:16px;max-width:448px;font:400 15px/24px var(--sg);color:var(--ink);text-wrap:pretty}
 .lx-lede+.lx-lede{color:var(--body)}
 .lx-hero-d>.lx-lede:first-child{margin-top:0}
 .lx-hero .facts{margin-top:32px;max-width:448px}
@@ -323,6 +323,21 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 }
 @media (max-width:1279px){ .lx-hero .lx-shot{margin-top:24px} .lx-hero-d{margin-top:24px} }
 @media (max-width:1023px){ .lx-hero{padding-top:24px} .lx-hero h1{font-size:44px;line-height:48px;margin-top:4px} }
+/* one column (under 1280 px: a phone either way up, a tablet, a small laptop window): the title, the one-line lede
+   and the result come first, so the first screen says what the work is and what it showed; the figure follows, then
+   the rest of the words (a second line, the buttons, the facts) in their own order. A page with no result reads
+   title, lede, figure */
+@media (max-width:1279px){
+  .lx-hero{display:flex;flex-direction:column}
+  .lx-hero-d{display:contents}
+  .lx-hero-t{order:0} .lx-hero-d>*{order:4}
+  .lx-hero-d>.lx-lede:first-of-type{order:1;margin-top:16px}
+  .lx-hero-d>.lx-led{order:2}
+  .lx-hero .lx-shot{order:3;margin-top:32px}
+  .lx-hero-d>.lx-lede:not(:first-of-type){margin-top:24px}
+  /* a role line (who did what) stays with the lede it qualifies */
+  .lx-hero-d>.lx-lede.lx-role{order:1;margin-top:8px}
+}
 /* the arrival canvas: over the band above the figure's corner, never over words, never takes a click */
 .lx-arrive-cv{position:absolute;z-index:1;pointer-events:none}
 /* the hero's words rise in once, kicker first (CSS only, so it needs no script; reduced motion rests) */
@@ -399,7 +414,8 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-cmp .me .v{color:var(--accent)}
 .lx-cmp .me i{background:var(--accent)}
 .lx-cmp .ew i{background:none;border:1px solid var(--ink)}
-.lx-foot{margin-top:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.lx-foot{margin-top:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted);text-wrap:pretty}
+.lx-foot .nw{white-space:nowrap}
 /* the key a phone shows once instead of a name on every row */
 .lx-key{display:none;flex-wrap:wrap;gap:4px 16px;margin-top:12px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .lx-key span{display:inline-flex;align-items:center;gap:8px}
@@ -433,7 +449,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-state{margin-top:16px;max-width:832px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink);text-wrap:balance}
 .lx-state.long{font:500 30px/40px var(--sg);letter-spacing:-.015em}
 @media (max-width:1023px){ .lx-state{font-size:30px;line-height:40px;letter-spacing:-.015em} .lx-state.long,.lx-state.mid{font:500 15px/24px var(--sg);letter-spacing:0} }
-@media (max-width:767px){ .lx-sh{padding-top:12px} .lx-state{margin-top:12px} .lx-body{margin-top:16px} .lx-foot .def{display:none} .lx-hero-d{margin-top:16px} }
+@media (max-width:767px){ .lx-sh{padding-top:12px} .lx-state{margin-top:12px} .lx-body{margin-top:16px} .lx-foot .def{display:none} .lx-hero .lx-shot{margin-top:24px} }
 
 /* the story: prose at a 640 px measure; at 1280 and up a figure sits beside its prose instead of under it */
 .lx-body{margin-top:24px}

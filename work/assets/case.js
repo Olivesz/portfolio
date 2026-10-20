@@ -18,8 +18,9 @@
 })();
 
 /* case studies: a figure marked [data-play] plays once when half of it is on screen (40% of the screen for a tall
-   one; on the first screen, before any scroll, a sixth of the screen will do, so a phone opens on it playing rather
-   than on a still frame), keeps its final state and then offers replay. While it plays, its clock runs only while it
+   one; on the first screen, before any scroll, a sixth of the screen will do, so a hero figure beside the words opens
+   playing rather than on a still frame; one set under the words waits until its top is in the upper half of the
+   screen), keeps its final state and then offers replay. While it plays, its clock runs only while it
    is on screen: under a sixth of the screen (or half of a short figure) it pauses where it is (case:pause, state
    "paused") and carries on when it is back (case:resume), so a reader who scrolls past mid-play and comes back meets
    it where they left it, never finished unseen. Figures listen for case:play, case:pause, case:resume and case:rest on
@@ -61,18 +62,42 @@
     }
     if (btn) btn.addEventListener("click", play);
     if (reduce || !("IntersectionObserver" in window)) { stage.dataset.state = "rest"; fire(stage, "case:rest"); return; }
-    var io = new IntersectionObserver(function (es) {
+    // a hero figure set under the hero's words (one column) waits for the reader to come to it: it holds its first
+    // frame until its top is in the upper half of the screen, so it never plays out while the words above are read.
+    // Beside the words (two columns) the first-screen rule stands
+    var host = stage.closest(".lx-hero"), started = false, sq = 0;
+    function under(sr) {
+      return !!host && [].some.call(host.querySelectorAll(".lx-hero-d > *"), function (el) {
+        var r = el.getBoundingClientRect();
+        return r.height > 0 && r.bottom <= sr.top + 1 && r.right > sr.left && r.left < sr.right;
+      });
+    }
+    function due(r, vis) {
+      if (r.height <= 0 || r.bottom <= 0 || r.top >= innerHeight) return false;
+      if (under(r)) return r.top <= innerHeight * 0.5;
+      return vis >= Math.min(r.height * 0.5, innerHeight * (window.scrollY < 1 ? 1 / 6 : 0.4)) - 1;
+    }
+    function go() {
+      if (started) return;
+      started = true; io.disconnect(); window.removeEventListener("scroll", look);
       // on the first screen at load, the figure holds its first frame until the heading has risen in (0.6 s)
-      for (var i = 0; i < es.length; i++) {
-        var e = es[i], need = Math.min(e.boundingClientRect.height * 0.5, innerHeight * (window.scrollY < 1 ? 1 / 6 : 0.4));
-        if (!e.isIntersecting || e.intersectionRect.height < need - 1) continue;
-        io.disconnect();
-        var wait = 600 - (window.performance && performance.now ? performance.now() : 600);
-        if (wait > 0) setTimeout(play, wait); else play();
-        return;
-      }
+      var wait = 600 - (window.performance && performance.now ? performance.now() : 600);
+      if (wait > 0) setTimeout(play, wait); else play();
+    }
+    var io = new IntersectionObserver(function (es) {
+      for (var i = 0; i < es.length; i++) if (es[i].isIntersecting && due(es[i].boundingClientRect, es[i].intersectionRect.height)) return go();
     }, { threshold: steps });
+    // a figure wholly on screen crosses no threshold as its top moves up to the middle, so the hero's is also read on
+    // scroll until it starts
+    function look() {
+      if (sq || started) return;
+      sq = requestAnimationFrame(function () {
+        sq = 0; var r = stage.getBoundingClientRect();
+        if (due(r, Math.max(0, Math.min(r.bottom, innerHeight) - Math.max(r.top, 0)))) go();
+      });
+    }
     io.observe(stage);
+    if (host) window.addEventListener("scroll", look, { passive: true });
   }
   // figure scripts register their listeners first, so this runs after them (deferred, last in the body)
   var stages = document.querySelectorAll("[data-play]");
@@ -237,25 +262,21 @@
       var hb = host.getBoundingClientRect(), fb = fig.getBoundingClientRect(), wd = wide(), c = wd ? 4 : 3, p = pitch(c), cc = p / dpr();
       // desktop: into the top-left corner, heading down and to the left as on the index; below 1280 the figure spans
       // the column, so into the top-right corner, heading down and to the right, through the room beside the title
-      var dir = wd ? [-1, 1] : [1, 1], cx = wd ? fb.left : fb.right, cy = fb.top;
-      // the band is the one the page has at its top, wherever the reader is when this runs: the strip's foot is
-      // measured on the page, not on the screen, so a reader who scrolls before the fonts are in still meets the ant
-      var H = cy + W.scrollY - (stripB() + 4), Wd;
-      // the band is the largest square on the corner kept 12 px clear of the title's words: each line of the kicker, the
-      // title and the one-liner is an obstacle, and a line ends the band's height unless it ends short of the band's
-      // width on the side away from the corner
-      var obs = [];
-      [].forEach.call(host.querySelectorAll(".lx-hero-t > *"), function (el) {
-        var rg = D.createRange(); rg.selectNodeContents(el);
-        [].forEach.call(rg.getClientRects(), function (r) { if (r.width > 0) obs.push(r); });
-      });
-      obs.forEach(function (r) {
-        if (r.bottom >= cy) return;
-        var side = wd ? (r.right <= cx ? Infinity : r.left - cx - 12) : (r.left >= cx ? Infinity : cx - r.right - 12);
-        H = Math.min(H, Math.max(side, cy - r.bottom - 12));
-      });
+      var dir = wd ? [-1, 1] : [1, 1], cx = wd ? fb.left : fb.right, cy = fb.top, least = 48, Wd;
+      // the band is the largest square on the corner kept 12 px clear of the words above the figure: each line of the
+      // kicker, the title and the one-liner (and, in one column, the lede and the result set above it) is an obstacle,
+      // and a line ends the band's height unless it ends short of the band's width on the side away from the corner
+      var H = square(cx, cy, Infinity, ".lx-hero-t > *, .lx-hero-d > *", wd, false);
+      // in one column the lede and the result sit between the title and the figure, so the corner has no room: the band
+      // moves up beside the title, its foot on the title's last line, its top no higher than the kicker's, its far side
+      // the column's edge, and the ant walks in there when that square is at least 64 px
+      var h1 = host.querySelector(".lx-hero-t h1"), k0 = host.querySelector(".lx-hero-t > *");
+      if (H < least && !wd && h1 && k0) {
+        cy = h1.getBoundingClientRect().bottom; least = 64;
+        H = square(cx, cy, cy - k0.getBoundingClientRect().top, ".lx-hero-t > *", wd, true);
+      }
       Wd = Math.max(0, H);
-      if (H < 48) { A.box = null; cv.style.display = "none"; return; }
+      if (H < least) { A.box = null; cv.style.display = "none"; return; }
       cv.style.display = "";
       var rows = Math.floor(H / cc), cols = Math.floor((Wd + 8) / cc);
       var bx = wd ? cx - 2 * cc : cx - (cols - 2) * cc, by = cy - rows * cc;   // two cells of slack on the corner's side
@@ -268,6 +289,22 @@
       s0 = Math.max(HW0, N - Math.ceil((Math.min(rows, cols) + 14) / 2 * 104));
       A.headY = by + (rows - 1) * cc + W.scrollY; A.headC = cc;
       fit(cv, cols * p, rows * p);
+    }
+    // the largest square on the corner (cx, cy), at most cap tall: the band is the one the page has at its top, wherever
+    // the reader is when this runs (the strip's foot is measured on the page, not on the screen, so a reader who scrolls
+    // before the fonts are in still meets the ant). A line counts if it ends above the corner, or with foot set, if it
+    // starts above it (the title's last line, which the band stands beside)
+    function square(cx, cy, cap, sel, wd, foot) {
+      var H = Math.min(cap, cy + W.scrollY - (stripB() + 4));
+      [].forEach.call(host.querySelectorAll(sel), function (el) {
+        var rg = D.createRange(); rg.selectNodeContents(el);
+        [].forEach.call(rg.getClientRects(), function (r) {
+          if (r.width <= 0 || (foot ? r.top >= cy : r.bottom >= cy)) return;
+          var side = wd ? (r.right <= cx ? Infinity : r.left - cx - 12) : (r.left >= cx ? Infinity : cx - r.right - 12);
+          H = Math.min(H, Math.max(side, cy - r.bottom - 12));
+        });
+      });
+      return H;
     }
     function reset() { grid = new Map(); at = s0; }
     function to(s) { for (; at < s; at++) { grid.set(L.px[at] * G + L.py[at], { on: L.on[at], t: at }); } }
@@ -330,9 +367,9 @@
       if (A.done) { layout(); reset(); if (A.box) { draw(N); last = N; } road.paint(true); return; }
       layout(); reset();
       if (!A.box) { finish(); return; }
-      // reduced motion, or a page opened below its hero: the ant is simply where it rests
-      var fb = fig.getBoundingClientRect();
-      if (REDUCE || fb.top > W.innerHeight || fb.bottom < 0) { draw(N); last = N; finish(); return; }
+      // reduced motion, or a page opened with the band off screen (scrolled below its hero): the ant is simply where it
+      // rests
+      if (REDUCE || !headInView()) { draw(N); last = N; finish(); return; }
       A.started = true; draw(s0); road.paint(true);
       raf = requestAnimationFrame(frame);
     }
@@ -343,9 +380,11 @@
       if (raf) { cancelAnimationFrame(raf); raf = 0; }
       layout(); reset(); if (A.box) { draw(N); last = N; } if (!A.done) finish(); else road.paint(true);
     }, { passive: true });
-    // lay out once the fonts are in and the title has finished rising (its lines are the band's obstacles)
-    var waits = [D.fonts && D.fonts.ready ? D.fonts.ready : Promise.resolve()];
-    [].forEach.call(host.querySelectorAll(".lx-hero-t > *"), function (el) {
+    // lay out once the fonts are in and the words above the figure have finished rising (their lines are the band's
+    // obstacles)
+    var waits = [D.fonts && D.fonts.ready ? D.fonts.ready : Promise.resolve()], ft = fig.getBoundingClientRect().top;
+    [].forEach.call(host.querySelectorAll(".lx-hero-t > *, .lx-hero-d > *"), function (el) {
+      if (el.getBoundingClientRect().top >= ft) return;
       if (el.getAnimations) el.getAnimations().forEach(function (a) { waits.push(a.finished.catch(function () {})); });
     });
     Promise.all(waits).then(function () { requestAnimationFrame(start); });
@@ -518,12 +557,16 @@
   })();
 
   /* ---------------- 3. arrival builds ---------------- */
-  // bars in whole 4 px cells: read every width, then write every width (no layout thrash); --n is the bar's cells
+  // bars in whole 4 px cells: read every width, then write every width (no layout thrash); --n is the bar's cells. A
+  // bar whose value is zero is a 1 px tick at the scale's start, never a cell that would read as a count
   function cells() {
     var bars = [].slice.call(D.querySelectorAll(".lx-cmp i"));
     bars.forEach(function (b) { b.style.width = ""; });
     var w = bars.map(function (b) { return b.offsetWidth; });
-    bars.forEach(function (b, i) { var n = Math.max(1, Math.round(w[i] / 4)); b.style.width = n * 4 + "px"; b.style.setProperty("--n", n); });
+    bars.forEach(function (b, i) {
+      if (parseFloat(b.style.getPropertyValue("--w")) === 0) { b.style.width = Math.max(1, Math.round(dpr())) / dpr() + "px"; b.style.setProperty("--n", 1); return; }
+      var n = Math.max(1, Math.round(w[i] / 4)); b.style.width = n * 4 + "px"; b.style.setProperty("--n", n);
+    });
   }
   cells();
   W.addEventListener("resize", cells, { passive: true });

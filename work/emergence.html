@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>emergence · Oliver Zhang</title>
-<meta name="description" content="Eight cellular-automaton acts end in a SAP-1 CPU, run as a gate-level netlist.">
+<meta name="description" content="Eight cellular automata, one engine: from a one-line rule to a CPU.">
 <meta property="og:title" content="emergence · Oliver Zhang">
-<meta property="og:description" content="Eight cellular-automaton acts end in a SAP-1 CPU, run as a gate-level netlist.">
+<meta property="og:description" content="Eight cellular automata, one engine: from a one-line rule to a CPU.">
 <meta property="og:url" content="https://olivesz.github.io/portfolio/work/emergence.html">
 <meta property="og:image" content="https://olivesz.github.io/portfolio/work/og/emergence.jpg">
 <meta property="og:image:type" content="image/jpeg">
@@ -56,13 +56,17 @@
 .em-scrub::-moz-range-thumb{width:8px;height:16px;border:0;border-radius:0;background:var(--accent)}
 .em-scrub:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
 @media (pointer:coarse){ .em-scrub{height:32px} }
-/* a phone has no slack: the look-for row, the caption's colour key and the ledger's memory note are left to wider
-   screens, the second line of the lede is said again, word for word, in the results' proven list, and the year row
-   is left out too. The caption keeps two lines (the bar above names the figure) and the station sits close under its
-   bar, so the lede ends inside the first screen */
+/* the result's scope note names its first word in body ink */
+.lx-foot .em-sc{color:var(--body)}
+.lx-lede .nw{white-space:nowrap}
+/* the result is two counts with no bars under them: side by side wherever the column holds both at 72 px (and at 44 px under 1280) */
+@media (min-width:1440px){ .lx-led .lx-mg{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px} }
+/* a phone has no slack: the look-for row and the caption's colour key are left to wider screens, and the year row is
+   left out too. The caption keeps two lines (the bar above names the figure) */
 @media (max-width:767px){
-  #top .look,.lx-lede.em-l2,.facts .em-yr,#hero-cap .n,#hero-cap .em-w,#top .lx-foot{display:none}
-  #hero-cap .em-nb{white-space:nowrap} #top.lx-hero .lx-shot{margin-top:16px}
+  #top .look,.facts .em-yr,#hero-cap .n,#hero-cap .em-w{display:none}
+  #hero-cap .em-nb{white-space:nowrap}
+  .lx-led .lx-m .k{min-height:0}
   #top .stage{min-height:494px}
   .em{margin:16px 0 0}
 }
@@ -113,30 +117,20 @@
     </figcaption>
     </figure>
     <div class="lx-hero-d">
-      <p class="lx-lede lx-up" style="--d:2" data-src="Olivesz/emergence@910b296:README.md#L5">Eight cellular-automaton acts end in a SAP-1 CPU, run as a gate-level netlist.</p>
-      <p class="lx-lede lx-up em-l2" style="--d:3" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">Compiled to raw Wireworld, a full adder, a 4-bit counter and a D flip-flop match their netlists on every clock.</p>
-      <section class="lx-led lx-arrive" data-lx-load aria-label="result: SAP-1 against SAP-2, the same two primitives">
-        <p class="lx-led-h"><span class="a">result</span> <span class="sep">·</span> one gate-level netlist of <span data-src="Olivesz/emergence@910b296:cpu/README.md#L5-L6">two primitives</span>, <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">not yet compiled whole into Wireworld</span></p>
-        <p class="lx-key" aria-hidden="true"><span class="me">SAP-1</span><span class="ew">SAP-2</span></p>
+      <p class="lx-lede lx-up" style="--d:2" data-src="Olivesz/emergence@910b296:README.md#L5">Eight cellular automata, one engine: from a <span class="nw">one-line</span> rule to a CPU.</p>
+      <section class="lx-led lx-arrive" data-lx-load aria-label="result: SAP-1 as one netlist of two primitives">
+        <p class="lx-led-h"><span class="a">result</span> <span class="sep">·</span> <span data-src="Olivesz/emergence@910b296:cpu/README.md#L3-L6">SAP-1, the Simple-As-Possible teaching CPU, runs as one netlist of two primitives</span></p>
         <ul class="lx-mg">
           <li class="lx-m">
             <span class="k">NAND gates</span>
             <span class="lx-big a" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446</span>
-            <div class="lx-cmp" role="table" aria-label="NAND gates, SAP-1 and SAP-2">
-              <div role="row" class="me"><span role="rowheader">SAP-1</span><i style="--w:7.7" aria-hidden="true"></i><span role="cell" class="v" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446</span></div>
-              <div role="row" class="ew"><span role="rowheader">SAP-2</span><i style="--w:100" aria-hidden="true"></i><span role="cell" class="v" data-src="Olivesz/emergence@910b296:cpu/README.md#L104">18,895</span></div>
-            </div>
           </li>
           <li class="lx-m">
             <span class="k">flip-flops</span>
             <span class="lx-big a" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">175</span>
-            <div class="lx-cmp" role="table" aria-label="flip-flops, SAP-1 and SAP-2">
-              <div role="row" class="me"><span role="rowheader">SAP-1</span><i style="--w:8.3" aria-hidden="true"></i><span role="cell" class="v" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">175</span></div>
-              <div role="row" class="ew"><span role="rowheader">SAP-2</span><i style="--w:100" aria-hidden="true"></i><span role="cell" class="v" data-src="Olivesz/emergence@910b296:cpu/README.md#L104">2,118</span></div>
-            </div>
           </li>
         </ul>
-        <p class="lx-foot"><span class="def">SAP-1’s RAM, <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L9-L17">16×8</span>, holds most of its flip-flops <span class="dot">·</span> SAP-2’s <span data-src="Olivesz/emergence@910b296:cpu/README.md#L105">256-byte</span> memory included</span></p>
+        <p class="lx-foot"><span class="em-sc">scope</span> <span class="dot">·</span> <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">in raw Wireworld so far: a full adder, a 4-bit counter and a D flip-flop, each matching the netlist every clock</span>; <span data-src="Olivesz/emergence@910b296:cpu/README.md#L3-L6">the CPU runs as the netlist</span></p>
       </section>
       <div class="lx-cta lx-up" style="--d:4">
         <a class="lx-btn" href="emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth, about 18 minutes"><span>How it works, in depth</span><span class="k" data-derived="the deep dive’s read time: its words at 230 a minute, plus the time its figures take to play">about 18 minutes</span><span class="ar" aria-hidden="true">→</span></a>
