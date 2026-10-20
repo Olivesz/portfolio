@@ -963,25 +963,26 @@
         if (k === 1 && !hide && tick < 16) {
           var cx = clamp((tick - 4) / 11, 0, 1) * (W - 1);
           vr(api, cx, top, b0 + bh, "v-cyan");
-          lab(api, "qq", "?", clamp(cx, 1, W - 1), b0 - (ph ? 5.5 : 2.5), { align: "center", cls: "r" });
+          lab(api, "qq", "?", clamp(cx, 1, W - 1), b0, { align: "center", dy: ph ? -22 : -20, cls: "r" });
         }
         // the key from the moment the band appears (each mood's row once the paint first reaches one of its days),
-        // then the recipe, read from data.py
+        // then the recipe, read from data.py; its lines stand 18 px apart at any pitch, so a short screen's smaller
+        // cells never stack them into each other
         if (k >= 2 && !hatch) {
           var y = b0 + bh + 1, row = 0, painted = Math.round(reveal * T);  // one per line, the same pattern on every row
           [["Bull", "+14% a year · vol 11% · ~180 days", "#L79"],
            ["Volatile", "+2% a year · vol 22% · ~45 days", "#L80"],
            ["Bear", "−25% a year · vol 38% · ~30 days", "#L81"]].forEach(function (q, i) {
             if (painted < T && !(M.first[i] < painted)) return;
-            var x = 0, yy = y + i * (ph ? 4.5 : 2.25);
+            var x = 0;
             // on the tour, a mood's recipe is written when its turn comes; until then the row keeps its name only
-            lab(api, "rc" + i, k >= 3 && (f < 0 || i <= f) ? q[0] + " · " + q[1] : q[0], x, yy, { dy: 1, k: SC[i] + (f >= 0 && i !== f ? " kr-dim" : ""), src: R + "kronos/data.py" + q[2] });
+            lab(api, "rc" + i, k >= 3 && (f < 0 || i <= f) ? q[0] + " · " + q[1] : q[0], x, y, { dy: 1 + i * 18, k: SC[i] + (f >= 0 && i !== f ? " kr-dim" : ""), src: R + "kronos/data.py" + q[2] });
             row++;
           });
         }
         // before the answer is painted, the key's three names stand in their own hues under the empty row: the moods it
         // will be filled with, so the first frame already says what to look for
-        if (k < 2 && !hatch) SN.forEach(function (nm, i) { lab(api, "rc" + i, nm, 0, b0 + bh + 1 + i * (ph ? 4.5 : 2.25), { dy: 1, k: SC[i], src: R + "kronos/data.py#L" + (79 + i) }); });
+        if (k < 2 && !hatch) SN.forEach(function (nm, i) { lab(api, "rc" + i, nm, 0, b0 + bh + 1, { dy: 1 + i * 18, k: SC[i], src: R + "kronos/data.py#L" + (79 + i) }); });
         end(api);
       }
     });
@@ -1322,7 +1323,8 @@
           }
         });
         // the day counter
-        if (n > 0) lab(api, "day", n < NT ? "day " + n.toLocaleString("en-US") : NT.toLocaleString("en-US") + " days", ph ? 2 : 0, ph ? 28 : 35, { cls: "r", src: n >= NT ? R + "tests/test_regime.py#L16" : null });
+        // under the full pitch the counter keeps 40 px below the Bear box (row 30), clear of its "~17 days" tag
+        if (n > 0) lab(api, "day", n < NT ? "day " + n.toLocaleString("en-US") : NT.toLocaleString("en-US") + " days", ph ? 2 : 0, ph ? 28 : 35, { cls: "r", dy: ph ? 0 : Math.max(0, 40 - 5 * api.pitch), src: n >= NT ? R + "tests/test_regime.py#L16" : null });
         axes(api, pl, "a");
         // every day so far, as a dot in its mood's colour, then grey
         var g = G(api), s2 = Math.max(1, Math.round((ph ? 2 : 3) * g.d)), last = n - 1;
@@ -1348,7 +1350,9 @@
             lab(api, "pv" + i, "vol " + vol, lx, y, { dy: 8, cls: "i", src: R + "tests/test_regime.py#L20-L23" });
           }
         });
-        if (grey) lab(api, "see", "what the model sees", ph ? pl.x0 : pl.x1, ph ? pl.y1 : pl.y0, ph ? { dy: 24, cls: "i" } : { align: "right", cls: "i" });
+        // under the full pitch the plane is too narrow for this and the axis's name on one line: it ends at the art's
+        // edge instead, in the margin the planted centres' labels leave empty once the colour is gone
+        if (grey) lab(api, "see", "what the model sees", ph ? pl.x0 : api.pitch < 8 ? api.cols : pl.x1, ph ? pl.y1 : pl.y0, ph ? { dy: 24, cls: "i" } : { align: "right", cls: "i" });
         end(api);
       }
     });
@@ -1418,8 +1422,14 @@
           strip(api, L, function (t, kk) { return tintG[3 * t + fit.order[kk]]; }, 0, 1);
         }
         // readouts: this draw's numbers, beside the gate's lines
-        var rx = L.rx, ry = L.ry, line_ = api.phone ? 6 : 3, i = 0;
-        function ro(id, txt, o) { lab(api, id, txt, rx, ry + (i++) * line_, o); }
+        // under the full pitch (a short screen caps it) the readouts stack by their own line heights instead, so a
+        // 24 px readout line never runs into the next one
+        var rx = L.rx, ry = L.ry, line_ = api.phone ? 6 : 3, i = 0, dy = 0, flow = !api.phone && line_ * api.pitch < 24;
+        function ro(id, txt, o) {
+          if (!flow) { lab(api, id, txt, rx, ry + (i++) * line_, o); return; }
+          o.dy = dy; lab(api, id, txt, rx, ry, o); dy += (o.cls === "r" ? 24 : 16) + 2; i++;
+        }
+        function skip() { i++; dy += 8; }
         var it = Math.min(ph.it, nIt), llv = fit.hist[Math.min(it, nIt - 1)].ll, gr = Wd.grade;
         var llt = "log-likelihood " + (tick === 0 ? "…" : Math.round(llv).toLocaleString("en-US"));
         var stt = "stays " + [0, 1, 2].map(function (c) { var raw = fit.order[c]; return fmt(P.A[raw][raw], 3); }).join(" · ");
@@ -1455,8 +1465,8 @@
         ro("r0", "round " + it + " of " + nIt + " · this draw", { live: 1 });
         ro("r1", llt, { cls: "r", live: 1 });
         ro("r2", stt, { cls: "r", live: 1 });
-        if (k >= 5) ro("r3", "states named, colours fixed", {}); else i++;
-        i++;                                                         // the pass lines, muted until the grade
+        if (k >= 5) ro("r3", "states named, colours fixed", {}); else skip();
+        skip();                                                      // the pass lines, muted until the grade
         [["g0", gr.stays, "every stay > 0.85", "#L39"], ["g1", gr.bull, "Bull mean 0.0008 ± 0.0004", "#L37"],
          ["g2", gr.bear, "Bear mean −0.0015 ± 1.2e-3", "#L38"], ["g3", gr.acc, "right state > 0.80 of days", "#L45"]].forEach(function (q) {
           ro(q[0], (k >= 6 ? (q[1] ? "pass" : "fail") : "gate") + " · " + q[2], { k: k >= 6 ? (q[1] ? "kr-g" : "i") : "", src: R + "tests/test_regime.py" + q[3] });
@@ -1534,8 +1544,9 @@
           // step 3 draws it, so the row never stands empty
           fill(api, 0, L.yS2, cx, h, "muted", 0.45);
           box(api, 0, L.yS2, W, h, "rule");
-          // a phone sets step 2's note on this name's line, so the slot goes unnamed for that step
-          if (!(ph && k === 1)) lab(api, "ls2", ph ? "smoothed · after the cut" : "smoothed · read again after the cut", 0, L.yS2, { dy: -20 });
+          // a phone sets step 2's note on this name's line, so the slot goes unnamed for that step; so does a wide
+          // screen under the full pitch, where the note runs into the name
+          if (!((ph || api.pitch < 8) && k === 1)) lab(api, "ls2", ph ? "smoothed · after the cut" : "smoothed · read again after the cut", 0, L.yS2, { dy: -20 });
           if (k === 0) {
             // the cursor opens a third of the way in, so its words have a filtered row to point at, then sweeps on
             var cur = (0.35 + 0.65 * clamp(tick / 20, 0, 1)) * W;
@@ -1752,7 +1763,7 @@
             fill(api, XN(3), top, XN(7) - XN(3), ht, "v-green", 0.3); vr(api, XN(3), top, top + ht, "v-green"); vr(api, XN(7), top, top + ht, "v-green");
             fill(api, XN(15), top, W - XN(15), ht, "v-green", 0.3); vr(api, XN(15), top, top + ht, "v-green");
             sq(api, Math.min(XN(T5.nu), W - 0.75), ys, api.phone ? 8 : 10, "v-amber");
-            lab(api, "uw", api.phone ? "tail index ν, 0 to 20+" : "tail index ν, 0 to 20 and over · gate X11 passes in green", 0, L.sy, { dy: -18 });
+            lab(api, "uw", api.phone || api.pitch < 8 ? "tail index ν, 0 to 20+" : "tail index ν, 0 to 20 and over · gate X11 passes in green", 0, L.sy, { dy: -18 });   // under the full pitch the short form keeps clear of the axis name
             lab(api, "x1", api.phone ? "within 2 of 5" : "t(5) world: within 2 of 5", XN(7), ys, { dx: 6, dy: -8, k: "kr-g", src: R + "tests/test_thmm.py#L61" });
             lab(api, "x2", api.phone ? "past 15" : "Gaussian world: past 15", XN(15), ys, { dx: 6, dy: -8, k: "kr-g", src: R + "tests/test_thmm.py#L84" });
           }
@@ -1764,7 +1775,7 @@
           var NX4 = 20, XN4 = function (v) { return Math.min(v, NX4) / NX4 * W; }, ys4 = L.sy + L.sh / 2;
           hr(api, 0, W, ys4, "rule");
           [[17, 0], [3.7, 1], [300, 2]].forEach(function (q) { sq(api, Math.min(XN4(q[0]), W - 0.75), ys4, api.phone ? 8 : 10, ST[q[1]]); });
-          lab(api, "uw", api.phone ? "tail index ν, 0 to 20+" : "tail index ν fitted on real data, 0 to 20 and over", 0, L.sy, { dy: -18 });
+          lab(api, "uw", api.phone || api.pitch < 8 ? "tail index ν, 0 to 20+" : "tail index ν fitted on real data, 0 to 20 and over", 0, L.sy, { dy: -18 });
           [["Bull ν ≈ 17", 0], ["Volatile ν ≈ 3.7", 1], ["Bear ν ≈ 300, the ceiling: a plain bell", 2]].forEach(function (q, i) {
             lab(api, "rn" + i, q[0], api.phone ? 0 : [0, 18, 42][i], L.dy + (api.phone ? i * 4.5 : 0), { k: SC[q[1]], src: R + "docs/FINDINGS.md#L71" });
           });
@@ -1940,7 +1951,7 @@
           lab(api, "bt", k === 2 ? (ph ? "bars, right: HRP weight · this draw" : "bars: HRP weight · this draw") : (ph ? "amber: after the cap · dark: before it" : "amber: tilted and capped · dark: before the cap · tick: HRP weight · this draw"), 0, capY, { dy: 6, live: 1 });
           if (k >= 3 && ph) lab(api, "bt2", "tick: HRP weight · this draw", 0, capY, { dy: 24, live: 1 });
           if (showHeat) lab(api, "ct", ph ? "heatmap: correlation · cyan: first split" : "heatmap: correlation in clustered order, brighter is closer · cyan: the first split", 0, capY, { dy: k >= 3 && ph ? 42 : 24 });
-          if (k === 4) lab(api, "t1", ph ? "earns from t+1 · every 21 days" : "set at the close of day t · earns from t+1 · next rebalance in 21 days", W, 0, { align: "right", dy: -24, k: "kr-c", src: R + "config.py#L104" });
+          if (k === 4) lab(api, "t1", ph || api.pitch < 8 ? "earns from t+1 · every 21 days" : "set at the close of day t · earns from t+1 · next rebalance in 21 days", W, 0, { align: "right", dy: -24, k: "kr-c", src: R + "config.py#L104" });
         }
         end(api);
       }
@@ -2168,7 +2179,8 @@
         for (dd = 0; dd >= XM - 1e-9; dd -= 0.0025) { if (ddWritten(dd) <= ym) rw.push([X(dd), Y(ddWritten(dd))]); cl.push([X(dd), Y(Math.min(ddWritten(dd), noclip ? Infinity : c))]); }
         if (clipOn && (k >= 2 || (playing && t > KW))) line(api, rw, "v-red", 1, 0.35, [4, 4]);
         line(api, noclip ? rw : cl, "v-red", raw ? 2.5 : 3);
-        if (!raw) lab(api, "lw", "as found", ph ? X(-0.19) : X(-0.16), Y(1), { dy: -22, k: "kr-t" });
+        // under the full pitch the last step's note, which opens "as found", runs into this name and names the line in its place
+        if (!raw) { if (ph || k < 3 || api.pitch >= 8) lab(api, "lw", "as found", ph ? X(-0.19) : X(-0.16), Y(1), { dy: -22, k: "kr-t" }); }
         else {                                                         // the label sits beside the cursor, on whichever side has room
           var lx = X(cur), left = lx > (L.x0 + L.x1) / 2;
           lab(api, "lw", ph ? "as written" : "as written, before the clip", lx, Y(Math.min(ddWritten(cur), noclip ? Infinity : c)), { dy: left ? -24 : 8, dx: left ? -8 : 8, align: left ? "right" : "left", k: "kr-t" });   // above the rising line on its left, under it on its right

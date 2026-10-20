@@ -227,7 +227,7 @@
         L.x = x; L.y = y; L.py = py; S.placeLabel(L);
       },
       get pitch() { return S.pitch; }, get cols() { return S.spec.grid ? S.spec.grid.cols : 0; }, get rows() { return S.spec.grid ? S.spec.grid.rows : 0; },
-      get phone() { return root.innerWidth < 768; },
+      get phone() { return phoneW(); },
       get key() { return S.keys[S.k].name; }, get keyIndex() { return S.k; }, get words() { return S.keys[S.wk].name; }, get tick() { return Math.floor(S.t); }, get mode() { return S.mode; }
     };
     return api;
@@ -260,7 +260,7 @@
        there its labels keep 12 px from the screen's edges (S.inset, placeLabel). A grid whose rows depend on its pitch
        reads it as grid.at. */
     S.fig.classList.remove("bleed");
-    var phone = root.innerWidth < 768, devPitch = 0;
+    var phone = phoneW(), devPitch = 0;
     S.dpr = dprInt();
     if (g && g.pitchPhone && phone) {
       var col = Math.floor(S.stage.clientWidth), need = g.cols * g.pitchPhone + S.padL + S.padR;
@@ -273,6 +273,12 @@
       var want = phone && g.pitchPhone ? g.pitchPhone : g.pitch || 8;
       var fit = Math.floor((avail - S.padL - S.padR) / g.cols);
       S.pitch = Math.max(g.min || 2, Math.min(want, devPitch || fit));
+      /* a phone on its side (under 500 px tall): a docked grid draws at the largest pitch of whole device pixels whose
+         rows all fit between the top of the screen and the longest step's words, so no step leaves its last rows under
+         the dock; a grid in its phone arrangement never below its phone pitch, one in its wide arrangement down to its
+         least (grid.min, else 2) */
+      var cap = S.shortCap();
+      if (cap) S.pitch = Math.max(Math.min(S.pitch, cap), Math.min(S.pitch, (phone && g.pitchPhone) || g.min || 2));
       S.dp = Math.round(S.pitch * S.dpr); g.at = S.pitch;
       var cw = g.cols * S.pitch, ch = g.rows * S.pitch;
       S.canvas.width = g.cols * S.dp; S.canvas.height = g.rows * S.dp;
@@ -310,6 +316,21 @@
     S.fitPips();
     S.dock();
   };
+  /* the largest grid pitch, in whole device pixels, whose rows fit the band a docked scene leaves on a screen under
+     500 px tall (between the strip and the longest step's words over the stepper, as dock() measures it); 0 where the
+     screen is taller, the scene never docks or its grid already fits. A grid whose canvas labels collide below its full
+     pitch (grid.shortFit false) keeps it. */
+  SP.shortCap = function () {
+    var S = this, fig = S.fig, g = S.spec.grid, bar = fig.querySelector(".sc-bar"), keys = fig.querySelector(".sc-keys");
+    if (!g || g.shortFit === false || S.spec.ambient || !bar || root.innerHeight >= 500 || !dockable()) return 0;
+    var had = fig.classList.contains("docked");
+    fig.classList.add("docked");
+    var kh = keys ? Math.ceil(keys.getBoundingClientRect().height) : 0, bh = Math.ceil(bar.getBoundingClientRect().height);
+    if (!had) fig.classList.remove("docked");
+    var band = shortest() - stripH() - kh - 1 - bh - 8 - S.padT - S.padB, rows = g.rows;
+    if (bar.style.display === "none" || getComputedStyle(bar).display === "none" || band <= 0 || rows * S.pitch <= band) return 0;
+    return Math.floor(band * S.dpr / rows) / S.dpr;
+  };
   /* phone: the step squares keep one row. Each keeps its full tap target (24 px, 32 on touch); when n of them are wider
      than the row, neighbouring targets overlap a little, so the squares sit closer but never wrap a lone one onto a
      second row. The row starts half a target left of the column (deep.css), so the first square lines up with it. */
@@ -340,6 +361,10 @@
   }
   // a screen that docks: a phone, or any screen under 500 px tall (a phone held sideways), as deep.css's docked rules
   function dockable() { return root.innerWidth < 768 || root.innerHeight < 500; }
+  /* a grid's phone arrangement (its rows, pitchPhone, api.phone): a screen under 768 px wide. A page that sets
+     Deep.wideShort lays a phone held sideways (under 500 px tall) out in its wide arrangement instead, where its grids
+     have the width to come down in pitch until their rows fit above the docked words */
+  function phoneW() { return root.innerWidth < 768 && !(root.Deep && root.Deep.wideShort && root.innerHeight < 500); }
   /* the screen a scene must fit to stay in the flow: the shortest this width has shown, with a phone's toolbar out
      (100svh, where the browser knows it). The toolbar slides away and back as the reader turns, which changes the
      height and fires resize; deciding against the shortest screen means it never re-docks a scene under the reader.

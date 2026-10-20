@@ -23,6 +23,7 @@ CSS px in viewport coordinates, `[x0, y0, x1, y1]`, with `x1`/`y1` exclusive.
 | `reduced` | bool | `prefers-reduced-motion` at boot. |
 | `drawn()` | fn → array | Canvas text drawn in the last frame, as `[text, x, y, alpha]`. |
 | `instrAt(s)` | fn → string | The caption row's instruction for scroll position `s` (screens). The caption lines drawn below `figure().art`, joined with spaces, must equal it at every hold. |
+| `caption()` | fn → object | The caption row as last drawn: `{text, who, kick}`. `text` is the instruction, `who` the station whose line it is (null for any other line or none), and `kick` the lead an upright phone draws ahead of the line (in the chapter's accent) while that chapter's card title is not on screen: the kicker and title, the title alone or the kicker alone, whichever first keeps the line to two rows; null when none fits or none is drawn. |
 | `running()` | fn → bool | True while the rAF loop is alive. It must turn false once nothing moves, because the suite uses it to know a frame has settled. |
 | `plants()` | fn → array | Visitor ants, `[{n, x, y, tok}]`; `tok` is the token name its cells draw in, one of the vivid hues other than red. At most one; it runs 500 steps and stops. Planting works only on the landing (s < 0.03). |
 | `plantCells()` | fn → int | Visitor cells currently lit on the visitor layer. 0 once the visitor has left the landing. |

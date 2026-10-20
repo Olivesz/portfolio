@@ -269,6 +269,9 @@
 
 /* chapters */
 .lx-ch{margin-top:var(--lx-gap)}
+/* a link in a chapter's prose hits at 24 px, 32 on touch, without moving a line box */
+.lx-ch .lx-body a{padding:5px 0}
+@media (pointer:coarse){ .lx-ch .lx-body a{padding:9px 0} }
 .ch.lx-ch{padding-top:0;border-top:0}
 /* the opener: number and name, a 72 px title, the one line, then what you'll see */
 .lx-open h2{margin-top:12px;max-width:1040px;font:500 72px/72px var(--sg);letter-spacing:-.03em;color:var(--ink)}

@@ -67,6 +67,9 @@ VIEWPORTS = {
     "desktop-125": dict(viewport={"width": 1536, "height": 864}, device_scale_factor=1.25),
     "desktop-1280": dict(viewport={"width": 1280, "height": 800}, device_scale_factor=2),
     "desktop-1024": dict(viewport={"width": 1024, "height": 768}, device_scale_factor=2),
+    # taller wide screens, where the transit's scroll is longest: an external monitor, and a large tablet held upright
+    "desktop-1920": dict(viewport={"width": 1920, "height": 1080}, device_scale_factor=1),
+    "desktop-tall": dict(viewport={"width": 1024, "height": 1366}, device_scale_factor=2),
     # the commonest laptop sizes at 1x, where a whole device pixel per cell decides the map's size
     "laptop-1280": dict(viewport={"width": 1280, "height": 800}, device_scale_factor=1),
     "laptop-1366": dict(viewport={"width": 1366, "height": 768}, device_scale_factor=1),
@@ -1845,6 +1848,64 @@ def a_pan(v):
     return ok, f"largest art move per 100px notch {worst[0]:.0f} CSS px (<= {PAN_CAP}), {worst[1]}; by transit: {', '.join(rows)}"
 
 
+CAM_STEP = 4.0       # CSS px the camera may move for 2px of scroll in a station-to-station transit on an upright phone
+
+
+def a_camstep(v):
+    """An upright phone's camera through each station-to-station transit, read every 1px of scroll from the page's own
+    pose function: no 2px of scroll moves it more than CAM_STEP CSS px (a lean that switches on and off from one pixel to
+    the next shows as a spike), and no 100px moves it more than PAN_CAP."""
+    if not v.hook("camAt") or not v.hook("stations"):
+        raise Missing("__walk.camAt / __walk.stations")
+    rows = v.js("""() => { const w = __walk, S = w.S(), st = w.stations, dpr = devicePixelRatio, out = [];
+      for (let k = 1; k < st.length; k++) {
+        const y0 = Math.floor(st[k - 1][2] * S), y1 = Math.ceil(st[k][1] * S), xs = [];
+        for (let y = y0; y <= y1; y++) { const c = w.camAt(y / S), P = Math.max(1, Math.round(c[2])) / dpr; xs.push([c[0] * P, c[1] * P]); }
+        let m2 = 0, a2 = y0, m100 = 0, a100 = y0;
+        for (let i = 2; i < xs.length; i++) { const d = Math.hypot(xs[i][0] - xs[i - 2][0], xs[i][1] - xs[i - 2][1]); if (d > m2) { m2 = d; a2 = y0 + i; } }
+        for (let i = 100; i < xs.length; i++) { const d = Math.hypot(xs[i][0] - xs[i - 100][0], xs[i][1] - xs[i - 100][1]); if (d > m100) { m100 = d; a100 = y0 + i; } }
+        out.push([st[k][0], m2, a2, m100, a100]);
+      }
+      return out; }""")
+    bad = [r for r in rows if r[1] > CAM_STEP or r[3] > PAN_CAP]
+    by = ", ".join(f"{r[0]} {r[1]:.2f}/{r[3]:.0f}" for r in rows)
+    return not bad, (f"largest camera move per 2px / per 100px of scroll, by transit: {by} (<= {CAM_STEP} / {PAN_CAP})"
+                     + (f"; over at y {', '.join(str(r[2] if r[1] > CAM_STEP else r[4]) for r in bad)}" if bad else ""))
+
+
+def a_deadscroll(v):
+    """No notch in a transit leaves the screen as it was: drawn frames sampled every 50px of scroll from the hold end
+    to the arrival, compared 100px apart, all differ. A control first holds one sample still for 400ms: if that frame
+    changes on its own the comparison could not see a dead notch, and the check says so instead of passing."""
+    import hashlib
+    g = v.geometry()
+    bad, n, ctl = [], 0, 0
+    for st in g["stations"]:
+        tr = g["scenes"].get(st[0] + "-travel")
+        if not tr:
+            raise Missing(f"no '{st[0]}-travel' scene from sceneId")
+        a, b = tr[0]
+        ys = list(range(round(a * v.S) + 1, round(b * v.S) - 100, 50))
+        hs = []
+        for y in ys:
+            v.js("y => __ct.scrollTo(0, y)", y)
+            v.settle(2500)
+            hs.append(hashlib.md5(v.page.screenshot()).hexdigest())
+            if len(hs) == 1:
+                v.page.wait_for_timeout(400)
+                if hashlib.md5(v.page.screenshot()).hexdigest() != hs[0]:
+                    ctl += 1
+        v.cur = None
+        for i in range(len(ys) - 2):
+            n += 1
+            if hs[i] == hs[i + 2]:
+                bad.append(f"{st[0]} y {ys[i]}-{ys[i + 2]}")
+    if ctl:
+        return False, f"{ctl} transit(s) whose first frame changed with no scroll: a still frame cannot be told from a moving one"
+    return not bad, (f"{n} pairs of frames 100px apart across the transits, {len(bad)} identical"
+                     + ("; " + ", ".join(bad[:6]) if bad else ""))
+
+
 def a_length(v):
     sw = v.wheel_sweep()
     t = NOTCH_TARGET[v.name]
@@ -3537,6 +3598,31 @@ def a_bandlit(v):
     return not bad and n > 0, f"{n} rests between holds with a card in the reading zone" + (f"; {len(bad)} bare: " + "; ".join(bad[:3]) if bad else "; each draws a figure and a caption line")
 
 
+def a_named(v):
+    """An upright phone that comes to rest anywhere between two holds (every 50px of scroll) shows whose figure it is: a
+    chapter card's title whole on screen below the band at over half opacity, or the caption row leading with the
+    kicker of the chapter whose line it is."""
+    g = v.geometry()
+    st = g["stations"]
+    bad, n = [], 0
+    for i in range(1, len(st)):
+        a, b = st[i - 1][2], st[i][1]
+        for y in range(int(a * v.S) + 50, int(b * v.S), 50):
+            v.scroll_s(y / v.S)
+            v.settle(1200)
+            v.page.wait_for_timeout(300)
+            q = v.js("""(band) => { const t = [...__ct.cards().list].some(c => { const h = c.el.querySelector('h1,h2'); if (!h) return false;
+                const r = h.getBoundingClientRect(), op = +getComputedStyle(c.el).opacity; return op > 0.5 && r.top >= band - 1 && r.bottom <= innerHeight; });
+                const c = __walk.caption(); return { t, who: c.who, kick: c.kick, text: c.text }; }""", v.band)
+            n += 1
+            if q["t"]:
+                continue
+            if not q["text"] or not q["who"] or not q["kick"]:
+                bad.append(f"y {y}: no title on screen, caption {q['text'][:30]!r} kicker {q['kick']!r}")
+    v.cur = None
+    return not bad and n > 0, f"{n} rests between holds" + (f"; {len(bad)} unnamed: " + "; ".join(bad[:3]) if bad else "; each shows a card title or a caption naming its chapter")
+
+
 def a_restgap(v):
     """A phone scroll that comes to rest between a finished station's exit and the next native station's whole-box
     build never meets a cut figure, nor a figure paired with the card before its own. For each native station after
@@ -4638,7 +4724,9 @@ ASSERTIONS = [
     ("planting", ("desktop", "phone"), a_planting, "5 clicks on the landing leave at most 1 visitor ant, in a vivid hue; past the landing (s 0.20) and back, 0 visitor ants and 0 visitor world cells"),
     ("notches", ("desktop", "phone"), a_notches, "every 100px wheel notch advances scrollY, top to the last résumé line and on to the bottom"),
     ("length", ("desktop", "phone"), a_length, "notches to the last résumé line <= 140 desktop and phone (all the work sits before the résumé)"),
-    ("pan", ("desktop", "desktop-1280", "desktop-1024"), a_pan, "in every transit one 100px notch moves the drawn art at most 250 CSS px (world origin read from frames 25px apart)"),
+    ("pan", ("desktop", "desktop-1280", "desktop-1024", "desktop-1920", "desktop-tall"), a_pan, "in every transit one 100px notch moves the drawn art at most 250 CSS px (world origin read from frames 25px apart)"),
+    ("camstep", ("phone", "phone-640", "phone-se"), a_camstep, "an upright phone's camera through each station-to-station transit, every 1px of scroll: at most 4 CSS px per 2px and 250 per 100px"),
+    ("deadscroll", ("desktop", "desktop-1920", "desktop-tall"), a_deadscroll, "in every transit two drawn frames 100px of scroll apart differ (sampled every 50px from the hold end to the arrival), so no notch leaves the screen as it was"),
     ("monotonic", ("desktop", "phone"), a_monotonic, "the rendered step never decreases while wheeling down"),
     ("cardband", ("desktop", "phone"), a_cardband, "no band > 0.1 screen without the hero or a card in the reading zone, s 0 to the pull-back"),
     ("holdzone", ("desktop", "phone"), a_holdzone, "during the lock and every hold, only the card being read (hero at the lock) shows in the reading zone; the next card is at opacity 0"),
@@ -4668,6 +4756,7 @@ ASSERTIONS = [
     ("heldlabels", ("desktop", "phone"), a_heldlabels, "one and two notches past each hold (hold + 0.1, + 0.2) a cell figure with cells on screen has its labels painted"),
     ("pinbuilt", ("desktop", "phone"), a_pinbuilt, "through every transit, while a chapter card is stuck at its sticky top, built() is that card's station or null"),
     ("bandlit", PHONES, a_bandlit, "an upright phone at rest between holds with a card in the reading zone draws a figure (band > 2% lit, pink excluded) and a caption line"),
+    ("named", PHONES + ("phone-640",), a_named, "an upright phone at rest every 50px between holds shows a card title whole below the band at over half opacity, or a caption row led by its chapter's kicker"),
     ("restgap", PHONES, a_restgap, "a phone scroll that rests between a finished station's exit and the next native station's whole-box build meets the next station's first frame under its own caption 1 s later, and never the station ahead cut by the band's edge"),
     ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
     ("handoff", ("desktop",), a_handoff, "the bookend square's centre lands within 1 device px of the canvas ant's; the canvas stops drawing the ant there"),

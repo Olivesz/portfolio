@@ -49,7 +49,8 @@ It exits 1 on any FAIL, and also when nothing ran.
 | phone-small-1x | 360×740 | 1, touch | the map's place rows against the last card: at DPR 1 the map pitch fits sooner in the pull-back |
 | desktop-125 | 1536×864 | 1.25 | integer pitch at a fractional DPR: scrolled every 0.04 screen, `view().pp` read at each sample |
 | desktop-1280, desktop-1024 | 1280×800, 1024×768 | 2 | the art's move per notch in every transit (`pan`) |
-| phone-se, phone-640 | 375×667, 360×640 | 2, touch | the KRONOS card fit |
+| desktop-1920, desktop-tall | 1920×1080, 1024×1366 | 1 and 2 | taller wide screens, where a short card lets go late: `pan` and `deadscroll` |
+| phone-se, phone-640 | 375×667, 360×640 | 2, touch | the KRONOS card fit; the camera's move per 2px and per 100px of scroll in station-to-station transits (`camstep`, with phone) |
 | land, land-small | 844×390, 740×360 | 3 and 2, touch | a phone on its side: the words in a column beside the art |
 
 Perf runs last, in its own contexts, at 4× CPU throttle, three times per viewport.
@@ -134,7 +135,7 @@ Nothing is taken on the page's word where it can be read back:
 4. **Handoff size.** The bookend square is 8 CSS px, while the canvas ant at map fit pitch is a few device px. "Registered within 1 device px" is therefore measured centre to centre, and both sizes are printed.
 5. **The pink cap at a hold.** A cap on the `--trail` share of lit cells could not hold: the ant's last 312 steps are about 48 lit `--trail` cells, which was 23% to 43% of the cells on screen at a desktop hold and up to 100% on a phone, because a figure's cells leave the census once it resolves into a native layer. Resolved: the cap is a visual share of the viewport (1.5%, everything pink counted), which measures 0.56% desktop and 0.84% phone at the worst hold, KRONOS's drawdown row.
 6. **Transit length vs the card in the zone.** The spec's transit rule clears card k−1 before card k sticks, but not card k below the fold: with the longest transit 0.51 screen, card k sat in the zone for up to 68% of a hold. Lengthening every transit past the fold costs about 16 notches, against a 105-notch budget already met exactly. First resolved with a 240ms fade, which spec T11 forbids. Now resolved by length, under the 140-notch budget: transit k is at least (viewport − card top)/S + 0.05, so card k rises natively from below the fold once the figure before it has dimmed, and no card fades. `rise` checks it and `holdzone` still does; `cardband` lets two frames run per sample so it reads the page's scroll-driven state rather than the state before the scroll.
-7. **Whip-pan transits.** A transit sized only by the cards moved the art 400 to 530 CSS px per 100px notch. Resolved: T = max(T_MIN, (prevH + 64)/S, 0.75·D/S, fold), D the pose-centre distance in CSS px; smootherstep peaks at 1.875× its mean speed, so the art moves at most 250 CSS px per notch. `pan` measures it on drawn frames at 1440, 1280 and 1024 wide.
+7. **Whip-pan transits.** A transit sized only by the cards moved the art 400 to 530 CSS px per 100px notch. Resolved: T = max(T_MIN, (prevH + 64)/S, 0.75·D/S, fold), D the pose-centre distance in CSS px; smootherstep peaks at 1.875× its mean speed, so the art moves at most 250 CSS px per notch. `pan` measures it on drawn frames at 1440, 1280 and 1024 wide. On a wide screen the move may start after the transit does: the card ahead lets go as early as `cardband` allows (the next card's top enters the zone as its foot leaves it), and the camera holds the station until then, but never past the point that leaves 0.8·D/S for the move (a margin under the 0.75 the bound needs), so a figure does not slide away beside a card still stuck in the zone and the per-notch bound still holds. The camera waits only when the card lets go within 90px of the hold end: on a taller screen a short card lets go hundreds of px later, and waiting for it froze the screen for several notches (1920×1080: frames 130px apart identical; 2560×1440: 4 notches) before the move ran at the cap, so there the camera sets off at the hold end. `pan` covers 1920×1080 and 1024×1366 too, and `deadscroll` checks that every 100px of a transit changes the frame.
 
 ### Falsification
 
@@ -253,6 +254,7 @@ cards alone, cards fading in at the gate, the custos verdict at u 0.63), served 
 | assertion | mutation | expected | measured |
 |---|---|---|---|
 | pan | the page without the fix | FAIL | 530, 525 and 407 CSS px per notch at 1440, 1280 and 1024 (KRONOS); emergence 261 at 1440 |
+| camstep | a head-following camera whose two caps are tested again on every frame | FAIL | 21 to 23 CSS px per 2px at 390x844, up to 33 at 375x667 and 38 at 360x640 (the page moves at most 3.9) |
 | rise | the page without the fix | FAIL | 12 of 12 samples per viewport; the emergence card 533px above the fold at 1440 while the lock was held |
 | firstnotch | the page without the fix | FAIL | custos 342 CSS px at 1440x900 against a 972 floor; at 390x844 it measured 326 against 247, so on a phone `custos` is the guard |
 | custos | the page without the fix | FAIL | 'contradicted' 0.18 screen at 1440 and 0.16 at 390; the caption named pink 32 and 34 samples before the verdict |

@@ -66,9 +66,7 @@ a.xr{color:inherit}
 .sc-trace>canvas{display:block}
 /* the program listing on a phone: two columns under the machine */
 .sc-r .pc2{display:inline-block;vertical-align:top;margin-right:32px}
-/* a link in the story or a caption (fig 4, step 06) hits at 24 px, 32 on touch, without moving a line box */
-.lx-ch .lx-body a{padding:5px 0}
-@media (pointer:coarse){ .lx-ch .lx-body a{padding:9px 0} }
+.sc-r .pc2.nr{margin-right:16px}   /* beside the machine on a short screen: two closer columns keep inside the screen */
 /* fig 20, the payoff: a rung not yet climbed still reads whole (its square muted, its name in body, its check as a
    climbed rung's), so the ladder is all there on arrival and climbs green from the bottom */
 #sc-ladder.js .ghost rect[class^="c-"]{fill:var(--muted)}
