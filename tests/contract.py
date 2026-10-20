@@ -2788,9 +2788,10 @@ def a_playreplay(v):
                 why.append(f"+{notches} (from {here}): {len(wrong)} of {len(moving)} playing frames not the station in frame as itself"
                            f" {wrong[:1]}, ended {end[1]} at {end[0]}ms (<= {lim2})")
             away.append(f"+{notches} from {here} {len(moving)} frames")
-        # every card's button must be clicked at least once away from its hold, with one exception: a phone's last card,
-        # faded under half by its first notch past the hold as the pull-back starts, leaves nothing to click there
-        last_ph = w.phone and sid == g["stations"][-1][0] and away and away[0] == "+1 faded"
+        # every card's button must be clicked at least once away from its hold, with one exception: on a phone a card
+        # leaves with its figure (it is gone as the figure crosses the band's edge, so no bare band opens between
+        # stations), and a card faded by its first notch past the hold leaves nothing to click there
+        last_ph = w.phone and away and away[0] == "+1 faded"
         if not any("frames" in a for a in away) and not last_ph:
             why.append("the button was never visible and on screen away from the hold")
         rows.append(f"{sid} done {r['at']}ms, {n}px off; away: {', '.join(away)}")
@@ -3466,12 +3467,84 @@ def a_caption(v):
     return not bad, m
 
 
+PINNED_JS = """() => { const out = [];
+  for (const c of __ct.cards().list) { const r = c.el.getBoundingClientRect(), cs = getComputedStyle(c.el);
+    if (!r.height || cs.visibility !== 'visible' || +cs.opacity === 0 || cs.position !== 'sticky') continue;
+    const top = parseFloat(cs.top); if (Number.isFinite(top) && Math.abs(r.top - top) <= 1 && r.bottom > 0 && r.top < innerHeight) out.push(c.id); }
+  return { pinned: out, built: __walk.built(), s: scrollY / __walk.S() }; }"""
+
+
+def a_pinbuilt(v):
+    """A card leaves with its figure: through every transit, while a chapter card is stuck at its sticky top, built() is
+    that card's station or null, so no station is built (nor captioned) beside the card of the chapter before it."""
+    g = v.geometry()
+    st = g["stations"]
+    bad, n = [], 0
+    for i in range(1, len(st)):
+        a, b = st[i - 1][2], st[i][1] + 0.05
+        k = 0
+        while a + 0.04 * k <= b:
+            s = a + 0.04 * k
+            k += 1
+            v.scroll_s(s)
+            v.settle(900)
+            r = v.js(PINNED_JS)
+            n += 1
+            if r["built"] and any(p != r["built"] for p in r["pinned"] if p != "hero"):
+                bad.append(f"s {r['s']:.3f}: {r['built']} built beside pinned {','.join(r['pinned'])}")
+    v.cur = None
+    return not bad and n > 0, f"{n} samples over {len(st) - 1} transits" + (f"; {len(bad)} with a station built beside another chapter's pinned card: " + "; ".join(bad[:3]) if bad else "; every built station matches the pinned card, or none is pinned")
+
+
+BAND_LIT_JS = r"""async ([src, x0, y0, x1, y1]) => { const im = new Image(); im.src = src; await im.decode(); const c = document.createElement('canvas');
+  c.width = im.naturalWidth; c.height = im.naturalHeight; const g = c.getContext('2d'); g.drawImage(im, 0, 0);
+  const d = g.getImageData(x0, y0, x1 - x0, y1 - y0).data; let lit = 0, n = d.length / 4;
+  for (let i = 0; i < d.length; i += 4) { const r = d[i], gg = d[i+1], b = d[i+2]; if (Math.max(r, gg, b) < 60) continue;
+    if (r > 150 && gg < 110 && b > 70 && b < 170) continue; lit++; }
+  return 100 * lit / n; }"""
+
+
+def a_bandlit(v):
+    """An upright phone that comes to rest anywhere between two holds, with a chapter card in the reading zone, draws a
+    figure in the art band (over 2% of the band lit, the ant's pink not counted) and a line in the caption row: the band
+    never holds the road alone beside a card."""
+    import base64
+    g = v.geometry()
+    st = g["stations"]
+    z = v.zone()
+    bad, n = [], 0
+    for i in range(1, len(st)):
+        a, b = st[i - 1][2], st[i][1]
+        k = 0
+        while a + 0.06 * k < b:
+            s = a + 0.06 * k
+            k += 1
+            v.scroll_s(s)
+            v.settle(1200)
+            v.page.wait_for_timeout(400)
+            inzone = v.js("""(a) => [...__ct.cards().list].some(c => { const r = c.el.getBoundingClientRect(), cs = getComputedStyle(c.el);
+                return r.height && cs.visibility === 'visible' && +cs.opacity > 0 && Math.min(r.bottom, a.z1) - Math.max(r.top, a.z0) >= 24; })""",
+                          {"z0": z[0], "z1": z[1]})
+            if not inzone:
+                continue
+            png = v.page.screenshot(scale="css")
+            lit = v.js(BAND_LIT_JS, ["data:image/png;base64," + base64.b64encode(png).decode(), 0, 50, int(v.vw), int(v.band)])
+            cap = v.js("() => __walk.caption().text")
+            n += 1
+            if lit <= 2 or not cap:
+                bad.append(f"s {s:.3f}: band lit {lit:.2f}%, caption {cap[:30]!r}")
+    v.cur = None
+    return not bad and n > 0, f"{n} rests between holds with a card in the reading zone" + (f"; {len(bad)} bare: " + "; ".join(bad[:3]) if bad else "; each draws a figure and a caption line")
+
+
 def a_restgap(v):
     """A phone scroll that comes to rest between a finished station's exit and the next native station's whole-box
-    build never meets an empty band or a cut figure. For each native station after the first, the visitor wheels in
-    100 px notches from 0.3 screen before a quarter and the midpoint of that gap (the station ahead's offW to this
-    one's on0) and stops there. A second later the band must draw this station (its first frame, where it will
-    arrive) under its own line, and must not draw the station ahead, whose box the edge would cut."""
+    build never meets a cut figure, nor a figure paired with the card before its own. For each native station after
+    the first, the visitor wheels in 100 px notches from 0.3 screen before a quarter and the midpoint of the gap from
+    the later of the station ahead's offW and this station's up (its card's top risen past 70% of the screen, or the card
+    before it gone) to this one's on0, and stops there. A second later the band must draw this station (its first frame, where it will arrive)
+    under its own line, and must not draw the station ahead, whose box the edge would cut. A stop midway between offW
+    and up (its card still low) must draw neither this station nor a line for it."""
     g = v.geometry()
     for k in ("play", "stationShown", "caption"):
         if not v.hook(k):
@@ -3483,11 +3556,16 @@ def a_restgap(v):
     for i, sid in enumerate(ids):
         if i == 0 or sid not in ("freeflow", "kronos", "custos"):
             continue
-        lo, hi = P[ids[i - 1]].get("offW"), P[sid].get("on0")
-        if lo is None or hi is None:
-            raise Missing("__walk.play() gives no offW or on0")
-        for f in (0.25, 0.5):
-            s = lo + f * (min(hi, g["stations"][i][1]) - lo)
+        lo, hi, up = P[ids[i - 1]].get("offW"), P[sid].get("on0"), P[sid].get("up")
+        if lo is None or hi is None or up is None:
+            raise Missing("__walk.play() gives no offW, up or on0")
+        stops = []
+        if up - lo > 0.02:
+            stops.append((lo + 0.5 * (up - lo), False))
+        lo = max(lo, up)
+        if min(hi, g["stations"][i][1]) - lo > 0.01:
+            stops += [(lo + f * (min(hi, g["stations"][i][1]) - lo), True) for f in (0.25, 0.5)]
+        for s, early in [(x, not w) for x, w in stops]:
             y = round(s * v.S)
             v.js("y => __ct.scrollTo(0, y)", round((s - 0.3) * v.S))
             v.settle(1500)
@@ -3504,6 +3582,13 @@ def a_restgap(v):
             q["ahead"] = v.js("a => __walk.stationShown(a.id) && __walk.figVis(a.id, a.s) < 0.999", {"id": ahead, "s": q["s"]})
             n += 1
             nb = len(bad)
+            if early:
+                if q["shown"] or q["cap"]["who"] == want:
+                    bad.append(f"s {q['s']:.3f}: {want} drawn or captioned before its card came up (up {up:.3f})")
+                if q["ahead"]:
+                    bad.append(f"s {q['s']:.3f}: {ahead} drawn with its box cut by the band's edge")
+                fails += len(bad) > nb
+                continue
             if not q["shown"]:
                 bad.append(f"s {q['s']:.3f}: {want} not drawn 1 s after the scroll stopped (gap {lo:.3f}-{hi:.3f})")
             if q["ahead"]:
@@ -3514,7 +3599,7 @@ def a_restgap(v):
     v.cur = None
     if not n:
         raise Missing("no native station after the first")
-    m = f"{n - fails} of {n} stops in the gap before a native station draw a figure under its own caption"
+    m = f"{n - fails} of {n} stops before a native station draw its figure under its own caption once its card is up, and nothing before"
     if bad:
         m += "; " + "; ".join(bad[:3])
     return not bad, m
@@ -4581,6 +4666,8 @@ ASSERTIONS = [
     ("nativeclip", PHONES, a_nativeclip, "a phone's native layers draw nothing under the art band at any s from the first native approach to the pull-back, two frames after the scroll with no settling"),
     ("figclip", PHONES + LANDS, a_figclip, "every figure cell and every native layer inside the art band at every held phone frame, and the ant's whole cell with them"),
     ("heldlabels", ("desktop", "phone"), a_heldlabels, "one and two notches past each hold (hold + 0.1, + 0.2) a cell figure with cells on screen has its labels painted"),
+    ("pinbuilt", ("desktop", "phone"), a_pinbuilt, "through every transit, while a chapter card is stuck at its sticky top, built() is that card's station or null"),
+    ("bandlit", PHONES, a_bandlit, "an upright phone at rest between holds with a card in the reading zone draws a figure (band > 2% lit, pink excluded) and a caption line"),
     ("restgap", PHONES, a_restgap, "a phone scroll that rests between a finished station's exit and the next native station's whole-box build meets the next station's first frame under its own caption 1 s later, and never the station ahead cut by the band's edge"),
     ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
     ("handoff", ("desktop",), a_handoff, "the bookend square's centre lands within 1 device px of the canvas ant's; the canvas stops drawing the ant there"),

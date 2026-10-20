@@ -82,6 +82,8 @@
 #sc-hero .sc-bar,#sc-hero .sc-keys,#sc-hero .sc-in{display:none}
 /* fig 15: a readout line that names three books, KRONOS in amber */
 .sc-l .kr-a{color:var(--v-amber)}
+/* fig 11: the gate count inside its header line */
+.sc-l .kr-i{color:var(--ink)}
 /* a screen under 500 px tall lets the strip scroll away (deep.css), so the road takes the top edge instead of
    floating 40 px down over the text */
 @media (max-height:499px){ .lx-bar{top:0} }
@@ -136,8 +138,8 @@
       <p class="lx-lede lx-up" style="--d:2">How a trading research platform learns to read market moods, and how it checks every estimator on a planted answer before it trusts a real price.</p>
       <p class="lx-lede lx-up" style="--d:3">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
       <div class="lx-cta lx-up" style="--d:4">
-        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
-        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn res" href="#ch-results"><span>See the results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q rd" href="#ch-situation"><span>start reading</span><span class="ar" aria-hidden="true">↓</span></a>
         <a class="lx-btn q" href="kronos.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
       </div>
       <dl class="facts lx-up" style="--d:5">
@@ -383,8 +385,8 @@
             </div>
           </div>
           <ol class="sc-keys">
-            <li data-key="stages" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L128-L132">One rebalance, two books. The shipped book holds every name at equal weight; the regime-gated book it replaced runs beside it as the control. The same overlay sizes either one.</span></li>
-            <li data-key="feeds" data-at="1"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L23-L55">A side part: a forecast of the book’s own volatility sets the lever, from its squared returns averaged over the last 1, 5 and 22 days.</span></li>
+            <li data-key="stages" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L128-L132">One rebalance, two books: the shipped one at equal weight, and the <span class="nw">regime-gated</span> one it replaced, run beside it as the control.</span></li>
+            <li data-key="feeds" data-at="1"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L23-L55">A side part: a forecast of the book’s own volatility, from squared returns averaged over 1, 5 and 22 days, sets the lever.</span></li>
             <li data-key="pairs" data-at="2">Another: <span data-src="Olivesz/kronos-quant@c19c5ca:run_kronos.py#L90-L96">a pairs sleeve adds its returns to the day’s</span>, sized at <span data-derived="0.10 = 10%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L72">10%</span> of the book, long and short legs counted together.</li>
             <li data-key="clock" data-at="3"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/backtest.py#L3-L9">Everything is decided at the close of day t, from data up to t. Trades, costs and returns start at t+1.</span></li>
           </ol>
@@ -407,9 +409,9 @@
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="nodes" data-at="0">Each day Bull stays put with probability <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">0.97</span>, Volatile and Bear with <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">0.94</span>; otherwise the chain moves.</li>
-              <li data-key="hop" data-at="1">One day at a time: the current mood picks a return and a volatility, and the day lands as a dot in its colour. The arrows carry the odds of moving.</li>
-              <li data-key="ff" data-at="40">Run it for <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L16">3,000</span> days and the clouds appear, one per mood, overlapping. Crosses mark the planted centres, each labelled with its daily return and volatility.</li>
-              <li data-key="stays" data-at="41">Those odds mean long stays: about <span data-derived="1 / (1 − 0.97) = 33.3" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">33</span> days in Bull and about <span data-derived="1 / (1 − 0.94) = 16.7" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">17</span> in the other two. The gate’s world switches faster than the opening figure’s.</li>
+              <li data-key="hop" data-at="1">Each day the mood picks a return and a volatility, and the day lands as a dot in its colour. Arrows carry the odds of moving.</li>
+              <li data-key="ff" data-at="40">After <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L16">3,000</span> days a cloud forms per mood, overlapping. Crosses mark the planted centres with their daily return and volatility.</li>
+              <li data-key="stays" data-at="41">Those odds mean long stays: about <span data-derived="1 / (1 − 0.97) = 33.3" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">33</span> days in Bull, about <span data-derived="1 / (1 − 0.94) = 16.7" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_regime.py#L17-L19">17</span> in the others, though this world switches faster than fig&nbsp;1’s.</li>
               <li data-key="grey" data-at="42">Strip the colour and this grey cloud is all a model ever gets.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-chain-cap"><span class="n">fig 4</span>The regime gate’s world, drawn fresh in the browser. The next figure fits this same draw. <span class="verb cap">click</span> new draw to plant another.</figcaption>
@@ -488,8 +490,8 @@
               <li data-key="raw" data-at="0">Filtered probabilities, one per state, and the label built from them. Their leader alone would flicker.</li>
               <li data-key="blip" data-at="1">A false alarm: a new state leads above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span>, then falls back before <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L51">5</span> straight days. No change.</li>
               <li data-key="flip" data-at="2">A real change: <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L51">5</span> straight days above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span>, at least <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days since the last change. The label flips and the counters reset.</li>
-              <li data-key="urgent" data-at="3">Bull took over <span data-derived="this draw's readout: Bear to Bull on day 85, the urgent flip on day 92">7</span> days ago, then Volatile passed <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span>. An urgent change: the label moved fewer than <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span> days ago, but above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span> the wait is waived.</li>
-              <li data-key="stable" data-at="4">A steady label under jittery lines.</li>
+              <li data-key="urgent" data-at="3">An urgent flip: Bull took over <span data-derived="this draw's readout: Bear to Bull on day 85, the urgent flip on day 92">7</span> days ago, then Volatile passed <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span>. Above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L53">0.90</span>, the <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L52">10</span>-day wait is waived.</li>
+              <li data-key="stable" data-at="4">Over the whole window: jittery lines over a steady label.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-hyst-cap"><span class="n">fig 7</span>The label rule run day by day on that market’s filtered readings. The readout counts days in a row above <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L50">0.65</span> and days since the last change, which carries in from before the window; both reset when the label moves. <span class="verb cap">click</span> no hysteresis to see the raw leader.</figcaption>
           </figure>
@@ -503,16 +505,16 @@
 <div class="lx-duo">
 <div class="lx-txt">
 <p>Real returns have fat tails: big days come far more often than a bell curve allows. A Gaussian model tends to explain them by inventing extra states. <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">On simulated fat-tailed worlds with 3 true states, Gaussian model selection picked too many states</span> for <span data-derived="88% of 8 seeds = 7" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">7</span> <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">of 8 seeds (6 picked five)</span>, against <span data-derived="50% of 8 seeds = 4" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">4 of 8</span> on plain Gaussian worlds; the Student-t picked too many for <span data-derived="38% of 8 seeds = 3" data-inputs="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L69">3 of 8</span>.</p>
-<p><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L43">The shipped engine is a Student-t HMM instead.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/thmm.py#L1-L16">Each state emits a Student-t, and each day gets a weight that shrinks as it lands further from its state’s centre, so one outlier cannot drag the fit.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime_engine.py#L1-L10">It runs with the same features, refits, label rules and causality test as the Gaussian engine.</span></p>
+<p><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L43">The default regime engine is a Student-t HMM instead.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/thmm.py#L1-L16">Each state emits a Student-t, and each day gets a weight that shrinks as it lands further from its state’s centre, so one outlier cannot drag the fit.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_regime_engine.py#L1-L10">It runs with the same features, refits, label rules and causality test as the Gaussian engine.</span></p>
 </div>
 <div class="lx-fig">
 <figure class="scene lx-fr" id="sc-tails" aria-labelledby="sc-tails-cap">
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
-              <li data-key="bell" data-at="0">One state’s returns from a fat-tailed world, counted on a log scale, with the best-fitting bell. Outlined bins hold days the bell says should almost never happen.</li>
+              <li data-key="bell" data-at="0">One state’s returns from a fat-tailed world, on a log scale, with the best-fit bell. Outlined bins: days the bell calls near-impossible.</li>
               <li data-key="mix" data-at="1">A Gaussian model covers them with a second, wider bell. Across a whole market, that second bell becomes an extra state.</li>
-              <li data-key="tee" data-at="2">A Student-t bell has the tails built in. <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/thmm.py#L7-L9">Each day gets a weight in the fit that shrinks with its distance from the centre</span>: the squares below, sized by weight.</li>
+              <li data-key="tee" data-at="2">A Student-t bell has the tails built in: <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/thmm.py#L7-L9">each day’s weight in the fit shrinks with its distance from the centre</span> (the squares below).</li>
               <li data-key="gate" data-at="3">Its gate checks both ways, in green: <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_thmm.py#L61">on a t(5) world the fitted tail index lands within 2 of 5</span>; <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_thmm.py#L84">on a Gaussian world, past 15</span>.</li>
               <li data-key="real" data-at="4"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L71">On real data each state gets its own tail index: Bull about 17, Volatile about 3.7, Bear about 300</span>.</li>
               <li data-key="bear" data-at="5">Bear’s sits at <span data-src="Olivesz/kronos-quant@c19c5ca:kronos/thmm.py#L15-L16">the top of the search bracket, which is effectively Gaussian: a plain bell</span>. The surprises live in the volatile state.</li>
@@ -536,8 +538,8 @@
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="mix" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L24-L28">The label picks the mix: Bull leans on momentum, Volatile splits between reversal and low volatility, Bear leans on low volatility.</span></li>
-              <li data-key="sig" data-at="1"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/signals.py#L23-L56">The signals: 12-1 momentum, the return from a year back to a month back; reversal, which fades the z-score of the last <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L58">20</span> days</span>; and low volatility, which ranks by volatility over the last <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L59">60</span> days.</li>
-              <li data-key="hrp" data-at="2"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/hrp.py#L1-L5">The backbone is hierarchical risk parity: cluster the names by correlation, then split the list in half again and again, giving each half its share by inverse variance. No matrix is inverted.</span></li>
+              <li data-key="sig" data-at="1"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/signals.py#L23-L56">Signals: 12-1 momentum, from a year back to a month back; reversal, fading the <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L58">20</span>-day <span class="nw">z-score</span></span>; low volatility over <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L59">60</span> days.</li>
+              <li data-key="hrp" data-at="2"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/hrp.py#L1-L5">The backbone, hierarchical risk parity: cluster by correlation, then split by inverse variance, half by half. No matrix inversion.</span></li>
               <li data-key="tilt" data-at="3"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/black_litterman.py#L35-L60">The signal is a tilt on the backbone, and any name above the cap is clipped, its excess spread over the rest</span>. The cap is <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L83">0.12</span>.</li>
               <li data-key="clock" data-at="4"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/backtest.py#L3-L9">Weights set at the close of day t earn from t+1.</span> The next rebalance comes <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L104">21</span> trading days later.</li>
             </ol>
@@ -561,10 +563,10 @@
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
               <li data-key="calm" data-at="0">A calm book at <span data-derived="0.05 = 5%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L56">5%</span> volatility: the lever wants <span data-derived="0.13 / 0.05 = 2.6" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L86; Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L56">2.6×</span>, and the cap holds it to <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5×</span>.</li>
-              <li data-key="hot" data-at="1">A hot book at <span data-derived="0.30 = 30%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L57">30%</span>: the lever drops to <span data-derived="0.13 / 0.30 = 0.433" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L86; Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L57">0.43×</span>.</li>
+              <li data-key="hot" data-at="1">A hot book at <span data-derived="0.30 = 30%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L57">30%</span> volatility: the lever drops to <span data-derived="0.13 / 0.30 = 0.433" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L86; Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L57">0.43×</span>, and the book shrinks.</li>
               <li data-key="dd" data-at="2">A book on its <span data-derived="the 0.13 volatility target = 13%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L86">13%</span> target (lever <span data-derived="0.13 / 0.13 = 1.0" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L86">1.0</span>) in a <span data-derived="a chosen reading between the −8% start and the −20% floor" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L89-L90">14%</span> drawdown: the throttle reads <span data-derived="1 − ((−0.08 + 0.14) / 0.12) × 0.75 = 0.625" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L89-L91; Olivesz/kronos-quant@c19c5ca:kronos/risk.py#L86-L87">0.625</span>, so exposure is <span data-derived="1.0 × 0.625" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L86-L91">0.625</span>.</li>
               <li data-key="floor" data-at="3">Past a <span data-derived="−0.20 = a 20% drawdown" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L90">20%</span> drawdown the throttle sits at its <span data-src="Olivesz/kronos-quant@c19c5ca:config.py#L91">0.25</span> floor.</li>
-              <li data-key="day" data-at="4"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/backtest.py#L3-L9">Exposure set at the close of day t applies from t+1.</span> The day’s net return is the gross return (before costs) times exposure, minus trading costs and financing on <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L41-L43">the levered portion</span>.</li>
+              <li data-key="day" data-at="4"><span data-src="Olivesz/kronos-quant@c19c5ca:kronos/backtest.py#L3-L9">Set at day t’s close, exposure applies from t+1</span>: net return is gross times exposure, less costs and financing on <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L41-L43">the levered portion</span>.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-overlay-cap"><span class="n">fig 10</span>The overlay’s formula, computed in the browser. Drag the sliders, or switch the tilt, to size your own book.</figcaption>
           </figure>
@@ -599,8 +601,8 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="e1" data-at="0"><span data-derived="commit date of 454fe62, in the commit’s own time zone">13 July</span>, the first commit: <span data-derived="len(GATES) at 454fe62 = 27" data-inputs="Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29">27</span> gates.</li>
-            <li data-key="e2" data-at="16"><span data-derived="commit date of 0c1b53b, in the commit’s own time zone">15 July</span>: <span data-src="Olivesz/kronos-quant@0c1b53b:README.md#L10">30</span> gates, all green. None of them asks which way the drawdown brake pushes.</li>
+            <li data-key="e1" data-at="0"><span data-derived="commit date of 454fe62, in the commit’s own time zone">13 July</span>, the first commit: <span data-derived="len(GATES) at 454fe62 = 27" data-inputs="Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29">27</span> gates, one tile each in run order. Outlined tiles are the gates added later.</li>
+            <li data-key="e2" data-at="16"><span data-derived="commit date of 0c1b53b, in the commit’s own time zone">15 July</span>: <span data-src="Olivesz/kronos-quant@0c1b53b:README.md#L10">30</span> gates, all green. None of them asks which way the drawdown brake pushes: the dashed tile is the gate that is missing.</li>
             <li data-key="e3" data-at="32"><span data-derived="commit date of 7383e32, in the commit’s own time zone">10 August</span>: the fix lands with the missing gate, the <span data-derived="30 + X27 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L40-L41">31</span>st. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L50-L51">X27 checks the risk overlay’s direction, its leverage and its financing.</span></li>
             <li data-key="e4" data-at="48"><span data-derived="commit date of c19c5ca, in the commit’s own time zone">13 October</span>: <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L44-L46">47 gates, all run in CI on the committed real prices with nothing skipped</span>, and again on a synthetic market.</li>
             <li data-key="badge" data-at="64">The README badge once said <span data-src="Olivesz/kronos-quant@7383e32:README.md#L10">30</span> while the list held <span data-derived="len(GATES) at 7383e32 = 31" data-inputs="Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42">31</span>. <span data-src="Olivesz/kronos-quant@c19c5ca:tests/run_all.py#L75-L79">The runner now refuses to pass if the badge disagrees with the list.</span></li>
@@ -619,9 +621,9 @@
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
             <li data-key="both" data-at="0">Two throttles, each from its formula: fixed in amber, as found in red. Shaded: where they disagree.</li>
-            <li data-key="written" data-at="8">Why: as written, the span is negative, so the line runs the wrong way: <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">0.50 at the high-water mark</span>, rising to <span data-derived="1 + (−0.20 + 0.08) × 0.75 / (−0.12) = 1.75" data-inputs="Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L39-L42; Olivesz/kronos-quant@c19c5ca:config.py#L89-L91">1.75</span> at <span data-derived="−0.20 = −20%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L90">−20%</span>, before any clip.</li>
-            <li data-key="clip" data-at="12"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">A clip at 1.0 hid the wrong side</span>, so it looked sensible: it braked hardest at the high and let go by <span data-derived="the written line reaches 1 at dd_start = −8%" data-inputs="Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L39-L42">−8%</span>, wide open through every crash.</li>
-            <li data-key="damage" data-at="16"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">Measured: it bound on 93.6% of days, at a mean multiplier of 0.64.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L14-L15">The formula was duplicated in risk.py and trade.py, and both were fixed.</span></li>
+            <li data-key="written" data-at="8">The span as written is negative, so the line runs the wrong way: <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">0.50 at the high-water mark</span>, rising to <span data-derived="1 + (−0.20 + 0.08) × 0.75 / (−0.12) = 1.75" data-inputs="Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L39-L42; Olivesz/kronos-quant@c19c5ca:config.py#L89-L91">1.75</span> at <span data-derived="−0.20 = −20%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L90">−20%</span> before any clip.</li>
+            <li data-key="clip" data-at="12"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L871">A clip at 1.0 hid the wrong side</span>: it braked hardest at the high and let go by <span data-derived="the written line reaches 1 at dd_start = −8%" data-inputs="Olivesz/kronos-quant@0c1b53b:kronos/risk.py#L39-L42">−8%</span>, wide open through every crash.</li>
+            <li data-key="damage" data-at="16"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L871-L872">Measured: it bound on 93.6% of days, at a mean multiplier of 0.64.</span> <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L14-L15">The formula sat in risk.py and trade.py; both were fixed.</span></li>
           </ol>
           <figcaption class="sc-cap" id="sc-throttle-cap"><span class="n">fig 12</span>The drawdown throttle as found and fixed, each drawn from its formula. Drag the drawdown to read both.</figcaption>
         </figure>
@@ -636,10 +638,10 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="path" data-at="11"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L28-L33">Gate X27’s engineered path</span>: <span data-derived="days 300 to 340 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">40</span> days down to near <span data-derived="0.99278^40 − 1 = −25.2%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">−25%</span>, then <span data-derived="days 340 to 420 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L32">80</span> back up.</li>
-            <li data-key="traces" data-at="23">Both throttles on that path, day by day: as found in red, fixed in amber.</li>
-            <li data-key="checks" data-at="24">X27’s checks: <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L38-L52">exactly 1 at every high-water mark, never more exposure for a deeper drawdown, strictly between the floor and 1</span> from <span data-derived="−0.10 = −10%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L51">−10%</span> to <span data-derived="−0.18 = −18%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L51">−18%</span>, and the floor past <span data-derived="−0.20 = −20%" data-inputs="Olivesz/kronos-quant@c19c5ca:config.py#L90">−20%</span>.</li>
-            <li data-key="fails" data-at="25">Graded the same way, the throttle as written (fig 11) fails every one of them, starting on day one.</li>
+            <li data-key="path" data-at="11"><span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L28-L33">Gate X27’s engineered path</span>: <span data-derived="days 300 to 340 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">40</span> days down to near <span data-derived="0.99278^40 − 1 = −25.2%" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L31">−25%</span>, deep enough to reach the throttle’s floor, then <span data-derived="days 340 to 420 of the path" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L32">80</span> back up.</li>
+            <li data-key="traces" data-at="23">Both throttles on that path, day by day. Fixed (amber) brakes in the slide; <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L870">as found (red) brakes hardest at the high instead</span>.</li>
+            <li data-key="checks" data-at="24">X27’s <span data-src="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L38-L52">throttle checks</span>, listed above with the drawdowns they hold at: the fixed throttle passes all <span data-derived="the four X27 throttle checks, each passed by the fixed throttle, graded in the page" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L38-L52">four</span>.</li>
+            <li data-key="fails" data-at="25">Graded the same way, the throttle as found (fig&nbsp;12) fails all <span data-derived="the four X27 checks, each failed by the as-found throttle, graded in the page" data-inputs="Olivesz/kronos-quant@c19c5ca:tests/test_risk.py#L38-L52">four</span>, the first on day one, <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L867-L869">braking to 0.50 at the high</span>.</li>
             </ol>
           <figcaption class="sc-cap" id="sc-repair-cap"><span class="n">fig 13</span>Gate X27 replayed on its own path, computed in the browser. <span class="verb cap">click</span> grade as found to put the old throttle through the same checks.</figcaption>
         </figure>
@@ -654,10 +656,10 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="rule" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L36-L41">The repair had a second half. The old rule took the smallest of the lever and the brakes, and the brakes top out at 1, so a calm book could never be levered.</span></li>
+            <li data-key="rule" data-at="0"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L36-L41">The repair’s second half: the old rule took the smallest of lever and brakes; brakes top out at 1, so a calm book was never levered.</span></li>
             <li data-key="times" data-at="1">Now exposure is the lever times the tighter brake.</li>
-            <li data-key="fin" data-at="2"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L891-L894">Both kill lines held.</span> The fix alone raised Sharpe from <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L886">0.94</span> to <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L887">1.02</span>, and <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L893-L894">financing took about 37% of the leverage gain, under the 50% line.</span></li>
-            <li data-key="ladder" data-at="3">Where the return went, by realized volatility: <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L26">6.9%</span> as found, <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L887">8.7%</span> with the fix alone, <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L888">11.6%</span> with the lever as well, in the August run, against the <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24">13%</span> target.</li>
+            <li data-key="fin" data-at="2"><span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L891-L894">Both kill lines held.</span> The fix alone lifted Sharpe from <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L886">0.94</span> to <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L887">1.02</span>; <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L893-L894">financing took about 37% of the leverage gain, under the 50% line.</span></li>
+            <li data-key="ladder" data-at="3">Realized volatility in the August run: <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L26">6.9%</span> as found, <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L887">8.7%</span> with the fix, <span data-src="Olivesz/kronos-quant@c19c5ca:docs/FINDINGS.md#L888">11.6%</span> with the lever too, against the <span data-src="Olivesz/kronos-quant@c19c5ca:docs/design/DESIGN15.md#L24">13%</span> target.</li>
           </ol>
           <figcaption class="sc-cap" id="sc-pay-cap"><span class="n">fig 14</span>Did the repair pay? A calm book at full brakes under each rule, the two kill lines, and realized volatility at each stage.</figcaption>
         </figure>
@@ -688,11 +690,11 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="slide" data-at="10">Each row on its own scale from zero: KRONOS in amber, equal weight on the same names as an outline, SPY in grey. CAGR is the yearly growth rate.</li>
-            <li data-key="read" data-at="12">Sharpe at a zero rate: <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">1.12</span>, against <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">1.10</span> for equal weight and <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">0.91</span> for SPY. Max drawdown: <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">−18.7%</span>, against <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">−29.5%</span> and <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">−33.7%</span>.</li>
+            <li data-key="slide" data-at="10">Each row on its own scale from zero: KRONOS in amber, equal weight on the same names outlined, SPY in grey. CAGR: yearly growth.</li>
+            <li data-key="read" data-at="12">Sharpe at a zero rate: <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">1.12</span>, against <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">1.10</span> (equal weight) and <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">0.91</span> (SPY). Max drawdown: <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">−18.7%</span>, against <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">−29.5%</span> and <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">−33.7%</span>.</li>
             <li data-key="cash" data-at="14">Over cash the book lands just short of equal weight, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">0.97</span> against <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">0.98</span>, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L209">and the repo reports that as a failure</span>.</li>
             <li data-key="raw" data-at="16">CAGR <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151">13.6%</span>, against <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154">16.6%</span> and <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155">15.0%</span>: equal weight and SPY both win on raw return.</li>
-            <li data-key="caveat" data-at="18"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">In-sample</span>, after costs, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span>, financing <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L159-L160">0.77%/yr</span>, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L338-L342">on today’s large caps, picked with hindsight, which carries survivorship bias</span>.</li>
+            <li data-key="caveat" data-at="18"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">In-sample</span>, after costs, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">up to 1.5× leverage</span>, financing <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L159-L160">0.77%/yr</span>, <span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L338-L342">on today’s large caps picked with hindsight: survivorship bias</span>.</li>
           </ol>
           <figcaption class="sc-cap" id="sc-results-cap"><span class="n">fig 15</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">2013-01-14 to 2026-06-04, net of costs</span>: the shipped book, equal weight on the same names, and SPY, over the same days. Shares of drawdown are worked out <span data-src="Olivesz/kronos-quant@c19c5ca:research/momtilt.json#L12-L93">from the unrounded drawdowns</span>.</figcaption>
         </figure>
@@ -2024,15 +2026,19 @@
   ];
   (function () {
     var BASE = [0, 16, 32, 48];
+    // a short wide screen (a phone on its side) lays the tiles 16 to a row, three rows, so the whole list and its notes
+    // fit over the docked words at once
+    function SW() { return !PHONE() && window.innerHeight < 500; }
+    function PER(ph) { return ph ? 11 : SW() ? 16 : 14; }
     Deep.scene("sc-gates", {
       // the canvas runs down to the last note's row, so a note still to come holds its row in copper
-      grid: { cols: 88, get rows() { return PHONE() ? 58 : window.innerHeight < 500 ? 28 : 34; }, pitch: 8, pitchPhone: 4 },
+      grid: { cols: 88, get rows() { return PHONE() ? 58 : SW() ? 23 : 34; }, pitch: 8, pitchPhone: 4 },
       space: { top: 24, get bottom() { return PHONE() || window.innerHeight < 500 ? 16 : 8; } },
       ticks: 66, tps: 12,
       check: function () { return PIN.length === 47 && ERA.every(function (e) { return PIN.length - e.drop.length === e.n; }); },
       // the tile rows the canvas paints, the runner's ring included, so the docked words never cut a row of tiles in two
       rows: function (api) {
-        var ph = api.phone, per = ph ? 11 : 14, tw = ph ? 7 : 5, ts = ph ? 6 : 4, out = [];
+        var ph = api.phone, per = PER(ph), tw = ph ? 7 : 5, ts = ph ? 6 : 4, out = [];
         for (var i = 0; i < PIN.length; i += per) { var n = Math.min(per, PIN.length - i); out.push([-0.5, 1 + i / per * tw - 0.5, (n - 1) * tw + ts + 1, ts + 1]); }
         return out;
       },
@@ -2044,11 +2050,13 @@
       },
       draw: function (api, tick) {
         begin(api);
-        var k = api.keyIndex, e = Math.min(3, k), E = ERA[e], ph = api.phone, per = ph ? 11 : 14, tw = ph ? 7 : 5, ts = ph ? 6 : 4;
+        var k = api.keyIndex, e = Math.min(3, k), E = ERA[e], ph = api.phone, per = PER(ph), tw = ph ? 7 : 5, ts = ph ? 6 : 4;
         var present = PIN.filter(function (g) { return E.drop.indexOf(g) < 0; });
         var sweep = k >= 4 ? 1 : clamp((tick - BASE[e] - 1) / 12, 0, 1), run = sweep > 0 && sweep < 1 ? Math.floor(sweep * present.length) : -1;
-        lab(api, "hd", E.date + (ph ? " · " : " · " + E.sha + " · "), 0, 0, { dy: -24, derived: ph ? "commit date" : "commit date and sha" });   // the shas are in the sources list
-        lab(api, "hn", E.n + " gates" + (E.drop.length ? (ph ? " · outlined: later" : " · outlined: gates added later") : ""), 0, 0, { dy: -24, dx: ph ? 100 : 176, cls: "i", src: e === 0 ? "Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29" : e === 1 ? "Olivesz/kronos-quant@0c1b53b:tests/run_all.py#L11-L40" : e === 2 ? "Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42" : R + "tests/run_all.py#L11-L73" });
+        // one label, so the count follows the date at the font's own space on any screen; the count keeps its source
+        var nsrc = e === 0 ? "Olivesz/kronos-quant@454fe62:tests/run_all.py#L6-L29" : e === 1 ? "Olivesz/kronos-quant@0c1b53b:tests/run_all.py#L11-L40" : e === 2 ? "Olivesz/kronos-quant@7383e32:tests/run_all.py#L11-L42" : R + "tests/run_all.py#L11-L73";
+        lab(api, "hd", E.date + (ph ? " · " : " · " + E.sha + " · ") + '<span class="kr-i" data-src="' + nsrc + '">' + E.n + " gates" +
+          (E.drop.length ? (ph ? " · outlined: later" : " · outlined: gates added later") : "") + "</span>", 0, 0, { dy: -24, html: true, derived: ph ? "commit date" : "commit date and sha" });   // the shas are in the sources list
         var j = 0, riskPos = null;
         PIN.forEach(function (g, i) {
           var x = (i % per) * tw, y = 1 + Math.floor(i / per) * tw, here = E.drop.indexOf(g) < 0;
@@ -2204,21 +2212,29 @@
     }
     var GF = grade(mF), GW = grade(mW), A = 250, B = 470, NMAX = 1.0;
     for (i = A; i <= B; i++) NMAX = Math.max(NMAX, nav[i]);
+    // a short wide screen (a phone on its side) draws both plots shorter, so the grading line, the traces and the four
+    // checks fit over the docked words at once
+    function SW() { return !PHONE() && window.innerHeight < 500; }
+    var lastK = -1;
     Deep.scene("sc-repair", {
-      grid: { cols: 88, get rows() { return PHONE() ? 52 : 34; }, pitch: 8, pitchPhone: 4 },
+      grid: { cols: 88, get rows() { return PHONE() ? 52 : SW() ? 26 : 34; }, pitch: 8, pitchPhone: 4 },
       space: { get top() { return PHONE() ? 44 : 24; }, get bottom() { return PHONE() ? 16 : 24; } },
       ticks: 27, tps: 8,
       check: function () { return GF.a && GF.b && GF.c && GF.d && !GW.a && GW.first === 0 && Math.abs(nav[339] - Math.pow(1 - 0.00722, 40)) < 1e-9; },
       inputs: [{ id: "swap", label: "grade as found", states: ["off", "on"] }],
       draw: function (api, tick) {
         begin(api);
-        var k = api.keyIndex, W = api.cols, ph = api.phone, swap = !!api.inputs.swap;
+        var k = api.keyIndex, W = api.cols, ph = api.phone, sw = !ph && SW();
+        // step 4 grades the throttle as found, so its toggle reads on there and turning it off grades the fixed one;
+        // leaving step 4 sets it back off
+        if (k !== lastK) { if (k === 3 || lastK === 3) { api.inputs.swap = k === 3; api.scene.syncInputs(); } lastK = k; }
+        var swap = !!api.inputs.swap;
         function X(d) { return (d - A) / (B - A) * W; }
         if (k <= 3) {
           // drawn on while it plays; a step reached by hand, or with reduced motion, shows what its words describe
           var still = api.mode !== "auto" && api.mode !== "seg";
           var u0 = still ? 1 : clamp(tick / 11, 0, 1), u1 = still ? (k >= 1 ? 1 : 0) : clamp((tick - 12) / 10, 0, 1);
-          var ny0 = 1, ny1 = ph ? 13 : 11, my0 = ph ? 17 : 15, my1 = ph ? 34 : 29;
+          var ny0 = 1, ny1 = ph ? 13 : sw ? 8 : 11, my0 = ph ? 17 : sw ? 11 : 15, my1 = ph ? 34 : sw ? 20 : 29;
           function YN(x) { return ny1 - (x - 0.74) / (NMAX - 0.74) * (ny1 - ny0); }      // the recovery ends above the old high
           function YM(m) { return my1 - m / 1.1 * (my1 - my0); }
           hr(api, 0, W, YN(1), "rule", 1, true); hr(api, 0, W, YN(0.748), "rule", 1, true);
@@ -2241,7 +2257,7 @@
             lab(api, "tw", "as found", X(A + 4), YM(mW[A]), { dy: 4, k: "kr-t" }); lab(api, "tf", "fixed", X(A + 10), YM(1), { dy: -20, k: "kr-a" });
           }
           // X27's four checks stand muted from the first step, so the reader knows what the path is for; graded at step 3
-          var asFound = swap || k === 3, Gd = asFound ? GW : GF, who = asFound ? "as found" : "fixed", graded = k >= 2;
+          var asFound = swap, Gd = asFound ? GW : GF, who = asFound ? "as found" : "fixed", graded = k >= 2;
           [["a", "1 at every high"], ["c", "never more for deeper"], ["d", ph ? "between floor and 1, −10% to −18%" : "between the floor and 1, −10% to −18%"], ["b", "the floor past −20%"]].forEach(function (q, i) {
             lab(api, "ck" + i, (graded ? (Gd[q[0]] ? "pass · " : "fail · ") : "check · ") + q[1], ph ? 0 : (i % 2) * 44, my1 + 1 + (ph ? i * 4.5 : Math.floor(i / 2) * 2.5), { dy: 2, k: graded ? (Gd[q[0]] ? "kr-g" : "i") : "", src: R + "tests/test_risk.py#L38-L52" });
           });

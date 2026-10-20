@@ -411,6 +411,9 @@
   SP.reveal = function (i, els) {
     var S = this;
     if (!S.fig.classList.contains("docked") || !dockable()) return;
+    // a phone on its side: an art that fits above the step's words comes up whole, so a longer step's words never
+    // cover a row the step before it showed
+    if (!els && root.innerHeight < 500 && S.fits([S.art], i)) els = [S.art];
     els = els || S.subject(i); if (!els.length) return;
     var b = S.bounds(els, i), dy = 0;
     if (b.bot > b.hi) dy = b.bot - b.hi;
@@ -424,10 +427,18 @@
     fig.classList.remove("docked");
     if (!dockable() || getComputedStyle(bar).display === "none") return;
     if (S.reach() <= room()) return;
+    var svg = [].filter.call(S.art.children, function (c) { return c.tagName.toLowerCase() === "svg" && c.getClientRects().length; })[0];
+    var natH = svg ? svg.getBoundingClientRect().height : 0;          // its height undocked, before any scaling
     fig.classList.add("docked");                                      // the words sit right on top of the docked stepper
     fig.style.setProperty("--dock-b", Math.floor(bar.getBoundingClientRect().height) + "px");
     var keys = fig.querySelector(".sc-keys");
     if (keys) fig.style.setProperty("--keys-h", Math.ceil(keys.getBoundingClientRect().height) + "px");
+    /* a phone on its side: a drawn composition (an svg) a little taller than the band between the strip and the longest
+       step's words is scaled to it (deep.css), so every step can show it whole; never below 85%, so its 13 px labels
+       stay at the site's smallest size, 11 px. A canvas keeps its whole-pixel pitch. */
+    var fitH = keys && natH ? Math.floor(shortest() - stripH() - Math.ceil(keys.getBoundingClientRect().height) - 1 - Math.ceil(bar.getBoundingClientRect().height) - 8) : 0;
+    if (root.innerHeight < 500 && fitH < natH && fitH >= natH * 0.85) fig.style.setProperty("--art-fit", fitH + "px");
+    else fig.style.removeProperty("--art-fit");
     S.dockWords();
   };
   /* a docked scene's backing follows the step on screen: the words area keeps the longest step's height in the page's
@@ -444,8 +455,12 @@
   /* the painted rows of a canvas scene that declares rows: Deep.inkRows (or ink: true, for a rows function that adds
      its own to them). Every filled rectangle the scene paints is noted
      in a map of CSS pixels (a fill of the whole canvas starts it again; a fill in the ground colour
-     takes its area back), and each column's runs of ink no taller than ROW_MAX are its rows, side by side runs of the
-     same height joined into one. Strokes are left out: a line a pixel or two across is not a row. */
+     takes its area back). Each column's runs of ink no taller than ROW_MAX are joined to the runs beside them, or one
+     column beyond, that share any of their height; a shape joined that way, no taller than ROW_MAX and spanned top to
+     bottom by one of its runs, is one row, its bounding box, so an outlined field or a bracket with its bar is clipped
+     whole, top rule included. Any other shape keeps its runs as rows, side by side runs of the same height joined into
+     one. Strokes are left out: a
+     line a pixel or two across is not a row. */
   function inkTrack(S) {
     var g = S.spec.grid, c = S.ctx;
     var w = Math.ceil(g.cols * S.pitch), h = Math.ceil(g.rows * S.pitch);
@@ -472,19 +487,37 @@
     var I = api.scene.ink, p = api.scene.pitch || 1;
     if (!I) return [];
     if (I.rows) return I.rows;
-    var out = [], open = {};
+    var runs = [], up = [], near = [[], []];
+    function top(i) { while (up[i] !== i) { up[i] = up[up[i]]; i = up[i]; } return i; }
     for (var cx = 0; cx < I.cols; cx++) {
-      var now = {};
+      var now = [];
       for (var y = 0; y < I.h; y++) {
         if (!I.m[y * I.cols + cx]) continue;
         var t = y; while (y + 1 < I.h && I.m[(y + 1) * I.cols + cx]) y++;
         if (y + 1 - t > ROW_MAX) continue;
-        var key = t + ":" + (y + 1), q = open[key];
-        if (q && q[4] === cx) { q[2] += 1 / p; q[4]++; } else { q = [cx / p, t / p, 1 / p, (y + 1 - t) / p, cx + 1]; out.push(q); }
-        now[key] = q;
+        var id = runs.length; runs.push([cx, t, y + 1]); up.push(id); now.push(id);
+        for (var s = 0; s < 2; s++) near[s].forEach(function (j) {
+          var r = runs[j], a = top(j), b = top(id);
+          if (r[1] < y + 1 && t < r[2] && a !== b) up[b] = a;
+        });
       }
-      open = now;
+      near = [now, near[0]];
     }
+    var box = {}, out = [], open = {};
+    runs.forEach(function (r, i) {
+      var k = top(i), q = box[k];
+      if (!q) box[k] = [r[0], r[1], r[0] + 1, r[2]];
+      else { q[1] = Math.min(q[1], r[1]); q[2] = r[0] + 1; q[3] = Math.max(q[3], r[2]); }
+    });
+    // a shape is held together top to bottom by one of its runs (an outline's side, a bracket's serif); a scatter of
+    // dots or the arc of a curve is not, and keeps its runs
+    runs.forEach(function (r, i) { var b = box[top(i)]; if (r[1] <= b[1] + 1 && r[2] >= b[3] - 1) b.tie = 1; });
+    runs.forEach(function (r, i) {
+      var k = top(i), b = box[k];
+      if (b.tie && b[3] - b[1] <= ROW_MAX) { if (!b.out) { b.out = 1; out.push([b[0] / p, b[1] / p, (b[2] - b[0]) / p, (b[3] - b[1]) / p]); } return; }
+      var key = r[1] + ":" + r[2], q = open[key];
+      if (q && q[4] === r[0]) { q[2] += 1 / p; q[4]++; } else { q = [r[0] / p, r[1] / p, 1 / p, (r[2] - r[1]) / p, r[0] + 1]; out.push(q); open[key] = q; }
+    });
     return (I.rows = out);
   }
   // the rows of the art with any part between lo and hi: boxes (tol 2: a box that only shares a border with the edge
@@ -499,7 +532,8 @@
       var c = getComputedStyle(e);
       if (+c.opacity === 0) { gone.push(e); continue; }
       if (c.visibility === "hidden") continue;
-      var boxed = r.height <= ROW_MAX && (/^(CANVAS|SVG|svg|IMG|INPUT|BUTTON)$/.test(e.tagName) || c.backgroundColor !== "rgba(0, 0, 0, 0)" ||
+      // a button is one control however tall its card (a scenario card runs to 72 px and more): it goes whole too
+      var boxed = (r.height <= ROW_MAX || (e.tagName === "BUTTON" && r.height <= 2 * ROW_MAX)) && (/^(CANVAS|SVG|svg|IMG|INPUT|BUTTON)$/.test(e.tagName) || c.backgroundColor !== "rgba(0, 0, 0, 0)" ||
         parseFloat(c.borderTopWidth) > 0 || parseFloat(c.borderLeftWidth) > 0 || parseFloat(c.borderBottomWidth) > 0);
       if (boxed) { out.push({ l: r.left, r: r.right, t: r.top, b: r.bottom, tol: 2 }); continue; }
       for (var t = e.firstChild; t; t = t.nextSibling) {
@@ -528,15 +562,28 @@
             if (b > D - 3 * ROW_MAX && t < D) atoms.push({ l: cr.left + q[0] * p, r: cr.left + (q[0] + q[2]) * p, t: t, b: b, tol: 2 });
           });
         }
-        // the edge over a row's width: the backing's edge, or the top of a clipped row it overlaps
-        level = function (a) { var y = D; steps.forEach(function (q) { if (q.r - a.l > 1 && a.r - q.l > 1) y = Math.min(y, q.t); }); return y; };
-        // a row the edge cuts is clipped from its top; a row the stepped edge cuts in turn goes too
+        // the edge's highest and lowest points over a row's width: the backing's edge, or the tops of the clipped rows
+        // over each part of it (a part a pixel or less across is passed over)
+        level = function (a) {
+          var xs = [a.l, a.r], up = Infinity, down = -Infinity;
+          steps.forEach(function (q) { if (q.l > a.l && q.l < a.r) xs.push(q.l); if (q.r > a.l && q.r < a.r) xs.push(q.r); });
+          xs.sort(function (u, v) { return u - v; });
+          for (var i = 1; i < xs.length; i++) {
+            if (xs[i] - xs[i - 1] <= 1 && xs.length > 2) continue;
+            var m = (xs[i] + xs[i - 1]) / 2, y = D;
+            steps.forEach(function (q) { if (q.l < m && q.r > m) y = Math.min(y, q.t); });
+            up = Math.min(up, y); down = Math.max(down, y);
+          }
+          return up === Infinity ? [D, D] : [up, down];
+        };
+        /* a row the edge cuts is clipped from its top, and so is a row the stepped edge leaves part drawn: some of it
+           hidden while some of it shows below its top. A row the stepped edge cuts in turn goes too. */
         for (var n = 0, more = true; n < 8 && more; n++) {
           more = false;
           atoms.forEach(function (a) {
             if (a.done) return;
-            var y = level(a), tol = n ? a.tol : 0.5;
-            if (a.t < y - tol && a.b > y + tol) { a.done = more = true; steps.push(a); }
+            var e = level(a), tol = n ? a.tol : 0.5;
+            if (e[1] > a.t + tol && e[0] < a.b - tol) { a.done = more = true; steps.push(a); }
           });
         }
         if (steps.length) {
@@ -563,7 +610,8 @@
     var S = this, tick = Math.floor(S.t + 1e-9), frac = S.t - tick;
     var k = S.mode === "live" ? S.k : S.keyAt(tick);
     if (k !== S.k || force) S.setKey(k);
-    var wk = S.mode === "live" ? S.k : Math.max(k, S.wordKey(S.t));
+    // a next tap shows the step it asked for at once, words and count, while the stretch to it plays under them
+    var wk = S.mode === "live" ? S.k : Math.max(k, S.wordKey(S.t), S.mode === "seg" ? S.segKey : 0);
     if (wk !== S.wk || force) S.setWords(wk);
     if (S.mode === "live") { if (S.spec.live && S.spec.live.draw) S.spec.live.draw(S.api, S.live); }
     else if (S.spec.draw && (force || tick !== S.drawnTick || S.spec.smooth)) { S.spec.draw(S.api, tick, S.spec.smooth ? frac : 0); S.drawnTick = tick; }
@@ -624,7 +672,7 @@
     var txt = live ? "live" : "step " + (S.wk + 1) + " of " + m;
     if (S.nEl.textContent !== txt) S.nEl.textContent = txt;
     S.prevB.disabled = !live && S.k <= 0 && S.t <= S.keys[0].at;
-    S.nextB.disabled = !live && S.k >= m - 1;
+    S.nextB.disabled = !live && Math.max(S.k, S.wk) >= m - 1;
     S.pips.forEach(function (p, i) {
       var cur = !live && i === S.wk;
       if (cur) p.setAttribute("aria-current", "step"); else p.removeAttribute("aria-current");
@@ -687,7 +735,7 @@
     var wasLive = S.mode === "live"; S.leaveLive(); S.stop(); if (!S.arrived) S.fig.dispatchEvent(new CustomEvent("deep:arrive")); S.arrived = true; S.queued = false; S.paused = false; S.played = true;
     var at = i === S.keys.length - 1 ? S.T : S.keys[i].at;
     if (snap || REDUCE || wasLive || at <= S.t || !S.visible) { S.show(at); return; }
-    S.mode = "seg"; S.target = at; S.holdLeft = 0; S.run();
+    S.mode = "seg"; S.segKey = i; S.target = at; S.holdLeft = 0; S.render(true); S.run();
   };
 
   /* ---------- live inputs ---------- */
@@ -825,7 +873,7 @@
 
   /* resize: lay every scene out again once the size settles */
   var rz = 0, laidW = root.innerWidth, laidH = root.innerHeight;
-  function relayout() { rz = 0; laidW = root.innerWidth; laidH = root.innerHeight; scenes.forEach(function (s) { s.layout(); s.render(true); }); sched(); }
+  function relayout() { rz = 0; laidW = root.innerWidth; laidH = root.innerHeight; scenes.forEach(function (s) { s.layout(); s.render(true); }); sched(); heads(true); }
   root.addEventListener("resize", function () {
     clearTimeout(rz);
     rz = setTimeout(relayout, 120);
@@ -839,8 +887,28 @@
       rm = 0;
       scenes.forEach(function (s) { if (s.fig.classList.contains("docked")) s.rowMask(); });
       sched();
+      heads(false);
     });
   }, { passive: true });
+  /* a heading, statement or pull scrolling up under the strip goes out whole once its last line's baseline passes the
+     strip's lower edge with its 4 px of void (or the road bar's edge, where that is the top edge), so its descenders
+     never sit alone under the strip as stray marks. A zero-size inline-block after the words sits on that baseline. */
+  var HEADS = [].map.call(document.querySelectorAll("main h1, main h2, main h3, main .lx-state, main .lx-pull"), function (h) {
+    var m = mk("span", "dd-bl", h); m.setAttribute("aria-hidden", "true"); return { h: h, m: m, out: false };
+  }), headEdge = 0;
+  function heads(measure) {
+    if (measure || !headEdge) {
+      var s = document.querySelector(".strip"), b = document.querySelector(".lx-bar");
+      headEdge = s && getComputedStyle(s).position === "sticky" ? s.getBoundingClientRect().bottom + 4 : 0;
+      if (b && getComputedStyle(b).display !== "none") headEdge = Math.max(headEdge, b.getBoundingClientRect().bottom);
+      headEdge = headEdge || -1;
+    }
+    HEADS.forEach(function (o) {
+      var out = o.m.getBoundingClientRect().top <= headEdge;
+      if (out !== o.out) { o.out = out; o.h.classList.toggle("dd-out", out); }
+    });
+  }
+  heads(true);
   // a check that runs while a resize is still settling (or before its event) lays the scenes out first, so it reads the
   // size on screen
   function settle() { if (rz || root.innerWidth !== laidW || root.innerHeight !== laidH) { clearTimeout(rz); relayout(); } }
@@ -851,7 +919,7 @@
      preloaded) or before the faces are in use, and the page scripts add rows to a figure after it is built; so this
      runs again when the page's scripts are done (DOMContentLoaded), when it has loaded, and whenever fonts finish
      loading, and the page's layout no longer depends on which of those came first. */
-  function fontsIn() { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.render(true); s.dock(); }); sched(); }
+  function fontsIn() { scenes.forEach(function (s) { for (var id in s.labels) s.placeLabel(s.labels[id]); s.render(true); s.dock(); }); sched(); heads(true); }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fontsIn);
   if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", fontsIn);
   if (document.readyState !== "complete") root.addEventListener("load", fontsIn);

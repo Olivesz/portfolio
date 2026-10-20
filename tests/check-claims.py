@@ -30,11 +30,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 KRONOS_FILES = ("index.html", "work/kronos*.html", "README.md")
 RETIRED = [
     (r"sharpe 0\.94|0\.94.{0,24}net sharpe|net sharpe.{0,24}0\.94",
-     "KRONOS: the Sharpe is README.md's shipped run, 1.07 at -17.9%. FINDINGS.md labels "
-     "0.94 a baseline row."),
+     "KRONOS: README.md L151 governs the Sharpe: the shipped run, 1.12 at rf=0 and 0.97 over "
+     "cash, at -18.7%. FINDINGS.md labels 0.94 a baseline row."),
     (r"30 CI gates|30 gates in CI",
-     "KRONOS: the gate count is README.md's (41: 39 synthetic, 2 real-market), counted "
-     "from GATES in tests/run_all.py."),
+     "KRONOS: the gate count is README.md's (47, L44-L46), counted from GATES in "
+     "tests/run_all.py."),
     (r"22 pre-registered",
      "KRONOS: README.md governs the count of pre-registered experiments."),
     # held-out: singular and plural, with or without a following noun
@@ -64,10 +64,12 @@ RETIRED = [
     (r"what you[’']re seeing",
      "Instruction lines say what to watch; they do not narrate the art."),
     (r"(?<![\d.])1\.05(?!\d)",
-     "KRONOS: the page states one Sharpe, 1.07, from the run behind the results table. "
-     "A second Sharpe beside it reads as two answers to one question.", KRONOS_FILES),
+     "KRONOS: the page states the shipped run's Sharpe from README.md L151, 1.12 at rf=0 "
+     "and 0.97 over cash. A further Sharpe beside them reads as another answer to the same "
+     "question.", KRONOS_FILES),
     (r"[−\-–]\s?16\.5\s?%",
-     "KRONOS: the page states one drawdown, -17.9%, from the same run as the table.", KRONOS_FILES),
+     "KRONOS: the page states one drawdown, -18.7%, from the same run as the table "
+     "(README.md L151).", KRONOS_FILES),
     (r"best\s+paper",
      "IARIA GREEN 2023: list the paper as a coauthored publication with no award. The "
      "conference's own page governs."),

@@ -99,10 +99,14 @@
 .tg .ruff{color:var(--body)}
 .tg-out{min-height:48px;margin-top:16px;font:400 13px/24px var(--mono);color:var(--ink);max-width:576px}
 .tg-out .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
-.scene .stats{margin-top:24px}
-/* fig 14's numbers stand from the first frame, muted on copper rules; their step only brings the colour up */
-.scene.js .stats.ghost li{border-top-color:var(--copper)}
-.scene.js .stats.ghost :is(.v,.b,.k),.scene.js .stats.ghost :is(.v,.b,.k) *{color:var(--muted)}
+/* fig 14's last step: one line per job, what it checks. The lines stand from the first frame, muted on copper rules;
+   their step only brings the colour up */
+.scene .tchk{margin-top:24px;list-style:none;max-width:576px}
+.tchk li{display:grid;grid-template-columns:112px minmax(0,1fr);column-gap:16px;padding:8px 0;border-top:1px solid var(--accent)}
+.tchk .k{font:400 11px/20px var(--mono);letter-spacing:.04em;color:var(--muted)}
+.tchk .b{font:400 13px/20px var(--mono);color:var(--body)}
+.scene.js .tchk.ghost li{border-top-color:var(--copper)}
+.scene.js .tchk.ghost .b,.scene.js .tchk.ghost .b *{color:var(--muted)}
 .sc-tg .v{display:none}
 /* the opening scene sits in the hero's frame, its colour key under it */
 .lx-shot>.lgd{margin:0;padding:12px 16px 16px;border-top:1px solid var(--rule)}
@@ -185,8 +189,8 @@
       <p class="lx-lede lx-up" style="--d:2"><span data-src="Olivesz/inf-mem@c6579f9:README.md#L14-L22">How a prompt picks up memories before it is sent, and how the reply turns into new ones.</span> <span data-src="Olivesz/inf-mem@c6579f9:README.md#L53-L60">Storage and search run on the machine; extraction and compression call Groq.</span></p>
       <p class="lx-lede lx-up" style="--d:3">Every scene plays when it reaches the screen. Step through any of them at your own pace.</p>
       <div class="lx-cta lx-up" style="--d:4">
-        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
-        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn res" href="#ch-results"><span>See the results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q rd" href="#ch-situation"><span>start reading</span><span class="ar" aria-hidden="true">↓</span></a>
         <a class="lx-btn q" href="inf-mem.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
       </div>
       <dl class="facts lx-up" style="--d:5">
@@ -584,16 +588,19 @@
           <div class="sc-stage"><div class="sc-art">
             <ol class="tg" id="tg" aria-label="ci jobs at c6579f9"></ol>
             <p class="tg-out" id="tg-out" aria-live="polite"><span class="k">pick a tier to see what it checks</span></p>
-            <ul class="stats" data-from="stats" data-ghost>
-              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">4.4%</span><span class="k">off-topic prompts still inject memories</span><span class="b" data-src="Olivesz/inf-mem@c6579f9:README.md#L34">was 100% with the old 0.35 gate</span></li>
-              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">5&nbsp;ms</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L45">/retrieve p50 at 10,000 memories, Apple M5</span><span class="b">p95 <span data-src="Olivesz/inf-mem@c6579f9:README.md#L45">7&nbsp;ms</span>; on the CI runner <span data-src="Olivesz/inf-mem@c6579f9:README.md#L48">15&nbsp;/&nbsp;19&nbsp;ms</span></span></li>
-              <li><span class="v" data-src="Olivesz/inf-mem@c6579f9:README.md#L35">0.571</span><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L31">recall@5, held out</span><span class="b" data-src="Olivesz/inf-mem@c6579f9:README.md#L29">776 questions the gate never saw</span></li>
+            <ul class="tchk" data-from="checks" data-ghost aria-label="what each job checks">
+              <li><span class="k" data-src="Olivesz/inf-mem@c6579f9:.github/workflows/ci.yml#L16-L17">lint · ruff</span><span class="b">the whole repository, before any test</span></li>
+              <li><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L81">unit + API</span><span class="b">every route with Groq mocked, extension-only CORS, the store opened twice; fails under <span data-src="Olivesz/inf-mem@c6579f9:.github/workflows/ci.yml#L43-L44">85%</span> coverage</span></li>
+              <li><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L82">real model</span><span class="b">both calibrated gates on the real embedding model</span></li>
+              <li><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L83">eval check</span><span class="b">the LoCoMo calibration, rerun and compared with the committed results</span></li>
+              <li><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L84">latency</span><span class="b">fails if p95 doubles, or if /extract slows as the store grows</span></li>
+              <li><span class="k" data-src="Olivesz/inf-mem@c6579f9:README.md#L85">extension E2E</span><span class="b">the extension in Chromium on copies of both sites: one send, one extraction, the popup</span></li>
             </ul>
           </div></div>
           <ol class="sc-keys">
             <li data-key="grid" data-at="0"><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">Five test tiers on every push</span>, after a lint pass; unit + API on two Pythons.</li>
             <li data-key="pass" data-at="10"><a href="https://github.com/Olivesz/inf-mem/actions/runs/38488383502" target="_blank" rel="noopener noreferrer">At c6579f9 every job passes.</a></li>
-            <li data-key="stats" data-at="12">Off-topic rate, speed and held-out recall, from the README’s own tables.</li>
+            <li data-key="checks" data-at="12">What each job checks, from the README’s list of tiers. The numbers they guard are below.</li>
           </ol>
           <figcaption class="sc-cap" id="s-results-cap"><span class="n">fig 14</span><span data-src="Olivesz/inf-mem@c6579f9:README.md#L79-L87">CI at c6579f9: lint, then five tiers, from mocked endpoints to the extension in Chromium</span>. <span class="verb cap">click</span> a tier to open it, and a line to see what it checks.</figcaption>
         </figure>
@@ -1268,7 +1275,13 @@
   function rkVals() { return rkManual ? RK : { A: { t: "PREFERENCE", s: 0.9, i: 1 }, B: { t: "PROJECT", s: 0.62, i: 10 } }; }
   s7 = make("s-rank", "Two memories ranked by similarity times one plus a tenth of importance. A at 0.90 and importance 1 scores 0.99; B at 0.62 and importance 10 scores 1.24, so B moves above A. The top five are returned.", function (L, p) {
     var n = L.n, CW = n ? 328 : 432, SH = 48, BX = 8, BW = CW - 16, cards = {};
-    for (var s = 2; s < 5; s++) { bx(p, 0, 8 + s * SH, CW, 40, "bx"); tx(p, 8, 8 + s * SH + 24, "rank " + (s + 1), "lb"); }
+    // ranks 3 to 5 hold muted stand-in memories, each scoring a little under the one above it, so the list reads as a
+    // ranking from the first step and not as empty slots
+    for (var s = 2; s < 5; s++) {
+      var gs = g(p); gs.setAttribute("class", "ghost");
+      bx(gs, 0, 8 + s * SH, CW, 40, "bx"); tx(gs, 8, 8 + s * SH + 18, "rank " + (s + 1) + " · another memory", "lb");
+      fl(gs, BX, 8 + s * SH + 30, Math.round(BW * (0.9 - 0.08 * (s - 2)) / 2), 6, "f-cop");
+    }
     // the top-5 cut is a limit, so amber like the two gates
     var cut = gh(kg(p, "from", "cut")); var cy = 8 + 5 * SH + 4;
     ln(cut, "M0 " + (cy + 0.5) + "H" + CW, "l-amber"); tx(cut, 0, cy + 16, "top 5 return", "lb f-amber", { src: "backend/retriever.py#L124" }); tx(cut, CW, cy + 16, "rank 6 and below: not returned", "lb", { a: "end" });
@@ -1713,7 +1726,7 @@
     });
   }
   var s14 = Deep.scene("s-results", {
-    ticks: 12, tps: 8, pause: 2500, rest: "stats", start: "pass",   // opens with every job passed
+    ticks: 12, tps: 8, pause: 2500, rest: "checks", start: "pass",   // opens with every job passed
     check: function () { return checks["s-results"]; },
     draw: function (api, tick) {
       var all = cellsC, k = Math.min(all.length, Math.round(tick * all.length / 10));

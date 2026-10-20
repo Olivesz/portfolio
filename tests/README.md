@@ -123,7 +123,7 @@ Nothing is taken on the page's word where it can be read back:
 - **Self-checks:** answers known outside the page are compared with `got`, not with the page's `want`:
   - NAND `1,1,1,0`
   - EM `14,7,2,0`
-  - KRONOS max drawdown −17.90%
+  - KRONOS max drawdown −18.70%
   - LOCK, recomputed in Python from the ant's rule: 9976, offset (−2, +2) per 104 steps
 
 ### Spec conflicts the suite surfaced

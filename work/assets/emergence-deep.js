@@ -1049,7 +1049,13 @@
     function tapeAt(cy) { return FIB.outs.filter(function (v, k) { return FIB.at[k] <= cy; }); }
     fast(Deep.scene("sc-sap", {
       ink: true, rows: function (api) { return Deep.inkRows(api).concat(strip ? strip.rows(api) : []); },
-      check: function () { return ok("fibonacci tape on the netlist", SAPOK && TRACE_OK && !!strip && FIB.outs.join(",") === WANT_OUT.fib.join(",") && S[last].halt === 1); },
+      check: function () {
+        // step 6's words: at the last print (144), b in RAM already holds 233, and the next ADD, 144 + 233, passes 255
+        var b = assemble(PROGS.fib).labels.b, pr = FIB.at[FIB.outs.length - 1], pa = FIB.outs[FIB.outs.length - 1], nb = S[pr].ram[b];
+        ok("after the last print, " + pa + ", b holds " + nb + " and " + pa + " + " + nb + " trips the carry",
+          pa === 144 && nb === 233 && pa + nb > 255 && S[last].C === 1);
+        return ok("fibonacci tape on the netlist", SAPOK && TRACE_OK && !!strip && FIB.outs.join(",") === WANT_OUT.fib.join(",") && S[last].halt === 1);
+      },
       layout: function (api, avail) { if (strip) strip.layout(avail); },
       grid: { cols: PCOLS, rows: PROWN, pitch: 16, pitchPhone: 8 }, space: PHONE ? { top: 16, bottom: 216 } : { top: 16, bottom: 16, right: 128 },
       ticks: last, tps: 60, pause: 900, rest: "halt",

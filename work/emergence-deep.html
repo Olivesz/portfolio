@@ -125,8 +125,8 @@ a.xr{color:inherit}
       <p class="lx-lede lx-up" style="--d:2">From one rule to a CPU: one Wireworld rule, a NAND gate and a memory loop built by hand and checked in it, then a gate-level CPU of NAND gates and clocked flip-flops, running Fibonacci gate by gate.</p>
       <p class="lx-lede lx-up" style="--d:3">Every picture of the grid below is the real rule running on the real layout. Each figure plays when it reaches the screen; step through any of them at your own pace, or try the inputs under it.</p>
       <div class="lx-cta lx-up" style="--d:4">
-        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
-        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn res" href="#ch-results"><span>See the results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q rd" href="#ch-situation"><span>start reading</span><span class="ar" aria-hidden="true">↓</span></a>
         <a class="lx-btn q" href="emergence.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
       </div>
       <dl class="facts lx-up" style="--d:5">
@@ -239,7 +239,7 @@ a.xr{color:inherit}
           <ol class="sc-keys">
             <li data-key="head" data-at="0">A head always becomes a tail on the next tick.</li>
             <li data-key="tail" data-at="1">A tail always becomes plain wire.</li>
-            <li data-key="fire" data-at="2">Wire becomes a head when <span data-src="Olivesz/emergence@910b296:index.html#L921">1 or 2</span> of its <span data-src="Olivesz/emergence@910b296:index.html#L921">8 neighbours</span> are heads. That threshold is the whole rule.</li>
+            <li data-key="fire" data-at="2">Wire becomes a head when <span data-src="Olivesz/emergence@910b296:index.html#L921">1 or 2</span> of its <span data-src="Olivesz/emergence@910b296:index.html#L921">8 neighbours</span> are heads. That is the whole rule.</li>
           </ol>
           <figcaption class="sc-cap" id="sc-rule-cap"><span class="n">fig 1</span>The rule, as a cycle of head, tail and wire. Empty cells never change.</figcaption>
         </figure>
@@ -247,7 +247,7 @@ a.xr{color:inherit}
 </div>
 <div class="lx-duo">
 <div class="lx-txt">
-<p>The threshold is the interesting part. Here it is on one wire cell, with its neighbours lit one at a time.</p>
+<p>The count is the interesting part. Here it is on one wire cell, with its neighbours lit one at a time.</p>
 </div>
 <div class="lx-fig">
 <figure class="scene lx-fr" id="sc-count" aria-labelledby="sc-count-cap">
@@ -257,7 +257,7 @@ a.xr{color:inherit}
             <li data-key="zero" data-at="0">No heads around it: the middle cell stays wire.</li>
             <li data-key="one" data-at="1">One head next to it: on the next tick it fires. The head that lit it has become a tail.</li>
             <li data-key="two" data-at="2">Two heads: it still fires.</li>
-            <li data-key="three" data-at="3"><span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span>: it stays wire. The red ring marks a cell that saw too many heads and stayed dark.</li>
+            <li data-key="three" data-at="3"><span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span>: it stays wire. The red ring marks a cell that saw too many.</li>
           </ol>
           <figcaption class="sc-cap" id="sc-count-cap"><span class="n">fig 2</span>One wire cell and its <span data-src="Olivesz/emergence@910b296:index.html#L921">8 neighbours</span>, one tick apart, in the exact rule. <span class="verb cap">click</span> the neighbours to light your own.</figcaption>
         </figure>
@@ -265,7 +265,7 @@ a.xr{color:inherit}
 </div>
 <div class="lx-duo">
 <div class="lx-txt">
-<p>Keep that third case in mind: <a class="xr n" href="#st-no">step 03</a> builds on it.</p>
+<p>Keep that last case in mind: <a class="xr n" href="#st-no">step 03</a> builds on it.</p>
 <p>The first thing the rule gives you for free is motion. Put a head on a wire with its tail behind it, and the pair moves <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">one cell per tick</span>.</p>
 </div>
 <div class="lx-fig">
@@ -393,7 +393,7 @@ a.xr{color:inherit}
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
                             <li data-key="a" data-at="28">a alone: one head reaches the junction, and the output fires.</li>
-              <li data-key="b" data-at="50">b alone: the same, from the other side.</li>
+              <li data-key="b" data-at="50">b alone: the same from the other side, and the output fires.</li>
               <li data-key="both" data-at="72">Both: two heads, and it still fires. The table reads <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">00→0,01→1,10→1,11→1</span>.</li>
               <li data-key="leak" data-at="95">The catch: the junction also fires back up the other input (amber). Here the copy dies at a dead end; between gates it would not.</li>
             </ol>
@@ -415,7 +415,7 @@ a.xr{color:inherit}
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
                             <li data-key="a" data-at="49">a alone brings two heads to the junction J. Two fire it.</li>
-              <li data-key="b" data-at="79">b alone brings one head to J. One fires it.</li>
+              <li data-key="b" data-at="79">b alone brings one head to J, and one head fires it too.</li>
               <li data-key="both" data-at="101">Both bring <span data-src="Olivesz/emergence@910b296:index.html#L946">3 heads</span> on the same tick, and the junction stays dark.</li>
               <li data-key="tuned" data-at="104">It only works because <span data-src="Olivesz/emergence@910b296:index.html#L947">all three</span> arrive together, so the path lengths are tuned. The table reads <span data-src="Olivesz/emergence@910b296:index.html#L947">00→0,01→1,10→1,11→0</span>.</li>
             </ol>
@@ -436,7 +436,7 @@ a.xr{color:inherit}
               <li data-key="clock" data-at="38">The clock’s pulse reaches the junction. On its own it is one head, so the junction fires once a lap.</li>
               <li data-key="n00" data-at="45">No input: the clock alone passes, and the output lights.</li>
               <li data-key="na" data-at="73">a alone: a’s pulse meets the clock’s. Two heads, and it still fires.</li>
-              <li data-key="nb" data-at="101">b alone: the same from the other side.</li>
+              <li data-key="nb" data-at="101">b alone: b’s pulse meets the clock’s from the other side, and it still fires.</li>
               <li data-key="nab" data-at="123">a and b: <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span>, the junction stays dark, and the output stays off.</li>
               <li data-key="rec" data-at="157">The next lap passes again. The clock recovers, so the cell is ready for the next cycle.</li>
             </ol>
@@ -462,7 +462,7 @@ a.xr{color:inherit}
               <li data-key="hold" data-at="57">Hold: the bit circles, and the read lamp blinks once a lap without stopping it.</li>
               <li data-key="clear" data-at="98">Clear: the two clear heads reach J on the bit’s tick. <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L30">Three</span> heads, J stays dark, and the bit is gone.</li>
               <li data-key="silent" data-at="138">The read lamp is silent and the loop is empty: <span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L342">0 electrons</span> remain.</li>
-              <li data-key="again" data-at="227">Set again, and the bit is back.</li>
+              <li data-key="again" data-at="227">Set again: a new electron enters, and the bit is back.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-mem-cap"><span class="n">fig 10</span>The memory loop (the repo calls it a loop register), cell for cell from the repo, in the exact rule. <span class="key-l k-a"></span>Read lamp <span class="key-l k-r"></span><span data-src="Olivesz/emergence@910b296:cpu/ww_cells.py#L19">3 heads</span>, stays dark. <span class="verb cap">click</span> set, then clear: the page times the clear to the bit’s next pass.</figcaption>
           </figure>
@@ -486,7 +486,7 @@ a.xr{color:inherit}
               <li data-key="and" data-at="5">AND: a NAND, then a NOT to undo the inversion.</li>
               <li data-key="or" data-at="10">OR: invert both inputs first, then NAND them.</li>
               <li data-key="xor" data-at="15">XOR: one NAND shared by two paths, joined by a last NAND.</li>
-              <li data-key="mux" data-at="20">A MUX passes a or b, picked by sel. The CPU uses it wherever one of two values has to win.</li>
+              <li data-key="mux" data-at="20">A MUX passes a or b, picked by sel. The CPU uses one wherever two values compete.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 11</span>The gates as the repo composes them, evaluated live: <span data-src="page:gate-counts">NOT is 1 NAND, AND 2, OR 3, XOR 4, MUX 8</span>. <span class="key-l k-g"></span>NAND output on <span class="key-l k-c"></span>wire on. <span class="verb cap">click</span> a, b or sel to set the inputs.</figcaption>
           </figure>
@@ -505,12 +505,12 @@ a.xr{color:inherit}
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
-              <li data-key="wait" data-at="4">d turns on between edges. q waits.</li>
-              <li data-key="edge" data-at="5">At the rising edge, q takes d.</li>
+              <li data-key="wait" data-at="4">d turns on between clock edges, and q waits for the next one.</li>
+              <li data-key="edge" data-at="5">At the clock’s rising edge, q takes d’s value and keeps it.</li>
               <li data-key="toggle" data-at="9">Feed a flip-flop’s q back through a NOT, and it toggles on every edge.</li>
               <li data-key="hold" data-at="13">With load off, d can change all it likes. q keeps its value until load comes back.</li>
-              <li data-key="reg" data-at="18"><span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L12">Eight flip-flops sharing a load line are a register. Sixteen registers and an address decoder are the RAM</span>.</li>
-              <li data-key="ram" data-at="19">On the edge, the decoder lets only the addressed register load, and only that row changes.</li>
+              <li data-key="reg" data-at="18"><span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L12">Eight flip-flops on one load line: a register. Sixteen registers and an address decoder: the RAM</span>.</li>
+              <li data-key="ram" data-at="19">On the edge, only the addressed register loads, so only that row changes.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-ff-cap"><span class="n">fig 12</span>The flip-flop as the netlist models it: clock, inputs and outputs over time, then the RAM’s <span data-src="Olivesz/emergence@910b296:cpu/sap1.py#L12">16x8</span> bits before and after one write.</figcaption>
           </figure>
@@ -552,7 +552,7 @@ a.xr{color:inherit}
             <ol class="sc-keys">
               <li data-key="one" data-at="1">One full adder: the lowest bit adds its two inputs and passes a carry left.</li>
               <li data-key="ripple" data-at="2">The carry ripples from the lowest bit to the highest, one adder at a time.</li>
-              <li data-key="sub" data-at="10">Subtract: every bit of b is flipped, the first carry-in is set, and the same adders do the rest.</li>
+              <li data-key="sub" data-at="10">Subtract: every bit of b is flipped, the first <span class="nw">carry-in</span> is set, and the same adders do the rest.</li>
               <li data-key="carry" data-at="20">When the sum passes <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L64">255</span>, the carry out is set. The CPU latches it as the carry flag, and JC reads it.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-alu-cap"><span class="n">fig 14</span>The adder/subtractor on the gate-level netlist, checked against plain arithmetic on every pair of inputs. <span class="key-l k-a"></span>A set bit <span class="key-l k-c"></span>a carry. Drag a or b.</figcaption>
@@ -573,8 +573,8 @@ a.xr{color:inherit}
               <li data-key="o5" data-at="260">…<span data-src="page:sap-out">2, 3, 5</span>.</li>
               <li data-key="o21" data-at="400">…<span data-src="page:sap-out">8, 13, 21</span>.</li>
               <li data-key="o89" data-at="610">…<span data-src="page:sap-out">34, 55, 89</span>.</li>
-              <li data-key="o144" data-at="600">…<span data-src="page:sap-out">144</span>, the last number that fits in <span data-src="Olivesz/emergence@910b296:cpu/README.md#L59">8-bit</span> data.</li>
-              <li data-key="halt" data-at="686">The next sum passes <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L64">255</span>, the carry flag trips, and JC jumps to HLT.</li>
+              <li data-key="o144" data-at="600">…<span data-src="page:sap-out">144</span>, the last one printed. <span data-src="page:sap-next">233</span> waits in RAM, but <span data-src="page:sap-next">144 + 233</span> passes <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L64">255</span>.</li>
+              <li data-key="halt" data-at="686">The carry flag trips, and JC jumps to HLT.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-sap-cap"><span class="n">fig 15</span>SAP-1 running Fibonacci, gate by gate: the bus, the parts on it, the program with its current instruction lit, and the output tape. Under it, the repo’s recorded netlist trace of the same run, <span data-src="Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1">all 688 clocks</span>: register A on each clock, each output, and the carry that ends the run. Before it plays, the page checks that its own run equals the trace on every clock. OUT prints <span data-src="Olivesz/emergence@910b296:cpu/run_cpu.py#L103">1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144</span>. <span class="verb cap">click</span> a program to run it.</figcaption>
           </figure>
@@ -734,13 +734,13 @@ a.xr{color:inherit}
             </div>
           </div>
           <ol class="sc-keys">
-            <li data-key="r1" data-at="0">The rule.</li>
-            <li data-key="r2" data-at="1">The two cells, checked tick by tick in the rule.</li>
+            <li data-key="r1" data-at="0">The rule: <span data-src="Olivesz/emergence@910b296:docs/acts.md#L15">four states; wire fires on 1 or 2 head neighbours</span>.</li>
+            <li data-key="r2" data-at="1">The two cells, checked tick by tick in the raw rule.</li>
             <li data-key="r3" data-at="2">The gates, each from NAND, with their truth tables.</li>
             <li data-key="r4" data-at="3">The modules: registers, adders, the program counter, the decoder, the RAM.</li>
-            <li data-key="r5" data-at="4">The CPU, one netlist of the two parts.</li>
+            <li data-key="r5" data-at="4">The CPU: one netlist of the two parts, <span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446 NAND gates and 175 flip-flops</span>.</li>
             <li data-key="r6" data-at="5">Programs, each compared with the output it should print.</li>
-            <li data-key="r7" data-at="6">Not yet: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L52">the whole CPU compiled to the raw rule</span>. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">A full adder, a 4-bit counter and a D flip-flop are, and match the netlist on every clock.</span></li>
+            <li data-key="r7" data-at="6">Not yet: <span data-src="Olivesz/emergence@910b296:cpu/README.md#L50-L52">the whole CPU in the raw rule</span>. <span data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L50">A full adder, a 4-bit counter and a D <span class="nw">flip-flop</span> run in it, matching the netlist on every clock.</span></li>
           </ol>
           <figcaption class="sc-cap" id="sc-ladder-cap"><span class="n">fig 20</span>Every rung has a check that runs, from the rule up to <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five real programs</span>. Dashed: not built yet.</figcaption>
         </figure>

@@ -281,6 +281,7 @@
     if (rows instanceof Array) rows = cols < 140 ? rows[1] : rows[0];
     spec.grid = { cols: cols, rows: rows, pitch: C, pitchPhone: C, min: C };
     spec.align = "left";
+    spec.rows = spec.rows || Deep.inkRows;                           // docked words clip a painted row whole, never in two
     spec.check = spec.check || ok;
     return Deep.scene(id, spec);
   }
@@ -494,15 +495,19 @@
     ];
     // narrow: each stage's words sit under its name, and a row grows by 4 cells (one 16 px line) for every line its
     // words wrap to, so a wrapped line never prints over the next stage; 8 spare rows hold two wrapped lines
+    // each stage's box is a row of its own: the line through the stages' middles is taller than a row, so the ink
+    // alone would join a box's two halves only through it
+    var boxes = [];
     scene("sc-loop", [11 * 9 + 4, 11 * 9 + 4 + 8], {
       ticks: 6, tps: 1.2, pause: 900,
+      ink: true, rows: function (api) { return Deep.inkRows(api).concat(boxes); },
       draw: function (api, tick) {
         var W = api.cols, nar = narrow(api), RH = 9, X = 6, y = 1, ys = [];
-        api.clear();
+        api.clear(); boxes = [];
         LS.forEach(function (s, i) {
           var lit = s[4] <= tick, now = s[4] === tick || tick >= 6, tok = lit ? s[1] : "copper";
           if (i) vline(api, X + 3, ys[i - 1] + 4, y - 1, lit ? "muted" : "residue");
-          ys.push(y);
+          ys.push(y); boxes.push([X + 1, y, 5, 4]);
           api.rect(X + 1, y, 5, 4, tok);
           if (!now && lit) api.rect(X + 2, y + 1, 3, 2, "void");
           lab(api, "n" + i, s[2], X + 9, y, { dy: -6, cls: lit ? "i" : "" });
@@ -874,7 +879,7 @@
         });
         var landed = long ? Math.max(0, Math.min(groups.length, Math.floor((tick - 18) / 4) + 1)) : (tick >= 4 ? 1 : 0);
         groups.forEach(function (g, gi) {
-          var e = lab(api, "g" + gi, "event " + (gi + 1) + (nar ? " · " : " · key down + key up · ") + '<span class="k-t">“' + esc(g) + "”</span> " + pl(g.length), 0, 13 + gi * 5, { cls: gi < landed ? "i" : "" });
+          var e = lab(api, "g" + gi, "event " + (gi + 1) + (nar ? " · " : " · key down + key up · ") + '<span class="k-t">“' + esc(g).replace(/^ /, "␣") + "”</span> " + pl(g.length), 0, 13 + gi * 5, { cls: gi < landed ? "i" : "" });
           e.hidden = scratch;
         });
         for (var q = groups.length; q < 3; q++) hide(api, "g" + q);
@@ -1001,7 +1006,7 @@
   })();
 
   /* ================= S14 · tests and the CI gate =================
-     Every part is on the stage from the first frame, unlit until its step: the 55 Swift tests by file, the 36 Python
+     Every part is on the stage from the first frame, unlit until its step (but the first Swift file, lit from the start): the 55 Swift tests by file, the 36 Python
      tests, then the gate and its control as two bars against one line, offline + 2 points. The gate's bar stops short of
      the line; the control's runs far past it. */
   (function () {
@@ -1012,12 +1017,27 @@
     var GATE = 4.6, CTRL = 14.3, OFF = 3.8, LINE = OFF + 2, MAX = 16;
     var LG = "gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038", LC = "gate (ci-control) job: ALL stream WER 0.143 offline WER 0.038; the benchmark’s reference clip dropped 2 of its 22 words";
     function ease(f) { f = Math.max(0, Math.min(1, f)); return 1 - Math.pow(1 - f, 3); }
+    /* the bars are drawn on the canvas, so a docked step's subject is a band of the stage: from a row's label down to
+       the next label (the gate's bar ends above the control's label) or to the foot of the art (the control's bar, which
+       grows with its label, and the closing note) */
+    function band(top, bot, toTop) {
+      return { getClientRects: function () { return top.getClientRects(); },
+        getBoundingClientRect: function () { var a = top.getBoundingClientRect(), b = bot.getBoundingClientRect(), y = toTop ? b.top : b.bottom;
+          return { top: a.top, bottom: y, left: a.left, right: a.right, width: a.width, height: y - a.top }; } };
+    }
     scene("sc-tests", [84, 122], {
       ticks: 46, tps: 10, pause: 1300,
+      focus: function (api, i, name) {
+        var L = api.scene.labels, gt = L.gt && L.gt.e, r1 = L.r1 && L.r1.e;
+        if (!gt || !r1) return null;
+        if (name === "gate" || name === "subset") return [band(gt, r1, true)];
+        if (name === "control" || name === "rest") return [band(r1, api.scene.canvas, false)];
+        return null;
+      },
       draw: function (api, tick) {
         var W = api.cols, nar = narrow(api);
         api.clear();
-        var lit = Math.min(55, tick * 3), idx = 0, x = 0, y = 4;
+        var lit = Math.min(55, GROUPS[0][1] + tick * 2), idx = 0, x = 0, y = 4;   // the first file stands passed from the first frame, the rest fill in
         lab(api, "h", "Swift · " + dv("55", "swift job: Executed 55 tests, with 0 failures (32 + 14 + 5 + 4)") + " XCTest cases in FreeflowCore", 0, 0, { cls: lit >= 55 ? "i" : "" });
         GROUPS.forEach(function (g, gi) {
           var gx = x, perRow = nar ? 8 : 10;

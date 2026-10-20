@@ -300,10 +300,11 @@
   /* fig 3: as each step arrives, a square travels the arrows it turns on: the call, the rows, the prose that hits the wall,
      the claim on its way to the rules, the nudge riding back. Restarted on every step, so prev, next and replay show it again */
   scene("sc-loop", { ticks: 5, tps: 1,
-    // a short screen that cannot show the whole first row of boxes keeps the hooks and the log, which the words name
+    // a short screen that cannot show the whole first row of boxes keeps the hooks and the log, which the words name.
+    // The report box is lit from this step too, so the stage never opens all dim, but the words are about the first row
     focus: function (api, i, name) {
       if (name !== "call") return null;
-      var all = [].slice.call(api.fig.querySelectorAll('.sc-stage [data-from="call"]'));
+      var all = [].slice.call(api.fig.querySelectorAll('.sc-stage .lp-sec:first-child [data-from="call"]'));
       return api.scene.fits(all, i) ? all : all.slice(2);
     },
     onKey: function (api, i, name) {
@@ -546,12 +547,12 @@
     ];
     function paint(k) {
       var rows = BASE.map(function (r) { return r.slice(); }), say = "reads the log", note = "", gt = "", gl = "", hi = -1;
-      if (k === "table") { rows = rows.slice(0, 3); say = "runs after the rules"; }
+      if (k === "table") { rows = rows.slice(0, 3); say = "runs after the rules"; note = "with no model, the rules’ verdicts stand"; }
       if (k === "read") { rows = rows.slice(0, 3); note = "a long log is shortened, with a note that a missing line proves nothing"; }
       if (k === "upgrade" || k === "advise" || k === "agree") { rows[2] = [rows[2][0], "confirmed", "tier 4 · judge · cites a row"]; }
-      if (k === "upgrade") { rows = rows.slice(0, 3); say = "proposes ✓ for row 3"; gt = "pass"; gl = "an upgrade: allowed"; hi = 2; }
+      if (k === "upgrade") { rows = rows.slice(0, 3); say = "proposes ✓ for row 3"; gt = "pass"; gl = "an upgrade: allowed"; hi = 2; note = "it may only upgrade an unwitnessed claim"; }
       if (k === "advise") { say = "proposes ✗ for row 4"; gt = "route"; gl = "an accusation: ask the rule"; rows[3] = [rows[3][0], "unrecorded", "advisory · tier 4 · the rule doesn’t agree"]; hi = 3; note = "Model-only finding; advisory, not a blocking verdict."; }
-      if (k === "agree") { say = "proposes ✗ for row 1"; gt = "route"; gl = "the rule agrees"; rows[3] = [rows[3][0], "unrecorded", "advisory · tier 4 · the rule doesn’t agree"]; rows[0] = [rows[0][0], "contradicted", "tier 2 · rule · #1 #2", "model: #2"]; hi = 0; say = "proposes ✗ for row 1, citing #2"; }
+      if (k === "agree") { say = "proposes ✗ for row 1"; gt = "route"; gl = "the rule agrees"; rows[3] = [rows[3][0], "unrecorded", "advisory · tier 4 · the rule doesn’t agree"]; rows[0] = [rows[0][0], "contradicted", "tier 2 · rule · #1 #2", "model: #2"]; hi = 0; say = "proposes ✗ for row 1, citing #2"; note = "the rule’s tier, method and citations stand"; }
       $("jg-say").textContent = say; $("jg-note").textContent = note;
       $("jg-gt").className = "gt" + (gt ? " " + gt : ""); $("jg-gl").textContent = gl;
       $("jg-rows").innerHTML = rows.map(function (r, i) { return '<div class="jg-row"><span class="ct' + (i === hi ? " ink" : "") + '">' + (i + 1) + ". " + esc(r[0]) + "</span>" + vchip(r[1]) + '<span class="tag">' + (r[3] ? '<s>' + esc(r[3]) + '</s> <span aria-hidden="true">→</span> <span class="ink">' + esc(r[2]) + "</span>" : esc(r[2])) + "</span></div>"; }).join("");
@@ -773,9 +774,15 @@
     }
     cards.forEach(function (b) { b.addEventListener("click", function () { detail(+b.getAttribute("data-i")); Deep.reveal("sc-board", $("bd-det")); }); });
     detail(1);
+    // the steps that call every report passed show the score and the reports that must draw no accusation; a short
+    // screen keeps those reports, which the words count, over the score, which the words also give
+    var SILENT = SC.map(function (s, i) { return s[0] === "must stay silent" ? '.bd-c[data-i="' + i + '"]' : ""; }).filter(Boolean).join(", ");
     scene("sc-board", {
       ticks: 4, tps: 1,
-      focus: function (api, i) { return i === 0 ? false : ".bd-score, .bd-strip"; },
+      focus: function (api, i, name) {
+        if (i === 0) return false;
+        return name === "flip" || name === "back" ? ".bd-score, .bd-strip, " + SILENT + " | " + SILENT : ".bd-score, .bd-strip";
+      },
       draw: function (api) {
         var i = api.keyIndex === 4 ? 1 : api.keyIndex;
         var abl = i === 2 || i === 3;

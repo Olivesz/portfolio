@@ -93,7 +93,7 @@
           <ol class="sc-keys">
             <li data-key="idle" data-at="0">The cursor sits in another app’s mail draft. Nothing is listening yet.</li>
             <li data-key="tap" data-at="4">A tap on <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L20">⌥Space</span> starts it, and the menubar <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AppDelegate.swift#L137">mic fills</span> while it listens. You can also <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/AppDelegate.swift#L95-L102">hold the key</span> and talk.</li>
-            <li data-key="words" data-at="32">The reading plays in. The first words are typed at <span data-src="page:passlog">1.40</span> s: “The Coyote is a”. The pass before heard them too, and two passes in a row agreeing is what types them.</li>
+            <li data-key="words" data-at="32">The reading plays in. At <span data-src="page:passlog">1.40</span> s “The Coyote is a” is typed: two passes in a row heard it.</li>
             <li data-key="phrase" data-at="95">Then a gap, until a whole sentence lands at <span data-src="page:passlog">4.55</span> s: “He is always hungry.”</li>
             <li data-key="end" data-at="151">The clip ends at <span data-src="page:passlog">7.33</span> s. A final pass reads the tail and types what is left: “and friendless.”</li>
             <li data-key="rest" data-at="159"><span data-src="page:passlog">22 of 22</span> words typed, <span data-src="page:passlog">0</span> errors, and nothing deleted.</li>
@@ -105,14 +105,14 @@
       <p class="lx-lede lx-up" style="--d:2">How a key tap becomes typed words on a Mac with no cloud: a growing audio buffer, a model pass every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms, and one rule for when a word is safe to type.</p>
       <p class="lx-lede lx-up" style="--d:3">Every scene plays when it reaches the screen. Step through any of them at your own pace. They replay <span data-src="page:passlog">a real pass log</span>: a synthesized reading of <span data-derived="counted from the reading’s text, which this page’s script holds whole">three</span> sentences from Mark Twain’s <i>Roughing It</i> (<span data-derived="first published 1872; Project Gutenberg #3177, chapter V; spelling modernized here (cayote → coyote)">1872</span>), run through freeflow@19c0217’s streaming loop with whisper.cpp base.en, every pass the shipped streamer ran. The page runs the same rules over those passes and checks they type exactly what the log says before any picture draws.</p>
       <div class="lx-cta lx-up" style="--d:4">
-        <a class="lx-btn" href="#ch-situation"><span>Start reading</span><span class="ar" aria-hidden="true">↓</span></a>
-        <a class="lx-btn q res" href="#ch-results"><span>results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn res" href="#ch-results"><span>See the results</span><span class="ar" aria-hidden="true">↓</span></a>
+        <a class="lx-btn q rd" href="#ch-situation"><span>start reading</span><span class="ar" aria-hidden="true">↓</span></a>
         <a class="lx-btn q" href="freeflow.html" target="_blank" rel="noopener noreferrer"><span>the case study</span><span class="ar" aria-hidden="true">→</span></a>
       </div>
       <dl class="facts lx-up" style="--d:5">
         <div><dt>stack</dt><dd><span data-src="Olivesz/freeflow@19c0217:mac/Package.swift#L1">Swift</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:README.md#L6-L7">whisper.cpp</span> <span class="dot">·</span> <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L4">base.en</span></dd></div>
         <div><dt>code</dt><dd><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer">github.com/Olivesz/freeflow</a>&nbsp;<span aria-hidden="true">→</span></dd></div>
-        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 16 minutes</dd></div>
+        <div><dt>read</dt><dd data-read data-derived="the page’s words at 230 a minute, plus the time its figures take to play">about 15 minutes</dd></div>
       </dl>
     </div>
   </div>
@@ -140,7 +140,7 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="p070" data-at="0">The first pass, at <span data-src="page:passlog">0.70</span> s, hears nothing yet.</li>
+            <li data-key="p070" data-at="0">The first pass, at <span data-src="page:passlog">0.70</span> s, hears nothing yet, so neither side has typed a word.</li>
             <li data-key="p105" data-at="1">The next one hears <span data-src="page:passlog">“The Coyote is a living.”</span> Retyping puts it on screen at once. Append-only waits for a second opinion.</li>
             <li data-key="p140" data-at="2">At <span data-src="page:passlog">1.40</span> s two passes agree on “The Coyote is a”, and append-only types it. Retyping backspaces the full stop.</li>
             <li data-key="p245" data-at="5">At <span data-src="page:passlog">2.45</span> s the guess ends <span data-src="page:passlog">“Mother’s Blood.”</span> Retyping shows it. Append-only has typed up to “breathing” and waits.</li>
@@ -162,8 +162,8 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="first" data-at="1">The first pass, at <span data-src="page:passlog">0.70</span> s, reads <span data-src="page:passlog">0.70</span> s of audio.</li>
-            <li data-key="more" data-at="10">Every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms another pass runs. Never trimmed, each would read the clip from its start, so each bar is a step taller than the last.</li>
+            <li data-key="first" data-at="1">The first pass, at <span data-src="page:passlog">0.70</span> s, reads <span data-src="page:passlog">0.70</span> s of audio: all there is so far.</li>
+            <li data-key="more" data-at="10">Every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms another pass runs. Untrimmed, each reads from the clip’s start, so each bar is a step taller.</li>
             <li data-key="all" data-at="20">By the clip’s end the <span data-src="page:passlog">20</span> passes would have read <span data-src="page:passlog">80</span> s of audio between them, for a clip of <span data-src="page:passlog">7.33</span> s.</li>
             <li data-key="rest" data-at="21">The bars are seconds of audio read, not seconds of computer time. The trim, further down, cuts this back.</li>
           </ol>
@@ -198,8 +198,8 @@
             <li data-key="win" data-at="2">Every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms the loop copies the part of the buffer the model should read: the window.</li>
             <li data-key="gate" data-at="3">Gates pass the window to the model, or turn it away.</li>
             <li data-key="model" data-at="4">whisper.cpp returns words, each with a start and an end time.</li>
-            <li data-key="agree" data-at="5">Words two passes agree on go through the text rules and out to the app. The rest wait for the next pass.</li>
-            <li data-key="trim" data-at="6">Once enough typed audio piles up, the window’s start jumps forward. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms later the loop goes round again.</li>
+            <li data-key="agree" data-at="5">Words two passes agree on go through the text rules to the app. The rest wait.</li>
+            <li data-key="trim" data-at="6">When typed audio piles up, the window’s start jumps ahead. <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms later, round again.</li>
           </ol>
           <figcaption class="sc-cap" id="sc-loop-cap"><span class="n">fig 4</span>A diagram of the Mac app’s loop, one stage at a time. Dashed: the way back round, every <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Dictation.swift#L43">350</span> ms. Each stage gets its own step below.</figcaption>
         </figure>
@@ -265,8 +265,8 @@
             <ol class="sc-keys">
               <li data-key="short" data-at="0">At <span data-src="page:rule">0.35</span> s the window is under <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L24">0.5</span> s: too short, so no pass. The log has none.</li>
               <li data-key="pass" data-at="1">At <span data-src="page:passlog">0.70</span> s every gate opens and the model runs. It hears nothing yet: the log’s first pass returns no words.</li>
-              <li data-key="silent" data-at="2">Nothing said: the window is under the <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L25">0.006</span> floor, so the model never sees it and can’t invent a “thank you”.</li>
-              <li data-key="tail" data-at="3">When the clip ends, the gate finds the last <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L20">50</span> ms frame louder than <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L21">0.010</span>, keeps <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L25">0.2</span> s after it, and cuts any quiet past that. This reading stops on its last word, so there is nothing to cut.</li>
+              <li data-key="silent" data-at="2">Nothing said: under the <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L25">0.006</span> floor, the model never sees it and can’t invent a “thank you”.</li>
+              <li data-key="tail" data-at="3">At the end, the gate keeps <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L25">0.2</span> s after the last <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L20">50</span> ms frame louder than <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L21">0.010</span> and cuts the quiet past it. This reading has none.</li>
               <li data-key="rest" data-at="4">Too short, too quiet, quiet tail cut. The app and the benchmark’s replays share these rules, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Session.swift#L20">so what gets measured is what ships</span>.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-gates-cap"><span class="n">fig 6</span>The gates before every pass: too short, too quiet, and a quiet tail cut to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Endpointing.swift#L25">0.2</span> s. <span class="verb cap">click</span> to make the speech quiet.</figcaption>
@@ -291,7 +291,7 @@
               <li data-key="settings" data-at="8">The settings that make it so: one word per segment, with word timestamps.</li>
               <li data-key="offset" data-at="16">Later, at <span data-src="page:passlog">6.65</span> s, the window starts at <span data-src="page:passlog">4.31</span> s. Its words come back timed from the window’s start…</li>
               <li data-key="slide" data-at="24">…and move right by the offset. “He” at <span data-src="page:passlog">0.15</span> s in the window is <span data-src="page:passlog">4.46</span> s into the clip.</li>
-              <li data-key="sieve" data-at="28">The sieve: sound annotations and lone punctuation never get through. The bracketed ones are the <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L15">annotations the code names</span>; the kept ones are words this log’s passes really heard.</li>
+              <li data-key="sieve" data-at="28">The sieve. Bracketed: <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L15">annotations the code names</span>. Kept: words this log’s passes really heard.</li>
               <li data-key="rest" data-at="40">Dropped if it has [ ] ( ) ♪ * or no letter or digit. Words with apostrophes, hyphens or dots pass.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-times-cap"><span class="n">fig 7</span>Two passes from the log · each word comes back on its own with a start and an end. Annotations for sounds and lone punctuation never get through.</figcaption>
@@ -339,9 +339,9 @@
             <ol class="sc-keys">
               <li data-key="line" data-at="0">The streamer’s committed words are “The Coyote is a”, and “a” ends at <span data-src="page:passlog">0.76</span> s.</li>
               <li data-key="lands" data-at="1">The pass at <span data-src="page:passlog">2.10</span> s hears “The Coyote is a living, breathing allegory.” and moves “living,” to start at <span data-src="page:passlog">0.60</span> s, before “a” ends.</li>
-              <li data-key="time" data-at="2">By time alone, only words starting after <span data-src="page:passlog">0.66</span> s are new. That keeps “breathing allegory.” and throws away “living,”, which was never typed.</li>
-              <li data-key="text" data-at="3">By text, “The Coyote is a” is found in the pass and the cut goes right after it. “living, breathing allegory.” goes on to the agreement step.</li>
-              <li data-key="rest" data-at="4">The agreement step types “living,”. The streamer before the fix ran this same pass by time, and its transcript has no “living” (fig 13).</li>
+              <li data-key="time" data-at="2">By time, only words starting after <span data-src="page:passlog">0.66</span> s are new: “breathing allegory.” stays and “living,” is lost, never typed.</li>
+              <li data-key="text" data-at="3">By text, the cut goes right after “The Coyote is a”, so “living, breathing allegory.” goes on to agreement.</li>
+              <li data-key="rest" data-at="4">Agreement types “living,”. Before the fix the streamer cut this pass by time: no “living” in its transcript (fig 13).</li>
             </ol>
             <figcaption class="sc-cap" id="sc-twice-cap"><span class="n">fig 9</span>From the log · the pass at <span data-src="page:passlog">2.10</span> s, cut by text and by time. Red: words the time rule would lose. <span class="verb cap">click</span> to cut by time only.</figcaption>
           </figure>
@@ -363,7 +363,7 @@
             <ol class="sc-keys">
               <li data-key="over" data-at="0">After the pass at <span data-src="page:passlog">3.50</span> s, typed audio in the window reaches <span data-src="page:passlog">3.12</span> s, past the <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> s line. “want.” was just typed.</li>
               <li data-key="jump" data-at="1">The next window starts at the start of “want.”, <span data-src="page:passlog">2.58</span> s, less <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span>: <span data-src="page:passlog">1.08</span> s. Everything left of it is never read again.</li>
-              <li data-key="saw" data-at="2">Over the whole clip the window is trimmed <span data-src="page:passlog">3</span> times. It still grows while nothing agrees: it reached <span data-src="page:passlog">4.04</span> s before “poor, out of” was typed.</li>
+              <li data-key="saw" data-at="2">The window is trimmed <span data-src="page:passlog">3</span> times in all. While nothing agrees it keeps growing, to <span data-src="page:passlog">4.04</span> s, until “poor, out of” is typed.</li>
               <li data-key="rest" data-at="3">All <span data-src="page:passlog">20</span> passes read <span data-src="page:passlog">53</span> s of audio between them, against <span data-src="page:passlog">80</span> s untrimmed.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-trim-cap"><span class="n">fig 10</span>Every pass of the log · once <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">3.0</span> s of typed audio piles up, the window restarts <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/Streamer.swift#L44">1.5</span> s before the last typed word. Copper behind: the untrimmed staircase. <span class="verb cap">click</span> to switch the trim off.</figcaption>
@@ -384,11 +384,11 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             <div class="sc-stage"><div class="sc-art"></div></div>
             <ol class="sc-keys">
-              <li data-key="burst" data-at="0">The first burst, “ The Coyote is a” at <span data-src="page:passlog">1.40</span> s, is <span data-src="page:passlog">16</span> characters: one key-down and key-up pair.</li>
-              <li data-key="long" data-at="10">The longest burst in the log, “ He is always hungry.” at <span data-src="page:passlog">4.55</span> s, is <span data-src="page:passlog">21</span> characters, cut into <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> and <span data-src="page:passlog">1</span>.</li>
+              <li data-key="burst" data-at="0">The first burst, “␣The Coyote is a” at <span data-src="page:passlog">1.40</span> s, is <span data-src="page:passlog">16</span> characters: one key-down and key-up pair.</li>
+              <li data-key="long" data-at="10">The longest burst in the log, “␣He is always hungry.” at <span data-src="page:passlog">4.55</span> s, is <span data-src="page:passlog">21</span> characters, cut into <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> and <span data-src="page:passlog">1</span>.</li>
               <li data-key="land" data-at="18">Each pair lands in the draft and the caret moves on.</li>
-              <li data-key="scratch" data-at="30">Say “scratch that” and the text rules backspace, but <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/TextProcessor.swift#L3-L5">only over what this utterance typed</span>. Text that was there before stays.</li>
-              <li data-key="rest" data-at="40">Nothing else is ever deleted. A floating pill shows the live words <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/HUDView.swift#L3-L4">without stealing focus</span>, so they are <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/HUDView.swift#L5-L6">recoverable even if they had nowhere to land</span>.</li>
+              <li data-key="scratch" data-at="30">Say “scratch that” and the rules backspace <span data-src="Olivesz/freeflow@19c0217:mac/Sources/FreeflowCore/TextProcessor.swift#L3-L5">only over what this utterance typed</span>. Nothing else is deleted.</li>
+              <li data-key="rest" data-at="40">A floating pill shows the live words <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/HUDView.swift#L3-L4">without stealing focus</span>, <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/HUDView.swift#L5-L6">recoverable even if they had nowhere to land</span>.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-type-cap"><span class="n">fig 11</span>Committed text goes out as key events of up to <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/TextInjector.swift#L15">20</span> characters each, into whichever app has the cursor. The “scratch that” step is an example of the rule, not from the log.</figcaption>
           </figure>
@@ -412,7 +412,7 @@
               <li data-key="q4" data-at="4" data-lead="1">More quiet ticks: <span data-src="page:rule">700</span>, <span data-src="page:rule">1,050</span>, <span data-src="page:rule">1,400</span> ms. Still under the line.</li>
               <li data-key="q5" data-at="5">The fifth reads <span data-src="page:rule">1,750</span> ms, past <span data-src="Olivesz/freeflow@19c0217:mac/Sources/Freeflow/Settings.swift#L29">1,500</span>. The flag flips and the loop finishes its turn.</li>
               <li data-key="final" data-at="6">In the replay the clip ends at <span data-src="page:passlog">7.33</span> s, and the final pass reads the window from <span data-src="page:passlog">4.31</span> s.</li>
-              <li data-key="hear" data-at="7">It hears “He is always poor, out of luck, and friendless.” The cut by text removes the words already typed, and the flush types the rest: “and friendless.”</li>
+              <li data-key="hear" data-at="7">It hears “He is always poor, out of luck, and friendless.” Skipping words already typed, the flush types only “and friendless.”</li>
               <li data-key="off" data-at="8">The microphone goes off. <span data-src="page:passlog">22</span> words typed, none taken back.</li>
             </ol>
             <figcaption class="sc-cap" id="sc-stop-cap"><span class="n">fig 12</span>The silence clock is the endpointer’s rule, tick by tick; the final pass is the log’s last row.</figcaption>
@@ -442,9 +442,9 @@
 <span class="lx-cn" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
           <div class="sc-stage"><div class="sc-art"></div></div>
           <ol class="sc-keys">
-            <li data-key="clip" data-at="0">Before the fix the streamer dropped <span data-src="page:prefixlog">2</span> of the reading’s <span data-src="page:prefixlog">22</span> words, struck through in red. Both started a little before the last typed word ended, so the time rule threw them away.</li>
+            <li data-key="clip" data-at="0">Before the fix the time rule dropped <span data-src="page:prefixlog">2</span> of the reading’s <span data-src="page:prefixlog">22</span> words, struck in red: each began before the last typed word ended.</li>
             <li data-key="held" data-at="1">On the held-out speakers it got <span data-src="Olivesz/freeflow@19c0217:README.md#L59">19.7%</span> of words wrong, against <span data-src="Olivesz/freeflow@19c0217:README.md#L59">5.4%</span> offline on the same audio: <span data-src="Olivesz/freeflow@19c0217:README.md#L59">78 of 523</span> dropped.</li>
-            <li data-key="window" data-at="2">A smaller window made it worse: <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71-L72">19.7%</span> at <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71">3 / 1.5 s</span> against <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71-L72">15.5%</span> at <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L72">8 / 2 s</span>. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L77-L78">Even with no trimming it lost words</span>, which pointed at the commit rule.</li>
+            <li data-key="window" data-at="2">A smaller window was worse: <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71-L72">19.7%</span> at <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71">3 / 1.5 s</span>, <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L71-L72">15.5%</span> at <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L72">8 / 2 s</span>. <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L77-L78">Even with no trimming it lost words</span>, pointing at the commit rule.</li>
             <li data-key="after" data-at="3">The fix finds the cut by text and clamps times to the window. The reading now loses <span data-src="page:passlog">0</span>.</li>
             <li data-key="all" data-at="4">Held out: <span data-src="Olivesz/freeflow@19c0217:README.md#L60">6.7%</span> against <span data-src="Olivesz/freeflow@19c0217:README.md#L60">5.4%</span> offline, <span data-src="Olivesz/freeflow@19c0217:README.md#L60">3 of 523</span> dropped. All <span data-src="Olivesz/freeflow@19c0217:README.md#L51">41</span> clips: <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">5.8%</span> against <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L121">4.4%</span>.</li>
             <li data-key="rest" data-at="5">Once the commit rule is fixed, the windows tried land <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L107-L108">within about 1.5 points of each other</span> on the held-out speakers.</li>
@@ -481,9 +481,9 @@
           <ol class="sc-keys">
             <li data-key="swift" data-at="0">The Swift tests fill in file by file: text processing, stream fixtures, session and endpointer, scoring.</li>
             <li data-key="python" data-at="20">Then the Python reference’s <span data-derived="CI run 38482789778, python job: 36 passed">36</span>, on the same stream fixtures.</li>
-            <li data-key="gate" data-at="30">The gate: the release build replays <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L38">the benchmark’s reference clip and every fifth speaker</span> through the real model, and fails if streamed word error exceeds offline by more than <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L39">2</span> points, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">or if the benchmark’s reference clip loses a word</span>. It passed: <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">4.6%</span> against <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">3.8%</span>.</li>
-            <li data-key="subset" data-at="31">The subset was picked after the dev runs, so it is <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L40-L41">a regression check, not a result</span>.</li>
-            <li data-key="control" data-at="38" data-lead="32">The control runs the same gate with a <span data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L49">0.5/0.2</span> s window, which must fail. It did: <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; the benchmark’s reference clip dropped 2 words">14.3%</span>, with the benchmark’s reference clip dropping <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; the benchmark’s reference clip dropped 2 words">2</span> words.</li>
+            <li data-key="gate" data-at="30">The gate replays <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L38">the reference clip and every fifth speaker</span>. It passed: <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">4.6%</span> against <span data-derived="CI run 38482789778, gate (ci-gate) job: ALL stream WER 0.046 offline WER 0.038">3.8%</span>.</li>
+            <li data-key="subset" data-at="31">It fails at more than <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L39">2</span> points over offline. The subset was picked after the dev runs: <span data-src="Olivesz/freeflow@19c0217:bench/README.md#L40-L41">a regression check, not a result</span>.</li>
+            <li data-key="control" data-at="38" data-lead="32">The control, a <span data-src="Olivesz/freeflow@19c0217:.github/workflows/ci.yml#L49">0.5/0.2</span> s window, must fail. It did: <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; the benchmark’s reference clip dropped 2 words">14.3%</span>, and the reference clip, <span data-src="Olivesz/freeflow@19c0217:bench/gate.py#L5-L7">which may lose no word</span>, lost <span data-derived="CI run 38482789778, gate (ci-control) job: FAIL (9 clips): streaming WER 0.143 &gt; offline 0.038 + 0.02; the benchmark’s reference clip dropped 2 words">2</span>.</li>
             <li data-key="rest" data-at="46">A gate that cannot fail measures nothing; the control shows this one can.</li>
           </ol>
           <figcaption class="sc-cap" id="sc-tests-cap"><span class="n">fig 14</span>The Swift and Python tests, the benchmark gate and its control, from one CI run. Greedy decoding is pinned by its own test.</figcaption>

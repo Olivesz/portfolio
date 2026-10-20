@@ -106,8 +106,15 @@
 /* the step's words: every step shares one grid cell, so the line never changes the figure's height */
 .sc-keys{display:grid;margin:16px 0 0;padding:0;list-style:none;font:400 15px/24px var(--sg);color:var(--ink);max-width:576px}
 .sc-keys li{grid-area:1/1}
-.scene.js .sc-keys li{visibility:hidden;opacity:0;transition:opacity 240ms var(--ease-enter)}
-.scene.js .sc-keys li.on{visibility:visible;opacity:1}
+/* a hyphenated term in a step's words breaks as a whole word, never at its hyphen */
+.sc-keys .nw{white-space:nowrap}
+/* a heading's baseline marker (deep.js), and a heading gone up under the strip */
+.dd-bl{display:inline-block;width:0;height:0}
+.dd-out{visibility:hidden}
+/* the last step's words fade out over 100ms, then the new step's fade in: one text in the box at a time, never two drawn
+   over each other */
+.scene.js .sc-keys li{visibility:hidden;opacity:0;transition:opacity 100ms var(--ease-exit),visibility 0s linear 100ms}
+.scene.js .sc-keys li.on{visibility:visible;opacity:1;transition:opacity 180ms var(--ease-enter) 100ms,visibility 0s linear 100ms}
 .scene:not(.js) .sc-keys{display:block}
 .scene:not(.js) .sc-keys li+li{margin-top:8px}
 
@@ -224,8 +231,9 @@
 }
 /* a phone on its side: the docked words run the column's width like a subtitle, one line where the measure takes two,
    and the strip scrolls away with the header, so a long read's figures get the screen between the top and the dock;
-   the road bar, left alone, sits flush with the top of the screen */
-@media (max-height:499px){ .scene.js.docked>.sc-keys li{max-width:none} .strip{position:relative} .dd-toc{top:24px;max-height:calc(100vh - 48px)} .lx-bar{top:0} }
+   the road bar, left alone, sits flush with the top of the screen; a docked svg composition a little taller than the band
+   is scaled to end above the longest step's words (deep.js sets --art-fit) */
+@media (max-height:499px){ .scene.js.docked>.sc-keys li{max-width:none} .scene.js.docked .sc-art>svg{max-height:var(--art-fit,none);width:auto;max-width:100%} .strip{position:relative} .dd-toc{top:24px;max-height:calc(100vh - 48px)} .lx-bar{top:0} }
 /* the strip carries 4 px of void under its edge, so a part scrolling away under it never leaves a sliver of itself */
 .strip::after{content:"";position:absolute;left:0;right:0;top:100%;height:4px;background:var(--void);pointer-events:none}
 /* a phone on its side at 720 px or wider has the wide composition's 704 px: its figures draw that one, shorter than
@@ -317,13 +325,13 @@
 .lx-nextch:hover .ar,.lx-nextch:focus-visible .ar{transform:translateX(8px)}
 @media (max-width:767px){ .lx-nextch{padding:20px 16px 24px} .lx-nextch .t{font-size:30px;line-height:40px} .lx-nextch .lx-mg{grid-template-columns:1fr;gap:16px} .lx-nextch .ar{right:16px;top:12px;font-size:30px;line-height:40px} }
 
-/* a phone, or a phone on its side, has no room to spare: the hero's two buttons (start reading, and the jump to the
-   results) share a row, and they and the facts sit 16 px under what comes before. The case study stays one tap away in
+/* a phone, or a phone on its side, has no room to spare: the hero's two buttons (the jump to the results, and start
+   reading) share a row, and they and the facts sit 16 px under what comes before. The case study stays one tap away in
    the strip at the top. */
 @media (max-width:767px), (max-width:1023px) and (max-height:500px){
   .lx-hero.deep .lx-cta{display:flex;gap:8px}
   .lx-hero.deep .lx-cta .lx-btn{flex:1 1 0;width:auto;min-width:0;padding:0 12px}
-  .lx-hero.deep .lx-cta:has(.res) .lx-btn.q:not(.res){display:none}
+  .lx-hero.deep .lx-cta:has(.res) .lx-btn.q:not(.rd){display:none}
   .lx-hero.deep .lx-cta,.lx-hero.deep .facts{margin-top:16px}
 }
 @media (max-width:767px){ .lx-see:has(li+li){grid-template-columns:repeat(2,minmax(0,1fr))} }
