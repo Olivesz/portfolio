@@ -81,7 +81,7 @@
 .bar .fill{position:absolute;left:0;top:0;bottom:0;width:var(--w)}
 .scene.js .bar .fill{width:0;transition:width 900ms var(--ease-enter),opacity 320ms var(--ease-enter)}
 .scene.js .bar .fill.on{width:var(--w)}
-.f-all{background:var(--residue)} .f-mut{background:var(--muted)} #ng-act[hidden]{display:none} .f-amb{background:var(--v-amber)} .f-grn{background:var(--v-green)}
+.f-all{background:var(--residue)} .f-mut{background:var(--muted)} #ng-act[hidden]{display:none} .f-vio{background:var(--v-violet)} .f-grn{background:var(--v-green)}
 .rate-row{display:flex;gap:8px;align-items:baseline;margin-top:8px;color:var(--ink)}
 .rate-big{font:500 15px/24px var(--sg);color:var(--ink)}
 /* fig 3: the loop */
@@ -516,9 +516,9 @@ button.vd{min-height:24px}
           <div class="sc-stage"><div class="sc-art">
             <div class="cx">
               <p class="rate-row" data-from="sessions"><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:README.md#L138">20,574</span><span>real coding-agent sessions, studied</span></p>
-              <div class="bar" data-from="episodes"><span class="fill f-all" data-from="episodes" style="--w:100%"></span><span class="fill f-amb" data-from="misreport" style="--w:22.58%"></span><span class="fill f-res" data-from="resolved" style="--w:9.33%"></span><span class="bv" data-from="misreport" style="left:calc(22.58% + 8px)" data-src="Olivesz/custos-code@f3737f8:README.md#L138">22.58%</span><span class="bv" data-from="resolved" style="right:calc(9.33% + 8px)" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">9.33%</span></div>
+              <div class="bar" data-from="episodes"><span class="fill f-all" data-from="episodes" style="--w:100%"></span><span class="fill f-vio" data-from="misreport" style="--w:22.58%"></span><span class="fill f-res" data-from="resolved" style="--w:9.33%"></span><span class="bv" data-from="misreport" style="left:calc(22.58% + 8px)" data-src="Olivesz/custos-code@f3737f8:README.md#L138">22.58%</span><span class="bv" data-from="resolved" style="right:calc(9.33% + 8px)" data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">9.33%</span></div>
               <p class="rate-row" data-from="episodes"><span class="rate-big" data-src="Olivesz/custos-code@f3737f8:README.md#L138">16,118</span><span>episodes gone wrong: the whole bar</span></p>
-              <p class="rate-row" data-from="misreport"><span class="mk a"></span><span>the agent misreported its own work</span></p>
+              <p class="rate-row" data-from="misreport"><span class="mk p"></span><span>the agent misreported its own work</span></p>
               <p class="rate-row" data-from="resolved"><span class="mk" style="--mk:transparent;border:2px solid var(--v-green);box-sizing:border-box"></span><span>resolved in the session (<span data-src="Olivesz/custos-code@f3737f8:docs/RESEARCH.md#L32">1,504</span>)</span></p>
               <div class="zoom" data-from="corrected" aria-hidden="true"></div>
               <div class="bar" data-from="corrected" style="margin-top:0"><span class="fill f-all" data-from="corrected" style="--w:100%"></span><span class="fill f-grn" data-from="corrected" style="--w:2.99%"></span><span class="bv" data-from="corrected" style="left:calc(2.99% + 8px)" data-src="Olivesz/custos-code@f3737f8:README.md#L138">2.99%</span></div>

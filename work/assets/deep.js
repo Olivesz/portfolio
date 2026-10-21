@@ -204,8 +204,9 @@
       clear: function (n) { var g = S.ctx; if (!g) return; g.fillStyle = api.tok(n || "void"); g.fillRect(0, 0, S.canvas.width, S.canvas.height); },
       cell: function (x, y, n) { var g = S.ctx, p = S.dp; g.fillStyle = api.tok(n); g.fillRect(x * p, y * p, p, p); },
       rect: function (x, y, w, h, n) { var g = S.ctx, p = S.dp; g.fillStyle = api.tok(n); g.fillRect(x * p, y * p, w * p, h * p); },
-      /* a 1-device-pixel-inset cell, so neighbouring cells read as separate squares at large pitches */
-      dot: function (x, y, n) { var g = S.ctx, p = S.dp, i = p >= 8 ? S.dpr : 0; g.fillStyle = api.tok(n); g.fillRect(x * p + i, y * p + i, p - i, p - i); },
+      /* a 1-device-pixel-inset cell, so neighbouring cells read as separate squares at large pitches (4 CSS px and up:
+         below that the inset would leave a one-cell wire drawn as dashes on a 3x screen) */
+      dot: function (x, y, n) { var g = S.ctx, p = S.dp, i = p >= 8 && p >= 4 * S.dpr ? S.dpr : 0; g.fillStyle = api.tok(n); g.fillRect(x * p + i, y * p + i, p - i, p - i); },
       ww: function (grid, w, h, o) { root.WW.draw(o && o.inset ? api.dot : api.cell, grid, w, h, o); },
       /* a DOM label at cell (x, y): o.align left|center|right, o.dy/o.dx in px, o.cls "" | "i" | "a" | "r" (13 px readout).
          The class follows o.cls on every call, so a label drawn muted lights when its step asks for ink; a class the page

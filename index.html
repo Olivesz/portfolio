@@ -134,12 +134,12 @@ a{color:inherit}
 .card .date{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent,var(--muted));margin:0}
 .card h2{margin:8px 0 16px;font:500 40px/48px var(--sg);letter-spacing:-.02em;color:var(--ink)}
 .card .pf{margin:0;font:400 15px/24px var(--sg);color:var(--ink)}
-.card .np{margin:16px 0 0;padding-left:12px;border-left:1px solid var(--accent,var(--muted));font:400 13px/20px var(--mono);color:var(--muted)}   /* the phrase is a set-off line, not body prose */
+.card .np{margin:16px 0 0;padding-left:12px;border-left:1px solid var(--accent,var(--muted));font:400 15px/24px var(--sg);color:var(--body)}   /* the phrase is a set-off line in the card's voice; mono is for data and labels */
 .card .pt{margin:16px 0 0;border-collapse:collapse;font:400 13px/24px var(--mono);color:var(--body);font-variant-numeric:tabular-nums}
 .card .pt th,.card .pt td{padding:0 0 0 16px;text-align:right;font-weight:400;white-space:nowrap}
 .card .pt th:first-child{padding-left:0;text-align:left;color:var(--ink)}
 .card .pt thead th{font:400 11px/24px var(--mono);letter-spacing:.04em;color:var(--muted)} .card .pt thead th:first-child{color:var(--muted)}
-.card .cv{margin:0;font:400 13px/24px var(--mono);color:var(--body)} .card .cv .nw,.card .pf .nw{white-space:nowrap} .card .cv .kl{display:none}
+.card .cv{margin:0;font:400 13px/24px var(--mono);color:var(--body)} .card .nw{white-space:nowrap} .card .cv .kl{display:none}
 @media (min-width:1024px){ .card .kp-b{margin-top:16px} }   /* the self-audit stands clear of the table's footnote */
 /* KRONOS's results lead with what the run bought, then show it: each max drawdown is a bar on one scale from zero (a cell
    is 1/24 of SPY's), KRONOS in the chapter hue, equal weight an outline, SPY in the chart's SPY tone. The bars lay cell by
@@ -148,8 +148,20 @@ a{color:inherit}
 .card .kh{margin:16px 0 0;color:var(--ink)}
 /* a card's proof in mono under its plain line, its key result in ink, as KRONOS's results are set */
 .card .fr{margin:16px 0 0} .card .fr .kr{color:var(--ink)}
+/* a large screen sets every card the same way: description, phrase, then the proof under a rule in the chapter's hue,
+   one number in large type with what it counts in mono, then at most one sentence. A phone keeps the proof line */
+.card .pn,.card .ps{display:none}
+@media (min-width:1024px){
+  .card .fr,.card .pf .px{display:none}
+  .card .pn{display:block;margin:24px 0 0;padding-top:8px;border-top:2px solid var(--accent)}
+  .card .pn .n{display:block;font:500 44px/48px var(--sg);letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .card .pn .l{display:block;font:400 13px/20px var(--mono);color:var(--body)}
+  .card .ps{display:block;margin:16px 0 0;font:400 15px/24px var(--sg);color:var(--body)}
+  .card p.meta{font:400 15px/24px var(--sg)}
+  .card .kp-a{margin-top:24px;padding-top:8px;border-top:2px solid var(--accent)} .card .kp-a .kk{margin-top:0} }
 .card .kt{margin-top:8px}
-.card .kt tbody tr:first-child th{color:var(--accent)} .card .kt tbody tr:first-child .kb+td{color:var(--ink)}
+/* the drawdown column is the result, so it is the brightest; Sharpe and CAGR sit back */
+.card .kt tbody tr:first-child th{color:var(--accent)} .card .kt tbody td{color:var(--muted)} .card .kt tbody .kb+td{color:var(--ink)}
 .card .kt .kb{--kc:4px;padding-left:16px;text-align:left} .card .kt .kb+td{padding-left:8px}
 .card .kt .kb i{display:block;box-sizing:border-box;width:calc(var(--n) * var(--kc));height:8px;background:var(--copper)}
 .card .kt tr:first-child .kb i{background:var(--accent)} .card .kt tr:nth-child(2) .kb i{background:none;border:1px solid var(--muted)}
@@ -313,12 +325,18 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
   .hero .hl a,.card .lk a,:is(#resume,#end) .cv-contact a{padding:8px 5px;margin:0 -5px}
   #colophon a{padding:9px 4px}
 }
-@media (max-width:1023px){
+/* an upright phone stacks the contact links; from 600px they share a row, and a row too narrow for all four breaks between whole links */
+@media (min-width:600px) and (max-width:1023px){
+  #end .cv-contact{display:flex;flex-wrap:wrap;column-gap:20px;overflow-wrap:normal}
+  #end .cv-contact .sep{display:none}
+  #end .cv-contact a{white-space:nowrap}
+}
+@media (max-width:599px){
   :is(#resume,#end) .cv-contact .sep{display:none}
   :is(#resume,#end) .cv-contact{margin-top:0}
   :is(#resume,#end) .cv-contact a{display:table;line-height:32px;padding:0;margin:0}
-  #colophon{width:auto;margin-left:16px;margin-right:16px}
 }
+@media (max-width:1023px){ #colophon{width:auto;margin-left:16px;margin-right:16px} }
 @media (prefers-reduced-motion:reduce){
   /* fades shorten to the 200ms crossfade; visibility still flips at the end of a fade-out, never fades itself */
   #strip .lg{transition:opacity 200ms var(--ease-enter),visibility 0s linear 200ms}
@@ -581,8 +599,10 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
       <p class="date">chapter ii</p>
       <h2>emergence</h2>
       <p class="pf" data-src="Olivesz/emergence@910b296:README.md#L5">Eight cellular automata, one engine.</p>
-      <p class="np">a truth table. every rung verified, up to the CPU.</p>
+      <p class="np">a truth table. every rung verified, up to <span class="nw">the CPU.</span></p>
       <p class="cv fr"><span class="nw" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">SAP-1 (1,446 NAND gates, 175 flip-flops)</span> <span class="nw" data-src="Olivesz/emergence@910b296:cpu/README.md#L24">runs five test programs as a gate-level netlist.</span><br><span class="kr" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52"><span class="nw">In raw Wireworld, a full adder, a 4-bit counter</span> <span class="nw">and a D flip-flop match the netlist every clock.</span></span></p>
+      <div class="pn"><span class="n" data-src="Olivesz/emergence@910b296:cpu/README.md#L28">1,446</span><span class="l"><span data-src="Olivesz/emergence@910b296:cpu/README.md#L28">NAND gates · 175 flip-flops</span> · <span data-src="Olivesz/emergence@910b296:cpu/README.md#L24">five test programs</span></span></div>
+      <p class="ps" data-src="Olivesz/emergence@910b296:cpu/README.md#L49-L52">In raw Wireworld, a full adder, a 4-bit counter and a <span class="nw">D flip-flop</span> match the netlist every clock.</p>
       <p class="sr-only">A NAND cell in raw Wireworld fills its truth table, inputs A and B as buttons; then the SAP-1’s recorded gate-level run replays Fibonacci, clock by clock, from PC and RAM over the bus to OUT.</p>
       <p class="lk"><a class="rm dd" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
@@ -593,9 +613,10 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
     <article class="stick card" id="freeflow" tabindex="-1">
       <p class="date">chapter iii</p>
       <h2>freeflow</h2>
-      <p class="pf" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app has focus.</p>
-      <p class="np" data-src="Olivesz/freeflow@19c0217:README.md#L49">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
-      <p class="cv fr"><span class="kr" data-src="Olivesz/freeflow@19c0217:README.md#L57-L60">word errors: <span class="nw">6.7% live,</span> <span class="nw">5.4% whole clip</span></span><br><span data-src="Olivesz/freeflow@19c0217:README.md#L55-L59"><span class="nw">20 held-out speakers</span> · <span class="nw">19.7% before the fix</span></span></p>
+      <p class="pf" data-src="Olivesz/freeflow@2be3872:README.md#L5-L6">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app <span class="nw">has focus.</span></p>
+      <p class="np" data-src="Olivesz/freeflow@2be3872:README.md#L86">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
+      <p class="cv fr"><span class="kr" data-src="Olivesz/freeflow@2be3872:README.md#L94-L98">word errors: <span class="nw">2.1% live,</span> <span class="nw">1.9% whole clip</span></span><br><span class="nw" data-src="Olivesz/freeflow@2be3872:README.md#L92">20 held-out speakers</span> · <span data-src="Olivesz/freeflow@2be3872:README.md#L6-L8"><span class="nw">Parakeet by default,</span> <span class="nw">Whisper as fallback</span></span></p>
+      <div class="pn"><span class="n" data-src="Olivesz/freeflow@2be3872:README.md#L98">2.1%</span><span class="l" data-src="Olivesz/freeflow@2be3872:README.md#L94-L98">word errors, live · 1.9% whole clip</span><span class="l"><span data-src="Olivesz/freeflow@2be3872:README.md#L92">20 held-out speakers</span> · <span data-src="Olivesz/freeflow@2be3872:README.md#L6-L8">Parakeet by default, Whisper as fallback</span></span></div>
       <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log: freeflow’s streaming loop, whisper.cpp base.en, on a synthesized reading of Mark Twain’s coyote lines from Roughing It.</p>
       <p class="lk"><a class="rm dd" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
@@ -609,7 +630,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
       <p class="np">a planted answer. no estimator touches a real price until it finds one.</p>
       <div class="kp"><div class="kp-a">
       <p class="cv kk" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157">the result · risk control, not alpha</p>
-      <p class="cv kh"><span class="kr" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L27-L31">about equal-weight’s Sharpe, 64% of its drawdown</span></p>
+      <p class="cv kh" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157-L158"><span class="nw">equal weight’s Sharpe,</span> <span class="nw">a third less drawdown</span></p>
       <table class="pt kt">
         <thead><tr><th data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">net of costs</th> <th colspan="2">max drawdown</th> <th>Sharpe</th> <th>CAGR</th></tr></thead>
         <tbody>
@@ -631,10 +652,12 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
     <article class="stick card" id="custos" tabindex="-1">
       <p class="date">chapter v</p>
       <h2>custos-code</h2>
-      <p class="pf"><span data-src="Olivesz/custos-code@f3737f8:README.md#L3">Checks a coding agent’s final report against its own log, claim by claim.</span> In <span data-src="Olivesz/custos-code@f3737f8:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with a nudge.</p>
-      <p class="np">the log. the harness’s record of what the agent did.</p>
+      <p class="pf"><span data-src="Olivesz/custos-code@f3737f8:README.md#L3">Checks a coding agent’s final report against its own log, claim by claim.</span><span class="px"> In <span data-src="Olivesz/custos-code@f3737f8:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with <span class="nw">a nudge.</span></span></p>
+      <p class="np">the log. the harness’s record of what the <span class="nw">agent did.</span></p>
       <p class="cv fr cu"><span class="kr" data-src="Olivesz/custos-code@f3737f8:README.md#L29-L33">six log sources · ten scenarios with known truth</span></p>
-      <p class="meta" data-src="public_resume.tex#L79-L82">2026 hackathon. Led a team of 3, designed the core engine.</p>
+      <div class="pn"><span class="n" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L19-L20">10 of 10</span><span class="l" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L11-L13">scenarios with known truth, scored by rule</span><span class="l" data-src="Olivesz/custos-code@f3737f8:README.md#L29-L30">reads logs from six sources</span></div>
+      <p class="ps">In <span data-src="Olivesz/custos-code@f3737f8:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with a nudge.</p>
+      <p class="meta" data-src="public_resume.tex#L79-L82">2026 hackathon. Led a team of 3, designed the <span class="nw">core engine.</span></p>
       <p class="sr-only">The agent says the suite is green; its log shows failing tests: the claim is marked contradicted and the stop blocked. A passing run stops.</p>
       <p class="lk"><a class="rm dd" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
@@ -1150,7 +1173,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
 "nand_truth": {"v": "1,1,1,0", "src": "page:nand", "ctx": "out", "note": "read from the output cell of the Wireworld run; rule at Olivesz/emergence@910b296:cpu/ww_cells.py#L233; selfChecks 'nand'"},
 "fib_tape": {"v": "144", "src": "Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1", "at": "144]}", "ctx": "OUT", "note": "the OUT tape is replayed from the recorded gate-level netlist trace (out_load rows); at: the last value of the header's out_tape, which selfChecks 'sap' compares the replay with"},
 "sap_instr": {"v": "115", "src": "page:sap", "ctx": "instruction", "note": "the trace's 688 clocks hold 115 instruction fetches (T1 rows), HLT included; selfChecks 'sap'"},
-"pass_ms": {"v": "350 ms", "src": "Olivesz/freeflow@19c0217:README.md#L49", "ctx": "audio"},
+"pass_ms": {"v": "350 ms", "src": "Olivesz/freeflow@2be3872:README.md#L86", "ctx": "audio"},
 "sharpe": {"v": "1.12", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "Sharpe", "note": "rf=0; the same row states 0.97 in excess of cash"},
 "sharpe_x": {"v": "0.97", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "excess"},
 "maxdd": {"v": "−18.7%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "drawdown"},
@@ -4327,8 +4350,10 @@ var PLAY = {
                        [1530, 1 / 3], [1660, 0.34], [1850, 0.65], [1950, 0.66],
                        [1980, 2 / 3], [2080, 0.7], [2320, 0.93], [2400, 1]], live: { desk: [0, 1 / 3], phone: [0, 1 / 3] },
   // its phone hold (CSS px of scroll) is longer than HOLD_PH: its clock is the longest on a phone, and a visitor who
-  // stops at the card for 1.5 s and scrolls on sees it finish about half a second before the figure leaves the frame
-               holdPh: 1100 },
+  // stops at the card for 1.5 s and scrolls on sees it finish about half a second before the figure leaves the frame.
+  // A wide screen's passed figure resolves out at its dim edge, as a phone's leaves at its hold's end, so its desktop
+  // hold (holdD, CSS px) is longer than its card's rise for the same reason: the drawdown lands before the figure goes
+               holdPh: 1100, holdD: 800 },
   // custos, read off its figure's phases: the claim stands unread, the rule reads the log a line at a time and narrows
   // onto the failing count, the wire runs to the claim, and the verdict holds alone before the stop; the passing control
   // comes last, once the point has landed
@@ -4349,10 +4374,34 @@ var HOLD_TAIL = 90, HOLD_MIN = 0.34, HOLD_PH = 800;
 // a portrait phone's native layer steps up in 240ms and plays once its whole box is in the band (see updStation), so
 // its clock waits 300ms, not a desktop's 540: the first beat lands about where the figure does
 function setPlayKeys() { CHAPTERS.forEach(function (ch) { var k = PF ? ch.play.pk : ch.play.dk; ch.play.keys = k; ch.play.ms = k[k.length - 1][0]; ch.lead = !ch.beats[0].native ? 150 : wide ? 540 : 300; }); }
-// steps the ant walks on across a desktop hold, so every notch there still moves the road; a phone frames the ant at
-// the edge of its art box, where any walk would carry it out, so there it stands
+// steps the ant walks across a hold, so a notch there still moves the road and the step count: half a highway period,
+// about one cell. A wide screen walks on past the station (creepOut). A phone, upright or on its side, walks in to it
+// where it can (creepIn): its transit stops short of the station's step and the hold walks the rest, so the head ends
+// the hold where the station's pose frames it; where the road behind runs too near the box's edge it walks on instead
 var CREEP = Math.round(PERIOD / 2);
-function creep() { return PF ? 0 : CREEP; }
+function creepIn(ch) { return PF && ch ? creepPh(ch)[0] : 0; }
+function creepOut(ch) { return PF ? (ch ? creepPh(ch)[1] : 0) : CREEP; }
+// a phone's hold walks [S - in, S + out]: every step of it keeps one cell of ground between the head and the art box's
+// edge, or no nearer the edge than the station's own step stands where that is less. The road back is taken first, up
+// to CREEP steps, and the road on makes up the rest. The station's pose is fixed through the hold, so the walk is read
+// against it once per layout
+function creepPh(ch) {
+  var Q = cssP("station"), key = Q + "|" + VW + "x" + VH + "|" + dpr + "|" + BAND + "|" + land;
+  if (ch.crp && ch.crp.key === key) return ch.crp.v;
+  var c = poseSt(ch.k)[0], P = Math.max(1, Math.round(devP(Q))) / dpr, n = 0, m = 0;
+  // the art box the pose is drawn in: the band under the strip upright; the column right of the words on its side
+  var ax = land ? (ART_L + ART_R) / 2 : VW / 2, aY = land ? (STRIP + VH - CAP) / 2 : (STRIP + BAND - CAP) / 2;
+  var x0 = land ? EDGE_L + 4 * P : 0, x1 = land ? ART_R : VW, y1 = land ? VH - CAP : BAND - CAP;
+  function gap(i) {
+    var x = ax + (posX[i] - c[0]) * P, y = aY + (posY[i] - c[1]) * P;
+    return Math.min(x - x0, x1 - x - P, y - STRIP, y1 - y - P);
+  }
+  var need = Math.min(P, gap(ch.S));
+  while (n < CREEP && ch.S - n - 1 > 0 && gap(ch.S - n - 1) >= need) n++;
+  while (n + m < CREEP && gap(ch.S + m + 1) >= need) m++;
+  ch.crp = { key: key, v: [n, m] };
+  return ch.crp.v;
+}
 CHAPTERS.forEach(function (ch) {
   var v = 0; ch.beats.forEach(function (b) { b.v0 = v; v += b.len; }); ch.L = v;
   ch.play = PLAY[ch.id]; ch.play.dk = ch.play.keys; ch.play.pk = ch.play.phone || ch.play.keys; ch.play.ms = ch.play.keys[ch.play.keys.length - 1][0];
@@ -4380,7 +4429,7 @@ function wi(x, y) { x -= X0; y -= Y0; return (x < 0 || y < 0 || x >= WW || y >= 
 var mainLit = new Uint8Array(WW * WH), mainSt = new Int32Array(WW * WH);
 var trS = new Uint8Array(WW * WH), stn = new Uint8Array(WW * WH), stnId = new Uint8Array(WW * WH), plt = new Uint8Array(WW * WH);
 var stDimL = new Uint8Array(CHAPTERS.length);                          // 0..8: the dim clip's progress (8 = every cell stepped down)
-var stFar = new Uint8Array(CHAPTERS.length);                           // a phone: 1 once the next station has arrived, until the pull-back (not drawn)
+var stFar = new Uint8Array(CHAPTERS.length);                           // 1 while a passed station is not drawn, until the pull-back: a phone once the next has arrived, a desktop once it cannot be whole (updStation)
 // a station's cells never drop out when it dims (a half-dropped figure reads as a checkerboard): they step their colour
 // down one token, as a native layer does (ink -> body -> muted, signal -> signal-2, trail -> trail-2 -> trail-3),
 // Bayer-ordered over the dim clip and whole at its end
@@ -4631,7 +4680,7 @@ function startClip(c, now) { clip = c; c.t0 = now; }
 // station takes the native layer, the pull-back shrinks it) the clock pauses where it is, and it resumes on the way
 // back. It never snaps to the end, so no visitor meets a station already finished that they did not watch finish.
 // Reduced motion: the end state at once, never a clock.
-var VIS_ON = 0.5, VIS_OFF = 0.2, WHOLE = 0.999, UP_PH = 0.7;
+var VIS_ON = 0.5, VIS_OFF = 0.2, WHOLE = 0.999, UP_PH = 0.7, NOTCH_LOOK = 250;
 function playArrive(ch) {
   var pb = ch.pb;
   if (RM && pb.state !== "held") { pb.state = "done"; pb.p = 1; pb.seen = true; }
@@ -4909,15 +4958,17 @@ function previewFor(s, now) {
   if ((wide && !land) || RM || s >= ZOOM) return null;   // rest frames are a phone's, upright or on its side: a desktop draws none
   for (var i = 0; i < CHAPTERS.length; i++) if (CHAPTERS[i].shown) return null;
   // a rest frame comes up at a rest; once up it stays while the scroll goes on forward, until the station's own build
-  // takes its place (the station shows), so a pause and the next notch never blink the figure off and on
-  var rest = restedAt(now);
+  // takes its place (the station shows), so a pause and the next notch never blink the figure off and on. An upright
+  // phone's band holds nothing else in a transit, so there the frame comes up from the transit's first notch and
+  // enters with the ant, at read pace or after a flick, instead of leaving the band empty until the scroll rests
+  var rest = restedAt(now) || (PF && !land);
   // the first station has no station before it: its rest starts halfway through the transit from the lock, where its
   // card's title comes up, so a scroll that stops under that title meets the figure it names
   for (var k = 0; k < CHAPTERS.length; k++) {
     var ch = CHAPTERS[k], s0 = Math.max(k ? CHAPTERS[k - 1].hold : (ch.from + ch.arrive) / 2, ch.up);
     if (s >= s0 && s < ch.arrive) {
       if (!rest && !(PREV.ch === ch && s >= PREV.s)) return null;
-      var off = restOff(ch, s, PREV.ch === ch ? PREV.off : null);
+      var off = restOff(ch, s, restKeep(ch, s0, s));
       // an upright phone's band holds nothing else here, so a native frame stays up even where no shift clears the ant;
       // on its side the ant travels through the art beside the card, and a frame that cannot clear it waits
       if (!off && ch.beats[0].native && !land) off = [0, 0];
@@ -4974,6 +5025,20 @@ function restOff(ch, s, keep) {
   return null;
 }
 var RTX = new Float64Array(AGE1), RTY = new Float64Array(AGE1);
+// the shift a rest frame holds at s is a function of s alone, never of the frames before it: restOff run forward one
+// px of scroll at a time from where the frame can first come up (s0), each px keeping the shift before it while that
+// still clears, as a reader going down meets it. So a gliding camera does not shuffle the frame, and a y reached from
+// below, by a jump or after a rest shows it where a reader coming down does. Kept per layout and first frame's rows
+function restKeep(ch, s0, s) {
+  var key = S + "|" + dpr + "|" + VW + "x" + VH + "|" + PF + "|" + land + "|" + firstRows(ch) + "|" + s0, R = ch.rk;
+  if (!R || R.key !== key) {
+    var p0 = Math.ceil(s0 * S), p1 = Math.ceil(ch.arrive * S), keep = null, offs = [];
+    for (var p = p0; p < p1; p++) offs.push(keep = restOff(ch, p / S, keep));
+    R = ch.rk = { key: key, p0: p0, offs: offs };
+  }
+  var i = Math.floor(s * S) - R.p0;
+  return i < 0 || !R.offs.length ? null : R.offs[Math.min(i, R.offs.length - 1)];
+}
 // a cell station's rest frame: its first beat's opening cells, one token down, a pixel a cell, cut once per state of
 // the figure; render() scales it to the station pitch at the arrival pose, as a native layer is drawn at arriveBox
 var PVC = { key: null, cv: null, labels: [], rows: 0 };
@@ -5099,6 +5164,21 @@ function updStation(ch, s, now) {
       if (whole !== ch.whole) { ch.wT = ch.whole === false && !(wasWait && mine && mine.kind === "build") ? now : -1e9; ch.whole = whole; }   // only a return from crossing an edge resolves back in; the build clip steps the layer up itself
       if (!whole) rr = 0;
       else if (!RM && now - ch.wT < 240) { rr *= clamp01((now - ch.wT) / 240); fadesBusy = true; }
+    } else if (!PF) {
+      // a desktop's passed station leaves by its resolve level, never by panning past an edge: once dimmed (one token
+      // down), the layer resolves out over 240ms on a clock as soon as its box would no longer be whole NOTCH_LOOK px of
+      // scroll past where the camera is heading (the camera glides behind the scroll, and a notch moves it up to 250
+      // CSS px), so the clock has run out before the box can reach the art region's edge; the station is then not
+      // drawn (stFar). Whole again on the way back, it resolves back in the same way. A layer whose box crosses an edge
+      // anyway (a flick outrunning the clock, or a build that starts as the camera is still gliding in) is not drawn
+      // in that frame: its cells stand in for it, and a passed station's go with it (below)
+      var wh = figVis(ch, s) >= WHOLE;
+      var dw = !st.dim || (wh && figVis(ch, Math.max(s, targetS) + NOTCH_LOOK / S) >= WHOLE);
+      if (dw !== ch.dw) { ch.dT = ch.dw === undefined ? -1e9 : now; ch.dw = dw; }
+      var dq = RM ? 1 : clamp01((now - ch.dT) / 240);
+      if (dq < 1) fadesBusy = true;
+      rr *= dw ? dq : 1 - dq;
+      if (!wh) rr = 0;
     }
     ch.r = rr;
   }
@@ -5123,6 +5203,15 @@ function updStation(ch, s, now) {
   // sliver of it stays behind
   var nx = CHAPTERS[ch.k + 1];
   var far = PF && s < ZOOM && ((figVis(ch, s) < WHOLE && !(land && st.dim && figVis(ch, s) >= VIS_OFF)) || ((!wide || land) && st.dim && nx && (s >= nx.arrive || chT(nx).on || s >= nx.onH))) ? 1 : 0;
+  // a desktop draws a passed station at station pitch only while it can be whole: a native layer goes once it has
+  // resolved out (above), or in the frame its box crosses the edge; a cell figure goes once its box would cross the art region's edge, after its dim clip has
+  // stepped it down; and any passed station goes once the card two chapters on has come on screen, so no remnant of
+  // it stands beside another chapter's card. The pull-back draws them all again
+  if (!PF && s < ZOOM && st.dim) {
+    var nx2 = CHAPTERS[ch.k + 2];
+    if (ch.beats[0].native ? (ch.dw === false && (RM || now - ch.dT >= 240)) || figVis(ch, s) < WHOLE : figVis(ch, s) < WHOLE && stDimL[ch.k] >= 8) far = 1;
+    else if (nx2 && nx2.btop !== undefined && s * S > nx2.btop - VH) far = 1;
+  }
   ch.shown = showing && !far && figVis(ch, s) > 0;
   if (far !== stFar[ch.k]) { stFar[ch.k] = far; for (var i1 = 0; i1 < ch.buf.length; i1++) if (ch.buf[i1]) { var j1 = wi(ch.F[0] + (i1 % ch.w), ch.F[1] + ((i1 / ch.w) | 0)); if (j1 >= 0) comp(j1); } }
   var bi = st.bi, us = [];
@@ -5521,7 +5610,7 @@ function layout() {
     ch.lift = Math.max(0, SVH - 16 - ch.cardH - ch.ctop);
     // a phone on its side gets the same px hold as upright: the clock runs in time and the visitor's scroll covers px,
     // so a station plays out in frame however the phone is held
-    ch.hold = ch.arrive + Math.max(PF ? (ch.play.holdPh || HOLD_PH) / S : HOLD_MIN, (ch.lift + HOLD_TAIL) / S); t = ch.hold; prevH = ch.cardH;
+    ch.hold = ch.arrive + Math.max(PF ? (ch.play.holdPh || HOLD_PH) / S : Math.max(HOLD_MIN, (ch.play.holdD || 0) / S), (ch.lift + HOLD_TAIL) / S); t = ch.hold; prevH = ch.cardH;
     ch.btop = Math.round(ch.arrive * S + cardTop + ch.lift);
     card.style.position = "sticky"; card.style.top = ch.ctop + "px";
     blk.style.top = ch.btop + "px";
@@ -5735,17 +5824,60 @@ function maskOf(c, Y, E, now) {
   // a phone's card whose hold is over steps to half once the band shows the next station (its first frame at a rest,
   // or its build), over the 240ms that figure takes to come up: a figure never stands over the last station's card at
   // full strength. A card being read is never dimmed: the next station shows only after this one's hold. A phone on its
-  // side draws no rest frame, so there the card steps down as its own station dims, while the ant travels on
-  var lv = 1;
-  if (PF && c.nx && (PREV.ch === c.nx || chT(c.nx).on || (land && c.ch && chT(c.ch).dim))) {
+  // side draws no rest frame, so there the card steps down as its own station dims, while the ant travels on. Upright,
+  // the band shows one figure at a time, so the card's rows go with their own figure: once the next station is drawn
+  // (its rest frame or its build) they fade out over 120ms, and no figure ever stands over another chapter's words. A
+  // desktop's card steps to half once its own figure is no longer drawn or the next station builds, so no row it still
+  // has on screen is read without its figure or beside another
+  var lv = 1, up = PF && !land;
+  if (c.nx && (PF ? PREV.ch === c.nx || (up ? chT(c.nx).on && c.nx.shown : chT(c.nx).on || (c.ch && chT(c.ch).dim)) : chT(c.nx).on || (c.ch && stFar[c.ch.k]))) {
     if (c.ld0 < 0) c.ld0 = now;
-    var lt = RM ? 1 : clamp01((now - c.ld0) / 240); if (lt < 1) fadesBusy = true;
-    lv = Math.round((1 - 0.5 * lt) * 100) / 100;
+    var lt = RM ? 1 : clamp01((now - c.ld0) / (up ? 120 : 240)); if (lt < 1) fadesBusy = true;
+    lv = Math.round((1 - (up ? 1 : 0.5) * lt) * 100) / 100;
   } else c.ld0 = -1;
-  c.out = false; c.cut = 0;              // cut: the card's rows above it are under half alpha
-  if (top > c.T - 0.5) return lv < 1 ? "linear-gradient(rgba(0,0,0," + lv + "), rgba(0,0,0," + lv + "))" : "";   // at its sticky top or on its way up
-  // a phone's card leaves as one piece: from its sticky top until its title reaches the edge every row fades together,
-  // so no row is ever on screen without its title (a card whose title already sits past the edge at rest keeps the rows rule)
+  c.out = lv <= 0; c.cut = lv <= 0 ? c.h : 0; c.cutB = 1e9;   // cut: the card's rows above it are under half alpha; cutB: those below it
+  if (c.out) return "linear-gradient(transparent, transparent)";
+  var tail = "";
+  if (!PF && rs.length) {
+    // a desktop's card stops at the caption band: a row whose line box would cross the band's top edge is hidden,
+    // row by row, never half a line; a chapter card's kicker and the first row of its title stop as one, so the card
+    // never comes up as a lone kicker
+    var lim = VH - CAP - top, CB = c.h, H0, ha = 1;
+    for (var r0 = 0; r0 < rs.length; r0++) if (rs[r0][1] > lim) { CB = rs[c.ch && c.ti >= 0 && r0 <= c.ti ? 0 : r0][0]; break; }
+    H0 = CB;
+    // and a chapter's card comes up announcing its chapter (kicker and title) but holds the rows under its title until
+    // its station is built, then fades them in over 240ms, so no card is read beside another chapter's figure
+    if (c.ch && c.ti >= 0 && c.ti + 1 < rs.length) {
+      var hon = chT(c.ch).on;
+      if (hon !== c.hOn) { c.hT = c.hOn === undefined || !hon ? -1e9 : now; c.hOn = hon; }
+      ha = !hon ? 0 : RM ? 1 : clamp01((now - c.hT) / 240);
+      if (ha < 1) { H0 = Math.min(CB, rs[c.ti + 1][0]); fadesBusy = fadesBusy || hon; }
+      ha = Math.round(ha * 100) / 100;
+    }
+    if (H0 < c.h) {
+      tail = ", black " + H0 + "px, rgba(0,0,0," + ha + ") " + H0 + "px, rgba(0,0,0," + ha + ") " + CB + "px, transparent " + CB + "px";
+      c.cutB = ha < 0.5 ? H0 : CB;
+    }
+  }
+  if (top > c.T - 0.5) return lv < 1 ? "linear-gradient(rgba(0,0,0," + lv + "), rgba(0,0,0," + lv + "))" : tail ? "linear-gradient(black 0px" + tail + ")" : "";   // at its sticky top or on its way up
+  // an upright phone's card slides up under the band with the page: a row is hidden whole once its top reaches the
+  // edge (no glyph is drawn cut), the rows below keep their strength while the title is still in sight, and once the
+  // title has gone they stay at half, the level of a card already read, while their own figure is in the band (lv)
+  if (up && c.ti >= 0 && c.T + rs[c.ti][0] > E) {
+    // and they go with their figure by the caption row's rule: once the card's own station is no longer drawn, or
+    // another station's figure is, every row still on screen (its proof and links) is removed at once, so no link
+    // under another chapter's figure opens a project that is not the one shown
+    var fid = lastFig ? lastFig.id : PREV.ch ? PREV.ch.id : null;
+    if (c.ch && (!c.ch.shown || (fid && fid !== c.ch.id))) { c.out = true; c.cut = c.h; return "linear-gradient(transparent, transparent)"; }
+    var B0 = c.h;
+    for (var q = 0; q < rs.length; q++) if (top + rs[q][0] >= E) { B0 = rs[q][0]; break; }
+    var bl = top + rs[c.ti][0] >= E ? lv : Math.min(lv, 0.5);
+    c.out = B0 >= c.h; c.cut = B0;
+    return bl >= 1 && B0 <= 0 ? "" : "linear-gradient(transparent " + B0 + "px, rgba(0,0,0," + bl + ") " + B0 + "px)";
+  }
+  // a phone on its side: the card leaves as one piece, from its sticky top until its title reaches the edge every row
+  // fades together, so no row is ever on screen without its title (a card whose title already sits past the edge at rest
+  // keeps the rows rule)
   if (PF && c.ti >= 0 && c.T + rs[c.ti][0] > E) {
     var tt = top + rs[c.ti][0], al = Math.min(lv, Math.round(clamp01((tt - E) / (c.T + rs[c.ti][0] - E)) * 100) / 100), A0 = c.h;
     for (var k = 0; k < rs.length; k++) if (top + rs[k][0] >= E) { A0 = rs[k][0]; break; }
@@ -5760,7 +5892,9 @@ function maskOf(c, Y, E, now) {
   }
   var A = a < 0 ? c.h : rs[a][0], B = b < 0 ? c.h : rs[b][0];
   c.cut = b === 0 ? 0 : A;
-  return b === 0 ? "" : "linear-gradient(transparent " + A + "px, rgba(0,0,0,.5) " + A + "px, rgba(0,0,0,.5) " + B + "px, black " + B + "px)";
+  var dl = !PF && lv < 1, full = dl ? "rgba(0,0,0," + lv + ")" : "black";   // a desktop's leaving card at its step-down level
+  if (b === 0) return dl ? "linear-gradient(" + full + ", " + full + ")" : tail ? "linear-gradient(black 0px" + tail + ")" : "";
+  return "linear-gradient(transparent " + A + "px, rgba(0,0,0,.5) " + A + "px, rgba(0,0,0,.5) " + B + "px, " + full + " " + B + "px" + tail + ")";
 }
 // the rows cardMasks will need this frame are read at its start, before anything is written, so the reads find the
 // layout the browser has already made instead of forcing a new one; cardMasks then finds them measured (mT) and keeps
@@ -5770,7 +5904,7 @@ function cardsRead(now) {
   for (var i = 0; i < CROWS.length; i++) {
     var c = CROWS[i];
     if (c.stale) {
-      if (Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y) > E + 64 && !c.key) continue;
+      if (Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y) > (PF ? E + 64 : VH) && !c.key) continue;
       measureRows(c); c.mT = now; continue;
     }
     if (c.key) continue;
@@ -5783,8 +5917,8 @@ function cardMasks(now) {
   var Y = Math.round(targetS * S), E = wide ? STRIP : BAND;     // the scroll handler's own reading: no layout flush here
   for (var i = 0; i < CROWS.length; i++) {
     var c = CROWS[i];
-    if (c.stale) {                       // measured only as it nears the edge (where it is, sticky or leaving): a card far below costs nothing
-      if (Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y) > E + 64 && !c.key) continue;
+    if (c.stale) {                       // measured only as it nears the edge (sticky or leaving; on a desktop, coming up to the caption band): a card far below costs nothing
+      if (Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y) > (PF ? E + 64 : VH) && !c.key) continue;
       measureRows(c);
     }
     var key = maskOf(c, Y, E, now);
@@ -5799,7 +5933,7 @@ function cardMasks(now) {
     var pe = c.out ? "none" : "";
     if (c.el.style.pointerEvents !== pe) c.el.style.pointerEvents = pe;
     for (var q = 0; q < c.lk.length; q++) {
-      var lq = c.lk[q][0], off = c.out || c.lk[q][1] < c.cut, lp = off ? "none" : "";
+      var lq = c.lk[q][0], off = c.out || c.lk[q][1] < c.cut || c.lk[q][1] > c.cutB, lp = off ? "none" : "";
       if (lq.style.pointerEvents !== lp) lq.style.pointerEvents = lp;
       if (lq.tabOff !== off) { lq.tabOff = off; if (off) lq.setAttribute("tabindex", "-1"); else lq.removeAttribute("tabindex"); }
     }
@@ -5922,9 +6056,10 @@ function stepAt(s) {
   var from = LOCK + LOCK_RUN;
   for (var k = 0; k < CHAPTERS.length; k++) {
     var ch = CHAPTERS[k];
-    if (s < ch.arrive) { var f = clamp01((s - ch.go) / (ch.arrive - ch.go)); return Math.floor(from + (ch.S - from) * (RM ? f : ss(f))); }
-    if (s < ch.hold) return ch.S + Math.floor(creep() * (s - ch.arrive) / (ch.hold - ch.arrive));
-    from = ch.S + creep();
+    var ci = creepIn(ch), co = creepOut(ch);
+    if (s < ch.arrive) { var f = clamp01((s - ch.go) / (ch.arrive - ch.go)); return Math.floor(from + (ch.S - ci - from) * (RM ? f : ss(f))); }
+    if (s < ch.hold) return ch.S - ci + Math.floor((ci + co) * (s - ch.arrive) / (ch.hold - ch.arrive));
+    from = ch.S + co;
   }
   if (s < MAPS) { var f2 = clamp01((s - ZOOM) / (MAPS - ZOOM)); return Math.floor(from + (END - from) * (RM ? f2 : ss(f2))); }
   return END;
@@ -5968,13 +6103,13 @@ var HEAD_GUT = 16, HEAD_N = 160, LEAN_V = 0.25, TRAIL_C = 9;
 function headLean(k) {
   var ch = CHAPTERS[k], Q = cssP("station"), key = Q + "|" + VW + "x" + VH + "|" + S + "|" + dpr + "|" + laidNative;
   if (ch.lean && ch.lean.key === key) return ch.lean.v;
-  var a = k ? poseSt(k - 1) : poseLock(), b = poseSt(k), from = k ? CHAPTERS[k - 1].S + creep() : LOCK + LOCK_RUN;
+  var a = k ? poseSt(k - 1) : poseLock(), b = poseSt(k), from = k ? CHAPTERS[k - 1].S + creepOut(CHAPTERS[k - 1]) : LOCK + LOCK_RUN, to = ch.S - creepIn(ch);
   var aY = (STRIP + BAND - CAP) / 2, bL = VW / 2 + (ch.F[0] - ch.C[0]) * Q - Q, bR = bL + ch.beats[0].bw * Q + 2 * Q;
   var by = aY + (ch.F[1] - ch.C[1]) * Q, bh = firstRows(ch) * Q, N = HEAD_N, px = (ch.arrive - ch.go) * S / N;   // the move's own span, as camAt reads e
   var up = [], dn = [], hi = [], lo = [], cx = [], cy = [], C = new Float64Array(N + 1), v = new Float64Array(N + 1);
   for (var j = 0; j <= N; j++) {
     var e = j / N, es = ss(e), c = lerp2(a[0], b[0], es), P = Math.max(1, Math.round(logP(a[1], b[1], es))) / dpr;
-    var t = from + (ch.S - from) * es, i = Math.max(0, Math.min(WALK_MAX - 1, Math.floor(t))), f = t - i;
+    var t = from + (to - from) * es, i = Math.max(0, Math.min(WALK_MAX - 1, Math.floor(t))), f = t - i;
     var x = VW / 2 + (posX[i] + f * (posX[i + 1] - posX[i]) - c[0]) * P, y = aY + (posY[i] + f * (posY[i + 1] - posY[i]) - c[1]) * P;
     var l = HEAD_GUT + P, r = VW - HEAD_GUT - 2 * P, h = j && j < N ? 1e9 : 0, g = -h;     // the poses stay as they are
     if (k) {
@@ -6079,8 +6214,12 @@ function instrAt(s) {
     // until that card's own station is drawn, so no line sits under the card of another chapter
     if (land && nx && st.dim && s >= nx.up && s < end) end = s;
     // a wide screen's passed station keeps its line only while a fifth of its figure is still in the art: past that the
-    // row stays empty until the next figure is drawn, so no line describes a figure that has gone
-    if (wide && !land && nx && st.dim && s < end && figVis(ch, s) < VIS_OFF) end = s;
+    // row stays empty until the next figure is drawn, so no line describes a figure that has gone (nor one that has
+    // resolved out at the art region's edge and is no longer drawn)
+    if (wide && !land && nx && st.dim && s < end && (figVis(ch, s) < VIS_OFF || stFar[ch.k])) end = s;
+    // nor while the next chapter's title is on screen and this figure is leaving (resolving out, or no longer whole):
+    // the row under another chapter's card never carries a passed station's line
+    if (wide && !land && nx && st.dim && s < end && (figVis(ch, s) < WHOLE || ch.dw === false) && ttlUp(nx, Math.round(s * S))) end = s;
     // the lock's line stays up until the first station's line takes the row; on an upright phone only until that
     // station's card has come up, where the row waits empty for the figure the card names
     if (i === 0 && s < a0) return PF && !land && s >= ch.up ? "" : LOCK_TXT;
@@ -6123,10 +6262,21 @@ function capKick(id, Y) {
     var c = CROWS[i]; if (c.ch !== ch) continue;
     var tr = c.ti >= 0 && c.rows[c.ti] ? c.rows[c.ti] : ch.ttl; if (!tr) return null;
     var top = Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y);
-    var al = top > c.T - 0.5 ? 1 : clamp01((top + tr[0] - BAND) / (c.T + tr[0] - BAND));
-    return top + tr[1] <= SVH && al > 0.5 ? null : ch;
+    // the card names its own figure while its title is in sight: at its sticky top, or sliding up until the title
+    // reaches the band's edge (maskOf)
+    return top + tr[1] <= SVH && (top > c.T - 0.5 || top + tr[0] >= BAND) ? null : ch;
   }
   return null;
+}
+// whether a chapter's card has its first title row on screen, clear of the strip and of the caption band, at scroll Y
+function ttlUp(ch, Y) {
+  for (var i = 0; i < CROWS.length; i++) {
+    var c = CROWS[i]; if (c.ch !== ch) continue;
+    var tr = c.ti >= 0 && c.rows[c.ti] ? c.rows[c.ti] : ch.ttl; if (!tr) return false;
+    var top = Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y);
+    return top + tr[1] <= VH - CAP && top + tr[0] >= STRIP;
+  }
+  return false;
 }
 /* ---------- visitor ants: Langton's RL on their own layer, landing only; one at a time, n(t) = 125 t^2 steps, at most 500 ---------- */
 // 500 steps is a figure 13 cells across, done in 2s: a visitor's ant never reaches a highway or crosses the page.
@@ -6550,9 +6700,19 @@ function render(s, now) {
   // caption row: one instruction line, what to watch
   if (targetS > 0) cueOn = false;
   if (targetS >= T0_ON) leftLanding = true;
-  var want = instrAt(targetS), wantWho = capWho, wantK = want ? capKick(wantWho, Math.round(targetS * S)) : null;
+  var want = instrAt(targetS), wantWho = capWho;
+  // an upright phone's row never names a station other than the one the band has built (or shows at a rest), and never
+  // one the band no longer draws: a line whose figure has gone (its cells or layer, a passed station's standing layer
+  // included) goes at once, with no fade, even over an empty band, and the next line fades in as usual
+  var figId = PF && !land ? (lastFig ? lastFig.id : PREV.ch ? PREV.ch.id : null) : null, capCh;
+  if (figId && wantWho && wantWho !== figId) { want = ""; wantWho = null; }
+  if (PF && !land && instr.text && instr.who && ((figId && instr.who !== figId) || !(capCh = chById(instr.who)) || !capCh.shown)) { instr.text = ""; instr.who = null; instr.k = null; instr.t = now; }
+  var wantK = want ? capKick(wantWho, Math.round(targetS * S)) : null;
   if (want !== instr.next || wantK !== instr.nk) { instr.dur = instr.next === "" || want === "" || targetS < LOCK_END + 0.01 ? 240 : 200; instr.next = want; instr.nk = wantK; instr.t = now; }
   instr.nwho = wantWho;
+  // a desktop's station line never outlives its figure: once the station it describes is no longer drawn, the line
+  // goes at once, with no fade, and the next one fades in as usual
+  if (!PF && instr.text && instr.who && instr.next !== instr.text) { var wc = chById(instr.who); if (wc && !wc.shown) { instr.text = ""; instr.who = null; instr.k = null; instr.t = now; } }
   var ia, half2 = instr.dur / 2;
   // a phone's station moving on to its next beat keeps the old line, whole, while the old view steps out (CAP_HOLD, the
   // KRONOS swap's fade-out), then puts the new line up at once: the row is never empty between two lines of the same figure
@@ -7103,7 +7263,8 @@ function phoneHead() {
     for (var q = 1; q < CROWS.length; q++) if (CROWS[q].ch === ch) { c = CROWS[q]; pc = CROWS[q - 1]; }
     if (!c || !pc || targetS < ch.from || targetS >= ch.hold) continue;
     var top = Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y), ptop = Math.min(Math.max(pc.nat - Y, pc.T), pc.bot - pc.h - Y);
-    if (top > c.T + 0.5 && (pc.out || ptop + pc.h <= c.T)) want = k;
+    // it takes over only from below the fold: a card already rising in sight keeps its own lines, so they never jump up
+    if (top > c.T + 0.5 && (pc.out || ptop + pc.h <= c.T) && (theadK === k || top >= SVH)) want = k;
   }
   if (want === theadK) return;
   if (theadK >= 0) CHAPTERS[theadK].card.querySelectorAll(".hd-off").forEach(function (e) { e.classList.remove("hd-off"); });
@@ -7158,10 +7319,15 @@ function syncDom() {
   if (tg !== capTg) { capTg = tg; mapCap.classList.toggle("tg", tg); }
 }
 function wake() { if (!running) { running = true; lastT = 0; requestAnimationFrame(frame); } }
+function atStation(s) { for (var i = 0; i < CHAPTERS.length; i++) if (s >= CHAPTERS[i].on0 && s <= CHAPTERS[i].hold) return true; return false; }
 function frame(now) {
   var raw = lastT ? now - lastT : 16; lastT = now;
   var dd = targetS - shownS;
   if (RM || raw > 250 || Math.abs(dd) > 1.5) shownS = targetS;       // a stall, a returning tab or a jump: no fly-through
+  // an upright phone flicked onto a station (from its build to the end of its hold) with the scene more than half a
+  // screen behind takes the jumps' path: the old frame dissolves over the station, built at once, while its card
+  // settles. The ant's step follows exactly, since the walk is reversible
+  else if (PF && !land && Math.abs(dd) > 0.5 && atStation(targetS)) { snapFade(280); shownS = targetS; }
   else {
     // the glide never ends in a hop: once tau 100 would move less than TAIL px a frame, the last few px run out at TAIL,
     // so the camera (up to 2.5 px of art per px of scroll) slows to a stop instead of creeping and then jumping 2px of
