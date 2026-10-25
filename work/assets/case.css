@@ -111,6 +111,8 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .srcs-d summary{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);cursor:pointer;min-height:24px;padding:4px 0}
 .srcs-d summary:hover,.srcs-d summary:focus-visible{color:var(--ink)}
 .srcs-d[open] summary{margin-bottom:16px}
+/* a repo pin in the sources line wraps as one word */
+.srcs-d summary .nw{white-space:nowrap}
 @media (pointer:coarse){ .srcs-d summary{min-height:32px;padding:8px 0;box-sizing:border-box} }
 @media (pointer:coarse){ .replay{min-height:32px} }
 /* inline links: padding grows the hit area without moving a line box */
@@ -259,10 +261,9 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .ig.armed.on .rv-f{opacity:1;transition:opacity 320ms var(--ease-enter) calc(var(--o,0) * var(--rv-step,360ms) + 120ms)}
 /* a phone stacks a figure's parts and passes them sooner: its steps come 200 ms apart unless the figure sets its own */
 @media (max-width:767px){ .ig[data-reveal]{--rv-step:200ms} }
-/* .quick (case.js): the figure came into view at a skim, so its parts follow 40 ms apart, whatever its own step, and
-   land within a third of a second */
-.ig.armed.on.quick .rv-x{transition-duration:240ms;transition-delay:calc(var(--o,0) * 40ms)}
-.ig.armed.on.quick .rv-f{transition-duration:200ms;transition-delay:calc(var(--o,0) * 40ms + 60ms)}
+/* .quick (case.js): the figure came into view at a skim, so it is drawn whole at once. A skim passes a figure in about
+   a quarter of a second, too short for any staggered build to finish while it is on screen */
+.ig.armed.on.quick .rv-x,.ig.armed.on.quick .rv-f{transition:none}
 /* reveal: end */
 
 /* ---------- the depth pages' layer (lx-): a page opts in with its markup; pages without lx- classes are untouched.
@@ -429,6 +430,8 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
   .lx-led .lx-big{font-size:44px;line-height:48px;letter-spacing:-.03em}
   .lx-led .lx-cmp>div{grid-template-columns:minmax(0,1fr) auto;column-gap:8px}
   .lx-led .lx-cmp [role="rowheader"]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+  /* a row the key cannot name (a variant of a keyed series, marked .nm) shows its own name above its bar */
+  .lx-led .lx-cmp .nm [role="rowheader"]{position:static;width:auto;height:auto;overflow:visible;clip-path:none;grid-column:1 / -1;font-size:11px;line-height:16px;letter-spacing:.04em;color:var(--muted)}
 }
 /* a tablet or a phone on its side (768-1279): the two results side by side, at 44 px below 1024 */
 @media (min-width:768px) and (max-width:1279px){ .lx-led .lx-mg{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:24px} }
@@ -506,7 +509,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-tiles .b{display:block;margin-top:4px;font:400 13px/20px var(--mono);color:var(--body)}
 .lx-tiles ol{display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:12px 0 0;padding:0;max-width:328px}
 .lx-tiles li{width:8px;height:8px;background:var(--c,var(--accent))}
-/* a phone hides a count the hero's station already draws (the 47 gates) */
+/* a phone hides a count the hero's station already draws (the gate count) */
 @media (max-width:767px){ .lx-tiles.dup{display:none} .lx-tiles{column-gap:16px} }
 
 /* the checks on real prices light green in order, the index's gates (.ck is page-local; case.js sets --i) */

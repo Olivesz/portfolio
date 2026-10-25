@@ -835,8 +835,9 @@
       api.rect(la, 17, Math.max(1, lb - la), 2, "v-blue");
       if (k === 0) api.rect(tx(x0, x1, 0, t1, 300), 16, 1, 4, "v-amber");
       if (k >= 1) { var xs = tx(x0, x1, 0, t1, askW.s); vdash(api, xs, 4, 16, "v-blue"); }
-      var ty = lab(api, "ty", k === 0 ? "typed audio in the window " + pl(s2(askW.e)) + " s &gt; " + SRC.trim + " s → trim" :
-        "start of the last typed word, “" + esc(askW.w.trim()) + "”, " + pl(s2(askW.s)) + " − " + SRC.ctx + " = " + pl(s2(wsNext)) + " s", 0, 20, { cls: "i" });
+      var ty = lab(api, "ty", k === 0 ? (nar ? "typed audio " : "typed audio in the window ") + pl(s2(askW.e)) + " s &gt; " + SRC.trim + " s → trim" :
+        (nar ? "“" + esc(askW.w.trim()) + "” starts " : "start of the last typed word, “" + esc(askW.w.trim()) + "”, ") +
+        '<span style="white-space:nowrap">' + pl(s2(askW.s)) + " − " + SRC.ctx + " = " + pl(s2(wsNext)) + " s</span>", 0, 20, { cls: "i" });
       ty.style.whiteSpace = "normal"; ty.style.width = W * C + "px";
       // bottom: every pass of the log, the window it read
       var y0 = 34, H = 34, show = k >= 2;

@@ -6,6 +6,11 @@
 .dd-rail{grid-column:1;min-width:0}
 .dd-body{grid-column:2;min-width:0}
 
+/* an in-page link (a chapter, a step, a figure) lands with its top clear of the sticky strip and the road bar under it;
+   a phone on its side scrolls the strip away, so only the road bar's 16 px and a gap are left */
+.lx-ch,.lx-ch .st,.scene{scroll-margin-top:calc(var(--strip) + 32px)}
+@media (max-height:499px){ .lx-ch,.lx-ch .st,.scene{scroll-margin-top:32px} }
+
 /* contents: chapter numbers in the accent, the chapter you are in drawn in ink with a 2 px bar beside it */
 .dd-toc{position:sticky;top:calc(var(--strip) + 24px);max-height:calc(100vh - var(--strip) - 48px);overflow:auto;font:400 11px/16px var(--mono);letter-spacing:.04em}
 .dd-toc .k{color:var(--muted);padding-bottom:8px}

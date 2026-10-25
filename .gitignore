@@ -1,10 +1,10 @@
 # Local files kept on disk and not published.
-.private/
-.venv/
+.private
+.venv
 __pycache__/
 *.pyc
 .DS_Store
 node_modules/
 test-results/
 playwright-report/
-.srccache/
+.srccache

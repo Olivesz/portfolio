@@ -545,6 +545,7 @@ FRAME_JS = r"""
     built: __ct.has('built') ? safe(() => __ct.get('built')) : undefined,
     zone: __ct.zoneCard(a.z0, a.z1), stuck: __ct.stuckCard(a.z0, a.z1), natives: __ct.natives(),
     figure: __ct.has('figure') ? safe(() => __ct.get('figure')) : undefined,
+    figCaption: __ct.has('figCaption') ? safe(() => __ct.get('figCaption')) : undefined,
     drawn: __ct.has('drawn') ? safe(() => __ct.get('drawn')) : undefined,
     instr: __ct.has('instrAt') ? safe(() => __ct.get('instrAt', s)) : undefined };
   if (a.census) { out.census = __ct.census(a.tok); out.cells = safe(() => __ct.cellCensus(a.names)); }
@@ -1831,6 +1832,55 @@ def a_camstep(v):
                      + (f"; over at y {', '.join(str(r[2] if r[1] > CAM_STEP else r[4]) for r in bad)}" if bad else ""))
 
 
+HEAD_GUT = 16         # CSS px between the ant's head and the screen's side at every phone hold
+
+
+def a_headgut(v):
+    """The ant's head keeps HEAD_GUT CSS px from the screen's sides through every station hold on a phone. Its #ffffff
+    cell is read back from the canvas at each hold's arrival, middle and end; the walk between is read from the page's
+    own road (walkPos, one cell pitch per cell, the camera fixed through a hold) and placed by the arrival frame, so
+    every step of the hold counts, and the middle and end frames must land where that places them. Upright both sides
+    count; on its side the art runs to the screen's right edge, so there the head keeps HEAD_GUT plus the two lit
+    trail cells beyond it, and on the left stays inside the art box."""
+    g = v.geometry()
+    if not v.hook("walkPos") or not v.hook("stepAt") or not v.hook("shown"):
+        raise Missing("__walk.walkPos / __walk.stepAt / __walk.shown")
+    land = v.vw > v.vh
+    bad, rows = [], []
+    for st in g["stations"]:
+        sid, A, E = st[0], st[1], st[2]
+        ss = (A + 0.005, (A + E) / 2, E - 0.005)
+        got = []
+        for s in ss:
+            f = v.frame_at(s, census=True, here=True)
+            w, pp, fig = (f.get("census") or {}).get("white"), f.get("pp"), f.get("figure")
+            if not w or not pp:
+                bad.append(f"{sid} s {s:.3f}: head not drawn")
+                break
+            # the step the frame drew: the page's own scroll position, which rounds s to a whole px
+            got.append((v.js("() => __walk.stepAt(__walk.shown())"), w["x0"] / v.dpr, w["x1"] / v.dpr, pp / v.dpr,
+                        fig.get("art") if isinstance(fig, dict) else None))
+        if len(got) < 3:
+            continue
+        t0, x0, x1, P, art = got[0]
+        t1 = got[2][0]
+        xs = v.js("([a, b]) => { const o = []; for (let t = a; t <= b; t++) o.push(__walk.walkPos(t)[0]); return o; }", [t0, t1])
+        lefts = [x0 + (x - xs[0]) * P for x in xs]
+        for t, gx0, _, _, _ in got[1:]:
+            if abs(lefts[t - t0] - gx0) > 1.01:
+                bad.append(f"{sid}: head drawn at {gx0:.0f}px at step {t}, the road places it at {lefts[t - t0]:.0f}px")
+        lo, hi = min(lefts), max(lefts) + (x1 - x0)
+        right = v.vw - hi
+        need_r = HEAD_GUT + (2 * P if land else 0)
+        left_ok = (lo >= art[0] - 0.5) if land and art else lo >= HEAD_GUT - 0.01
+        rows.append(f"{sid} {lo:.0f}/{right:.0f}")
+        if not left_ok or right < need_r - 0.01:
+            bad.append(f"{sid} steps {t0}-{t1}: head left {lo:.0f}px, right {right:.0f}px (>= "
+                       + (f"art {art[0]:.0f}" if land and art else f"{HEAD_GUT}") + f" / {need_r:.0f})")
+    return not bad, (f"head's nearest left / right margin over each hold's steps, CSS px: {', '.join(rows)}"
+                     + (f"; {'; '.join(bad[:4])}" if bad else ""))
+
+
 def a_deadscroll(v):
     """No notch in a transit leaves the screen as it was: drawn frames sampled every 50px of scroll from the hold end
     to the arrival, compared 100px apart, all differ. A control first holds one sample still for 400ms: if that frame
@@ -2629,26 +2679,31 @@ def pb_slope(keys):
 def pb_audit(ids, log, play):
     """Per station, over a logged walk: frames on which p advanced while the figure was out of frame or its own layer was
     not on screen, and frames on which p ran ahead of its own clock (more than its fastest key segment allows in the time
-    since the frame before, + 50ms and 0.005: a snap to the end), the p at which it first played, and how it ended. The
+    since the frame before, + 50ms and 0.005: a snap to the end), the p at which it first played, and how it ended. A
+    station met at a skim goes from idle at p 0 to done at p 1 in one frame by design (its end state at once), which is
+    counted apart as skim, never as running ahead. The
     poll and the page's own frame may run in either order within a frame, so an advance counts as out of frame only when
     this frame and the one before it were both out."""
     out = {}
     for i, sid in enumerate(ids):
         k = pb_slope(play[sid]["keys"])
-        off, ahead, jump, prev, first, was_out, t0 = 0, 0, 0.0, None, None, False, None
+        off, ahead, jump, prev, first, was_out, t0, pst, skim = 0, 0, 0.0, None, None, False, None, None, 0
         for r in log:
             state, p, vis, on = r[2 + i]
             out_now = vis < PB_VIS_OFF or not on
             if prev is not None and p > prev + 1e-9:
-                if out_now and was_out:
-                    off += 1
-                if p - prev > k * (r[0] - t0 + 50) + 0.005:
-                    ahead += 1
-                jump = max(jump, p - prev)
+                if pst == "idle" and state == "done" and p >= 1 - 1e-9:
+                    skim += 1
+                else:
+                    if out_now and was_out:
+                        off += 1
+                    if p - prev > k * (r[0] - t0 + 50) + 0.005:
+                        ahead += 1
+                    jump = max(jump, p - prev)
             if first is None and state == "playing":
                 first = p
-            prev, was_out, t0 = p, out_now, r[0]
-        out[sid] = {"off": off, "ahead": ahead, "jump": jump, "first": first, "end": log[-1][2 + i][0], "p": log[-1][2 + i][1]}
+            prev, was_out, t0, pst = p, out_now, r[0], state
+        out[sid] = {"off": off, "ahead": ahead, "jump": jump, "first": first, "skim": skim, "end": log[-1][2 + i][0], "p": log[-1][2 + i][1]}
     return out
 
 
@@ -2822,7 +2877,8 @@ def a_playreplay(v):
 
 def a_playthrough(v):
     """A flick from the top past the last hold, 100px notches back to back: no clock advances out of frame and none runs
-    ahead of itself to its end, so a station the flick passed before it finished is paused (or idle). A visit back to each hold resumes
+    ahead of itself to its end, so a station the flick passed before it finished is paused (or idle). A station the flick
+    meets in frame is drawn in its end state at once (idle to done at p 1 in one frame), never part-played. A visit back to each hold resumes
     its clock where it stopped (never from 0 once it played), runs it to done at p 1, and ends on the state a full play
     left."""
     nat = pb_natural(v)
@@ -3307,7 +3363,7 @@ def a_phonetext(v):
 
 PHRASES = [   # each chapter card's phrase line, exactly as written, lowercase included
     "a truth table. every rung verified, up to the CPU.",
-    "a second pass. Whisper re-reads the recent audio every 350 ms.",
+    "a second pass. streaming re-decodes the recent audio every 350 ms.",
     "a planted answer. no estimator touches a real price until it finds one.",
     "the log. the harness\u2019s record of what the agent did.",
 ]
@@ -3370,6 +3426,107 @@ def a_nativeclip(v):
     if bad:
         m += "; " + "; ".join(bad[:3])
     return not bad, m
+
+
+DESK_ROWS_JS = r"""(cap) => { const out = [], H = innerHeight;
+  for (const c of __ct.cards().list) { if (c.id === 'hero') continue; const cs = getComputedStyle(c.el);
+    if (cs.visibility !== 'visible' || +cs.opacity === 0) continue;
+    // the rows under the title: everything a reader reads as the card's body, the screen-reader copy aside
+    const rows = [...c.el.children].filter(e => !e.matches('.date, h2, .sr-only')).map(e => {
+      // the brightest colour any of it is drawn in: a row's links, numeral or rule can be brighter than its text
+      const rgb = t => (t.match(/\d+/g) || [0, 0, 0]).slice(0, 3).map(Number), cols = [];
+      for (const q of [e, ...e.querySelectorAll('*')]) { const k = getComputedStyle(q); cols.push(rgb(k.color));
+        for (const sd of ['Top', 'Right', 'Bottom', 'Left']) if (parseFloat(k['border' + sd + 'Width']) > 0) cols.push(rgb(k['border' + sd + 'Color'])); }
+      const r = e.getBoundingClientRect(), col = cols.reduce((m, c) => Math.max(...c) > Math.max(...m) ? c : m);
+      return { x0: r.left, y0: r.top, x1: r.right, y1: r.bottom, col }; }).filter(r => r.y1 > 40 && r.y0 < H && r.x1 > r.x0);
+    // each text row of the card as laid out: its line boxes, for the band clause
+    const lines = []; const walk = document.createTreeWalker(c.el, NodeFilter.SHOW_TEXT);
+    for (let n = walk.nextNode(); n; n = walk.nextNode()) { if (!n.textContent.trim() || n.parentElement.closest('.sr-only')) continue;
+      const rg = document.createRange(); rg.selectNodeContents(n); for (const q of rg.getClientRects()) if (q.width > 2 && q.bottom > 0 && q.top < H) lines.push([q.left, q.top, q.right, q.bottom]); }
+    out.push({ id: c.id, rows, lines }); }
+  const W = __walk, ids = W.stations.map(r => r[0]), f = W.figure(), v = W.view(), pp = v.pp, dp = v.dpr;
+  const ax0 = (Math.max(0, v.Ox + Math.ceil((480 * dp - v.Ox) / pp) * pp) + 3 * pp) / dp;
+  return { cards: out, shown: ids.filter(id => W.stationShown(id)), fig: f && f.id, ax0 }; }"""
+
+DESK_INK_JS = r"""async ([a, boxes, lum]) => {
+  const r = await fetch('data:image/png;base64,' + a), bm = await createImageBitmap(await r.blob());
+  const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
+  const d = x.getImageData(0, 0, bm.width, bm.height).data, out = [];
+  // per box: pixels brighter than lum[i] (a level only text drawn at over half its colour reaches), or with lum[i] null
+  // any pixel off the ground; a box given as [x0, y0, x1, y1, 'out'] counts the pixels OUTSIDE it instead
+  for (let k = 0; k < boxes.length; k++) { const b = boxes[k], L = lum[k], inv = b[4] === 'out'; let n = 0;
+    const X0 = inv ? 0 : Math.max(0, Math.floor(b[0])), Y0 = inv ? 0 : Math.max(0, Math.floor(b[1]));
+    const X1 = inv ? bm.width : Math.min(bm.width, Math.ceil(b[2])), Y1 = inv ? bm.height : Math.min(bm.height, Math.ceil(b[3]));
+    for (let py = Y0; py < Y1; py++) for (let px = X0; px < X1; px++) {
+      if (inv && px >= b[0] && px < b[2] && py >= b[1] && py < b[3]) continue;
+      const i = (py * bm.width + px) * 4;
+      if (L === null) { if (Math.abs(d[i] - 10) + Math.abs(d[i + 1] - 11) + Math.abs(d[i + 2] - 20) > 24) n++; }
+      else if (Math.max(d[i], d[i + 1], d[i + 2]) > L) n++; }
+    out.push(n); }
+  return out; }"""
+
+CARDS_ONLY_CSS = "#world, #snap, #native { opacity: 0 !important; transition: none !important; }"
+
+
+def a_deskrest(v):
+    """A wide screen at rest anywhere in a transit (every 50px from each hold's end to the next arrival, settled
+    600ms) shows a whole figure or none, and never another chapter's figure beside a card: (1) the native host, alone
+    on the page, draws no pixel outside the art region (right of the dithered edge, between the strip and the caption
+    band); (2) the stations drawn are the outgoing or the incoming one, never both; (3) no card text row reaches into
+    the caption band (VH - CAP); (4) a card whose body rows are visible (any glyph drawn at over half its colour) has
+    its own station drawn, and no other. Clause 2 holds to one station at a time, which the build meets; the spec
+    allows the outgoing one beside the incoming while it is whole. Clause 4 reads the stations drawn rather than
+    figure(), which is null while a passed station is dimmed but still on screen beside its card."""
+    import base64
+    g = v.geometry()
+    st = g["stations"]
+    cap = 40
+    bad, n = [], 0
+    def shot(css):
+        v.js("css => { const e = document.createElement('style'); e.id = '__ct_desk'; e.textContent = css; document.head.appendChild(e); }", css)
+        v.js("async () => { await __ct.raf(); await __ct.raf(); }")
+        png = base64.b64encode(v.page.screenshot(scale="css")).decode()
+        v.js("() => { const e = document.getElementById('__ct_desk'); if (e) e.remove(); }")
+        return png
+    for i in range(1, len(st)):
+        out_id, in_id = st[i - 1][0], st[i][0]
+        y0, y1 = round(st[i - 1][2] * v.S), round(st[i][1] * v.S)
+        for y in range(y0, y1 + 1, 50):
+            v.scroll_s(y / v.S)
+            v.settle(600)
+            q = v.js(DESK_ROWS_JS, cap)
+            n += 1
+            # (1) native pixels outside the art region
+            nat = v.js(DESK_INK_JS, [shot(NATIVE_ONLY_CSS), [[q["ax0"], 40, v.vw, v.vh - cap, "out"]], [None]])[0]
+            if nat:
+                bad.append(f"y {y}: {nat} native px outside the art")
+            # (2) the stations drawn
+            sh = q["shown"]
+            if len(sh) > 1 or any(x not in (out_id, in_id) for x in sh):
+                bad.append(f"y {y}: stations drawn {sh}")
+            # (3) and (4), read from the cards alone
+            png = shot(CARDS_ONLY_CSS)
+            boxes, lum, who = [], [], []
+            for c in q["cards"]:
+                for ln in c["lines"]:
+                    if ln[3] > v.vh - cap + 1 and ln[1] < v.vh:
+                        boxes.append([ln[0], max(ln[1], v.vh - cap + 1), ln[2], ln[3]]); lum.append(None); who.append(("band", c["id"]))
+                for r in c["rows"]:
+                    hi = max(r["col"])
+                    if r["y1"] <= 48 or r["y0"] >= v.vh - cap:
+                        continue                  # under the strip (and its skirt) or the band: the page's own chrome is there
+                    boxes.append([r["x0"], max(r["y0"], 48), r["x1"], min(r["y1"], v.vh - cap)]); lum.append(10 + (hi - 10) * 0.6); who.append(("body", c["id"]))
+            ink = v.js(DESK_INK_JS, [png, boxes, lum]) if boxes else []
+            band = sorted({w[1] for w, k in zip(who, ink) if w[0] == "band" and k > 2})
+            if band:
+                bad.append(f"y {y}: card text in the caption band ({', '.join(band)})")
+            body = sorted({w[1] for w, k in zip(who, ink) if w[0] == "body" and k > 0})
+            for cid in body:
+                if sh != [cid]:
+                    bad.append(f"y {y}: {cid}'s body rows visible beside stations {sh}")
+    v.cur = None
+    kinds = {k: sum(1 for b in bad if t in b) for k, t in (("native", "native px"), ("stations", "stations drawn"), ("band", "caption band"), ("body", "body rows"))}
+    return not bad and n > 0, f"{n} rests over {len(st) - 1} transits" + (f"; {len(bad)} problems {kinds}: " + "; ".join(bad[:8]) if bad else "; each shows a whole figure or none, one station, no card text in the band, and body rows only beside their own figure")
 
 
 def a_figclip(v):
@@ -3470,13 +3627,95 @@ def named_twice(got, want, titles):
     return [t for t in titles if got.count(t) > max(1, want.count(t))]
 
 
+FIG_LEAD = "fig \u00b7"
+
+
+def wide_caption_rows(fc, fig, dr, sid):
+    """A wide screen's station line as drawn at its figure: the rows on its plate in line order with the 'fig ·' label
+    taken off the first, or the reason they cannot be read that way."""
+    if not isinstance(fc, dict) or fc.get("id") != sid:
+        return None, f"no line set at the figure (figCaption {fc!r:.60})"
+    pl, bx, bk = fc["plate"], fc["box"], fc.get("brackets")
+    on = [d for d in dr if d[3] > 0.5 and pl[0] - 1 <= d[1] <= pl[2] + 1 and pl[1] - 1 <= d[2] <= pl[3] + 1]
+    on.sort(key=lambda d: (d[2], d[1]))
+    if not on or on[0][0] != FIG_LEAD:
+        return None, f"the plate's first row does not lead with {FIG_LEAD!r}: {[d[0][:20] for d in on[:2]]}"
+    # within 16px of the figure's box, above or below it, and inside the brackets that frame both
+    gap = pl[1] - bx[3] if fc.get("place") == "below" else bx[1] - pl[3]
+    if not 0 <= gap <= 16:
+        return None, f"plate {gap:.0f}px from the figure's box ({fc.get('place')})"
+    # a frame with a corner over a lit world cell is not drawn at all: no brackets then, never a partial frame
+    if not bk and fc.get("bare") is False:
+        return on[1:], None
+    if not bk or not (bk[0] <= pl[0] and bk[1] <= pl[1] and bk[2] >= pl[2] and bk[3] >= pl[3]):
+        return None, f"plate {[round(q) for q in pl]} not inside brackets {bk}"
+    return on[1:], None
+
+
+INK_GAP_JS = """async ([png, fc]) => {
+  const bm = await createImageBitmap(await (await fetch('data:image/png;base64,' + png)).blob());
+  const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
+  const d = x.getImageData(0, 0, bm.width, bm.height).data, W = bm.width;
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--void').trim(), vr = parseInt(v.slice(1, 3), 16), vg = parseInt(v.slice(3, 5), 16), vb = parseInt(v.slice(5, 7), 16);
+  const lit = (px, py) => { const i = (py * W + px) * 4; return Math.abs(d[i] - vr) + Math.abs(d[i + 1] - vg) + Math.abs(d[i + 2] - vb) > 40; };
+  const pl = fc.plate.map(Math.round), bx = fc.box.map(Math.round), xa = Math.max(0, Math.min(pl[0], bx[0])), xb = Math.min(W, Math.max(pl[2], bx[2]));
+  const row = py => { for (let px = xa; px < xb; px++) if (lit(px, py)) return true; return false; };
+  if (fc.place === 'below') { for (let py = pl[1] - 1; py > 0; py--) if (row(py)) return pl[1] - 1 - py; return null; }
+  for (let py = pl[3] + 1; py < bm.height; py++) if (row(py)) return py - pl[3] - 1; return null;
+}"""
+
+
+def ink_gaps(v, g):
+    """Each station met at reading pace (110px notches every 120ms) from 700px before its arrival to 100px past it,
+    at rest for 300ms every 100px: at each rest where its line is set at the figure, the gap in screen pixels from
+    the plate to the nearest lit pixel on the figure's side, across the figure's span. Returns (id, the largest gap,
+    the scroll y it was met at, the side). A line anchored to the station's whole box, not to what is drawn yet,
+    leaves a void here while the station is still building."""
+    import base64
+    out = []
+    v.page.mouse.move((576 + v.vw) / 2, v.vh / 2)
+    for st in g["stations"]:
+        sid, arrive = st[0], round(st[1] * v.S)
+        v.js("y => __ct.scrollTo(0, y)", max(0, arrive - 700))
+        v.settle(2500)
+        worst, met, side = None, None, None
+        for y in range(arrive - 600, arrive + 101, 100):
+            for _ in range(20):
+                at = v.js("scrollY")
+                if at >= y - 2:
+                    break
+                v.page.mouse.wheel(0, min(110, y - at))
+                v.page.wait_for_timeout(120)
+            v.page.wait_for_timeout(300)
+            fc = v.js("() => __walk.figCaption()")
+            if not isinstance(fc, dict) or fc.get("id") != sid:
+                continue
+            png = base64.b64encode(v.page.screenshot(scale="css")).decode()
+            gap = v.js(INK_GAP_JS, [png, fc])
+            if worst is None or gap is None or (worst is not None and gap > worst):
+                worst, met, side = gap if gap is not None else 10 ** 4, y, fc.get("place")
+        out.append((sid, worst, met, side))
+    v.cur = None
+    return out
+
+
 def a_caption(v):
     """The caption row draws its instruction whole. The canvas text drawn below the art box at a hold, joined in
     line order, must equal the instruction for that scroll position: a line cut to fit the row fails here. No drawn
-    row names its figure's title twice."""
+    row names its figure's title twice. A wide screen sets the line at its figure instead: the rows on its plate,
+    after the 'fig ·' label, joined in line order, equal the instruction; the plate sits within 16px of the figure's
+    box and inside its corner brackets (or no brackets are drawn, where a corner would stand on a lit world cell);
+    the band under the art draws no station line; and through each station's build-up met at reading pace (ink_gaps)
+    the plate is at most 40 screen px from the nearest lit pixel on its figure's side. With the line anchored to the
+    station's whole declared box instead, desktop fails emergence (323px) and custos (175px); this build measures
+    emergence 26, freeflow 20, KRONOS 9, custos 15. The gap does not tell which panel a line sits under: KRONOS
+    with its planted line under the real-prices chart still measures 20."""
     g = v.geometry()
     if not v.hook("drawn") or not v.hook("instrAt"):
         raise Missing("__walk.drawn() or __walk.instrAt() is absent")
+    wide = not v.phone and not v.name.startswith("land")
+    if wide and not v.hook("figCaption"):
+        raise Missing("__walk.figCaption() is absent")
     bad, n, most = [], 0, 0
     titles = v.js(TITLES_JS)
     for sid, s in station_samples(g):
@@ -3486,7 +3725,16 @@ def a_caption(v):
         if not isinstance(fig, dict) or not fig.get("art") or not isinstance(dr, list) or not isinstance(want, str):
             bad.append(f"{sid} s {s:.2f}: no figure, drawn text or instruction to compare")
             continue
-        rows = sorted((d for d in dr if d[2] > fig["art"][3] and d[3] > 0.5), key=lambda d: d[2])
+        if wide:
+            band = [d[0] for d in dr if d[2] > fig["art"][3] and d[3] > 0.5]
+            if band:
+                bad.append(f"{sid} s {s:.2f}: the band draws {band[:2]!r}")
+            rows, why = wide_caption_rows(f.get("figCaption"), fig, dr, sid)
+            if why:
+                bad.append(f"{sid} s {s:.2f}: {why}")
+                continue
+        else:
+            rows = sorted((d for d in dr if d[2] > fig["art"][3] and d[3] > 0.5), key=lambda d: d[2])
         most = max(most, len(rows))
         got = " ".join(d[0] for d in rows)
         if got != want:
@@ -3494,7 +3742,15 @@ def a_caption(v):
         tw = named_twice(got, want, titles)
         if tw:
             bad.append(f"{sid} s {s:.2f}: the row names {tw[0]} twice: {got[:60]!r}")
-    m = f"{n - len(bad)} of {n} held frames draw the whole instruction below the art box, in at most {most} lines"
+    m = f"{n - len({b.split(':')[0] for b in bad})} of {n} held frames draw the whole instruction {'at the figure' if wide else 'below the art box'}, in at most {most} lines"
+    if wide:
+        gaps = ink_gaps(v, g)
+        for sid, gap, y, side in gaps:
+            if gap is None:
+                bad.append(f"{sid}: no line set at its figure from 600px before its arrival to 100px past it")
+            elif gap > 40:
+                bad.append(f"{sid} at y {y}: plate {gap}px from its figure's ink ({side})")
+        m += f"; build-up at reading pace, widest plate to ink {', '.join(f'{sid} {gap}' for sid, gap, _, _ in gaps)}px"
     # an upright phone's row holds two lines: every caption it drew on the walk fitted them (the page records any that did not)
     if v.phone and not v.name.startswith("land"):
         over = v.js("() => __walk.wrapOver ? __walk.wrapOver() : null")
@@ -3614,7 +3870,7 @@ def a_restgap(v):
     """A phone scroll that comes to rest between a finished station's exit and the next native station's whole-box
     build never meets a cut figure, nor a figure paired with the card before its own. For each native station after
     the first, the visitor wheels in 100 px notches from 0.3 screen before a quarter and the midpoint of the gap from
-    the later of the station ahead's offW and this station's up (its card's top risen past 70% of the screen, or the card
+    the later of the station ahead's offW and this station's up (its card's top risen past 85% of the screen, or the card
     before it gone) to this one's on0, and stops there. A second later the band must draw this station (its first frame, where it will arrive)
     under its own line, and must not draw the station ahead, whose box the edge would cut. A stop midway between offW
     and up (its card still low) must draw neither this station nor a line for it."""
@@ -4457,6 +4713,33 @@ def a_deep(v):
     return not bad, msg + (f"; {len(bad)} bad: " + "; ".join(bad[:5]) if bad else "; all play and step")
 
 
+def a_dockfield(v):
+    """Every work/*-deep.html on a short screen (360x640, a phone on its side): no field on a docked scene's stage (an
+    input or select) sits under the first step's docked words with the stage parked under the strip, as the page's own
+    selfCheck().field measures it. The cases check runs that selfCheck only at 390x844 and 360x740, where they fit."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, n_docked = [], 0
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            r = pg.evaluate("() => { const c = __deep.selfCheck(); return { field: c.field || null, docked: document.querySelectorAll('figure.scene.docked').length }; }")
+            if r["field"] is None:
+                bad.append(f"{page.name}: selfCheck() has no field list")
+                continue
+            n_docked += r["docked"]
+            bad += [f"{page.name} {x}" for x in r["field"]]
+        finally:
+            ctx.close()
+    msg = f"{len(pages)} deep dives, {n_docked} docked scenes"
+    return not bad, msg + (f"; {len(bad)} covered: " + "; ".join(bad[:5]) if bad else "; every field on a docked stage clear of the words")
+
+
 # ---------------------------------------------------------------- pathfree
 # What is on screen is a function of the scroll position. The designed history effects are the only exceptions, and
 # they are excluded by name, never by tolerance: station playback (a finished station shows its end state, an unplayed
@@ -4712,6 +4995,7 @@ ASSERTIONS = [
     ("notches", ("desktop", "phone"), a_notches, "every 100px wheel notch advances scrollY, top to the last résumé line and on to the bottom"),
     ("length", ("desktop", "phone"), a_length, "notches to the last résumé line <= 140 desktop and phone (all the work sits before the résumé)"),
     ("pan", ("desktop", "desktop-1280", "desktop-1024", "desktop-1920", "desktop-tall"), a_pan, "in every transit one 100px notch moves the drawn art at most 250 CSS px (world origin read from frames 25px apart)"),
+    ("headgut", ("phone", "phone-640", "phone-se", "land"), a_headgut, "the ant's head keeps 16 CSS px from the screen's sides at every step of every phone hold (on its side, 16 plus two trail cells on the right and inside the art box on the left), read from the drawn head at each hold's arrival, middle and end"),
     ("camstep", ("phone", "phone-640", "phone-se"), a_camstep, "an upright phone's camera through each station-to-station transit, every 1px of scroll: at most 4 CSS px per 2px and 250 per 100px"),
     ("deadscroll", ("desktop", "desktop-1920", "desktop-tall"), a_deadscroll, "in every transit two drawn frames 100px of scroll apart differ (sampled every 50px from the hold end to the arrival), so no notch leaves the screen as it was"),
     ("monotonic", ("desktop", "phone"), a_monotonic, "the rendered step never decreases while wheeling down"),
@@ -4745,7 +5029,8 @@ ASSERTIONS = [
     ("bandlit", PHONES, a_bandlit, "an upright phone at rest between holds with a card in the reading zone draws a figure (band > 2% lit, pink excluded) and a caption line"),
     ("named", PHONES + ("phone-640",), a_named, "an upright phone at rest every 50px between holds shows a card title whole below the band at over half opacity, or a caption row led by its chapter's kicker"),
     ("restgap", PHONES, a_restgap, "a phone scroll that rests between a finished station's exit and the next native station's whole-box build meets the next station's first frame under its own caption 1 s later, and never the station ahead cut by the band's edge"),
-    ("caption", ("desktop",) + PHONES + LANDS, a_caption, "at every hold the caption lines drawn below the art box, joined, equal the instruction: none cut to fit"),
+    ("deskrest", ("desktop", "desktop-1280", "desktop-1920"), a_deskrest, "a wide screen at rest every 50px through each transit: no native pixel outside the art, one station drawn (outgoing or incoming), no card text row in the caption band, and a card's body rows visible only beside its own figure"),
+    ("caption", ("desktop", "desktop-1280", "desktop-1024") + PHONES + LANDS, a_caption, "at every hold the caption lines, joined, equal the instruction: none cut to fit; drawn below the art box, or on a wide screen on a plate within 16px of the figure, inside its brackets, with no station line in the band"),
     ("handoff", ("desktop",), a_handoff, "the bookend square's centre lands within 1 device px of the canvas ant's; the canvas stops drawing the ant there"),
     ("settle", ("desktop",), a_settle, "a 600px jump is drawn within 1px of the scroll position by 600ms"),
     ("colours", ("desktop", "phone"), a_colours, "computed colours (native layers included) and stylesheet literals within the tokens; :root carries them; no pink in DOM outside a native layer's --trail"),
@@ -4775,6 +5060,7 @@ ASSERTIONS = [
     ("cases", ("desktop", "phone", "phone-small"), a_cases, "each case study and deep dive under work/: no error, no request off the origin, its two fonts from work/assets, tokens only (no pink words, alpha or effect), DOM sizes, no overflow, no wheel/touch/key listener, link names, targets 24px fine and 32px touch, the hero done (desktop) or at rest (reduced motion), every self-check it exposes ok"),
     ("depth", ("desktop", "phone"), a_depth, "the work pages that opt into the depth layer (lx-): exactly one ant on screen at 26 scroll positions down and back up and under a wheel from 0.2 s, the road never un-laid, no result digit hidden or crowding its words, the hero at rest with its frame lit under reduced motion, and a deep dive's read time equal to its line and to its case study's"),
     ("depthpath", ("desktop", "phone"), a_depthpath, "every depth page down, up and down again through the same positions (a phone's toolbar sliding as it turns): every figure on its floor whatever the path (a scene plays or waits only on it, never held there; a case figure's clock never runs or finishes under it), frames lit exactly while arrived, replay only once done, docked words and layout the same on every pass, the road never un-laid and the same once laid, one ant and the same one going down, the road's ant drawn the same at each position on every pass, up included; a deep dive whose deep.js lands after its fonts lays out the same"),
+    ("dockfield", ("phone-640",) + LANDS, a_dockfield, "each deep dive at 360x640 and on a phone on its side: no field on a docked scene's stage (an input or select) under the first step's docked words, with the stage parked under the strip"),
     ("deep", ("desktop", "phone"), a_deep, "each deep dive under work/: every figure.scene became a scene with a stepper (none failed its self-check); with motion each one, scrolled to, starts playing on its own and moves on a step, and a square, next and prev move it; with reduced motion each rests on a step and the stepper still moves it; every stepper control is a focusable native button, and Space on a square and Enter on next move the scene"),
     ("pathfree", ("desktop", "phone", "desktop-1280", "phone-640", "land"), a_pathfree, "every station played, each state edge, the map, the pull-back and the phone rests reached from above, from below, after an oscillation, by a jump and fresh, and each station just built and at its dim edge by a flick up from the foot and an oscillation of flicks: settled screenshots (canvas, native layers, DOM) differ by at most 24 CSS px, every station's cells all in their own tokens before its dim edge and all one down past it (stationInk().tone), no horizontal overflow, the loop stops; playback, blooms, plants and hidden ants are the designed history and are excluded by name"),
     ("perf", ("phone", "desktop"), None, "p95 script time per frame <= 2.3ms at 4x CPU throttle, median of 3 runs (rAF and scroll handlers, timed in-page)"),

@@ -59,13 +59,16 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/python tests/contract.py   # scroll and desi
 python3 tests/check-claims.py                                  # no retired claim or personal data in a tracked file
 python3 tests/check-panels.py                                  # every figure is in the source line it cites
 python3 tests/check-links.py                                   # links resolve; add --net to check them online
+python3 tests/check-drift.py                                   # every cited figure is still in its repository at HEAD (gh api)
 ```
 
 `contract.py` serves the repo on a free port, prints one `PASS`/`FAIL` line per
 assertion and viewport, and exits 1 on any failure. `--list` names the
-assertions; `--only` and `--viewport` narrow a run. The three guards read files
-and their sources; check-panels also renders the page once, to read the labels
-drawn in its figures. [tests/README.md](tests/README.md)
+assertions; `--only` and `--viewport` narrow a run. The guards read files and
+their sources; check-panels also renders the page once, to read the labels drawn
+in its figures. check-drift is the one that needs the network: the cited
+repositories move without a commit here, so run it before every push and after
+any of them changes. [tests/README.md](tests/README.md)
 covers what each assertion measures and how each was made to fail on purpose.
 
 ## Deploy

@@ -157,14 +157,26 @@
   if (!figs.length || !("IntersectionObserver" in window) || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
   var first = typeof WeakMap === "function" ? new WeakMap() : null, ahead = typeof WeakMap === "function" ? new WeakMap() : null, near, steps = [];
   for (var k = 0; k <= 20; k++) steps.push(k / 20);
+  // the page's own speed over its last 250 ms of scrolling: more than 200 px at above 2 px/ms, so one eased wheel notch
+  // never counts. A figure first seen near the fold at load and reached by a skim that started later reads as skimmed.
+  var sv = [];
+  addEventListener("scroll", function () {
+    var t = performance.now(); sv.push([t, scrollY]);
+    while (sv.length > 2 && t - sv[0][0] > 250) sv.shift();
+  }, { passive: true });
+  function skimming() {
+    if (sv.length < 2) return false;
+    var a = sv[0], b = sv[sv.length - 1], dy = Math.abs(b[1] - a[1]);
+    return performance.now() - b[0] < 200 && dy > 200 && dy / Math.max(16, b[0] - a[0]) > 2;
+  }
   // the approach zone: more than 200 px travelled since first seen there, above 2 px/ms, so one eased wheel notch never counts
   if (ahead) near = new IntersectionObserver(function (es) {
     for (var i = 0; i < es.length; i++) {
       var e = es[i], f = ahead.get(e.target);
       if (!e.isIntersecting) continue;
-      if (!f) { ahead.set(e.target, { t: e.time, y: e.boundingClientRect.top }); continue; }
-      var dt = e.time - f.t, dy = Math.abs(f.y - e.boundingClientRect.top);
-      if (dt > 0 && dy > 200 && dy / dt > 2) { e.target.classList.add("quick", "on"); near.unobserve(e.target); io.unobserve(e.target); }
+      if (!f) { ahead.set(e.target, { t: e.time, y: e.boundingClientRect.top }); if (!skimming()) continue; }
+      var dt = f ? e.time - f.t : 0, dy = f ? Math.abs(f.y - e.boundingClientRect.top) : 0;
+      if ((dt > 0 && dy > 200 && dy / dt > 2) || skimming()) { e.target.classList.add("quick", "on"); near.unobserve(e.target); io.unobserve(e.target); }
     }
   }, { rootMargin: "0px 0px 50% 0px", threshold: steps });
   var io = new IntersectionObserver(function (es) {
@@ -177,7 +189,7 @@
         // already this far in with neither, it came faster than a notch
         var f = first && first.get(e.target), a = ahead && ahead.get(e.target), y = e.boundingClientRect.top, dt = f ? e.time - f.t : 0;
         if (!(dt > 0) && a && e.time > a.t) { f = a; dt = e.time - a.t; }
-        if (f && (dt > 0 ? Math.abs(f.y - y) / dt > 2 : r.height > 140)) e.target.classList.add("quick");
+        if (skimming() || (f && (dt > 0 ? Math.abs(f.y - y) / dt > 2 : r.height > 140))) e.target.classList.add("quick");
         e.target.classList.add("on"); io.unobserve(e.target); if (near) near.unobserve(e.target);
       }
     }

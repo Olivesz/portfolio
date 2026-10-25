@@ -31,6 +31,9 @@
 .lx-rail li.sub a .n,.lx-rail li.sub.past a .n{color:var(--muted)} .lx-rail li.sub.here a .n{color:var(--accent)}
 /* the results row on a phone: the widest number, 0.571, keeps clear of its words */
 @media (max-width:767px){ .lx-stats .lx-m{grid-template-columns:128px minmax(0,1fr)} }
+/* the hero plate on a phone: the 328 px schematic sits centred between the plate's corners, on a whole pixel, instead of
+   against the left corner with the spare width all on the right (30 px at 390, 70 px at 430) */
+@media (max-width:767px){ #s-idea .ig-n{margin-left:max(0px,round(down,calc((100% - 328px) / 2),1px))} }
 /* this page's meanings: a hue is where data is going, or an outcome. Every colour is a :root token. */
 .ig .f-blue{fill:var(--v-blue)} .ig .f-violet{fill:var(--v-violet)} .ig .f-cyan{fill:var(--v-cyan)}
 .ig .f-green{fill:var(--v-green)} .ig .f-red{fill:var(--v-red)} .ig .f-amber{fill:var(--v-amber)}
@@ -139,15 +142,15 @@
     <li><a href="#ch-situation"><span class="n">01</span><span class="t">the situation</span></a></li>
     <li><a href="#ch-idea"><span class="n">02</span><span class="t">the idea</span></a></li>
     <li><a href="#ch-build"><span class="n">03</span><span class="t">the build</span></a></li>
-    <li class="sub"><a href="#st-hold"><span class="n">1</span><span class="t">holding</span></a></li>
-    <li class="sub"><a href="#st-store"><span class="n">2</span><span class="t">the store</span></a></li>
-    <li class="sub"><a href="#st-gate1"><span class="n">3</span><span class="t">first gate</span></a></li>
-    <li class="sub"><a href="#st-rank"><span class="n">4</span><span class="t">ranking</span></a></li>
-    <li class="sub"><a href="#st-panel"><span class="n">5</span><span class="t">review panel</span></a></li>
-    <li class="sub"><a href="#st-inject"><span class="n">6</span><span class="t">injection</span></a></li>
-    <li class="sub"><a href="#st-extract"><span class="n">7</span><span class="t">learning</span></a></li>
-    <li class="sub"><a href="#st-gate2"><span class="n">8</span><span class="t">second gate</span></a></li>
-    <li class="sub"><a href="#st-ledger"><span class="n">9</span><span class="t">what crosses</span></a></li>
+    <li class="sub"><a href="#st-hold"><span class="n">01</span><span class="t">holding</span></a></li>
+    <li class="sub"><a href="#st-store"><span class="n">02</span><span class="t">the store</span></a></li>
+    <li class="sub"><a href="#st-gate1"><span class="n">03</span><span class="t">first gate</span></a></li>
+    <li class="sub"><a href="#st-rank"><span class="n">04</span><span class="t">ranking</span></a></li>
+    <li class="sub"><a href="#st-panel"><span class="n">05</span><span class="t">review panel</span></a></li>
+    <li class="sub"><a href="#st-inject"><span class="n">06</span><span class="t">injection</span></a></li>
+    <li class="sub"><a href="#st-extract"><span class="n">07</span><span class="t">learning</span></a></li>
+    <li class="sub"><a href="#st-gate2"><span class="n">08</span><span class="t">second gate</span></a></li>
+    <li class="sub"><a href="#st-ledger"><span class="n">09</span><span class="t">what crosses</span></a></li>
     <li><a href="#ch-broke"><span class="n">04</span><span class="t">what broke</span></a></li>
     <li><a href="#ch-results"><span class="n">05</span><span class="t">results</span></a></li>
   </ol>
@@ -610,7 +613,7 @@
 </ul>
 <p class="lx-pull long">Not proven: <span data-src="Olivesz/inf-mem@c6579f9:README.md#L81-L85">the live Groq model (every tier mocks or fakes it)</span>; on the live sites <span data-src="Olivesz/inf-mem@c6579f9:README.md#L87">only ChatGPT’s composer has been checked</span>.</p>
 <details class="srcs-d" id="s-src">
-          <summary>sources · 98 lines pinned to inf-mem@c6579f9, 7 of them to the earlier 2f86999</summary>
+          <summary>sources · 98 passages cited: 91 at <span class="nw">inf-mem@c6579f9</span>, 7 at the earlier <span class="nw">2f86999</span></summary>
           <ol class="srcs" id="srcs">
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/.github/workflows/ci.yml#L16-L17" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · .github/workflows/ci.yml#L16-L17</a> lint · ruff</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/.github/workflows/ci.yml#L43-L44" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · .github/workflows/ci.yml#L43-L44</a> coverage gate</li>
@@ -630,10 +633,10 @@
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L62" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L62</a> CORS: extension origins only</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L73" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L73</a> The model downloads once, about 130 MB.</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L79-L87" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L79-L87</a> Five test tiers on every push</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L81" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81</a> unit + API · 4</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L81" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81</a> Unit + API</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L81-L85" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L81-L85</a> Not covered by tests: the live Groq model. Every tier mocks or fakes it.</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L82" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L82</a> real model · 1</li>
-            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L83" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L83</a> eval check · 1</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L82" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L82</a> Real model</li>
+            <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L83" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L83</a> Eval check</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L84" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L84</a> CI fails if /extract at 10k takes more than twice as long as at 1k</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L85" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L85</a> CI checks that on copies of both sites’ pages: one extraction per finis…</li>
             <li><a href="https://github.com/Olivesz/inf-mem/blob/c6579f9dfd1b3b4d144278d6bb4dc2fb2802d0f8/README.md?plain=1#L87" target="_blank" rel="noopener noreferrer">inf-mem@c6579f9 · README.md#L87</a> ChatGPT’s composer was checked on 2026-10-13</li>
@@ -1708,7 +1711,7 @@
     TIERS.forEach(function (q, gi) {
       var name = q[0], purpose = q[4], sub = q[5];
       var li = document.createElement("li"), b = document.createElement("button"); b.type = "button"; b.className = "grp";
-      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = sub ? name + " · " + sub.length : name; nm.setAttribute("data-src", PIN + q[3]); b.appendChild(nm);
+      var nm = document.createElement("span"); nm.className = "nm"; nm.textContent = name; nm.setAttribute("data-src", PIN + q[3]); b.appendChild(nm);
       cellsFor(b, [q[1], q[2]]); li.appendChild(b); tg.appendChild(li);
       if (!sub) { b.classList.add("ruff"); b.setAttribute("aria-pressed", "false"); b.addEventListener("click", function () { tBtns.forEach(function (x) { x.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); say(name, purpose); }); tBtns.push(b); return; }
       var ol = document.createElement("ol"); ol.className = "sub"; ol.id = "tg-" + gi; b.setAttribute("aria-expanded", "false"); b.setAttribute("aria-controls", ol.id);

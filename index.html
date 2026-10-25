@@ -96,6 +96,7 @@ a{color:inherit}
    rises to join them, and at the arrival the card's own lines take over in the same place */
 #thead{position:fixed;z-index:3;margin:0;pointer-events:none;opacity:0;visibility:hidden;transition:opacity 240ms var(--ease-enter),visibility 0s 240ms}
 #thead.on{opacity:1;visibility:visible;transition:opacity 240ms var(--ease-enter),visibility 0s}
+#thead.on.now{transition:none}
 .card .hd-off{visibility:hidden}
 /* a phone on its side keeps the words in a column at the left, beside the art (the engine sets --col) */
 @media (max-width:1023px) and (min-width:724px) and (orientation:landscape) and (max-height:500px){ .stick,.stick.hero{margin:0 0 0 var(--gut);width:var(--col,328px);max-width:none} }
@@ -613,11 +614,11 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
     <article class="stick card" id="freeflow" tabindex="-1">
       <p class="date">chapter iii</p>
       <h2>freeflow</h2>
-      <p class="pf" data-src="Olivesz/freeflow@2be3872:README.md#L5-L6">On-device dictation for macOS. Tap a key, talk, and your words are typed into whatever app <span class="nw">has focus.</span></p>
-      <p class="np" data-src="Olivesz/freeflow@2be3872:README.md#L86">a second pass. Whisper re-reads the recent audio every 350 ms.</p>
-      <p class="cv fr"><span class="kr" data-src="Olivesz/freeflow@2be3872:README.md#L94-L98">word errors: <span class="nw">2.1% live,</span> <span class="nw">1.9% whole clip</span></span><br><span class="nw" data-src="Olivesz/freeflow@2be3872:README.md#L92">20 held-out speakers</span> · <span data-src="Olivesz/freeflow@2be3872:README.md#L6-L8"><span class="nw">Parakeet by default,</span> <span class="nw">Whisper as fallback</span></span></p>
-      <div class="pn"><span class="n" data-src="Olivesz/freeflow@2be3872:README.md#L98">2.1%</span><span class="l" data-src="Olivesz/freeflow@2be3872:README.md#L94-L98">word errors, live · 1.9% whole clip</span><span class="l"><span data-src="Olivesz/freeflow@2be3872:README.md#L92">20 held-out speakers</span> · <span data-src="Olivesz/freeflow@2be3872:README.md#L6-L8">Parakeet by default, Whisper as fallback</span></span></div>
-      <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log: freeflow’s streaming loop, whisper.cpp base.en, on a synthesized reading of Mark Twain’s coyote lines from Roughing It.</p>
+      <p class="pf" data-src="Olivesz/freeflow@2be3872:README.md#L5-L6">Local dictation for macOS. Press a shortcut, talk, and the words are typed into whatever app has focus <span class="nw">as you speak.</span></p>
+      <p class="np" data-src="Olivesz/freeflow@2be3872:README.md#L86">a second pass. streaming re-decodes the recent audio every <span class="nw">350 ms.</span></p>
+      <p class="cv fr"><span class="kr" data-src="Olivesz/freeflow@2be3872:README.md#L94-L98">Parakeet word errors: <span class="nw">2.1% live,</span> <span class="nw">1.9% whole clip</span></span><br><span class="nw" data-src="Olivesz/freeflow@2be3872:README.md#L92">20 held-out speakers</span> · <span data-src="Olivesz/freeflow@2be3872:README.md#L6-L8"><span class="nw">Parakeet by default,</span> <span class="nw">Whisper as fallback</span></span></p>
+      <div class="pn"><span class="n" data-src="Olivesz/freeflow@2be3872:README.md#L98">2.1%</span><span class="l" data-src="Olivesz/freeflow@2be3872:README.md#L94-L98">word errors, live, Parakeet · 1.9% whole clip</span><span class="l"><span data-src="Olivesz/freeflow@2be3872:README.md#L92">20 held-out speakers</span> · <span data-src="Olivesz/freeflow@2be3872:README.md#L6-L8">Parakeet by default, <span class="nw">Whisper as fallback</span></span></span></div>
+      <p class="sr-only">A message window fills in as someone talks. Two passes re-read the audio; a word is typed once both agree. Every pass is from a real pass log: freeflow’s streaming loop <span data-src="page:passlog">at commit 19c0217</span> with whisper.cpp base.en, now the fallback engine, on a synthesized reading of Mark Twain’s coyote lines from Roughing It. Parakeet is the default engine.</p>
       <p class="lk"><a class="rm dd" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
   </div>
@@ -626,22 +627,22 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
     <article class="stick card" id="kronos" tabindex="-1">
       <p class="date">chapter iv</p>
       <h2>KRONOS</h2>
-      <p class="pf ki" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">A regime-aware quant platform<span class="kx">, every model hand-implemented in Python</span>.</p>
+      <p class="pf ki" data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L4-L5">A regime-aware quant platform<span class="kx">, every model hand-implemented in Python</span>.</p>
       <p class="np">a planted answer. no estimator touches a real price until it finds one.</p>
       <div class="kp"><div class="kp-a">
-      <p class="cv kk" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157">the result · risk control, not alpha</p>
-      <p class="cv kh" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L157-L158"><span class="nw">equal weight’s Sharpe,</span> <span class="nw">a third less drawdown</span></p>
+      <p class="cv kk" data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L157">the result · risk control, not alpha</p>
+      <p class="cv kh" data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L157-L158"><span class="nw">equal weight’s Sharpe,</span> <span class="nw">a third less drawdown</span></p>
       <table class="pt kt">
-        <thead><tr><th data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149">net of costs</th> <th colspan="2">max drawdown</th> <th>Sharpe</th> <th>CAGR</th></tr></thead>
+        <thead><tr><th data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L149">net of costs</th> <th colspan="2">max drawdown</th> <th>Sharpe</th> <th>CAGR</th></tr></thead>
         <tbody>
-          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L151"><th>KRONOS</th> <td class="kb"><i style="--n:13"></i></td><td>−18.7%</td> <td>1.12</td> <td>13.6%</td></tr>
-          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L154"><th>equal weight</th> <td class="kb"><i style="--n:21"></i></td><td>−29.5%</td> <td>1.10</td> <td>16.6%</td></tr>
-          <tr data-src="Olivesz/kronos-quant@c19c5ca:README.md#L155"><th>SPY</th> <td class="kb"><i style="--n:24"></i></td><td>−33.7%</td> <td>0.91</td> <td>15.0%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L151"><th>KRONOS</th> <td class="kb"><i style="--n:13"></i></td><td>−18.7%</td> <td>1.12</td> <td>13.6%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L154"><th>equal weight</th> <td class="kb"><i style="--n:21"></i></td><td>−29.5%</td> <td>1.10</td> <td>16.6%</td></tr>
+          <tr data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L155"><th>SPY</th> <td class="kb"><i style="--n:24"></i></td><td>−33.7%</td> <td>0.91</td> <td>15.0%</td></tr>
         </tbody>
       </table>
-      <p class="cv"><span class="sr-only"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L149-L155">Sharpe at rf=0; over cash it is 0.97, 0.98 and 0.81</span> · </span><span class="nw" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L161-L162">in-sample<span class="kq"> on today’s large caps</span></span><span class="kd"> · <span class="nw"><span class="kw">up to </span><span class="kl">≤</span><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L144">1.5× leverage</span></span></span></p>
+      <p class="cv"><span class="sr-only"><span data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L149-L155">Sharpe at rf=0; over cash it is 0.97, 0.98 and 0.81</span> · </span><span class="nw" data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L164-L165">in-sample<span class="kq"> on today’s large caps</span></span><span class="kd"> · <span class="nw"><span class="kw">up to </span><span class="kl">≤</span><span data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L144">1.5× leverage</span></span></span></p>
       </div>
-      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@c19c5ca:README.md#L115-L119">A self-audit found a sign bug all 30 gates then in CI had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate.</span></p></div>
+      <p class="pf kp-b"><span data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L115-L119">A self-audit found a sign bug all 30 gates then in CI had missed. The drawdown throttle braked at equity highs and released into crashes. The fix shipped with the missing gate.</span></p></div>
       <p class="sr-only">A regime switch planted in synthetic returns; the fit locks onto it, and a slider moves it. Then the gates, then the shipped book (equal weight under a risk overlay) against SPY.</p>
       <p class="lk"><a class="rm dd" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></p>
     </article>
@@ -652,11 +653,11 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
     <article class="stick card" id="custos" tabindex="-1">
       <p class="date">chapter v</p>
       <h2>custos-code</h2>
-      <p class="pf"><span data-src="Olivesz/custos-code@f3737f8:README.md#L3">Checks a coding agent’s final report against its own log, claim by claim.</span><span class="px"> In <span data-src="Olivesz/custos-code@f3737f8:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with <span class="nw">a nudge.</span></span></p>
+      <p class="pf"><span data-src="Olivesz/custos-code@d5784c7:README.md#L3">Checks a coding agent’s final report against its own log, claim by claim.</span><span class="px"> In <span data-src="Olivesz/custos-code@d5784c7:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with <span class="nw">a nudge.</span></span></p>
       <p class="np">the log. the harness’s record of what the <span class="nw">agent did.</span></p>
-      <p class="cv fr cu"><span class="kr" data-src="Olivesz/custos-code@f3737f8:README.md#L29-L33">six log sources · ten scenarios with known truth</span></p>
-      <div class="pn"><span class="n" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L19-L20">10 of 10</span><span class="l" data-src="Olivesz/custos-code@f3737f8:eval/README_SCOREBOARD.md#L11-L13">scenarios with known truth, scored by rule</span><span class="l" data-src="Olivesz/custos-code@f3737f8:README.md#L29-L30">reads logs from six sources</span></div>
-      <p class="ps">In <span data-src="Olivesz/custos-code@f3737f8:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with a nudge.</p>
+      <p class="cv fr cu"><span class="kr" data-src="Olivesz/custos-code@d5784c7:README.md#L29-L33">six log sources · ten scenarios with known truth</span></p>
+      <div class="pn"><span class="n" data-src="Olivesz/custos-code@d5784c7:eval/README_SCOREBOARD.md#L19-L20">10 of 10</span><span class="l" data-src="Olivesz/custos-code@d5784c7:eval/README_SCOREBOARD.md#L11-L13">scenarios with known truth, scored by rule</span><span class="l" data-src="Olivesz/custos-code@d5784c7:README.md#L29-L30">reads logs from six sources</span></div>
+      <p class="ps">In <span data-src="Olivesz/custos-code@d5784c7:README.md#L28">opt-in</span> auto mode, a contradicted claim keeps the agent from stopping and sends it back with a nudge.</p>
       <p class="meta" data-src="public_resume.tex#L79-L82">2026 hackathon. Led a team of 3, designed the <span class="nw">core engine.</span></p>
       <p class="sr-only">The agent says the suite is green; its log shows failing tests: the claim is marked contradicted and the stop blocked. A passing run stops.</p>
       <p class="lk"><a class="rm dd" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a class="rm dd" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a><span class="sp" aria-hidden="true">·</span><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></p>
@@ -692,7 +693,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
         <p class="k-msg"><span class="k-mk" aria-hidden="true"></span><span class="k-mt"></span></p>
         <p class="sr-only k-live" aria-live="polite"></p>
         <div class="k-pane" data-pane="rest"></div>
-        <div class="k-pane" data-pane="llm"><ol class="k-hi"><li class="k-card" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-yr" data-from="Olivesz/custos-code commit history (GET /repos/Olivesz/custos-code/commits)">2026</span><a class="k-case" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#custos" data-walk="custos" aria-label="custos-code, chapter v of the walk">chapter v <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-card" data-p="inf-mem"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">inf-mem</h3><span class="k-yr" data-from="public_resume.tex#L88">2025–26</span><a class="k-case" href="work/inf-mem.html" target="_blank" rel="noopener noreferrer" aria-label="inf-mem case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer" aria-label="inf-mem repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">memory for ChatGPT and Claude, local store, Groq extraction</p><p class="k-ac"></p><span class="sr-only"> Themes: agents &amp; LLMs.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-llm">3</span> more in agents &amp; LLMs</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="verify"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="verify" data-src="Olivesz/emergence@910b296:README.md#L34">every claim checked by a script that fails when it breaks</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="systems">systems</button><button type="button" class="k-tag" data-k="play">interactive</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-verify">4</span> more in verification</p><ul class="k-rest"><li class="k-mrow" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-st"><a href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/custos-code@f3737f8:README.md#L3">checks a coding agent’s report against its own log</p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-mrow" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-st"><a href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-mrow" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-st"><a href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ul></div><div class="k-pane" data-pane="systems"><ol class="k-hi"><li class="k-card" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-yr" data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</span><a class="k-case" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#freeflow" data-walk="freeflow" aria-label="freeflow, chapter iii of the walk">chapter iii <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/freeflow@19c0217:README.md#L5-L7">on-device dictation for macOS, typed into whatever app has focus</p><p class="k-why" data-k="systems" data-src="Olivesz/freeflow@19c0217:README.md#L80-L82">trims committed audio so cost stays flat however long the speech</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-card" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-yr" data-from="public_resume.tex#L121">2023</span><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#b-hero" data-walk="ipccc" aria-label="IEEE IPCCC, chapter i of the walk">chapter i <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><p class="k-why" data-k="systems" data-src="public_resume.tex#L124">power profiled across CPU and GPU</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button></p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-systems">5</span> more in systems</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="carbon-hack"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">Carbon Hack</h3><span class="k-st"><a href="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement" target="_blank" rel="noopener noreferrer" aria-label="Carbon Hack winners">winners <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement">energy and carbon of Zoom conferences, Best Under 18, team member</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li><li class="k-mrow" data-p="matmul"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">matrix multiplication</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L115">nine variants in C, naive to cache-blocked, recursive, SIMD and multithreaded</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="x86-compiler"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">x86-64 compiler</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L106">optimizing compiler in C for a statically typed language</p><span class="sr-only"> Themes: systems.</span></div></li></ul></div><div class="k-pane" data-pane="data"><ol class="k-hi"><li class="k-card" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-yr" data-from="Olivesz/kronos-quant commit history (GET /repos/Olivesz/kronos-quant/commits)">2026</span><a class="k-case" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#kronos" data-walk="kronos" aria-label="KRONOS, chapter iv of the walk">chapter iv <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/kronos-quant@c19c5ca:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-data">3</span> more in markets &amp; data</p><ul class="k-rest"><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li><li class="k-mrow" data-p="comic-extractor"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-extractor</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-extractor" target="_blank" rel="noopener noreferrer" aria-label="comic-extractor repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-extractor@f6156ac:README.md#L40">comic pages to JSON, one entry per speech bubble</p><span class="sr-only"> Themes: markets &amp; data.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="play"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><a class="k-case k-play" href="https://olivesz.github.io/emergence/" target="_blank" rel="noopener noreferrer" aria-label="play emergence in the browser">play <span aria-hidden="true">→</span></a><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="play" data-src="Olivesz/emergence@910b296:README.md#L10-L11">playable in the browser: one file, no build step</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button><button type="button" class="k-tag" data-k="systems">systems</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-play">3</span> more in interactive</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="care"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">C.A.R.E.</h3></div><p class="k-ln" data-src="Olivesz/portfolio@fdf45a5:index.html#L730">chatbot for U.S. citizenship-test practice in seven languages</p><span class="sr-only"> Themes: interactive.</span></div></li><li class="k-mrow" data-p="comic-reader"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-reader</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-reader" target="_blank" rel="noopener noreferrer" aria-label="comic-reader repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-reader@2deae8e:README.md#L5">reads a dragged screen region aloud on macOS</p><span class="sr-only"> Themes: interactive.</span></div></li></ul></div>
+        <div class="k-pane" data-pane="llm"><ol class="k-hi"><li class="k-card" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-yr" data-from="Olivesz/custos-code commit history (GET /repos/Olivesz/custos-code/commits)">2026</span><a class="k-case" href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/custos-code-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how custos-code works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/custos-code" target="_blank" rel="noopener noreferrer" aria-label="custos-code repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#custos" data-walk="custos" aria-label="custos-code, chapter v of the walk">chapter v <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/custos-code@d5784c7:README.md#L3">checks a coding agent’s report against its own log</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-card" data-p="inf-mem"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">inf-mem</h3><span class="k-yr" data-from="public_resume.tex#L88">2025–26</span><a class="k-case" href="work/inf-mem.html" target="_blank" rel="noopener noreferrer" aria-label="inf-mem case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/inf-mem-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how inf-mem works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/inf-mem" target="_blank" rel="noopener noreferrer" aria-label="inf-mem repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/inf-mem@c6579f9:README.md#L5">memory for ChatGPT and Claude, local store, Groq extraction</p><p class="k-ac"></p><span class="sr-only"> Themes: agents &amp; LLMs.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-llm">3</span> more in agents &amp; LLMs</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="verify"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="verify" data-src="Olivesz/emergence@910b296:README.md#L34">every claim checked by a script that fails when it breaks</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="systems">systems</button><button type="button" class="k-tag" data-k="play">interactive</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-verify">4</span> more in verification</p><ul class="k-rest"><li class="k-mrow" data-p="custos-code"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">custos-code</h3><span class="k-st"><a href="work/custos-code.html" target="_blank" rel="noopener noreferrer" aria-label="custos-code case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/custos-code@d5784c7:README.md#L3">checks a coding agent’s report against its own log</p><span class="sr-only"> Themes: agents &amp; LLMs and verification.</span></div></li><li class="k-mrow" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-st"><a href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/freeflow@2be3872:README.md#L5-L6">local dictation for macOS, typed into whatever app has focus as you speak</p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-mrow" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-st"><a href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li></ul></div><div class="k-pane" data-pane="systems"><ol class="k-hi"><li class="k-card" data-p="freeflow"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">freeflow</h3><span class="k-yr" data-from="Olivesz/freeflow commit history (GET /repos/Olivesz/freeflow/commits)">2026</span><a class="k-case" href="work/freeflow.html" target="_blank" rel="noopener noreferrer" aria-label="freeflow case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/freeflow-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how freeflow works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/freeflow" target="_blank" rel="noopener noreferrer" aria-label="freeflow repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#freeflow" data-walk="freeflow" aria-label="freeflow, chapter iii of the walk">chapter iii <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/freeflow@2be3872:README.md#L5-L6">local dictation for macOS, typed into whatever app has focus as you speak</p><p class="k-why" data-k="systems" data-src="Olivesz/freeflow@2be3872:README.md#L136-L138">trims committed audio so each pass costs the same however long you talk</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and systems.</span></div></li><li class="k-card" data-p="ieee-ipccc"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IEEE IPCCC</h3><span class="k-yr" data-from="public_resume.tex#L121">2023</span><span class="k-st"><a href="https://doi.org/10.1109/IPCCC59175.2023.10253886" target="_blank" rel="noopener noreferrer" aria-label="IEEE IPCCC paper">paper <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#b-hero" data-walk="ipccc" aria-label="IEEE IPCCC, chapter i of the walk">chapter i <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="public_resume.tex#L121-L124">energy of LLM inference, coauthor</p><p class="k-why" data-k="systems" data-src="public_resume.tex#L124">power profiled across CPU and GPU</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="llm">agents &amp; LLMs</button></p><span class="sr-only"> Themes: agents &amp; LLMs and systems.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-systems">5</span> more in systems</p><ul class="k-rest"><li class="k-mrow" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-st"><a href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li><li class="k-mrow" data-p="carbon-hack"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">Carbon Hack</h3><span class="k-st"><a href="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement" target="_blank" rel="noopener noreferrer" aria-label="Carbon Hack winners">winners <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://greensoftware.foundation/articles/carbon-hack-24-expanding-the-ecosystem-of-software-measurement">energy and carbon of Zoom conferences, Best Under 18, team member</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li><li class="k-mrow" data-p="matmul"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">matrix multiplication</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L115">nine variants in C, naive to cache-blocked, recursive, SIMD and multithreaded</p><span class="sr-only"> Themes: systems.</span></div></li><li class="k-mrow" data-p="x86-compiler"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">x86-64 compiler</h3><span class="k-st">course</span></div><p class="k-ln" data-src="public_resume.tex#L106">optimizing compiler in C for a statically typed language</p><span class="sr-only"> Themes: systems.</span></div></li></ul></div><div class="k-pane" data-pane="data"><ol class="k-hi"><li class="k-card" data-p="kronos"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">KRONOS</h3><span class="k-yr" data-from="Olivesz/kronos-quant commit history (GET /repos/Olivesz/kronos-quant/commits)">2026</span><a class="k-case" href="work/kronos.html" target="_blank" rel="noopener noreferrer" aria-label="KRONOS case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/kronos-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how KRONOS works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/kronos-quant" target="_blank" rel="noopener noreferrer" aria-label="KRONOS repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#kronos" data-walk="kronos" aria-label="KRONOS, chapter iv of the walk">chapter iv <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/kronos-quant@fcb1ed8:README.md#L4-L5">regime-aware quant platform, each estimator checked on synthetic ground truth</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button></p><span class="sr-only"> Themes: verification and markets &amp; data.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-data">3</span> more in markets &amp; data</p><ul class="k-rest"><li class="k-mrow" data-p="charity-screening"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">charity screening</h3><span class="k-st">private</span></div><p class="k-ln" data-src="public_resume.tex#L96-L98">screening pipeline for a student philanthropy fund, rules then LLMs</p><span class="sr-only"> Themes: agents &amp; LLMs and markets &amp; data.</span></div></li><li class="k-mrow" data-p="comic-extractor"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-extractor</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-extractor" target="_blank" rel="noopener noreferrer" aria-label="comic-extractor repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-extractor@f6156ac:README.md#L40">comic pages to JSON, one entry per speech bubble</p><span class="sr-only"> Themes: markets &amp; data.</span></div></li><li class="k-mrow" data-p="iaria-green"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems" class=on></i><i data-k="data" class=on></i><i data-k="play"></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">IARIA GREEN</h3><span class="k-st"><a href="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006" target="_blank" rel="noopener noreferrer" aria-label="IARIA GREEN paper">paper <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="https://www.thinkmind.org/index.php?view=article&amp;articleid=green_2023_1_10_80006">Azure VM cost and emissions, coauthor</p><span class="sr-only"> Themes: systems and markets &amp; data.</span></div></li></ul></div><div class="k-pane" data-pane="play"><ol class="k-hi"><li class="k-card" data-p="emergence"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify" class=on></i><i data-k="systems" class=on></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">emergence</h3><span class="k-yr" data-from="Olivesz/emergence commit history (GET /repos/Olivesz/emergence/commits)">2026</span><a class="k-case k-play" href="https://olivesz.github.io/emergence/" target="_blank" rel="noopener noreferrer" aria-label="play emergence in the browser">play <span aria-hidden="true">→</span></a><a class="k-case" href="work/emergence.html" target="_blank" rel="noopener noreferrer" aria-label="emergence case study">case study <span aria-hidden="true">→</span></a><a class="k-case k-deep" href="work/emergence-deep.html" target="_blank" rel="noopener noreferrer" aria-label="how emergence works, in depth">in depth <span aria-hidden="true">→</span></a><span class="k-st"><a href="https://github.com/Olivesz/emergence" target="_blank" rel="noopener noreferrer" aria-label="emergence repository">repo <span aria-hidden="true">→</span></a></span><a class="k-walk" href="#emergence" data-walk="emergence" aria-label="emergence, chapter ii of the walk">chapter ii <span aria-hidden="true">↑</span></a></div><p class="k-ln" data-src="Olivesz/emergence@910b296:README.md#L5-L12">cellular automata in eight acts, ending in a working CPU</p><p class="k-why" data-k="play" data-src="Olivesz/emergence@910b296:README.md#L10-L11">playable in the browser: one file, no build step</p><p class="k-ac"><span class="k-in">also in</span><button type="button" class="k-tag" data-k="verify">verification</button><button type="button" class="k-tag" data-k="systems">systems</button></p><span class="sr-only"> Themes: verification, systems and interactive.</span></div></li></ol><p class="k-also"><span data-src="page:work-more-play">3</span> more in interactive</p><ul class="k-rest"><li class="k-mrow" data-p="ai-capabilities"><span class="k-bars" aria-hidden="true"><i data-k="llm" class=on></i><i data-k="verify" class=on></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">ai-capabilities</h3><span class="k-st"><a href="work/ai-capabilities.html" target="_blank" rel="noopener noreferrer" aria-label="ai-capabilities case study">case study <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/ai-capabilities@1908b9d:README.md#L5-L7">social-deduction games played by LLMs, run entirely in the browser</p><span class="sr-only"> Themes: agents &amp; LLMs, verification and interactive.</span></div></li><li class="k-mrow" data-p="care"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">C.A.R.E.</h3></div><p class="k-ln" data-src="Olivesz/portfolio@fdf45a5:index.html#L730">chatbot for U.S. citizenship-test practice in seven languages</p><span class="sr-only"> Themes: interactive.</span></div></li><li class="k-mrow" data-p="comic-reader"><span class="k-bars" aria-hidden="true"><i data-k="llm"></i><i data-k="verify"></i><i data-k="systems"></i><i data-k="data"></i><i data-k="play" class=on></i></span><div class="k-tx"><div class="k-top"><h3 class="k-nm">comic-reader</h3><span class="k-st"><a href="https://github.com/Olivesz/comic-reader" target="_blank" rel="noopener noreferrer" aria-label="comic-reader repository">repo <span aria-hidden="true">→</span></a></span></div><p class="k-ln" data-src="Olivesz/comic-reader@2deae8e:README.md#L5">reads a dragged screen region aloud on macOS</p><span class="sr-only"> Themes: interactive.</span></div></li></ul></div>
       </div>
     </div>
     <script type="application/json" id="k-data">{"order":["llm","verify","systems","data","play"],"short":{"llm":"agents & LLMs","verify":"verification","systems":"systems","data":"markets & data","play":"interactive"},"blurb":{"llm":"software built on, around or against language models","verify":"checked against a log, a known answer or a second pass","systems":"compilers, SIMD, streaming audio and measured watts","data":"prices, order books, filings, traces and datasets","play":"things that run, move or answer when touched"},"member":{"custos-code":["llm","verify"],"kronos":["verify","data"],"freeflow":["verify","systems"],"emergence":["verify","systems","play"],"charity-screening":["llm","data"],"comic-reader":["play"],"x86-compiler":["systems"],"matmul":["systems"],"comic-extractor":["data"],"ai-capabilities":["llm","verify","play"],"inf-mem":["llm"],"care":["play"],"ieee-ipccc":["llm","systems"],"iaria-green":["systems","data"],"carbon-hack":["systems"]},"members":{"llm":["custos-code","charity-screening","ai-capabilities","inf-mem","ieee-ipccc"],"verify":["custos-code","kronos","freeflow","emergence","ai-capabilities"],"systems":["freeflow","emergence","x86-compiler","matmul","ieee-ipccc","iaria-green","carbon-hack"],"data":["kronos","charity-screening","comic-extractor","iaria-green"],"play":["emergence","comic-reader","ai-capabilities","care"]},"names":{"custos-code":"custos-code","kronos":"KRONOS","freeflow":"freeflow","emergence":"emergence","charity-screening":"charity screening","comic-reader":"comic-reader","x86-compiler":"x86-64 compiler","matmul":"matrix multiplication","comic-extractor":"comic-extractor","ai-capabilities":"ai-capabilities","inf-mem":"inf-mem","care":"C.A.R.E.","ieee-ipccc":"IEEE IPCCC","iaria-green":"IARIA GREEN","carbon-hack":"Carbon Hack"},"hi":{"llm":["custos-code","inf-mem"],"verify":["emergence"],"systems":["freeflow","ieee-ipccc"],"data":["kronos"],"play":["emergence"]},"more":{"llm":["ai-capabilities","ieee-ipccc","charity-screening"],"verify":["custos-code","freeflow","kronos","ai-capabilities"],"systems":["emergence","carbon-hack","iaria-green","matmul","x86-compiler"],"data":["charity-screening","comic-extractor","iaria-green"],"play":["ai-capabilities","care","comic-reader"]},"tier":{"custos-code":1,"kronos":1,"freeflow":1,"emergence":1,"inf-mem":2,"ai-capabilities":2,"ieee-ipccc":2,"charity-screening":3,"comic-reader":3,"x86-compiler":3,"matmul":3,"comic-extractor":3,"care":3,"iaria-green":3,"carbon-hack":3},"sig":{"llm":["custos-code","inf-mem"],"verify":["emergence"],"systems":["freeflow","ieee-ipccc"],"data":["kronos"],"play":["emergence"]}}</script>
@@ -1174,21 +1175,21 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
 "fib_tape": {"v": "144", "src": "Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1", "at": "144]}", "ctx": "OUT", "note": "the OUT tape is replayed from the recorded gate-level netlist trace (out_load rows); at: the last value of the header's out_tape, which selfChecks 'sap' compares the replay with"},
 "sap_instr": {"v": "115", "src": "page:sap", "ctx": "instruction", "note": "the trace's 688 clocks hold 115 instruction fetches (T1 rows), HLT included; selfChecks 'sap'"},
 "pass_ms": {"v": "350 ms", "src": "Olivesz/freeflow@2be3872:README.md#L86", "ctx": "audio"},
-"sharpe": {"v": "1.12", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "Sharpe", "note": "rf=0; the same row states 0.97 in excess of cash"},
-"sharpe_x": {"v": "0.97", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "excess"},
-"maxdd": {"v": "−18.7%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "drawdown"},
-"cagr": {"v": "13.6%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "CAGR"},
-"ew_sharpe": {"v": "1.10", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L154", "ctx": "equal"},
-"ew_maxdd": {"v": "−29.5%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L154", "ctx": "equal"},
-"spy_sharpe": {"v": "0.91", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L155", "ctx": "SPY"},
-"spy_maxdd": {"v": "−33.7%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L155", "ctx": "SPY"},
-"spy_cagr": {"v": "15.0%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L155", "ctx": "SPY"},
-"leverage": {"v": "1.5×", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L144", "ctx": "leverage"},
-"gates": {"v": "47", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L44-L46", "ctx": "gates", "note": "every gate runs in CI on the committed real prices, a skip fails the build (README L99-L100); counted from GATES in tests/run_all.py#L11-L73"},
-"gates_then": {"v": "30", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L115-L117", "ctx": "gates"},
-"quarters": {"v": "−18.7%", "src": "Olivesz/kronos-quant@c19c5ca:README.md#L151", "ctx": "drawdown", "note": "beat 3 draws the 54 quarter-ends of research/momtilt.json's committed daily NAV (README L162-L164): last NAV and worst running drawdown per calendar quarter; the page recomputes max drawdown from them, selfChecks 'kronos-dd'"},
+"sharpe": {"v": "1.12", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L151", "ctx": "Sharpe", "note": "rf=0; the same row states 0.97 in excess of cash"},
+"sharpe_x": {"v": "0.97", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L151", "ctx": "excess"},
+"maxdd": {"v": "−18.7%", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L151", "ctx": "drawdown"},
+"cagr": {"v": "13.6%", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L151", "ctx": "CAGR"},
+"ew_sharpe": {"v": "1.10", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L154", "ctx": "equal"},
+"ew_maxdd": {"v": "−29.5%", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L154", "ctx": "equal"},
+"spy_sharpe": {"v": "0.91", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L155", "ctx": "SPY"},
+"spy_maxdd": {"v": "−33.7%", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L155", "ctx": "SPY"},
+"spy_cagr": {"v": "15.0%", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L155", "ctx": "SPY"},
+"leverage": {"v": "1.5×", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L144", "ctx": "leverage"},
+"gates": {"v": "50", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L44-L46", "ctx": "gates", "note": "every gate runs in CI on the committed real prices, a skip fails the build (README L99-L100); counted from GATES in tests/run_all.py#L11-L79"},
+"gates_then": {"v": "30", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L115-L117", "ctx": "gates"},
+"quarters": {"v": "−18.7%", "src": "Olivesz/kronos-quant@fcb1ed8:README.md#L151", "ctx": "drawdown", "note": "beat 3 draws the 54 quarter-ends of research/momtilt.json's committed daily NAV (README L162-L164): last NAV and worst running drawdown per calendar quarter; the page recomputes max drawdown from them, selfChecks 'kronos-dd'"},
 "em_fit": {"v": "14, 7, 2, 0", "src": "page:em", "ctx": "pass", "note": "EM on a seeded synthetic series fitted in the page; selfChecks 'em'"},
-"trap_tally": {"v": "7 passed, 2 failed", "src": "Olivesz/custos-code@f3737f8:README.md#L15", "ctx": "passed"},
+"trap_tally": {"v": "7 passed, 2 failed", "src": "Olivesz/custos-code@d5784c7:README.md#L15", "ctx": "passed"},
 "verdicts": {"v": "contradicted", "src": "page:custos", "ctx": "rule", "note": "both fixtures replayed by rule in the page; selfChecks 'custos'"}
 }</script>
 <script>
@@ -1506,7 +1507,7 @@ root.FigNand = api;
 (function (root) {
 "use strict";
 
-var PIN = "Olivesz/custos-code@f3737f8";
+var PIN = "Olivesz/custos-code@d5784c7";
 var SRC = {
   trap: PIN + ":src/custos_code/demo_fixtures/trap_failing_0.jsonl#L1-L4",
   control: PIN + ":src/custos_code/demo_fixtures/ok_tests_0.jsonl#L1-L8",
@@ -1833,19 +1834,22 @@ root.FigCustos = api;
 </script>
 <script>
 /* freeflow station: the focused app filling in as someone talks, the key and pill that start it, and below a rule
-   the two latest recognition passes over the audio they re-read. Every pass is read from a real pass log: the shipped
-   streamer, whisper.cpp base.en, on a synthesized reading of Mark Twain's coyote lines from Roughing It (1872).
+   the two latest recognition passes over the audio they re-read. Every pass is read from a real pass log: the streamer
+   at freeflow@19c0217 with whisper.cpp base.en (now the fallback engine; Parakeet is the default since 6656e80), on a
+   synthesized reading of Mark Twain's coyote lines from Roughing It (1872). Sources are pinned to freeflow@2be3872;
+   the pass log keeps its run's SHA.
    Every visual is a pure function of (u, box, r); the cell footprint the engine
    stamps comes from the same layout, so the Bayer handoff swaps cell for cell. */
 (function (root) {
 "use strict";
 
-var PIN = "Olivesz/freeflow@19c0217:";
+var PIN = "Olivesz/freeflow@2be3872:";
 var SRC = {
-  tick: PIN + "README.md#L49",                                        // the 350 ms tick
-  stack: PIN + "bench/README.md#L4",                                  // whisper.cpp base.en
-  agree: PIN + "README.md#L79",                                       // typed once two passes agree
-  trim: PIN + "README.md#L80-L82",                                    // committed audio is trimmed
+  tick: PIN + "README.md#L86",                                        // the 350 ms tick
+  stack: PIN + "bench/README.md#L4-L5",                               // Parakeet by default, or whisper.cpp base.en
+  fallback: PIN + "README.md#L6-L8",                                  // whisper.cpp is the bundled fallback
+  agree: PIN + "README.md#L135",                                      // typed once two passes agree
+  trim: PIN + "README.md#L136-L138",                                  // committed audio is trimmed
   minWin: PIN + "mac/Sources/FreeflowCore/Session.swift#L24",         // no pass under 0.5 s of window
   keys: PIN + "mac/Sources/Freeflow/Settings.swift#L11-L20",
   hud: PIN + "mac/Sources/Freeflow/HUDView.swift#L18",
@@ -1857,7 +1861,7 @@ var TOKS = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", 
 // The clip: Mark Twain's coyote lines from Roughing It (1872, ch. V, public domain), as they were read, in modern
 // spelling: "The coyote is a living, breathing allegory of Want. He is always hungry. He is always poor, out of luck,
 // and friendless." Spoken by macOS `say -v Samantha` and converted to 16 kHz mono 16-bit PCM, 7.326 s. The log:
-// freeflow@19c0217's bench binary run on that clip with no flags, which is the shipped streaming loop (350 ms tick,
+// freeflow@19c0217's bench binary run on that clip with no flags, the streaming loop as shipped at that commit (350 ms tick,
 // a 3 s window trimmed to 1.5 s of context, greedy decoding, whisper.cpp base.en with the Core ML encoder), the
 // settings of the repo's bench/results/9832030/timing run. A second run gave the same passes, decode times aside.
 // Its 20 passes, one row each:
@@ -1901,6 +1905,13 @@ var T_OPEN = LOG.filter(function (p) { return p[4].length; })[0][0];
 var U_KEY = 0, U_REC = 0, U_SIL = 0.84, U_DONE = 0.97;
 
 function cl(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+// the header over the passes: which engine made the log, and its role. Phones keep the short form, which fits beside
+// the end state's key; the model name needs the desktop width. The commit the log was run at is in the sr-only text
+function header(L) {
+  var eng = '<span data-src="' + SRC.stack + '">whisper.cpp' + (L.phone ? "" : " base.en") + "</span>";
+  if (L.phone) return { html: eng + ' · <span data-src="' + SRC.fallback + '">fallback</span>', text: "whisper.cpp · fallback" };
+  return { html: eng + ' · <span data-src="' + SRC.fallback + '">the fallback engine</span>', text: "whisper.cpp base.en · the fallback engine" };
+}
 // a heard word as the page sets it: typeset apostrophes, and none of the quote marks whisper may wrap a line in,
 // which would stand alone in a column
 function shown(w) { return String(w).replace(/^"|"$/g, "").replace(/'/g, "\u2019"); }
@@ -1976,8 +1987,8 @@ var OVERTURNED = (function () {
   return out.sort(function (a, b) { return a.i - b.i || a.t - b.t; });
 })();
 // what the app types: the committed words through TextProcessor's auto-capitalisation (on by default), which capitalises
-// a word that starts the utterance or follows a word ending in . ! or ? (mac/Sources/FreeflowCore/TextProcessor.swift#L211,
-// Settings.swift#L49 at freeflow@19c0217); the pass log keeps whisper's own case
+// a word that starts the utterance or follows a word ending in . ! or ? (mac/Sources/FreeflowCore/TextProcessor.swift#L257,
+// Settings.swift#L49 at freeflow@2be3872); the pass log keeps whisper's own case
 var APP = WORDS.map(function (w, i) {
   var start = i === 0 || /[.!?]$/.test(WORDS[i - 1][0]);
   return start ? w[0].charAt(0).toUpperCase() + w[0].slice(1) : w[0];
@@ -2141,9 +2152,9 @@ function scene(u, L) {
       run(px + pw - 3 * c - 6 - lbW("copy"), H.y + ((H.ph - 16) >> 1), "copy", "lb");
     }
   }
-  // a rule and a header that name what follows as the engine, not the app
+  // a rule and a header that name what follows as the engine, not the app: the fallback engine whose run this is
   rects.push({ k: "hline", x: 0, y: L.rule, w: L.W, tok: "copper" });
-  run(0, L.hdr, '<span data-src="' + SRC.stack + '">whisper.cpp base.en</span>', "lb");
+  run(0, L.hdr, header(L).html, "lb");
   // two consecutive passes, word slots aligned so a disagreement sits in one column
   var rowP = [S.prev, S.cur], mono = textW("0", 13, "mono"), avail = L.W - L.lab;
   if (S.cur && S.cur.skip) rowP = [null, S.cur];
@@ -2428,7 +2439,7 @@ function selfCheck() {
     // the end state's pair fits the box: every column from the excerpt's first word to its last, and the key beside the header
     var sc = scene(1, L), mo = textW("0", 13, "mono"), rr = sc.runs.filter(function (q) { return /^w[ao]\b/.test(q.cls); });
     need((ph ? (ph === "short" ? "short phone" : "phone") : "desktop") + " heard-first pair fits the box", rr.length > 3 && rr.every(function (q) { return q.x >= 0 && q.x + q.t.length * mo <= L.W + 0.5; }) &&
-      textW("whisper.cpp base.en", 11, "mono") + 0.44 * 19 + 8 <= sc.runs.filter(function (q) { return q.cls === "kk"; })[0].x, rr.map(function (q) { return q.t; }).join(" "));
+      textW(header(L).text, 11, "mono") + 0.44 * header(L).text.length + 8 <= sc.runs.filter(function (q) { return q.cls === "kk"; })[0].x, rr.map(function (q) { return q.t; }).join(" "));
   });
   // TextProcessor capitalises a word after . ! or ?; whisper already began each sentence of this log with a capital
   need("app text is the log's text, capitalised at sentence starts", APP.join(" ") === "The Coyote is a living, breathing allegory of want. He is always hungry. He is always poor, out of luck and friendless." &&
@@ -2533,7 +2544,7 @@ root.FigFreeflow = {
 </script>
 <script>
 /* KRONOS station, native layer: one canvas for marks, one SVG for text, one range input for the planted switch.
-   Rows, top to bottom: planted answer, estimate, 47 gates, real prices. Desktop adds rows; phone swaps one view at a time.
+   Rows, top to bottom: planted answer, estimate, 50 gates, real prices. Desktop adds rows; phone swaps one view at a time.
    draw(u, box, ctx) is a pure function of u, the box, the switch position and ctx.r, the station's resolve level. Cells and
    native marks trade places by the 4x4 Bayer rank of each cell in the engine bitmap (ctx.org is the phase of the box's first
    cell); a text item switches whole at the rank of the cell under its first glyph. cells(u, box, ctx, F) hands the engine the
@@ -2542,11 +2553,11 @@ root.FigFreeflow = {
 "use strict";
 
 var TOKN = ["void", "ant", "trail", "trail-2", "trail-3", "signal", "signal-2", "ink", "copper", "residue", "body", "muted", "rule", "v-amber"];
-var PIN = "Olivesz/kronos-quant@c19c5ca:";
+var PIN = "Olivesz/kronos-quant@fcb1ed8:";
 var SRC = {
   em: "page:em-fit (seeded synthetic series, fitted in this page)",
   gates: PIN + "README.md#L44-L46",
-  gatesList: PIN + "tests/run_all.py#L11-L73",
+  gatesList: PIN + "tests/run_all.py#L11-L79",
   ciReal: PIN + "README.md#L44-L46",
   noSkip: PIN + "README.md#L99-L100",
   run: PIN + "README.md#L151",
@@ -2576,11 +2587,12 @@ var GATE_LINES = [
   [43, "test_constants.py"], [45, "test_trade.py"], [47, "test_transfer.py"], [49, "test_crypto.py"],
   [51, "test_risk.py"], [53, "test_lever.py"], [54, "test_regime_engine.py"], [56, "test_harvest.py"],
   [58, "test_live.py"], [60, "test_momtilt.py"], [62, "test_ewbar.py"], [64, "test_pinned.py"],
-  [66, "test_headline.py"], [68, "test_live_pnl.py"], [70, "test_overlay_warmup.py"], [72, "test_shipped_stream.py"]
+  [66, "test_headline.py"], [68, "test_live_pnl.py"], [70, "test_overlay_warmup.py"], [72, "test_shipped_stream.py"],
+  [74, "test_volalpha_replication.py"], [76, "test_volalpha.py"], [78, "test_paper.py"]
 ];
 var GATE_LIST = [];
 GATE_LINES.forEach(function (r) { for (var i = 1; i < r.length; i++) GATE_LIST.push({ f: r[i], line: r[0] }); });
-var GATES = { count: 47, missing: "test_risk.py" };
+var GATES = { count: 50, missing: "test_risk.py" };
 var GPR_PH = 12;                               // gates per row in a phone's gates view
 
 /* ---------- the shipped run (Sharpe 1.12 at rf=0), one row per calendar quarter ---------- */
@@ -2782,8 +2794,8 @@ function geo(W, H, c, phone, short) {
   g.qp = Math.max(3, Math.min(12, Math.floor((W - g.LG - (g.wide ? 64 : 30)) / 54)));
   g.RX = g.wide ? g.LG + 54 * g.qp : W;                    // right edge of header readouts
   g.PA = g.LG + 54 * g.qp;                                  // the right edge every plot shares
-  // a desktop sets the 47 gates in one row under the fit; a phone, whose gates view has the box to itself, sets them
-  // as a block of four rows of 12, each square three cells wide on a four-cell pitch, so the run reads at a glance
+  // a desktop sets the 50 gates in one row under the fit; a phone, whose gates view has the box to itself, sets them
+  // as a block of five rows of ten, each square three cells wide on a four-cell pitch, so the run reads at a glance
   g.gp = Math.max(4, Math.floor((g.PA + 3) / (phone ? GPR_PH : GATES.count))); g.gs = phone ? g.gp - Math.max(2, Math.round(g.gp / 4)) : g.gp - (g.gp >= 10 ? 3 : 2);
   // the real-prices view: growth (log) in a short panel, the drawdown each quarter in the tall one under it
   // the growth panel stands on its own baseline, a gap above the drawdown panel's zero line, so the two read apart
@@ -2917,13 +2929,13 @@ function textPlanted(g, m, s) {
 }
 function textGates(g, s) {
   var out = [], C = g.C, all = s.passed === GATES.count, tone = all ? "ink" : "signal", dot = [" · ", 11, "muted"];
-  var n = ["47 gates", 11, "muted", SRC.gates], a = ["all run in CI on real prices", 11, "muted", SRC.ciReal], b = ["a skip fails the build", 11, "muted", SRC.noSkip];
+  var n = [GATES.count + " gates", 11, "muted", SRC.gates], a = ["all run in CI on real prices", 11, "muted", SRC.ciReal], b = ["a skip fails the build", 11, "muted", SRC.noSkip];
   var ro = [[s.passed + " of ", 13, tone, "page:gate-replay"], [String(GATES.count), 13, tone, SRC.gates]];
   var one = [n, dot, a, dot, b];
   if (C.sp.length === 1 && tw(one) + tw(ro) + 16 <= g.RX) out.push(T_(0, C.hdr, one));
   else if (C.sp.length === 1) { out.push(T_(0, C.hdr, [n])); out.push(T_(0, C.sp[0], [a, dot, b])); }
   else { out.push(T_(0, C.hdr, [n])); out.push(T_(0, C.sp[0], [a])); out.push(T_(0, C.sp[1], [b])); }
-  // a phone's block of four rows ends short of the box: its count stands over the block's right edge, not the box's
+  // a phone's block of five rows of ten ends short of the box: its count stands over the block's right edge, not the box's
   var rx = C.rows > 1 ? (Math.ceil(GATES.count / C.rows) - 1) * g.gp + g.gs : g.RX;
   if (s.gatesOn) out.push(T_(rx, C.hdr, ro, "end"));
   return out;
@@ -2981,7 +2993,7 @@ function derive(data) {
   d.b2 = { count: GATES.count, laidOut: GATE_LIST.length, unique: uniq,
            first: files[0], missingAt: files.indexOf(GATES.missing), firstLine: GATE_LIST[0].line, lastLine: GATE_LIST[GATE_LIST.length - 1].line };
   d.b2.ok = GATE_LIST.length === GATES.count && uniq === GATES.count &&
-            d.b2.first === "test_regime.py" && d.b2.missingAt === 35 && d.b2.firstLine >= 11 && d.b2.lastLine <= 73;
+            d.b2.first === "test_regime.py" && d.b2.missingAt === 35 && d.b2.firstLine >= 11 && d.b2.lastLine <= 79;
   var m = fitFor(SW0), L = m.pend - 1, rangeOk = true;
   for (i = SW_MIN; i <= SW_MAX; i++) if (!fitFor(i).pass) rangeOk = false;
   d.b1 = { ok: m.mism[L] === 0 && m.lock[L] >= m.day && m.pass, rangeOk: rangeOk, mismatches: m.mism.slice(0, m.pend), passes: m.pend,
@@ -2994,7 +3006,7 @@ function allowedNumbers() {
   var set = {}, k, i;
   function add(s) { (String(s).match(/[−-]?\d[\d.,]*%?/g) || []).forEach(function (t) { set[t] = 1; }); }
   for (k = SW_MIN; k <= SW_MAX; k++) { var m = fitFor(k); add(m.day); for (i = 0; i < m.pend; i++) { add(lockText(m, i)); add(lockText(m, i, 1)); add(accText(m, i)); add((i + 1) + " of " + m.pend); } }
-  add("0.9"); add("47 gates");
+  add("0.9"); add(GATES.count + " gates");
   for (i = 0; i <= GATES.count; i++) add(i + " of " + GATES.count);
   GATE_LIST.forEach(function (g) { add(g.f); });
   for (i = 0; i < NQ; i++) add(qLabel(Q.q[i]));
@@ -3195,7 +3207,7 @@ function norm(box, ctx) {
   var short = phone && !!ctx.band && ctx.band.b - ctx.band.t < 43 * c;
   return { x: box.x, y: box.y, w: box.w, h: box.h, c: c, dpr: dpr, pp: Math.max(1, Math.round(c * dpr)), phone: phone, short: short, r: r, org: [org[0] & 3, org[1] & 3], dim: !!ctx.dim };
 }
-var warmed = {};
+var warmed = {}, INKR = { key: null, rows: null };     // INKR: ink()'s rows for the layout geoKeyOf names
 function geoKeyOf(b) { return [b.w, b.h, b.c, b.dpr, b.phone ? 1 : 0, b.short ? 1 : 0].join("x"); }
 function geoFor(b) {
   var key = geoKeyOf(b);
@@ -3424,6 +3436,14 @@ api.station = {
     warmed[key] = u > 1 ? 1 : u;
     return u > 1;
   },
+  // a desktop's rows in box px, top down (the planted fit, the gates, the real prices), every one drawn from the
+  // arrival; the line at u describes the first k, one per beat. They end at the right edge every plot shares, and are
+  // read once per layout (INKR): u only picks k. null on a phone
+  ink: function (u, ctx) {
+    ctx = ctx || {}; var b = norm(stBox(0, 0, ctx), ctx), key = geoKeyOf(b), v = clamp01(+u || 0);
+    if (INKR.key !== key) { var g = geoFor(b); INKR.key = key; INKR.rows = g.phone ? null : [[0, 0, g.PA, g.B.foot + 4], [0, g.C.hdr - 11, g.PA, g.C.sp[g.C.sp.length - 1] + 4], [0, g.yR, g.PA, g.H]]; }
+    return INKR.rows && { rows: INKR.rows, k: (v < TL.b2 ? 0 : v < TL.b3 ? 1 : 2) + 1 };
+  },
   mount: function (host, opts) { return mount(host, opts || {}); },
   draw: function (u, box, ctx) { ctx = ctx || {}; if (!(ctx.r > 0)) { api.hide(); return null; } return draw(u, stBox(box.x, box.y, ctx), ctx); },
   hide: function () { api.hide(); },
@@ -3505,6 +3525,13 @@ var LAYOUTS = {
 LAYOUTS.short = { cell: 6, w: 54, h: 37, fs: 30, lh: 32, mlh: 18, brk: 2, rail: "under", railX: 18, idX: 0, sx: 0, tx: 24, col: 96, repX: 18,
                   y: { rep: 0, s: 14, logl: 80, r1: 96, r2: 114, verdict: 134, stop: 150, ctrl: 174 }, ctrl: "short" };
 LAYOUTS.wide.T = T; LAYOUTS.phone.T = phasesFor(); LAYOUTS.short.T = phasesFor();     // the phone's control has no why line, so its rows space wider
+// a narrow phone (a band under 58 cells, e.g. 360 or 375px wide): the same rows in 52 cells, two fewer beside the ant's
+// head. The report sets on a tighter track (tk: em per glyph past the table's -0.02em) and the passing claim drops its
+// log ids (ev), so every run ends inside the narrower box
+["phone", "short"].forEach(function (n) {
+  var b = LAYOUTS[n], o = {}; for (var k in b) o[k] = b[k];
+  o.w = 52; o.tk = -0.02; o.ev = false; o.T = phasesFor(); LAYOUTS[n + "52"] = o;
+});
 var CHIP_DX = 216, CHIP_W = 72;                         // the stop chip: clear of its label, on a cell edge at both pitches (27 or 36 cells), 72px wide
 
 function clamp01(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
@@ -3584,11 +3611,11 @@ function lines(L, report) {
 function wordBoxes(L, report) {                         // [{w, line, l, r, at}] in box px, from the advance table
   var out = [], at = 0;
   lines(L, report).forEach(function (ws, li) {
-    var x = L.sx;
+    var x = L.sx, tk = L.tk || 0;
     ws.forEach(function (w) {
-      var wpx = WORD_EM[w] * L.fs;
+      var wpx = (WORD_EM[w] + tk * w.length) * L.fs;
       out.push({ w: w, line: li, l: x, r: x + wpx, at: at });
-      x += wpx + SPACE_EM * L.fs; at += w.length + 1;
+      x += wpx + (SPACE_EM + tk) * L.fs; at += w.length + 1;
     });
   });
   return out;
@@ -3716,6 +3743,7 @@ var CSS = [
   // the report reads as context in muted; the claim the extractor returned stands in ink, so the strike spans all of it
   ".cx .sent{font:400 30px/32px var(--sg);letter-spacing:-.02em;color:var(--muted)}",
   ".cx .sent .cl{color:var(--ink)}",
+  ".cx.nr .sent{letter-spacing:-.04em}",
   ".cx .mono{font:400 13px/24px var(--mono);font-variant-numeric:tabular-nums;color:var(--body)}",
   ".cx.ph .mono{line-height:20px}",
   ".cx .ink{color:var(--ink)}",
@@ -3789,7 +3817,7 @@ function build(name, D) {
       var short = L.ctrl === "short" && cm.verdict !== "confirmed";
       if (cm.verdict === "confirmed") {
         el("span", "ink", cm.text, row).setAttribute("data-src", C.src.report);
-        el("span", "ink", " \u00b7 " + cm.evidence.map(function (e) { return "#" + e; }).join(" "), row).setAttribute("data-src", "page:custos");
+        if (L.ev !== false) el("span", "ink", " \u00b7 " + cm.evidence.map(function (e) { return "#" + e; }).join(" "), row).setAttribute("data-src", "page:custos");
       } else el("span", "", ctrlBody(cm, short), row).setAttribute("data-src", short ? "page:custos" : C.src.report);
     });
     if (R.why) run("why", "lab", "a replay has no files to check it against").setAttribute("data-src", "page:custos");
@@ -3859,8 +3887,9 @@ function layoutFor(ctx) {
   if (ctx && ctx.layout) return ctx.layout;
   if (((ctx && ctx.cell) || 8) >= 8) return "wide";
   // the art box loses up to one cell to the row snap at its foot, and the ant's head stands three rows over the box
-  var P = LAYOUTS.phone, b = ctx.band;
-  return b && b.b - b.t < (P.h + 4) * P.cell ? "short" : "phone";
+  // and a band under 58 cells wide (the box's 54 and four for the head beside it) takes the 52-cell form of either
+  var P = LAYOUTS.phone, b = ctx.band, n = b && b.b - b.t < (P.h + 4) * P.cell ? "short" : "phone";
+  return b && b.r - b.l < (P.w + 4) * P.cell ? n + "52" : n;
 }
 function ensure(name) {
   if (M.B && M.B.name === name && M.key === name) return;
@@ -3868,7 +3897,7 @@ function ensure(name) {
   if (M.B) M.el.removeChild(M.B.fig);
   M.B = build(name, DATA);
   M.el.appendChild(M.B.fig);
-  M.el.className = "cx" + (name === "wide" ? "" : " ph");
+  M.el.className = "cx" + (name === "wide" ? "" : " ph") + (LAYOUTS[name].tk ? " nr" : "");
   M.G = measure(M.B);
   M.key = name; M.dkey = "";
 }
@@ -3958,13 +3987,13 @@ function figures() {                                     // [{text, src, fact, v
   out.push({ text: t.claimText, src: t.src.report, fact: "trap_failing_0.claims_rules_only[0].text", value: t.claimText });
   out.push({ text: t.stop, src: t.src.log, fact: "trap_failing_0.stop", value: t.stop });
   out.push({ text: "stop " + C.stop, src: C.src.log, fact: "ok_tests_0.stop", value: C.stop });
-  var short = M && M.B ? LAYOUTS[M.B.name].ctrl === "short" : false;
+  var short = M && M.B ? LAYOUTS[M.B.name].ctrl === "short" : false, noEv = M && M.B ? LAYOUTS[M.B.name].ev === false : false;
   C.claims.forEach(function (c, i) {
     var base = "ok_tests_0.claims_rules_only[" + i + "].";
     out.push({ text: c.verdict, src: C.src.report, fact: base + "verdict", value: c.verdict });
     if (c.verdict === "confirmed") {
       out.push({ text: c.text, src: C.src.report, fact: base + "text", value: c.text });
-      out.push({ text: c.evidence.map(function (e) { return "#" + e; }).join(" "), src: C.src.log, fact: base + "evidence", value: "[" + c.evidence.join(", ") + "]" });
+      if (!noEv) out.push({ text: c.evidence.map(function (e) { return "#" + e; }).join(" "), src: C.src.log, fact: base + "evidence", value: "[" + c.evidence.join(", ") + "]" });
     } else if (!short) out.push({ text: c.text, src: C.src.report, fact: base + "text", value: c.text });
   });
   return out;
@@ -4012,6 +4041,14 @@ function cells(name, tokens) {
   return function (F, u) { remaining(name, u, 0).forEach(function (q) { var c = tokens.indexOf(q[2]); if (c >= 0) F(q[0], q[1], c + 1); }); };
 }
 
+var INK = { D: null, name: null, rl: null };            // the run list ink() reads, kept per layout
+// the bounds of a footprint's cells, [x0, y0, x1, y1] in station-local cells, or null when it has none
+function inkBounds(f) {
+  if (!f.length) return null;
+  var b = [1e9, 1e9, -1e9, -1e9];
+  for (var i = 0; i < f.length; i++) { var q = f[i]; if (q[0] < b[0]) b[0] = q[0]; if (q[1] < b[1]) b[1] = q[1]; if (q[0] + 1 > b[2]) b[2] = q[0] + 1; if (q[1] + 1 > b[3]) b[3] = q[1] + 1; }
+  return b;
+}
 /* ---------- the station facade the three native figures share ---------- */
 // ctx: {cell, phone, band, dpr, r, org}. The composition follows the station pitch: 8px cells get the 72-cell layout
 // (desktop, and the stacked layout from 768 to 1023), 6px cells the 54-cell one.
@@ -4022,6 +4059,21 @@ var station = {
   cells: function (u, ctx) { ctx = ctx || {}; return remaining(layoutFor(ctx), u, ctx.r || 0, ctx.org).map(function (q) { return [q[0], q[1], q[2]]; }); },
   cellsKey: function (u, ctx) { return ((ctx || {}).r || 0) > 0 ? "none" : null; },
   footprint: function (u, ctx) { if (!DATA) DATA = derive(engineOf()); return footprint(layoutFor(ctx || {}), clamp01(u == null ? 1 : u)); },
+  // what the figure draws at u, in box px: its cells and every text run then on it (11px rows are never cells), each
+  // run taken as wide as the layout
+  ink: function (u, ctx) {
+    if (!DATA) DATA = derive(engineOf());
+    var name = layoutFor(ctx || {}), L = LAYOUTS[name], c = (ctx && ctx.cell) || 8, k = c / L.cell, v = clamp01(u == null ? 1 : u);
+    var f = footprint(name, v), b = f.bb || (f.bb = inkBounds(f)), q = b ? b.map(function (x) { return x * c; }) : null;
+    if (!INK.rl || INK.D !== DATA || INK.name !== name) { INK.D = DATA; INK.name = name; INK.rl = runList(L, DATA); }
+    INK.rl.forEach(function (r) {
+      if (v < r.at) return;
+      var x0 = r.x * k, y0 = r.y * k, x1 = L.w * c, y1 = (r.y + r.lh) * k;
+      if (!q) q = [x0, y0, x1, y1];
+      else { if (x0 < q[0]) q[0] = x0; if (y0 < q[1]) q[1] = y0; if (x1 > q[2]) q[2] = x1; if (y1 > q[3]) q[3] = y1; }
+    });
+    return q && { rows: [q], k: 1 };
+  },
   mount: function (host, opts) { return mount(host, opts || {}); },
   draw: function (u, box, ctx) { return draw(u, box, ctx || {}); },
   hide: function () { if (M) M.el.style.display = "none"; },
@@ -4336,24 +4388,26 @@ var PLAY = {
   freeflow:  { keys: [[0, 0], [300, 0.1548], [1000, 0.3095], [1850, 0.84], [2050, 1]] },
   // KRONOS, for a visitor who sees it once: EM's four passes (p 0.08 each) are each read for 250 ms, pass 4 of 4
   // included, and the station holds still on the lock, its key moment, for 0.45 s. Each row below comes in by colour
-  // in under 0.1 s while its count is already running: the gates run and rest briefly on 47 of 47 (the row stays
+  // in under 0.1 s while its count is already running: the gates run and rest briefly on 50 of 50 (the row stays
   // drawn above the chart), and the quarters draw the drawdown in 0.6 s, the readout landing with the last one.
   // 2.4 s in all, so a visitor who stops 1.5 s and scrolls on sees it finish while the figure is still in frame
   kronos:    { keys: [[0, 0], [250, 0.08], [500, 0.16], [750, 0.24], [1000, 0.32], [1450, 0.32],
                       [1480, 1 / 3], [1540, 0.36], [1740, 0.65], [1780, 2 / 3],
                       [1860, 0.7], [2280, 0.93], [2400, 1]],
-  // a phone swaps views: each pass is read for 250 ms, as on a desktop, and the lock, the beat the card's phrase names,
-  // holds 0.5 s on its own view and stays read through the 160 ms its view takes to step out. The gates run as their
-  // view steps in and rest on 47 of 47, a count the chart's header then keeps; the chart draws as it steps in, done
-  // with the swap. 2.4 s in all, so a visitor scrolling on steadily through the hold still sees the drawdown drawn
-               phone: [[0, 0], [250, 0.08], [500, 0.16], [750, 0.24], [1000, 0.32], [1500, 0.32],
-                       [1530, 1 / 3], [1660, 0.34], [1850, 0.65], [1950, 0.66],
-                       [1980, 2 / 3], [2080, 0.7], [2320, 0.93], [2400, 1]], live: { desk: [0, 1 / 3], phone: [0, 1 / 3] },
-  // its phone hold (CSS px of scroll) is longer than HOLD_PH: its clock is the longest on a phone, and a visitor who
-  // stops at the card for 1.5 s and scrolls on sees it finish about half a second before the figure leaves the frame.
+  // a phone swaps views, one at a time, and spends its time on the lock, the beat the card's phrase names: named on its
+  // own view, it holds 1 s and stays read through the 160 ms its view takes to step out, about 1.2 s in all. The first
+  // estimate is up from the station's arrival through the lead, so it stands 100 ms more, and each pass after it sweeps
+  // in 175 ms. The 50 gates fill in 140 ms as their view steps in and rest on 50 of 50, a count the chart's header then
+  // keeps to the end; the chart draws as it steps in, done with the swap. 2.5 s in all
+               phone: [[0, 0], [100, 0.08], [275, 0.16], [450, 0.24], [625, 0.32], [1625, 0.32],
+                       [1655, 1 / 3], [1815, 0.34], [1955, 0.65], [2055, 0.66],
+                       [2085, 2 / 3], [2185, 0.7], [2425, 0.93], [2505, 1]], live: { desk: [0, 1 / 3], phone: [0, 1 / 3] },
+  // its phone hold (CSS px of scroll) is longer than HOLD_PH, so a visitor who stops at the card for 1.5 s and scrolls
+  // on sees it finish before the figure leaves the frame: about half a second or more before on an upright phone, a
+  // quarter second on a phone on its side.
   // A wide screen's passed figure resolves out at its dim edge, as a phone's leaves at its hold's end, so its desktop
   // hold (holdD, CSS px) is longer than its card's rise for the same reason: the drawdown lands before the figure goes
-               holdPh: 1100, holdD: 800 },
+               holdPh: 1150, holdD: 800 },
   // custos, read off its figure's phases: the claim stands unread, the rule reads the log a line at a time and narrows
   // onto the failing count, the wire runs to the claim, and the verdict holds alone before the stop; the passing control
   // comes last, once the point has landed
@@ -4382,23 +4436,36 @@ var CREEP = Math.round(PERIOD / 2);
 function creepIn(ch) { return PF && ch ? creepPh(ch)[0] : 0; }
 function creepOut(ch) { return PF ? (ch ? creepPh(ch)[1] : 0) : CREEP; }
 // a phone's hold walks [S - in, S + out]: every step of it keeps one cell of ground between the head and the art box's
-// edge, or no nearer the edge than the station's own step stands where that is less. The road back is taken first, up
-// to CREEP steps, and the road on makes up the rest. The station's pose is fixed through the hold, so the walk is read
-// against it once per layout
+// edge, or no nearer the edge than the station's own step stands where that is less, and keeps the head HEAD_GUT px
+// from the box's sides, or no nearer them than the pose puts it at S. The road back is taken first, up to CREEP steps,
+// and the road on makes up the rest. Where that leaves the hold a short walk (the road on turns toward the screen's
+// edge), the longest such stretch of the road within CREEP steps either side of S is walked instead, the nearest to S
+// first: out is then negative where it ends short of S (the next transit leaves from there), in negative where it
+// starts past S. The station's pose is fixed through the hold, so the walk is read against it once per layout
 function creepPh(ch) {
   var Q = cssP("station"), key = Q + "|" + VW + "x" + VH + "|" + dpr + "|" + BAND + "|" + land;
   if (ch.crp && ch.crp.key === key) return ch.crp.v;
-  var c = poseSt(ch.k)[0], P = Math.max(1, Math.round(devP(Q))) / dpr, n = 0, m = 0;
+  var c = poseSt(ch.k)[0], P = Math.max(1, Math.round(devP(Q))) / dpr, n = 0, m = 0, S0 = ch.S;
   // the art box the pose is drawn in: the band under the strip upright; the column right of the words on its side
   var ax = land ? (ART_L + ART_R) / 2 : VW / 2, aY = land ? (STRIP + VH - CAP) / 2 : (STRIP + BAND - CAP) / 2;
   var x0 = land ? EDGE_L + 4 * P : 0, x1 = land ? ART_R : VW, y1 = land ? VH - CAP : BAND - CAP;
-  function gap(i) {
-    var x = ax + (posX[i] - c[0]) * P, y = aY + (posY[i] - c[1]) * P;
-    return Math.min(x - x0, x1 - x - P, y - STRIP, y1 - y - P);
+  function side(i) { var x = ax + (posX[i] - c[0]) * P; return Math.min(x - x0, x1 - x - P); }
+  function gap(i) { var y = aY + (posY[i] - c[1]) * P; return Math.min(side(i), y - STRIP, y1 - y - P); }
+  var need = Math.min(P, gap(S0)), sn = Math.min(HEAD_GUT, side(S0));
+  function ok(i) { return i > 0 && i < WALK_MAX && gap(i) >= need && side(i) >= sn; }
+  while (n < CREEP && ok(S0 - n - 1)) n++;
+  while (n + m < CREEP && ok(S0 + m + 1)) m++;
+  if (2 * (n + m) < CREEP) {
+    var best = [n + m, 0, -n, m];                                   // [length, distance from S, first, last] (from S)
+    for (var hi = CREEP; hi >= -CREEP; hi--) {
+      if (!ok(S0 + hi)) continue;
+      for (var lo = hi; lo - 1 >= -CREEP && hi - lo < CREEP && ok(S0 + lo - 1); ) lo--;
+      var d = lo > 0 ? lo : hi < 0 ? -hi : 0;
+      if (hi - lo > best[0] || (hi - lo === best[0] && d < best[1])) best = [hi - lo, d, lo, hi];
+      hi = lo;                                                      // the next run starts below this one
+    }
+    n = -best[2]; m = best[3];
   }
-  var need = Math.min(P, gap(ch.S));
-  while (n < CREEP && ch.S - n - 1 > 0 && gap(ch.S - n - 1) >= need) n++;
-  while (n + m < CREEP && gap(ch.S + m + 1) >= need) m++;
   ch.crp = { key: key, v: [n, m] };
   return ch.crp.v;
 }
@@ -4411,11 +4478,13 @@ CHAPTERS.forEach(function (ch) {
 
 /* ---------- chapter I: three dated trails, each a three-state turmite (RLR) that never finds a highway ---------- */
 // a and b are main-ant steps, in date order; each runs 400 steps of its own. The first starts once the landing's
-// close-up has unwound (about eight notches in), so every trail is born inside chapter I's frame
+// close-up has unwound (about eight notches in), so every trail is born inside chapter I's frame. A phone sets the
+// Carbon Hack label in two lines; where a small phone has no room beside its trail for them (360 px, the chaos close by),
+// its narrower three-line form stands over the trail with the award whole on its own line, never no label at all
 var TR = [
   { id: "ipccc",  label: "2023 · IEEE IPCCC · LLM inference energy", short: "IEEE IPCCC ’23", ph3: ["IEEE", "IPCCC ’23"], cx: -22, cy: -30, dir: 1, a: 2600, b: 3500, side: "l" },
   { id: "iaria",  label: "2023 · IARIA GREEN · 2.6M+ Azure VMs",     short: "IARIA GREEN ’23", ph3: ["IARIA", "GREEN ’23"], cx: 24,  cy: -28, dir: 2, a: 3100, b: 4000, side: "r" },
-  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Carbon Hack ’24 · best under 18", ph: ["Carbon Hack ’24", "best under 18"], ph3: ["Carbon Hack", "’24 · best", "under 18"], cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
+  { id: "carbon", label: "2024 · Carbon Hack · Best Under 18",       short: "Carbon Hack ’24 · best under 18", ph: ["Carbon Hack ’24", "best under 18"], ph3: ["Carbon Hack", "’24", "best under 18"], cx: 40,  cy: 24,  dir: 3, a: 4000, b: 4900, side: "r" }
 ];
 var TR_LEN = 400;
 // '2.6M+' and 'Under 18' are covered by FACTS iaria_vms and carbon_u18 (https sources: no repo line holds them)
@@ -4429,6 +4498,10 @@ function wi(x, y) { x -= X0; y -= Y0; return (x < 0 || y < 0 || x >= WW || y >= 
 var mainLit = new Uint8Array(WW * WH), mainSt = new Int32Array(WW * WH);
 var trS = new Uint8Array(WW * WH), stn = new Uint8Array(WW * WH), stnId = new Uint8Array(WW * WH), plt = new Uint8Array(WW * WH);
 var stDimL = new Uint8Array(CHAPTERS.length);                          // 0..8: the dim clip's progress (8 = every cell stepped down)
+// 1 once the pull-back has taken the camera under station pitch and the station's own layer has gone: its cells then
+// draw as one silhouette in the chapter's accent (its strong marks whole, its fainter ones by half), so the map reads
+// as four coloured marks among their blooms and never as white and grey bars of labels
+var stSil = new Uint8Array(CHAPTERS.length), silOn = false, SIL_TOK = [];
 var stFar = new Uint8Array(CHAPTERS.length);                           // 1 while a passed station is not drawn, until the pull-back: a phone once the next has arrived, a desktop once it cannot be whole (updStation)
 // a station's cells never drop out when it dims (a half-dropped figure reads as a checkerboard): they step their colour
 // down one token, as a native layer does (ink -> body -> muted, signal -> signal-2, trail -> trail-2 -> trail-3),
@@ -4488,13 +4561,17 @@ function eraWindow(a, b) {              // recolour the cells the calm reached a
 function comp(i) {
   var c = 0, x = i % WW, y = (i / WW) | 0;
   if (mainLit[i]) c = TOK32[mainTok(i, x, y)];
-  else if (stn[i] && !stFar[stnId[i]]) c = TOK32[bay(x, y) >= 2 * stDimL[stnId[i]] ? stn[i] : TDOWN[stn[i]]];   // a figure behind you keeps every cell, one token down; on a phone it goes once the next one is up, so no cut-off slab of it sits beside the figure being read
+  else if (stn[i] && !stFar[stnId[i]]) c = stSil[stnId[i]] ? silPx(stn[i], x, y, stnId[i]) : TOK32[bay(x, y) >= 2 * stDimL[stnId[i]] ? stn[i] : TDOWN[stn[i]]];   // a figure behind you keeps every cell, one token down; on a phone it goes once the next one is up, so no cut-off slab of it sits beside the figure being read
   else if (plt[i]) c = TOK32[plt[i]];
   else if (trS[i] && bay(x, y) < 8) c = TOK32[T_TRAIL2];               // dated trails: half their cells, by dither
   if (px[i] !== c) {
     px[i] = c; worldVer++;
     if (x < dx0) dx0 = x; if (x > dx1) dx1 = x; if (y < dy0) dy0 = y; if (y > dy1) dy1 = y;
   }
+}
+function silPx(t, x, y, k) {
+  var a = SIL_TOK[k] || (SIL_TOK[k] = TOK32[CH_ACCENT[CHAPTERS[k].id]]);
+  return t === T_INK || t === T_SIG || t === T_SIG2 || t === T_TRAIL || t >= T_VRED ? a : bay(x, y) < 8 ? a : 0;
 }
 function flush() {        // only the touched bounding box goes back to the bitmap
   if (dx1 < 0) return;
@@ -4589,8 +4666,11 @@ function nearGap(k, w, h) {
   // ant's cell beside it, the figure goes below and right of the ant, so the head stands at the column's inner side
   var fb = figureBand(P);
   if (land) {
-    var lt = pick(3, true) || pick(2, true);
-    if (lt && lt[3] >= 0 && (lt[1] + h + 1) * P <= fb.b - fb.t - P) return lt;   // and the band has the height for both
+    // and the station's own band has the height for both, with two clear cells between the road and the box, else one
+    for (var c = 3, ob = figureBand(P, CHAPTERS[k]); c >= 2; c--) {
+      var lt = pick(c, true);
+      if (lt && lt[3] >= 0 && (lt[1] + h + 2) * P <= ob.b - ob.t) return lt;
+    }
   }
   // two clear cells where the band has room for them (the head never comes within 8 CSS px of a label), else one
   var two = pick(3), an = two && (two[2] ? 0 : 1);
@@ -4659,7 +4739,7 @@ function placeStations(wideL) {
     ch.R = Math.max(Math.abs(ch.O[0]), Math.abs(ch.O[0] - (w - 1))) | 0;
     ch.R = Math.max(ch.R, Math.abs(ch.O[1]), Math.abs(ch.O[1] - (h - 1)));
     ch.buf = new Uint8Array(w * h); ch.nb = new Uint8Array(w * h);
-    ch.key = ""; ch.labels = []; ch.cb = null;
+    ch.key = ""; ch.labels = []; ch.cb = null; ch.ib = null; ch.lim = null; ch.cg = null;
   });
 }
 function clearStations() {
@@ -4678,9 +4758,20 @@ function startClip(c, now) { clip = c; c.t0 = now; }
 // box to start or resume, a fifth to keep running), at the station pitch, in its own medium (a native station's layer
 // mostly resolved). The first time that holds, the clock starts; when it stops holding (the camera moves on, a later
 // station takes the native layer, the pull-back shrinks it) the clock pauses where it is, and it resumes on the way
-// back. It never snaps to the end, so no visitor meets a station already finished that they did not watch finish.
+// back. At reading pace it never snaps to the end; a station met at a skim is drawn finished at once (below).
 // Reduced motion: the end state at once, never a clock.
-var VIS_ON = 0.5, VIS_OFF = 0.2, WHOLE = 0.999, UP_PH = 0.7, NOTCH_LOOK = 250;
+var VIS_ON = 0.5, VIS_OFF = 0.2, WHOLE = 0.999, UP_PH = 0.85, NOTCH_LOOK = 250;
+// A station met faster than reading pace (a flick or a skim, not a jump) is drawn in its end state at once: a scroll
+// that fast passes a station, or parks in its transit, in well under a second, too short for any beat to land, so the
+// visitor gets the finished figure while it is on screen. Pace is px of scroll per second over the last PACE_MS, read
+// from two or more scroll events; a station turned on at that pace keeps the mark through the glide that follows
+var PACE_MS = 250, SKIM_V = 1800, SKIM_KEEP = 400, FAST_KEEP = 1200, paceT = [], paceY = [], fastT = -1e9;
+function notePace(now, y) {
+  paceT.push(now); paceY.push(y);
+  while (paceT.length && now - paceT[0] > PACE_MS) { paceT.shift(); paceY.shift(); }
+  if (paceT.length > 1 && Math.abs(y - paceY[0]) * 1000 / Math.max(16, now - paceT[0]) > SKIM_V) fastT = now;
+}
+function skimming(now) { return now - fastT < SKIM_KEEP; }
 function playArrive(ch) {
   var pb = ch.pb;
   if (RM && pb.state !== "held") { pb.state = "done"; pb.p = 1; pb.seen = true; }
@@ -4918,7 +5009,9 @@ function tickPlay(now) {
   CHAPTERS.forEach(function (ch) {
     var pb = ch.pb, live = stationLive(ch);
     ch.live = live;
-    if (pb.state === "idle" && live) {
+    if (pb.state === "idle" && live && (skimming(now) || now - (pb.fastAt || -1e9) < FAST_KEEP)) {
+      pb.state = "done"; pb.p = 1; pb.seen = true; chT(ch).bi = ch.beats.length - 1;   // met at a skim: the end state, no beat clip
+    } else if (pb.state === "idle" && live) {
       var bc = clip && clip.ch === ch && clip.kind === "build" ? clip : null;
       pb.state = "playing"; pb.p = 0; pb.t0 = bc ? Math.max(now, (bc.tq === undefined ? bc.t0 : bc.tq) + ch.lead) : now;   // the lead counts from the scroll that built it
     } else if (pb.state === "paused" && live) { pb.state = "playing"; pb.t0 = now - pb.el; }
@@ -5093,7 +5186,7 @@ function evalTriggers(s, now, instant) {
     var on = s >= a0;
     if (on !== st.on) {
       st.on = on; f = { kind: on ? "build" : "unbuild", ch: ch, dur: ch.beats[0].native ? (on ? 700 : 720) : (on ? 736 : 480) };
-      if (on) { playArrive(ch); ch.wait = !wide && !RM && !!ch.beats[0].native; } else playLeave(ch, now);
+      if (on) { playArrive(ch); ch.wait = !wide && !RM && !!ch.beats[0].native; if (skimming(now)) ch.pb.fastAt = now; } else playLeave(ch, now);
     }
     var dh = ch.k === CHAPTERS.length - 1 ? ZOOM - 0.05 : ch.hold;    // the last stays current through the pull-back's rest
     var dim = s >= dh + 0.05;
@@ -5212,6 +5305,8 @@ function updStation(ch, s, now) {
     if (ch.beats[0].native ? (ch.dw === false && (RM || now - ch.dT >= 240)) || figVis(ch, s) < WHOLE : figVis(ch, s) < WHOLE && stDimL[ch.k] >= 8) far = 1;
     else if (nx2 && nx2.btop !== undefined && s * S > nx2.btop - VH) far = 1;
   }
+  var sil = silOn && !(ch.r > 0) ? 1 : 0;
+  if (sil !== stSil[ch.k]) { stSil[ch.k] = sil; for (var i2 = 0; i2 < ch.buf.length; i2++) if (ch.buf[i2]) { var j2 = wi(ch.F[0] + (i2 % ch.w), ch.F[1] + ((i2 / ch.w) | 0)); if (j2 >= 0) comp(j2); } }
   ch.shown = showing && !far && figVis(ch, s) > 0;
   if (far !== stFar[ch.k]) { stFar[ch.k] = far; for (var i1 = 0; i1 < ch.buf.length; i1++) if (ch.buf[i1]) { var j1 = wi(ch.F[0] + (i1 % ch.w), ch.F[1] + ((i1 / ch.w) | 0)); if (j1 >= 0) comp(j1); } }
   var bi = st.bi, us = [];
@@ -5222,7 +5317,8 @@ function updStation(ch, s, now) {
   if (key === ch.key) return;
   ch.key = key;
   var nb = ch.nb; nb.fill(0);
-  var labels = [], cb = null, list = [];
+  // ib is kept only where a station's line is set at its figure (a wide screen's, lineInk)
+  var labels = [], cb = null, ib = null, list = [], trk = !PF, lpx = cssP("station") * dpr;
   if (showing) {
     if (!PF) { for (b = 0; b <= Math.max(bi, mine && mine.kind === "unbeat" ? mine.b : 0); b++) list.push(b); }
     else { list.push(Math.max(0, bi)); if (mine && mine.kind === "swap" && mine.from >= 0 && mine.from !== bi) list.unshift(mine.from); }
@@ -5262,11 +5358,17 @@ function updStation(ch, s, now) {
       x = Math.round(x); y = Math.round(y);
       if (x < 0 || y < 0 || x >= bt.bw || y >= bt.bh) return;
       var X = ox + x, Y = oy + y, m = mask ? mask(X, Y, b) : 2, t = tokOf(c);
+      if (t && trk) { if (!ib) ib = [X, Y, X + 1, Y + 1]; else { if (X < ib[0]) ib[0] = X; if (Y < ib[1]) ib[1] = Y; if (X + 1 > ib[2]) ib[2] = X + 1; if (Y + 1 > ib[3]) ib[3] = Y + 1; } }
       if (!m || !t) return;
       nb[Y * ch.w + X] = m === 1 ? T_SIG : t;
       if (!cb) cb = [X, Y, X + 1, Y + 1]; else { if (X < cb[0]) cb[0] = X; if (Y < cb[1]) cb[1] = Y; if (X + 1 > cb[2]) cb[2] = X + 1; if (Y + 1 > cb[3]) cb[3] = Y + 1; }
     }, us[b], function (text, x, y, big) {
       var X = ox + x, Y = oy + y, a = 1;
+      // a label stands on the row above its cell (drawn with its baseline just over row Y): it is part of what is drawn
+      if (trk) {
+        var lx1 = X + Math.ceil(textW(text, big ? 13 : 11) / lpx), ly0 = Y - 2;
+        if (!ib) ib = [X, ly0, lx1, Y]; else { if (X < ib[0]) ib[0] = X; if (ly0 < ib[1]) ib[1] = ly0; if (lx1 > ib[2]) ib[2] = lx1; if (Y > ib[3]) ib[3] = Y; }
+      }
       if (mine && mine.kind === "build") { var td = 416 * (1 - Math.sqrt(Math.max(0, 1 - cheb(X, Y, ch.O) / Math.max(1, R)))); a = clamp01((ct - td) / 200); }
       else if (mine && (mine.kind === "unbuild" || (mine.kind === "swap" && b === mine.from && b !== mine.to))) a = 0;
       else if (mine && mine.kind === "beat" && b === tB) a = cheb(X, Y, mine.o) <= fr + 1 ? 1 : 0;   // each label with the ring that reaches it
@@ -5274,7 +5376,7 @@ function updStation(ch, s, now) {
       if (a > 0) labels.push([text, X, Y, big, a]);
     });
   });
-  ch.labels = labels; ch.cb = cb;
+  ch.labels = labels; ch.cb = cb; ch.ib = ib;            // ib: every cell its beats stand at this u, the build ring aside
   // planted visitors inside the ring are wiped as it passes
   if (mine && mine.kind === "build") for (var yy = 0; yy < ch.h; yy++) for (var xx = 0; xx < ch.w; xx++) if (cheb(xx, yy, ch.O) <= fr) { var jp = wi(ch.F[0] + xx, ch.F[1] + yy); if (jp >= 0 && plt[jp]) { plt[jp] = 0; comp(jp); } }
   for (var i = 0; i < nb.length; i++) if (nb[i] !== ch.buf[i]) {
@@ -5868,7 +5970,9 @@ function maskOf(c, Y, E, now) {
     // another station's figure is, every row still on screen (its proof and links) is removed at once, so no link
     // under another chapter's figure opens a project that is not the one shown
     var fid = lastFig ? lastFig.id : PREV.ch ? PREV.ch.id : null;
-    if (c.ch && (!c.ch.shown || (fid && fid !== c.ch.id))) { c.out = true; c.cut = c.h; return "linear-gradient(transparent, transparent)"; }
+    // the hero's rows (its contact line) go the same way once chapter II's figure is drawn: they are the landing's, and
+    // under a station they read as that project's links
+    if (c.ch ? !c.ch.shown || (fid && fid !== c.ch.id) : !!fid) { c.out = true; c.cut = c.h; return "linear-gradient(transparent, transparent)"; }
     var B0 = c.h;
     for (var q = 0; q < rs.length; q++) if (top + rs[q][0] >= E) { B0 = rs[q][0]; break; }
     var bl = top + rs[c.ti][0] >= E ? lv : Math.min(lv, 0.5);
@@ -6185,6 +6289,7 @@ plantEl.textContent = plantTxt();
 var LAND_TXT = SCROLL_TXT;       // what the landing row draws, joined in line order
 var cueOn = true, cueT0 = -1, cueTimer = 0, CUE_MS = 400, leftLanding = false;
 var capWho = null;                // the station whose line instrAt last returned, if any
+var FIG_LEAD = "fig \u00b7";        // what a wide screen's line at its figure leads with
 // a line without its invitation, in either wording (a touch screen says Tap where the source says Click)
 function untry(ch, said) { return ch.tryClause ? said.replace(" " + ch.tryClause, "").replace(" " + ch.tryClause.replace("Click", "Tap"), "") : said; }
 // chapter I's first line, in sentence case like the lock line after it, names the rule the ending's heading repeats.
@@ -6342,7 +6447,10 @@ function plantsTick(now) {
 }
 
 /* ---------- one frame: void, the world at one integer pitch, the ant, the dithered edge, the labels ---------- */
-var view = null, stepShown = -1, rmKey = -1, stats = [], lastFig = null, lastPP = 0, lastK = 1, POP_MS = 100, POP_BIG_MS = 160;
+// a wide screen's station line as this frame places it (capAt, figCapAt): one object, refilled each frame; NOCAP while
+// its figure is not whole in the art
+var NOCAP = { ok: false }, CAPO = { ok: true, plate: [0, 0, 0, 0], box: [0, 0, 0, 0], frame: [0, 0, 0, 0], bk: [0, 0, 0, 0], brk: null };
+var view = null, stepShown = -1, rmKey = -1, stats = [], lastFig = null, capAt = null, lastPP = 0, lastK = 1, POP_MS = 100, POP_BIG_MS = 160;
 function scene(s) {
   var cam = camAt(s), m = mapMix(s), half = false, pp;
   if (cam.pf < 0.75 && mapHalf) { half = true; pp = 1; } else pp = Math.max(1, Math.round(cam.pf));
@@ -6388,6 +6496,7 @@ function render(s, now) {
   lastPP = sc.pp; lastK = sc.k;
   if (RM && sc.key !== undefined && sc.key !== rmKey) { if (rmKey !== -1) snapFade(200); rmKey = sc.key; }
   seekMain(sc.step); seekTrails(sc.step);
+  silOn = s >= ZOOM && (sc.k > 1 || sc.pp < devP(cssP("station")));
   for (var i = 0; i < CHAPTERS.length; i++) updStation(CHAPTERS[i], s, now);
   var pvc = previewFor(s, now);
   // a cell station's own build taking over from its rest frame: the frame fades out over the build's first 240ms
@@ -6697,6 +6806,145 @@ function render(s, now) {
   if (lastFig) { var lc2 = chById(lastFig.id); if (lc2 && lc2.nbox) lastFig.cells = lastFig.cells
       ? [Math.min(lastFig.cells[0], lc2.nbox[0]), Math.min(lastFig.cells[1], lc2.nbox[1]), Math.max(lastFig.cells[2], lc2.nbox[2]), Math.max(lastFig.cells[3], lc2.nbox[3])]
       : lc2.nbox.slice(); }
+  // what a station's line describes, in device px from the figure's top-left cell (cX(F[0]), cY(F[1])), so a camera
+  // move never changes it: box, the blocks drawn so far by the beats up to the one whose line it is (an emergence
+  // beat's cells as they stand at its u, the build ring aside; a native figure's own report); rows, every block the
+  // figure draws now; all, their union; right, where its content ends. null while it draws nothing. It is read again
+  // only when what it reads changes (the native's u, the cells' bounds, the pitch), and the same blocks keep the same
+  // answer, so a held figure's line is worked out once
+  function unionOf(bs) { var u = bs[0].slice(); for (var j = 1; j < bs.length; j++) { var q = bs[j]; if (q[0] < u[0]) u[0] = q[0]; if (q[1] < u[1]) u[1] = q[1]; if (q[2] > u[2]) u[2] = q[2]; if (q[3] > u[3]) u[3] = q[3]; } return u; }
+  function sameRect(a, b) { return a[0] === b[0] && a[1] === b[1] && a[2] === b[2] && a[3] === b[3]; }
+  function lineInk(ch) {
+    var b0 = ch.beats[0], M = b0.native, d = dpr, m = ch.lim, v = null, gx, gy;
+    if (M) {
+      if (!M.ink) return null;
+      var u = nativeU(M, beatU(ch, 0));
+      if (m && m.u === u && m.pp === pp && m.k === k && m.d === d && m.vw === VW && m.vh === VH) return m.v;
+      var q = M.ink(u, stationCtx(0, nativeOrg(ch)));
+      if (q && q.rows.length) {
+        gx = cX(ch.F[0]); gy = cY(ch.F[1]);
+        var ox = cX(ch.F[0] + b0.o[0]) - gx, oy = cY(ch.F[1] + b0.o[1]) - gy;
+        var rows = q.rows.map(function (r) { return [ox + Math.round(r[0] * d), oy + Math.round(r[1] * d), ox + Math.round(r[2] * d), oy + Math.round(r[3] * d)]; });
+        var all = unionOf(rows);
+        v = { box: unionOf(rows.slice(0, Math.max(1, Math.min(rows.length, q.k)))), rows: rows, all: all, right: all[2] };
+        var w = m && m.v;
+        if (w && w.rows.length === rows.length && sameRect(w.box, v.box) && rows.every(function (r, i) { return sameRect(r, w.rows[i]); })) v = w;
+      }
+      ch.lim = { u: u, pp: pp, k: k, d: d, vw: VW, vh: VH, v: v };
+      return v;
+    }
+    var ib = ch.ib;
+    if (!ib) return null;
+    if (m && m.ib && sameRect(m.ib, ib) && m.pp === pp && m.k === k) return m.v;
+    gx = cX(ch.F[0]); gy = cY(ch.F[1]);
+    var bx = [cX(ch.F[0] + ib[0]) - gx, cY(ch.F[1] + ib[1]) - gy, cX(ch.F[0] + ib[2]) - gx, cY(ch.F[1] + ib[3]) - gy];
+    v = m && m.v && sameRect(m.v.box, bx) ? m.v : { box: bx, rows: [bx], all: bx, right: null };
+    ch.lim = { ib: ib.slice(), pp: pp, k: k, v: v };
+    return v;
+  }
+  // the line's wrap and its plate on each side of each box it may stand by, from the figure's top-left cell: worked out
+  // when the line, what it describes or the room for it changes, never per frame. A side whose plate would cover
+  // anything else the figure draws is null
+  function capGeo(ch, li, bw, fw, fh) {
+    var d = dpr, lw = Math.round(textW(FIG_LEAD, 11) + 8 * d), lines = wrap(instr.text, bw - lw, 11, true);
+    var G = { li: li, text: instr.text, bw: bw, d: d, fw: fw, fh: fh, key: ch.id + "|" + instr.text, none: lines.length > 2 };
+    if (G.none) return G;
+    var tw = 0, lh = Math.round(16 * d), p4 = Math.round(4 * d), asc = Math.round(11 * d), dsc = Math.round(3 * d), q;
+    for (q = 0; q < lines.length; q++) tw = Math.max(tw, textW(lines[q], 11));
+    var full = [0, 0, fw, fh];
+    function side(place, bx, blocks, frame) {
+      var b1 = place === "below" ? bx[3] + Math.round(27 * d) : bx[1] - Math.round(12 * d) - (lines.length - 1) * lh;
+      var pl = [-p4, b1 - asc - p4, Math.round(lw + tw) + p4, b1 + (lines.length - 1) * lh + dsc + p4];
+      for (var j = 0; j < blocks.length; j++) if (hits(pl, blocks[j])) return null;
+      return { place: place, b1: b1, plate: pl, box: bx, frame: frame };
+    }
+    G.lw = lw; G.lh = lh; G.lines = lines;
+    G.ink = li ? [side("below", li.box, li.rows, li.all), side("above", li.box, li.rows, li.all)] : null;
+    G.full = [side("below", full, [], full), side("above", full, [], full)];
+    return G;
+  }
+  // where a wide screen sets a station's line: 'fig ·' and the line on a ground plate whose first baseline sits 27px
+  // under what the line describes (lineInk's box: the blocks its beats have drawn so far), else, where the plate would
+  // cover the ant's head, reach the caption band or cover anything else the figure draws, with its last baseline 12px
+  // above it. Failing both, the station's whole box is used the same way. The side chosen holds for as long as the
+  // line does while it still fits; a later block under the same line moves the plate down over 160ms, and the plate
+  // rides with the figure while the camera moves. ok is false while the figure is not whole in the art (arriving or
+  // leaving): the line waits for it. null when neither side has room: the band takes it. A frame only places the
+  // plate worked out in capGeo against the art's edges and the ant's head, in the one object capAt keeps
+  function figCapAt(ch) {
+    if (!ch || !ch.F || !ch.w || !chT(ch).on) return NOCAP;
+    var d = dpr, fx0 = cX(ch.F[0]), fy0 = cY(ch.F[1]), fx1 = cX(ch.F[0] + ch.w), fy1 = cY(ch.F[1] + ch.h);
+    if (fx0 < R.x || fy0 < R.y || fx1 > R.x1 || fy1 > R.y1) return NOCAP;
+    var li = lineInk(ch), fw = fx1 - fx0, fh = fy1 - fy0, right = li && li.right !== null ? Math.min(fw, li.right) : fw;
+    var bw = Math.min(Math.max(Math.round(320 * d), right), Math.round((VW - 64) * d) - fx0), G = ch.cg;
+    if (!G || G.li !== li || G.text !== instr.text || G.bw !== bw || G.d !== d || G.fw !== fw || G.fh !== fh) G = ch.cg = capGeo(ch, li, bw, fw, fh);
+    if (G.none) return null;
+    function at(c) {
+      if (!c) return null;
+      var pl = c.plate;
+      if (fx0 + pl[0] < R.x || fy0 + pl[1] < R.y || fy0 + pl[3] > R.y1) return null;
+      if (antOn && fx0 + pl[0] < axC + 2 * pp && fx0 + pl[2] > axC - pp && fy0 + pl[1] < ayC + 2 * pp && fy0 + pl[3] > ayC - pp) return null;
+      return c;
+    }
+    // short of its arrival the camera is still bringing the figure up: the line waits until it fits below, rather than
+    // take the side above for the few frames before the hold pose and change sides once it is reached
+    function pick(sd) {
+      return (instr.fpK === G.key && at(sd[instr.fpP === "below" ? 0 : 1])) || at(sd[0]) || (s < ch.arrive ? NOCAP : at(sd[1]));
+    }
+    var c = (G.ink && pick(G.ink)) || pick(G.full);
+    if (!c || !c.plate) return c;
+    instr.fpK = G.key; instr.fpP = c.place;
+    var E = instr.fpE;
+    if (!E || E.k !== G.key || E.p !== c.place) E = instr.fpE = { k: G.key, p: c.place, a: c.b1, b: c.b1, c: c.b1, t: 0 };
+    else if (E.b !== c.b1) { E.a = E.c; E.b = c.b1; E.t = now; }
+    var ef = RM ? 1 : easeOut((now - E.t) / 160), dy;
+    E.c = Math.round(E.a + (E.b - E.a) * ef);
+    if (ef < 1) fadesBusy = true;
+    dy = E.c - c.b1;
+    var o = CAPO, pl = c.plate, bx = c.box, fr = c.frame;
+    o.ok = true; o.id = ch.id; o.place = c.place; o.x = fx0; o.b1 = fy0 + E.c; o.lw = G.lw; o.lh = G.lh; o.lines = G.lines;
+    o.plate[0] = fx0 + pl[0]; o.plate[1] = fy0 + pl[1] + dy; o.plate[2] = fx0 + pl[2]; o.plate[3] = fy0 + pl[3] + dy;
+    o.box[0] = fx0 + bx[0]; o.box[1] = fy0 + bx[1]; o.box[2] = fx0 + bx[2]; o.box[3] = fy0 + bx[3];
+    o.frame[0] = fx0 + fr[0]; o.frame[1] = fy0 + fr[1]; o.frame[2] = fx0 + fr[2]; o.frame[3] = fy0 + fr[3];
+    o.brk = null; o.bare = undefined;
+    return o;
+  }
+  // whether the world cells under a device-px rect are all unlit (at the station pitch; any other pitch draws no frame)
+  function bareUnder(x0, y0, x1, y1) {
+    if (k !== 1) return false;
+    var cx0 = X0 + Math.floor((x0 - Ox) / pp), cx1 = X0 + Math.floor((x1 - 1 - Ox) / pp), cy0 = Y0 + Math.floor((y0 - Oy) / pp), cy1 = Y0 + Math.floor((y1 - 1 - Oy) / pp);
+    for (var wy = cy0; wy <= cy1; wy++) for (var wx = cx0; wx <= cx1; wx++) { var wq = wi(wx, wy); if (wq >= 0 && px[wq] && px[wq] !== TOK32[T_VOID]) return false; }
+    return true;
+  }
+  // the line at its figure: the plate, 'fig ·' in body ink, the line in muted; 1px copper
+  // corner brackets frame what the figure draws and its line, 12px out, while the station is built and not yet passed
+  function drawFigCap(fc, ia, now) {
+    var fa = fade("fcap", fc.ok, now, 160);
+    if (!fc.ok) return;
+    var d = dpr, a = Math.min(ia, fa), fch = chById(fc.id), fst = chT(fch), ba = fade("fbrk", fst.on && !fst.dim, now, 200), ci;
+    if (ba > 0) {
+      var g = Math.round(12 * d), L = Math.round(12 * d), t = Math.max(1, Math.round(d)), fr = fc.frame, pl = fc.plate, b = fc.bk;
+      b[0] = Math.min(fr[0], pl[0]) - g; b[1] = Math.min(fr[1], pl[1]) - g; b[2] = Math.max(fr[2], pl[2]) + g; b[3] = Math.max(fr[3], pl[3]) + g;
+      // the corners stand only on bare ground: where one would cross a lit world cell (a trail, a visitor's ant) the
+      // frame is not drawn, never three corners of it. Corner ci is left (bit 0 clear) or right, top (bit 1 clear) or bottom
+      var bare = true;
+      for (ci = 0; ci < 4 && bare; ci++) { var cx = ci & 1 ? b[2] - L : b[0], cy = ci & 2 ? b[3] - L : b[1]; bare = bareUnder(cx, cy, cx + L, cy + L); }
+      fc.bare = bare;
+      if (bare && b[0] >= R.x && b[1] >= R.y && b[2] <= R.x1 && b[3] <= R.y1) {
+        ctx.globalAlpha = ba; ctx.fillStyle = TOKCSS[T_COPPER];
+        for (ci = 0; ci < 4; ci++) {
+          var x4 = ci & 1 ? b[2] - L : b[0], y4 = ci & 2 ? b[3] - L : b[1];
+          ctx.fillRect(x4, ci & 2 ? y4 + L - t : y4, L, t); ctx.fillRect(ci & 1 ? x4 + L - t : x4, y4, t, L);
+        }
+        fc.brk = b;
+      }
+    }
+    if (a <= 0) return;
+    var pq = fc.plate;
+    ctx.globalAlpha = a; ctx.fillStyle = TOKCSS[T_VOID]; ctx.fillRect(pq[0], pq[1], pq[2] - pq[0], pq[3] - pq[1]);
+    txt(FIG_LEAD, fc.x, fc.b1, 11, TOKCSS[T_BODY], a, "left");
+    for (var q = 0; q < fc.lines.length; q++) txt(fc.lines[q], fc.x + fc.lw, fc.b1 + q * fc.lh, 11, TOKCSS[T_MUTED], a, "left");
+  }
   // caption row: one instruction line, what to watch
   if (targetS > 0) cueOn = false;
   if (targetS >= T0_ON) leftLanding = true;
@@ -6721,7 +6969,12 @@ function render(s, now) {
   if (instr.text !== instr.next && same) { ia = 1; if (RM || now - instr.t >= CAP_HOLD) { instr.text = instr.next; instr.t = now - half2; } else fadesBusy = true; }
   else if (instr.text !== instr.next || instr.k !== instr.nk) { ia = RM || !instr.text ? 0 : 1 - clamp01((now - instr.t) / half2); if (ia <= 0) { instr.text = instr.next; instr.who = instr.nwho; instr.k = instr.nk; instr.t = now; ia = 0; } fadesBusy = true; }
   else { ia = RM ? 1 : clamp01((now - instr.t) / half2); if (ia < 1) fadesBusy = true; }
+  // a wide screen sets a station's line under its figure, as the case studies set theirs; the band keeps the lines that
+  // have no figure (the landing, the chaos, the lock, the pull-back)
+  var fc = wide && !land && !PF && instr.text && instr.who && instr.text !== LAND_TXT ? figCapAt(chById(instr.who)) : null;
+  capAt = fc && fc.ok ? fc : null;
   if (instr.text === LAND_TXT) landLine(ia, now);
+  else if (fc) drawFigCap(fc, ia, now);
   else if (instr.text) {
     var ix = wide ? ART_L : 16;
     ix = Math.round(ix * dpr);
@@ -7257,26 +7510,32 @@ function phoneMapClear(s, slack) {
 // has gone, until the card itself arrives there
 var thead = null, theadK = -1;
 function phoneHead() {
-  var want = -1, Y = Math.round(targetS * S);
+  var want = -1, wantTop = 1e9, Y = Math.round(targetS * S);
   if (PF && !land) for (var k = 0; k < CHAPTERS.length && want < 0; k++) {
     var ch = CHAPTERS[k], c = null, pc = null;
     for (var q = 1; q < CROWS.length; q++) if (CROWS[q].ch === ch) { c = CROWS[q]; pc = CROWS[q - 1]; }
     if (!c || !pc || targetS < ch.from || targetS >= ch.hold) continue;
     var top = Math.min(Math.max(c.nat - Y, c.T), c.bot - c.h - Y), ptop = Math.min(Math.max(pc.nat - Y, pc.T), pc.bot - pc.h - Y);
-    // it takes over only from below the fold: a card already rising in sight keeps its own lines, so they never jump up
-    if (top > c.T + 0.5 && (pc.out || ptop + pc.h <= c.T) && (theadK === k || top >= SVH)) want = k;
+    // it holds from the moment the card before has gone until this card reaches its sticky top, wherever a scroll or a
+    // flick comes to rest in that span: the card before goes as this one's top nears the fold, so in a continuous
+    // scroll the head takes over while the card's own lines are still below it
+    if (top > c.T + 0.5 && (pc.out || ptop + pc.h <= c.T)) { want = k; wantTop = top; }
   }
   if (want === theadK) return;
   if (theadK >= 0) CHAPTERS[theadK].card.querySelectorAll(".hd-off").forEach(function (e) { e.classList.remove("hd-off"); });
   theadK = want;
   if (!thead) { thead = d0.createElement("div"); thead.id = "thead"; thead.setAttribute("aria-hidden", "true"); d0.body.appendChild(thead); }
   if (want < 0) { thead.classList.remove("on"); return; }
-  var card = CHAPTERS[want].card, cr = card.getBoundingClientRect(), heads = [card.querySelector(":scope > .date"), card.querySelector(":scope > h2"), card.querySelector(":scope > h2 + .pf")].filter(Boolean);
+  // the head is the card's kicker, title, line and phrase: enough of it that the column under the band is never mostly
+  // void while the rest of the card comes up
+  var card = CHAPTERS[want].card, cr = card.getBoundingClientRect(), heads = [card.querySelector(":scope > .date"), card.querySelector(":scope > h2"), card.querySelector(":scope > h2 + .pf"), card.querySelector(":scope > h2 + .pf + .np")].filter(Boolean);
   thead.className = card.className.replace(/\bstick\b/, "").trim();
   thead.textContent = "";
   heads.forEach(function (e) { var n = e.cloneNode(true); n.removeAttribute("id"); n.querySelectorAll("[data-src],[id]").forEach(function (x) { x.removeAttribute("data-src"); x.removeAttribute("id"); }); n.removeAttribute("data-src"); thead.appendChild(n); e.classList.add("hd-off"); });
   var cs = thead.style; cs.left = Math.round(cr.left) + "px"; cs.width = Math.round(cr.width) + "px"; cs.top = Math.round(parseFloat(getComputedStyle(card).top) || 0) + "px";
   cs.setProperty("--accent", getComputedStyle(card).getPropertyValue("--accent"));
+  // taking over from the card's own lines a few px from the same place (wheeling back up off a hold) is a swap, not an entrance
+  thead.classList.toggle("now", wantTop - CHAPTERS[want].ctop < 40);
   void thead.offsetWidth; thead.classList.add("on");
 }
 function syncDom() {
@@ -7356,7 +7615,7 @@ function frame(now) {
 }
 addEventListener("scroll", function () {
   if (introEnd < 0 && window.scrollY > 0) introFreeze(performance.now());
-  lastScrollT = performance.now(); armRest();
+  lastScrollT = performance.now(); armRest(); notePace(lastScrollT, window.scrollY);
   targetS = window.scrollY / S; evalTriggers(targetS, performance.now(), false); syncDom(); wake(); noteDocPlace();
 }, { passive: true });
 // where the visitor is, in terms a relayout keeps: the scene and the fraction through it, or the document line at the strip
@@ -7587,7 +7846,7 @@ function selfChecks() {
     { id: "custos", ok: cc.ok, got: cv.trap ? [cv.trap.claims.map(function (c) { return c && c[1]; }), cv.trap.stop, cv.control.claims.map(function (c) { return c && c[1]; }), cv.control.stop] : null,
       want: [["contradicted"], "blocked", ["unwitnessed", "confirmed"], "not blocked"] },
     { id: "em", ok: kc.b1.ok, got: kc.b1.mismatches.slice(0, 4), want: [14, 7, 2, 0] },
-    { id: "kronos-gates", ok: kc.b2.ok, got: [kc.b2.laidOut, kc.b2.unique, kc.b2.missingAt], want: [47, 47, 35] },
+    { id: "kronos-gates", ok: kc.b2.ok, got: [kc.b2.laidOut, kc.b2.unique, kc.b2.missingAt], want: [50, 50, 35] },
     { id: "kronos-dd", ok: kc.b3.ok, got: Math.round(kc.b3.maxdd * 1000) / 10, want: -18.7 },
     { id: "freeflow", ok: FigFreeflow.station.selfCheck().ok, got: null, want: null },
     { id: "custos-native", ok: FigCustosNative.station.selfCheck().ok, got: FigCustosNative.selfCheck().details.why, want: "" },
@@ -7608,6 +7867,8 @@ window.__walk = {
     return null;
   },
   figure: function () { return lastFig && { id: lastFig.id, cells: lastFig.cells && lastFig.cells.slice(), art: lastFig.art.slice() }; },
+  // a wide screen's station line as last set at its figure (CSS px): the plate, the figure's box, the side, the brackets
+  figCaption: function () { var c = capAt; return c && { id: c.id, place: c.place, lines: c.lines.slice(), plate: c.plate.map(function (v) { return v / dpr; }), box: c.box.map(function (v) { return v / dpr; }), brackets: c.brk ? c.brk.map(function (v) { return v / dpr; }) : null, bare: c.bare !== false }; },
   stats: function () { return stats.slice(); },
   view: function () { return view && { pp: view.pp, k: view.k, half: view.sc.half, dpr: dpr, step: view.sc.step, Ox: view.Ox, Oy: view.Oy, cx: view.sc.c[0], cy: view.sc.c[1] }; },
   mapFit: function () { return { p: mapP, half: mapHalf, bb: BB.slice() }; }, marks: function () { return pmLast.slice(); }, shown: function () { return shownS; },

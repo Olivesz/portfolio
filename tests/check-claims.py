@@ -33,8 +33,11 @@ RETIRED = [
      "KRONOS: README.md L151 governs the Sharpe: the shipped run, 1.12 at rf=0 and 0.97 over "
      "cash, at -18.7%. FINDINGS.md labels 0.94 a baseline row."),
     (r"30 CI gates|30 gates in CI",
-     "KRONOS: the gate count is README.md's (47, L44-L46), counted from GATES in "
-     "tests/run_all.py."),
+     "KRONOS: the gate count is README.md's at fcb1ed8 (50, L44-L46), counted from GATES in "
+     "tests/run_all.py (L11-L79)."),
+    (r"\b47\s+(such\s+|verification\s+)?gates|\b47\s+of\s+47\b|badge 47",
+     "KRONOS: README.md at fcb1ed8 states 50 gates (L44-L46), as many as tests/run_all.py lists "
+     "(L11-L79).", KRONOS_FILES),
     (r"22 pre-registered",
      "KRONOS: README.md governs the count of pre-registered experiments."),
     # held-out: singular and plural, with or without a following noun

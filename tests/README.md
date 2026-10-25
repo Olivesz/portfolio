@@ -1,8 +1,9 @@
 # tests
 
-One browser suite and three guards. The suite measures the page as rendered.
+One browser suite and four guards. The suite measures the page as rendered.
 The guards read the files and their sources; check-panels also renders the page
-once, to read the native figure layers' labels.
+once, to read the native figure layers' labels, and check-drift reads the cited
+repositories as they are today.
 
 | command | what it settles | time |
 |---|---|---|
@@ -11,6 +12,7 @@ once, to read the native figure layers' labels.
 | `python3 tests/check-claims.py` | no retired claim or personal data is in a tracked file | 1 s |
 | `python3 tests/check-panels.py` | every figure on index.html and every work/*.html is in the source line it cites | about 45 s; the first run fetches |
 | `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, every page has its own link-preview card, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
+| `python3 tests/check-drift.py [--offline]` | every repository the site cites, read at its HEAD: each pinned SHA's distance from HEAD, and every repo-cited figure on index.html and every work/*.html still in the cited file; a figure gone at HEAD fails when it is cited at the repository's main pin or newer, or is a headline (index cards, FACTS, results rows) at any pin; a moved figure, or one gone at a dated pin outside a headline, warns. Network: `gh api`, read-only | about 12 s cold, 2 to 4 s cached, under 1 s `--offline` |
 | `.venv/bin/python tests/poster.py` | poster.jpg is a fresh render of its three lines beside the map after a full read-through, every bloom grown (`--render` writes it) | about 15 s |
 
 ## Setup
@@ -490,3 +492,95 @@ and `pdfinfo -url` must list a mailto, a linkedin and a github link (at least
 three). Missing poppler fails. **Falsified** with `--resume-pdf` on b63a27d's PDF
 (five failures: no github text, no links) and on main's (four: the text is there,
 no links).
+
+## check-drift.py
+
+check-panels reads every figure at the SHA its `data-src` pins, so a page stays
+true to the commit it cites while the repository moves on. A reader who follows
+a repository link lands on the default branch, so the figures should be there
+too. This guard asks GitHub for the HEAD of each cited repository
+(`gh api repos/Olivesz/<repo>/commits/HEAD`, read-only) and reads every cited
+file at HEAD.
+
+```bash
+python3 tests/check-drift.py                              # network: one HEAD per repository, then what changed since each pin
+python3 tests/check-drift.py --offline                    # the HEADs and files the last run cached
+python3 tests/check-drift.py --head kronos-quant=fcb1ed8  # read a repository at a fixed SHA instead of HEAD
+python3 tests/check-drift.py --index COPY/index.html      # a copy of the site: the index and the work/ beside it
+```
+
+The network is the point here, so unlike check-links it uses it by default;
+`--net` is accepted and changes nothing. Drift comes from the cited repositories
+moving, not from commits here, so it runs before every push beside the other
+guards, and again whenever a cited repository changes. Without `gh` auth or
+network it aborts rather than passing. About 12 s with an empty cache, 2 to
+4 s with a warm one, under 1 s with `--offline`.
+
+**What it settles.**
+
+- **Pins.** Every SHA the site pins (`data-src`, the FACTS block, and
+  `github.com/Olivesz/<repo>/blob|tree|commit/<sha>` links) against HEAD:
+  commits behind, and how many of the files cited at that pin changed since
+  (GitHub's compare; `n/a` when its file list is capped at 300). A repository's
+  most-cited SHA is its main pin; an older pin is dated, a figure from the
+  repository's history such as a gate count at the time a bug was found.
+- **Figures.** Each figure in a repo-cited `data-src` element, and each FACTS
+  value, found with check-panels' rules (the same figure finder, normalising and
+  `data-at`) in the cited file at HEAD:
+  - *holds*: on the cited lines, or the file is unchanged since the pin;
+  - *moved*: on another line of the file that shares a content word with the
+    cited line, and the new line number is printed for the re-pin;
+  - *gone*: on no such line, or the file no longer exists.
+
+  The shared word carries weight: KRONOS's "35 experiments" (README L186 at
+  c19c5ca) is 37 at fcb1ed8, and 35 still appears there on two lines about
+  trading days. Without the word it would read as moved.
+- **What fails.** A figure that is gone at HEAD, in any region of any page,
+  when it is cited at the repository's main pin or a newer one: a reader who
+  follows the link finds a different number. At a dated pin a gone figure fails
+  only on a headline: the index cards (`article.card`), the FACTS block, each
+  case study's result block (`section.lx-led`) and results section
+  (`aria-labelledby="s-results"`), and each deep dive's results chapter
+  (`section#ch-results`). A moved figure is a warning, printed by page and
+  repository with its new line; drift at a dated pin is listed apart. A figure
+  that is not on its cited line even at the pin is check-panels' failure; here
+  it counts only when it is nowhere at HEAD either, such as an old figure
+  re-pinned to HEAD unchanged.
+- **Abort.** Exit 2 if the index has no cards or FACTS, no work page has a
+  results region, nothing is pinned to a repository, no figure is left to read,
+  or a repository's visibility, HEAD, comparison or file cannot be read: nothing
+  cached with `--offline`, `gh` without auth or network, a `gh` call that times
+  out (60 s), or no `gh` at all. A private or internal repository is listed and
+  not read; one whose visibility cannot be read aborts, since skipping it would
+  let a run that read nothing pass. Any other error prints `ABORT` and exits 2.
+
+Files are cached at `.srccache/<repo>@<sha>/<path>`, check-panels' layout, so
+the pinned files are usually there already; HEADs and comparisons go in
+`.srccache/_drift/`.
+
+**Falsified** on copies of the site, with `--head kronos-quant=fcb1ed8` so the
+runs repeat after HEAD moves (exit in brackets):
+
+- the index with FACTS `gates` re-read at fcb1ed8 (50, README L44-L46), beside
+  the six work pages whose cited lines did not move, passes with nothing drifted
+  [0];
+- the same with the KRONOS case study and deep dive added, their headline 47
+  and 35 re-read at fcb1ed8 (50; 37 at L193), fails on the six prose 47s still
+  cited at c19c5ca, three on each page (README L44-L46 and L91 now say 50), with
+  39 moved figures as warnings [1];
+- FACTS `gates` back to 47 at c19c5ca fails on that entry alone [1]; 47 re-pinned
+  to fcb1ed8 without its new value fails on that entry alone [1]; the case
+  study keeping 35 experiments in its results section fails on that figure and
+  its three prose 47s [1];
+- a renamed FACTS block, and no work pages, each abort [2];
+- an empty cache with `--offline`; `gh` with no auth (`GH_CONFIG_DIR` an empty
+  directory, no `GH_TOKEN`) and an empty cache; no `gh` on the PATH, with the
+  cache warm and with it empty; a HEAD call that times out; and an index that
+  does not exist: each aborts [2] and names what it could not read.
+
+On 2026-10-20 the tree as committed passed with kronos-quant read at its pin
+c19c5ca [0] and failed against fcb1ed8 on ten figures: four headlines (FACTS
+`gates` 47, the deep dive's 47, and 35 experiments on both KRONOS pages) and six
+prose 47s [1]. With every KRONOS citation re-pinned to fcb1ed8 it passed, read
+at fcb1ed8 and at HEAD 68de4e8, which changed none of the cited files, with
+seven warnings, each a moved figure or a dated pin [0].

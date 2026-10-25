@@ -993,9 +993,9 @@
     readTime: readTime,
     /* ok only when every figure.scene on the page passed its own check() and became a Scene with a stepper, every
        caption and note is in sentence case, and on an upright phone every scene either fits one screen from its stage
-       to its stepper or docks its stepper, with what each step changes short enough to sit above the dock, so the
-       site's case-study contract (which runs every selfCheck it finds) fails a deep dive that breaks any of them. A
-       phone on its side (844x390) is held to the same. */
+       to its stepper or docks its stepper, with what each step changes short enough to sit above the dock and every
+       field on its stage above the first step's words, so the site's case-study contract (which runs every selfCheck it
+       finds) fails a deep dive that breaks any of them. A phone on its side (844x390) is held to the same. */
     selfCheck: function () {
       settle();
       var figs = [].slice.call(document.querySelectorAll("figure.scene")), built = {};
@@ -1003,7 +1003,7 @@
       var failed = figs.filter(function (f) { return f.getAttribute("data-check") === "fail"; }).map(function (f) { return f.id; });
       var unbuilt = figs.filter(function (f) { return f.getAttribute("data-check") !== "fail" && !built[f.id]; }).map(function (f) { return f.id || "?"; });
       var nobar = scenes.filter(function (s) { return !s.fig.querySelector(".sc-bar"); }).map(function (s) { return s.id; });
-      var caps = lowerCaps(), fit = [], under = [];
+      var caps = lowerCaps(), fit = [], under = [], field = [];
       if (dockable()) scenes.forEach(function (s) {
         var bar = s.fig.querySelector(".sc-bar");
         if (!bar || s.ambient || getComputedStyle(bar).display === "none") return;
@@ -1015,9 +1015,16 @@
           var b = s.bounds(els, i);
           if (b.bot - b.top > b.hi - b.lo) under.push(s.id + " " + k.name + " " + Math.round(b.bot - b.top) + ">" + Math.round(b.hi - b.lo));
         });
+        // docked: a field on the stage (an input or select to type in or pick from) sits above the first step's docked
+        // words while the stage is parked under the strip, so the words never cover it where the reader meets it
+        if (s.fig.classList.contains("docked")) [].forEach.call(s.stage.querySelectorAll("input, select, textarea"), function (e) {
+          if (!e.getClientRects().length) return;
+          var m = root.innerHeight < 500 ? 4 : 8, low = e.getBoundingClientRect().bottom - s.stage.getBoundingClientRect().top, room0 = s.dockTop(0) - m - (stripH() + m);
+          if (low > room0) field.push(s.id + " " + (e.id || e.tagName.toLowerCase()) + " " + Math.round(low) + ">" + Math.round(room0));
+        });
       });
-      return { ok: figs.length > 0 && !failed.length && !unbuilt.length && !nobar.length && !caps.length && !fit.length && !under.length,
-               figures: figs.length, scenes: scenes.length, failed: failed, unbuilt: unbuilt, nobar: nobar, caps: caps, fit: fit, under: under };
+      return { ok: figs.length > 0 && !failed.length && !unbuilt.length && !nobar.length && !caps.length && !fit.length && !under.length && !field.length,
+               figures: figs.length, scenes: scenes.length, failed: failed, unbuilt: unbuilt, nobar: nobar, caps: caps, fit: fit, under: under, field: field };
     }
   };
   /* sentence case: the words after a caption's number, and after each sentence end in a caption or note, start with a
