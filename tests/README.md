@@ -13,17 +13,27 @@ repositories as they are today.
 | `python3 tests/check-panels.py` | every figure on index.html and every work/*.html is in the source line it cites | about 45 s; the first run fetches |
 | `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, every page has its own link-preview card, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
 | `python3 tests/check-drift.py [--offline]` | every repository the site cites, read at its HEAD: each pinned SHA's distance from HEAD, and every repo-cited figure on index.html and every work/*.html still in the cited file; a figure gone at HEAD fails when it is cited at the repository's main pin or newer, or is a headline (index cards, FACTS, results rows) at any pin; a moved figure, or one gone at a dated pin outside a headline, warns. Network: `gh api`, read-only | about 12 s cold, 2 to 4 s cached, under 1 s `--offline` |
+| `.venv/bin/python tests/check-security.py` | no security or privacy regression in a shipped file: the policy and referrer, no off-origin load, no inline handler, `javascript:` URL, unprotected new tab, form/iframe/base, risky script API or new URL/storage read; no secret, personal data, private or retired claim or local path in any tracked file, PDF text, JPEG bytes or data: URI; no image or PDF metadata; the résumé SVG draws what the PDF draws (`--history` also every blob, message and identity reachable from origin/main; `--selftest` proves every rule on planted controls) | about 5 s; `--history` 30 s; `--selftest` 45 s |
+| `python3 tests/csp.py --check` | every page's Content-Security-Policy is present, first after `<meta charset>`, and exactly the policy generated from its inline scripts, with `<meta name="referrer" content="no-referrer">` right after it (`--write` regenerates it; `--browser` also loads each page and fails on any violation) | under 1 s; `--browser` about 70 s |
 | `.venv/bin/python tests/poster.py` | poster.jpg is a fresh render of its three lines beside the map after a full read-through, every bloom grown (`--render` writes it) | about 15 s |
 
 ## Setup
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -q playwright
+.venv/bin/pip install -q --require-hashes -r tests/requirements.txt
 .venv/bin/python -m playwright install chromium   # skip if ~/Library/Caches/ms-playwright has the matching build
 ```
 
 `.venv/` is gitignored. Run with `PYTHONDONTWRITEBYTECODE=1`, so a stale `.pyc` never runs old code.
+
+`tests/requirements.txt` pins Playwright and the three packages it pulls in to
+exact versions, each with the sha256 of every file PyPI publishes for it, so
+`--require-hashes` refuses anything else: a release pushed under the same
+version, or a new dependency nobody chose. Install scripts in a package run as
+you, on the machine that holds the push credentials, so upgrades are deliberate:
+change the version, replace its hashes from PyPI's JSON API, and let a release
+age a week or two first.
 
 ## contract.py
 
@@ -313,6 +323,142 @@ Harness defects found this way and fixed:
 - **SVG text was not hidden** in the phone text diff, so SVG text in the art band passed unseen.
 - **A held frame was taken before its station had finished.** `frame_at` settled for at most 2.5s, but a jump into a hold builds the station and runs its clock for up to 3.5s, so at 360×740 emergence's register tape moved between `phonetext`'s three shots and read as 7,171 to 9,355 px of DOM text. It settles for up to 4s now; 0 px.
 
+## csp.py
+
+GitHub Pages sends no security headers, so each page carries its policy as a
+`<meta http-equiv="Content-Security-Policy">`, the first element after
+`<meta charset>` (a meta policy covers only what parses after it).
+**Never edit the policy by hand.** After any edit to an inline `<script>`, run
+
+```bash
+python3 tests/csp.py --write          # regenerate every page's policy
+python3 tests/csp.py --check          # exit 1 if any page's policy is missing, misplaced or not the generated one
+.venv/bin/python tests/csp.py --check --browser   # also every page on a desktop and a phone, scrolled, every button clicked
+```
+
+A stale hash does not error anywhere visible: the browser just refuses to run
+that script on the live site. `--check` compares each page's meta with the
+policy generated from the page, character for character, so a missing hash, a
+leftover one, an added `'unsafe-inline'` or a policy moved below a script all
+fail. `--browser` serves the copy on 127.0.0.1, listens for
+`securitypolicyviolation` and console errors, and also checks that the inline
+scripts the browser ran hash to the ones the static parse found.
+
+The policy, per page (`<hashes>` = that page's inline-script sha256s, 0 to 9):
+
+```
+default-src 'none'; script-src 'self' <hashes>; style-src 'self' 'unsafe-inline';
+img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none';
+object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none';
+base-uri 'none'; form-action 'none'
+```
+
+- **Scripts** run only from this origin or by hash: no `'unsafe-inline'`, no
+  `'unsafe-eval'`, no inline handlers, no `javascript:` URLs. JSON data blocks
+  (`application/json`, `application/ld+json`) are not run, so CSP does not
+  apply to them; any other script type fails `--check` until csp.py knows it.
+- **Styles stay `'unsafe-inline'`.** Hashing `<style>` blocks was measured and
+  rejected: seven `<style>` elements are built at run time (index.html four,
+  custos-code, freeflow, kronos one each), so their hashes need a browser to
+  find; the suite's own injected styles (contract.py's text-hiding and
+  `poster.py`'s `add_style_tag`) are blocked by a hash-only `style-src`, empty
+  ones included, in Chromium; and the hundreds of `style=""` attributes need
+  `style-src-attr 'unsafe-inline'` regardless. With `img-src` and `font-src`
+  limited to `'self'` and `data:`, injected CSS cannot reach another origin
+  either way.
+- **What a meta policy cannot do:** `frame-ancestors`, `report-uri` and
+  `sandbox` are ignored in a meta (Chromium logs `frame-ancestors` as a console
+  error, which `errors` would catch), and nothing here can set `nosniff`,
+  `Permissions-Policy` or HSTS. Those need a host that sends headers.
+- `'self'` is all of `olivesz.github.io`, which also serves the account's other
+  Pages sites; keep every one of them free of third-party script.
+- **Test tools run under the policy too.** `connect-src 'none'` blocks a
+  `fetch` of a `data:` URL, so contract.py decodes its screenshots through an
+  `<img>` (`img-src` admits `data:`): with fetch, `pathfree` stopped on
+  `TypeError: Failed to fetch`. The two decodes were compared byte for byte on
+  eight index.html screenshots (1440×900 at DPR 2, 390×844 at DPR 3): 0 bytes
+  differ. Injected `<style>` elements still work (`'unsafe-inline'`); a tool
+  that injects a `<script>`, such as axe-core through `add_script_tag`, needs a
+  context made with `bypass_csp=True`.
+- **Referrer:** `<meta name="referrer" content="no-referrer">` follows the policy
+  on every page; `--check` fails without it or with any other value. Nothing
+  needs a Referer: every subresource is same-origin and every outbound link
+  already has `rel="noreferrer"` (contract `newtab`), so this changes nothing a
+  visitor sends today and holds if a link ever loses its `rel`. If GitHub's
+  traffic page should one day credit visits to the portfolio, the links' `rel`
+  and this value change together.
+
+**Falsified** on throwaway copies: one space added to a kronos.html inline
+script, `'unsafe-inline'` added to index.html's `script-src`, the policy moved
+below `<title>`, the policy removed, and the referrer meta removed or set to
+`unsafe-url` each fail `--check` (exit 1); `--write`
+on the edited copy passes again. Under `--browser`, the stale hash, a planted
+inline script, an `onerror` attribute and an unpkg.com script each fail with a
+`securitypolicyviolation` (script-src-elem inline, script-src-attr,
+script-src-elem for the URL), on desktop and phone. The tree as committed
+(13 pages with 404.html): 26 loads, 0 violations, 0 errors, and the browser's
+inline scripts hash to the static parse's on every page. Under the policy the
+contract's `--fast`, and `cases`, `deep`, `depth` and `pathfree` on each of
+their viewports, all pass.
+
+## check-security.py
+
+```bash
+.venv/bin/python tests/check-security.py                 # the tree as tracked; exit 1 on any FAIL
+.venv/bin/python tests/check-security.py --history       # also every blob, commit message and identity reachable from origin/main
+.venv/bin/python tests/check-security.py --history HEAD  # the same for a branch before it is pushed
+.venv/bin/python tests/check-security.py --selftest      # every rule against its planted controls, in a throwaway copy
+```
+
+Run it before every push, beside check-claims, and run `--history HEAD` before
+pushing a branch whose commits are not yet public. The deployed site has no
+dependencies, so there is no advisory feed to watch: the risk is a regression,
+and each rule fails on one kind of it. Exit 0 is clean, 1 is a FAIL, and 2
+means a rule could not look (no poppler, no Playwright, or the private profile
+unreadable): a check that did not run is never a pass.
+
+| rule | fails when |
+|---|---|
+| csp | a page's policy is missing, not first after `<meta charset>`, or not exactly what `csp.py` generates (it calls `csp.check_page`) |
+| referrer | a page lacks exactly one `<meta name="referrer" content="no-referrer">` |
+| origins | anything the browser loads (script, img/srcset, source, media, link stylesheet/preload/icon/manifest, SVG `use`/`image`, CSS `url()`, `@import`, a script setting `.src`) comes from another origin; only `<a>` links may leave |
+| handlers | an `on*=` attribute in markup, in HTML a script builds, or through `setAttribute('on…')` |
+| jsurl | a `javascript:`, `vbscript:` or `data:text/html` URL in any attribute, script or stylesheet |
+| newtab | a `target=_blank` without `rel` noopener and noreferrer, in markup or built by a script |
+| tags | a form, iframe, frame, object, embed, base, portal or meta refresh, or a script that builds one or a `<script>` |
+| js | eval, the Function constructor, document.write, a string timer, postMessage, localStorage, cookies, any network request, workers, dynamic import, window.open, other HTML sinks (outerHTML, srcdoc, DOMParser), a referrer, window.name or navigation read; or a read of `location.hash/search/pathname` or `sessionStorage` beyond the ones traced to a non-HTML use (`SOURCES_ALLOWED`) |
+| secrets | an API key, token, private key, JWT, credentialed URL or password assignment (18 patterns) in any tracked file, the PDF's text, a JPEG's bytes or a decoded `data:` URI |
+| pii | the phone number (read at run time through check-claims' private profile, never printed), the private repository's name, a private retired claim (check-claims' gitignored patterns: employer-internal names and figures), an email address other than the published one and the commit identity, a street address or an SSN-shaped number, in the same places |
+| pdftext | a public retired claim (check-claims' unscoped `RETIRED` patterns) in a PDF's text: check-claims skips PDFs, so this replaces the manual `pdftotext` read before a push |
+| paths | a local home, temp or `file:` path in the same places (custos-code's fixture checkout `/home/dev/` is the figure's subject and allowed) |
+| metadata | a JPEG segment other than JFIF and ICC (EXIF, XMP, comments, trailing bytes), a PNG text or time chunk, a PDF author, subject, keywords, XMP stream, JavaScript or form, or an SVG with metadata, comments, editor data, scripts, handlers or off-origin references |
+| svgpdf | `resume-page.svg` draws anything `resume.pdf` does not: both rendered at 144 dpi (Chromium, pdftoppm), every 8×8 block's mean grey within 48 of 255. The SVG is glyph outlines, unreadable as text, so this is what lets the PDF's text check stand for it |
+
+Planted values (fake tokens, the phone number, paths) are assembled at run
+time, so the file never matches itself, and personal values are reported only
+by kind. `--history` defaults to `origin/main`, which is what is public: 384
+blobs and 24 commits on 2026-11-01. Run it on the commit about to be pushed,
+not on a branch tip that carries unpublished history.
+
+**Falsified** by `--selftest`, which copies the tracked files to a temporary
+directory, requires the clean copy to pass every rule, then plants 81
+violations one at a time (each rule at least once: 3 csp, 2 referrer, 5
+origins, 3 handlers, 2 jsurl, 2 newtab, 5 tags, 19 js, 19 secrets, 8 pii, 1
+pdftext, 5 paths, 6 metadata, 1 svgpdf) and requires each to add a failure the clean copy
+does not have, then requires the copy to pass again. It then makes the copy a
+git repository and requires `--history HEAD` to report a token committed and
+deleted again, the phone number in a message, a local path in a message, a
+foreign identity and a private retired claim in a file deleted again. The
+private patterns cannot be planted without writing one down, so the self-test
+adds one made-up pattern to them for its run: that proves they reach pages, PDF
+text and history; what each real pattern matches is check-claims' own controls. A copy of the gate with `newtab` emptied fails the self-test
+on both newtab controls and names the rule as uncovered (exit 1).
+
+The svgpdf threshold was measured: on the tree as committed the worst block
+differs by 29 (anti-aliasing), one 7pt letter added to the SVG reaches 73, and
+a 9pt phone-shaped line 101, while counting single pixels instead of blocks
+differed on 25,609 of 1.94M pixels with nothing planted.
+
 ## check-claims.py
 
 `RETIRED` is a list of (pattern, note) pairs, matched case-insensitively
@@ -486,6 +632,16 @@ planted `console.error`: 8 failures, each one planted.
 log named under contract.py: the freeflow links
 pointed elsewhere warns that freeflow is named but never linked, and a link to a
 repository that does not exist fails `--net` with a 404.
+
+**404.html** is the page GitHub Pages serves at any missing path under
+`/portfolio/`, so a relative link on it would resolve against whatever path the
+visitor mistyped. Every link on it must be written from the site root
+(`/portfolio/...`) and resolve to a file (and `#id`) in the checkout; it must
+carry `<meta name="robots" content="noindex">` and stay out of `sitemap.xml`;
+a checkout without it fails. **Falsified** on copies: a relative `resume.pdf`
+link, a missing stylesheet and `#id`, no `noindex`, and no 404.html each fail.
+`csp.py --browser` serves the site under `/portfolio/`, as Pages does, so the
+404 loads its stylesheet and fonts there.
 
 It also reads `resume.pdf` with poppler: the text must carry github.com/Olivesz,
 and `pdfinfo -url` must list a mailto, a linkedin and a github link (at least

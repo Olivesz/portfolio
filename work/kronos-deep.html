@@ -2,6 +2,8 @@
 <html lang="en" class="a-data">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4PIR/LKwgwkMbRnACGTZNu5yNNkCoLjsCJJA9xastJU='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KRONOS, in depth · Oliver Zhang</title>
 <meta name="description" content="How a trading research platform learns to read market moods, and how it checks every estimator on planted answers before it trusts a price.">
@@ -396,7 +398,7 @@
 </div>
 <div class="st" id="st-world">
 <p class="st-k">step 01 <span class="sep">·</span> the planted world</p>
-<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<p class="kr-here" role="group" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
 <h3>A hidden chain, two numbers a day</h3>
 <div class="lx-duo">
 <div class="lx-txt">
@@ -421,7 +423,7 @@
 </div>
 <div class="st" id="st-em">
 <p class="st-k">step 02 <span class="sep">·</span> fitting it</p>
-<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<p class="kr-here" role="group" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
 <h3>EM finds the plant</h3>
 <div class="lx-duo">
 <div class="lx-txt">
@@ -449,7 +451,7 @@
 </div>
 <div class="st" id="st-filter">
 <p class="st-k">step 03 <span class="sep">·</span> no future</p>
-<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<p class="kr-here" role="group" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
 <h3>Read it without the future</h3>
 <div class="lx-duo">
 <div class="lx-txt">
@@ -475,7 +477,7 @@
 </div>
 <div class="st" id="st-label">
 <p class="st-k">step 04 <span class="sep">·</span> the label</p>
-<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<p class="kr-here" role="group" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
 <h3>From probabilities to a label</h3>
 <div class="lx-duo">
 <div class="lx-txt">
@@ -500,7 +502,7 @@
 </div>
 <div class="st" id="st-tails">
 <p class="st-k">step 05 <span class="sep">·</span> fat tails</p>
-<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
+<p class="kr-here" role="group" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> <b>regimes</b> <span aria-hidden="true">→</span> signals <span aria-hidden="true">→</span> HRP + BL <span aria-hidden="true">→</span> overlay</p>
 <h3>Fat tails fake regimes</h3>
 <div class="lx-duo">
 <div class="lx-txt">
@@ -526,7 +528,7 @@
 </div>
 <div class="st" id="st-book">
 <p class="st-k">step 06 <span class="sep">·</span> the book</p>
-<p class="kr-here" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> regimes <span aria-hidden="true">→</span> <b>signals</b> <span aria-hidden="true">→</span> <b>HRP + BL</b> <span aria-hidden="true">→</span> overlay</p>
+<p class="kr-here" role="group" aria-label="where this step sits in fig 3">the control <span aria-hidden="true">·</span> prices <span aria-hidden="true">→</span> regimes <span aria-hidden="true">→</span> <b>signals</b> <span aria-hidden="true">→</span> <b>HRP + BL</b> <span aria-hidden="true">→</span> overlay</p>
 <h3>The control: from a label to a book</h3>
 <div class="lx-duo">
 <div class="lx-txt">
@@ -550,7 +552,7 @@
 </div>
 <div class="st" id="st-overlay">
 <p class="st-k">step 07 <span class="sep">·</span> the overlay</p>
-<p class="kr-here" aria-label="where this step sits in fig 3">either book <span aria-hidden="true">·</span> equal weight or HRP + BL <span aria-hidden="true">→</span> <b>overlay</b> <span aria-hidden="true">→</span> t+1</p>
+<p class="kr-here" role="group" aria-label="where this step sits in fig 3">either book <span aria-hidden="true">·</span> equal weight or HRP + BL <span aria-hidden="true">→</span> <b>overlay</b> <span aria-hidden="true">→</span> t+1</p>
 <h3>Lever times the tighter brake</h3>
 <div class="lx-duo">
 <div class="lx-txt">

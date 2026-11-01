@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2nguZqau2EuNOwLMVfAdX8Z8LSE8ktyUB2V94WQeiGc=' 'sha256-8xKIUkflRuqMitQ9xDiHlhguI8dqcyqRcMwk17e84n4=' 'sha256-Grr3UlqE/WBGeJqcEzOiz4bCwTMpTYc+Ipaeww7pIN4=' 'sha256-OrWyO1Qf3FK3W+mPBY6O9QGm7zzTDP6Tf+kp50sw3/o=' 'sha256-Qp7JQefXmGovFtTo+CElnP8YNPpAJV/ST6tjKYyUWp8=' 'sha256-SHMoK+P3GHg0tm+Lkmf6s5TqbeXyPhLoheG/2l8Idv0=' 'sha256-TC7fZh53ZE1ReVYSNHnOzHhV/OAyLuBle5uytPtjAak=' 'sha256-fNQ6zNTcJQ89bBu+sQq0VTys15X2fG54gxTRMlFnPeo=' 'sha256-ySaBOql3fRvdaZ0uEcj8/tIQC1ry2QAoCcjv6+fkk84='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Oliver Zhang · CS at UT Austin · Turing Scholars ’28</title>
 <meta name="description" content="A Langton's ant draws the page as you scroll. SWE intern at tradeInsight.ai (fall 2026) and IBM (summer 2026).">
@@ -561,6 +563,8 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
   #resume.rv .rv-zoom{transform:none!important}
 }
 </style>
+<!-- without script the story's blocks have no one to place them: they read top to bottom, and the art stays away -->
+<noscript><style>.blk,.stick{position:static!important;top:auto!important}.blk{margin-bottom:32px}#story{padding-top:calc(var(--strip) + 24px)}#world,#snap,#native,#hit,#step,#plant{display:none!important}#strip .lg{opacity:1;visibility:visible}</style></noscript>
 </head>
 <body id="top">
 <div class="probe" id="pl"></div><div class="probe" id="ps"></div><div class="probe" id="pb"></div>
@@ -671,7 +675,7 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
 <div id="mapcap"><p class="mc-t" aria-hidden="true"></p></div>
 
 <div id="doc">
-  <div id="end">
+  <div id="end" role="region" aria-label="contact">
     <div class="cv-bookend" id="bookend">
       <div class="cv-top"><h2 class="cv-rule" id="bookend-line"><span class="cv-ant" id="bookend-ant" aria-hidden="true"></span>right on dark, left on lit</h2><p class="cv-end"><span id="bookend-end" data-src="page:end">25,992</span> steps</p></div>
       <p class="cv-contact"><a href="mailto:oliver.zhang@utexas.edu" target="_blank" rel="noopener noreferrer">oliver.zhang@utexas.edu</a><span class="sep"> · </span><a href="https://github.com/Olivesz" target="_blank" rel="noopener noreferrer">github.com/Olivesz</a><span class="sep"> · </span><a href="https://www.linkedin.com/in/oliver-zhang1" target="_blank" rel="noopener noreferrer">linkedin.com/in/oliver-zhang1</a><span class="sep"> · </span><a href="resume.pdf" target="_blank" rel="noopener noreferrer">résumé pdf</a></p>
@@ -7787,9 +7791,24 @@ function restorePlace() {
     var saved = sessionStorage.getItem(PLACE_KEY); sessionStorage.removeItem(PLACE_KEY);
     history.scrollRestoration = "auto";
     if (!saved || location.hash || !(how === "reload" || how === "back_forward" || d0.wasDiscarded)) return;
-    restoreP = JSON.parse(saved).p;
+    restoreP = cleanPlace(JSON.parse(saved).p);
   } catch (err) { return; }
   applyRestore();
+}
+// a saved place comes back only in the shape placeAt writes, its numbers finite and its chapter and line still on the
+// page: a tab reloaded across a deploy that changed the chapters, or anything else under the key, is dropped, not thrown on
+function cleanPlace(p) {
+  if (!p || typeof p !== "object") return null;
+  var q = {}, num = function (v) { return typeof v === "number" && isFinite(v); };
+  for (var key in p) {
+    var v = p[key];
+    if (/^(s|f|pull|dvf|top)$/.test(key) ? num(v) : key === "tr" ? typeof v === "boolean" :
+        (key === "k" || key === "di") && num(v) && v >= 0 && v % 1 === 0) q[key] = v;
+    else return null;
+  }
+  if (q.k !== undefined && (q.k >= CHAPTERS.length || q.f === undefined)) return null;
+  if (q.di !== undefined && (q.di >= d0.querySelectorAll(DOC_LINES).length || (q.f === undefined && q.top === undefined))) return null;
+  return q;
 }
 function applyRestore() {
   if (!restoreP || (restoreY >= 0 && Math.abs(window.scrollY - restoreY) >= 1)) { restoreP = null; return; }
@@ -7820,7 +7839,7 @@ function start() {
 // so this runs once the page has loaded and one frame has passed, and has the last word
 function jumpHash() {
   var hsh = location.hash.slice(1);
-  hsh = HASH_ALIAS[hsh] || hsh;               // the old page's deep links
+  if (Object.prototype.hasOwnProperty.call(HASH_ALIAS, hsh)) hsh = HASH_ALIAS[hsh];   // the old page's deep links
   if (!hsh) return;
   var p = PLACES.filter(function (q) { return q.ch && q.id === hsh; })[0], el = d0.getElementById(hsh);
   if (p) teleport(p.s());

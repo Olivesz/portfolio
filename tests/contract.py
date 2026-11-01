@@ -556,7 +556,7 @@ FRAME_JS = r"""
 PINK_SHARE_JS = r"""
 async ([png, rgb, tol]) => {
   // device pixels of a viewport screenshot showing bright --trail: every layer at once, canvas, DOM and native
-  const r = await fetch('data:image/png;base64,' + png); const bm = await createImageBitmap(await r.blob());
+  const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + png));
   const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
   const d = x.getImageData(0, 0, bm.width, bm.height).data;
   let n = 0, exact = 0, bb = [1e9, 1e9, -1, -1];
@@ -581,7 +581,7 @@ TEXT_DIFF_JS = r"""
 async ([a, b, boxes]) => {
   // boxes: device-px rectangles of the clip where a difference is allowed; `n` counts the rest
   const ok = (x, y) => { for (const q of boxes || []) if (x >= q[0] && x < q[2] && y >= q[1] && y < q[3]) return true; return false; };
-  const load = async s => { const r = await fetch('data:image/png;base64,' + s); const bm = await createImageBitmap(await r.blob());
+  const load = async s => { const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + s));
     const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0); return x.getImageData(0, 0, bm.width, bm.height); };
   const A = await load(a), B = await load(b);
   if (A.width !== B.width || A.height !== B.height) return { n: -1 };
@@ -2157,7 +2157,7 @@ def a_rise(v):
 DIFF_JS = r"""
 async ([a, b]) => {
   // CSS pixels that differ between two viewport screenshots (any channel by more than 8)
-  const load = async s => { const r = await fetch('data:image/png;base64,' + s); const bm = await createImageBitmap(await r.blob());
+  const load = async s => { const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + s));
     const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0); return x.getImageData(0, 0, bm.width, bm.height); };
   const A = await load(a), B = await load(b);
   if (A.width !== B.width || A.height !== B.height) return { n: -1 };
@@ -3253,7 +3253,7 @@ VIVID_SHARE_JS = r"""
 async ([png, viv, ground, tol, art, fig]) => {
   // device pixels of a viewport screenshot: vivid-token pixels anywhere in the art region, and the figure's own ink
   // (every pixel inside its box that is not the ground)
-  const r = await fetch('data:image/png;base64,' + png); const bm = await createImageBitmap(await r.blob());
+  const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + png));
   const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
   const d = x.getImageData(0, 0, bm.width, bm.height).data, W = bm.width;
   const near = (i, q) => Math.abs(d[i] - q[0]) <= tol && Math.abs(d[i + 1] - q[1]) <= tol && Math.abs(d[i + 2] - q[2]) <= tol;
@@ -3380,7 +3380,7 @@ NATIVE_ONLY_CSS = ("body > :not(#native) { opacity: 0 !important; transition: no
                    " html, body { background: #0a0b14 !important; }")
 UNDER_BAND_JS = r"""
 async ([a, tol]) => {
-  const r = await fetch('data:image/png;base64,' + a), bm = await createImageBitmap(await r.blob());
+  const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + a));
   const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
   const d = x.getImageData(0, 0, bm.width, bm.height).data;
   let n = 0, bb = [1e9, 1e9, -1, -1];
@@ -3449,7 +3449,7 @@ DESK_ROWS_JS = r"""(cap) => { const out = [], H = innerHeight;
   return { cards: out, shown: ids.filter(id => W.stationShown(id)), fig: f && f.id, ax0 }; }"""
 
 DESK_INK_JS = r"""async ([a, boxes, lum]) => {
-  const r = await fetch('data:image/png;base64,' + a), bm = await createImageBitmap(await r.blob());
+  const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + a));
   const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
   const d = x.getImageData(0, 0, bm.width, bm.height).data, out = [];
   // per box: pixels brighter than lum[i] (a level only text drawn at over half its colour reaches), or with lum[i] null
@@ -3653,7 +3653,7 @@ def wide_caption_rows(fc, fig, dr, sid):
 
 
 INK_GAP_JS = """async ([png, fc]) => {
-  const bm = await createImageBitmap(await (await fetch('data:image/png;base64,' + png)).blob());
+  const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + png));
   const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0);
   const d = x.getImageData(0, 0, bm.width, bm.height).data, W = bm.width;
   const v = getComputedStyle(document.documentElement).getPropertyValue('--void').trim(), vr = parseInt(v.slice(1, 3), 16), vg = parseInt(v.slice(3, 5), 16), vb = parseInt(v.slice(5, 7), 16);

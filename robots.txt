@@ -1,9 +1,13 @@
 # Search engines are welcome. AI training crawlers are not.
 #
+# Crawlers read robots.txt only at the root of a host (RFC 9309), and this
+# project site is served under /portfolio/, so this file takes effect only if
+# it is also served at https://olivesz.github.io/robots.txt. Its paths are
+# written for that root. The pages' own robots and tdm-reservation meta tags
+# apply either way.
+#
 # Everything below is ADVISORY — robots.txt is a request, not a control. A
-# crawler that ignores it faces no technical barrier. It is honoured by the
-# major operators, which is most of the traffic that matters, and it is the
-# documented signal to point at if content shows up somewhere it shouldn't.
+# crawler that ignores it faces no technical barrier.
 
 # ── AI training / dataset collection ────────────────────────────────────────
 User-agent: GPTBot
@@ -41,7 +45,7 @@ Disallow: /
 # Googlebot / Bingbot / DuckDuckBot are intentionally NOT listed above:
 # Google-Extended above opts out of AI training WITHOUT hurting Search ranking.
 User-agent: *
-Disallow: /tests/
+Disallow: /portfolio/tests/
 Allow: /
 
 Sitemap: https://olivesz.github.io/portfolio/sitemap.xml

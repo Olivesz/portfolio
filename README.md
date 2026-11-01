@@ -52,7 +52,7 @@ The page exposes a read-only `window.__walk` for the tests.
 
 ```bash
 python3 -m venv .venv
-.venv/bin/pip install -q playwright
+.venv/bin/pip install -q --require-hashes -r tests/requirements.txt
 .venv/bin/python -m playwright install chromium
 
 PYTHONDONTWRITEBYTECODE=1 .venv/bin/python tests/contract.py   # scroll and design contract, headless Chromium

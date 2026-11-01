@@ -5,7 +5,7 @@ Repo visibility can change after a link is written. A link to a repo that has
 gone private 404s for every visitor while looking fine to the owner, who is
 logged in, so visibility is read from GitHub on every run.
 
-Scope: index.html and every case study under work/. Script text is not links.
+Scope: index.html and every case study under work/, and 404.html. Script text is not links.
 
 Checks, in order of how much they cost when wrong:
   0. every relative href/src resolves to a file in the checkout, every #fragment
@@ -15,7 +15,8 @@ Checks, in order of how much they cost when wrong:
      Graph and X tags, alt text, og:url = canonical). Coverage: every work/*.html is linked from
      index.html, every work/ link there has a page, the sitemap's work/
      entries are exactly the pages, and each deep dive and its case study link
-     each other
+     each other. 404.html links only from the site root (/portfolio/...), to
+     files that exist, is noindex and is not in the sitemap
   1. every other https link returns < 400 (a 5xx is retried once, serially)
   2. every Olivesz repo LINKED here is actually public
   3. no repo named in the copy is public-but-unlinked (a soft warning: a named
@@ -84,6 +85,36 @@ def preview_problems(where, text):
     return bad
 
 
+def notfound_problems():
+    """404.html, which Pages serves at any missing path under /portfolio/: every link written from the site root
+    (a relative one breaks at /portfolio/a/b/c), resolving to a file and an id in the checkout; kept out of search
+    and out of sitemap.xml."""
+    p = ROOT / "404.html"
+    if not p.is_file():
+        return ["404: there is no 404.html, so a missing path gets GitHub's page, with no way back"]
+    text = re.sub(r"<script\b[^>]*>.*?</script>", "", p.read_text(encoding="utf-8"), flags=re.S)
+    bad = []
+    for attr, u in ATTR.findall(text):
+        u = unescape(u)
+        if attr == "content" or not u or u.startswith(("mailto:", "data:", "https://")):
+            continue
+        if not u.startswith("/portfolio/"):
+            bad.append(f"404.html: {u} is not written from the site root (/portfolio/...)")
+            continue
+        path, _, frag = u[len("/portfolio/"):].partition("#")
+        t = ROOT / (path or "index.html")
+        if not t.is_file():
+            bad.append(f"404.html: {u} resolves to no file")
+        elif frag and frag not in ids_of(t):
+            bad.append(f"404.html: {u} has no id={frag!r} in {t.name}")
+    if not re.search(r'<meta name="robots" content="noindex">', text):
+        bad.append("404.html: no <meta name=\"robots\" content=\"noindex\">")
+    sm = ROOT / "sitemap.xml"
+    if sm.is_file() and "404" in sm.read_text(encoding="utf-8"):
+        bad.append("404.html: listed in sitemap.xml")
+    return bad
+
+
 def site_problems():
     """Relative links, fragments and self-site URLs on every page; case-study
     coverage from index.html and sitemap.xml. Returns (problems, https links, counts)."""
@@ -139,6 +170,7 @@ def site_problems():
     inmap = {u[len(SITE):] for u in locs if u.startswith(SITE + "work/")}
     if inmap != work:
         bad.append(f"coverage: sitemap work/ entries differ from the pages: missing {sorted(work - inmap)}, extra {sorted(inmap - work)}")
+    bad += notfound_problems()
     return bad, ext, (len(pages()), n_rel, n_self)
 
 
