@@ -102,6 +102,15 @@ class Site:
                 yield rel, self.text(rel)
 
 
+def first_attrs(attrs):
+    """A browser keeps the first of a repeated attribute and drops the rest, so the rules see only that one."""
+    seen, out = set(), []
+    for k, v in attrs:
+        if k not in seen:
+            seen.add(k); out.append((k, v or ""))
+    return out
+
+
 class Page(html.parser.HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=False)
@@ -109,7 +118,7 @@ class Page(html.parser.HTMLParser):
         self._in, self._buf = None, []
 
     def handle_starttag(self, tag, attrs):
-        a = [(k, v or "") for k, v in attrs]
+        a = first_attrs(attrs)
         line = self.getpos()[0]
         self.tags.append((tag, a, line))
         self.style_attrs += [(line, v) for k, v in a if k == "style"]
@@ -119,7 +128,7 @@ class Page(html.parser.HTMLParser):
             self._in, self._buf = (tag if run else "skip"), []
 
     def handle_startendtag(self, tag, attrs):
-        self.tags.append((tag, [(k, v or "") for k, v in attrs], self.getpos()[0]))
+        self.tags.append((tag, first_attrs(attrs), self.getpos()[0]))
 
     def handle_data(self, d):
         if self._in:
@@ -141,29 +150,56 @@ def pdf_text(path):
         raise Unknown(f"pdftotext could not read {path.name} ({e.__class__.__name__}); install poppler")
 
 
+def pdf_info(path):
+    """Every key of a PDF's Info dictionary, standard and custom, as {key: value}."""
+    try:
+        out = subprocess.run(["pdfinfo", "-custom", str(path)], capture_output=True, text=True, check=True).stdout
+    except (OSError, subprocess.CalledProcessError) as e:
+        raise Unknown(f"pdfinfo -custom could not read {path.name} ({e.__class__.__name__}); install poppler")
+    return dict((k.strip(), v.strip()) for k, _, v in (ln.partition(":") for ln in out.splitlines()) if _)
+
+
 DATA_URI = re.compile(r"data:([a-z]+/[a-z0-9.+-]+)?(;[a-z0-9=-]+)*;base64,([A-Za-z0-9+/=]{16,})", re.I)
+FONTS = (".woff2", ".woff", ".ttf", ".otf", ".ico")
+DECODED = " (references decoded)"
+
+
+def once(out):
+    """A finding in a file's decoded text that its raw text already reports is reported once."""
+    return [p for p in out if DECODED + ": " not in p or p.replace(DECODED + ": ", ": ", 1) not in out]
 
 
 def texts(site, rels=None):
     """(where, text) for every shipped file a person could read words in: text files whole (an SVG as its words,
-    as check-claims reads it), a PDF through pdftotext, a JPEG's bytes, and every base64 data: URI decoded."""
+    as check-claims reads it), a PDF through pdftotext and its Info values, a JPEG's bytes, and every base64 data:
+    URI decoded. A text file with character references is read again decoded, since a browser shows &#64; as @."""
     for rel in rels or site.files:
         path = site.root / rel
         suf = path.suffix.lower()
         if suf == ".pdf":
             yield rel + " (text)", pdf_text(path)
+            yield rel + " (info)", "\n".join(f"{k}: {v}" for k, v in pdf_info(path).items())
         elif suf in (".jpg", ".jpeg", ".png"):
             yield rel + " (bytes)", site.read(rel).decode("latin-1")
-        elif suf in (".woff2", ".woff", ".ttf", ".ico"):
+        elif suf in FONTS:
             continue
         else:
             t = claims.readable(path) if suf == ".svg" else site.text(rel)
             yield rel, t
+            decoded = html.unescape(t)
+            if decoded != t:
+                yield rel + DECODED, decoded
             for m in DATA_URI.finditer(t):
                 try:
                     yield rel + " (data: URI)", base64.b64decode(m.group(3)).decode("latin-1")
                 except ValueError:
                     pass
+
+
+def font_bytes(site, rels=None):
+    """(where, bytes) for fonts and icons, which carry no words a reader sees: scanned for secrets only."""
+    return [(rel + " (bytes)", site.read(rel).decode("latin-1")) for rel in rels or site.files
+            if pathlib.Path(rel).suffix.lower() in FONTS]
 
 
 # ---------------------------------------------------------------- rules
@@ -186,14 +222,17 @@ def rule_referrer(site):
 
 
 def offsite(u):
-    u = u.strip().lower()
+    """Read as a browser reads it: tabs and newlines dropped anywhere, controls and spaces at the ends, and a
+    backslash taken as a slash, so \\\\host, /\\host and ht<tab>tps://host all reach another origin."""
+    u = re.sub(r"^[\x00-\x20]+|[\x00-\x20]+$", "", re.sub(r"[\t\n\r]", "", u)).replace("\\", "/").lower()
     return u.startswith(("http:", "https:", "//", "ftp:")) and not u.startswith(SITE)
 
 
 RESOURCE = {("script", "src"), ("img", "src"), ("img", "srcset"), ("source", "src"), ("source", "srcset"),
             ("video", "src"), ("video", "poster"), ("audio", "src"), ("track", "src"), ("input", "src"),
             ("object", "data"), ("embed", "src"), ("iframe", "src"), ("frame", "src"), ("image", "href"),
-            ("image", "xlink:href"), ("use", "href"), ("use", "xlink:href"), ("feimage", "href")}
+            ("image", "xlink:href"), ("use", "href"), ("use", "xlink:href"), ("feimage", "href"),
+            ("a", "ping"), ("area", "ping")}          # ping: a request to each listed URL when the link is followed
 LOADING_REL = {"stylesheet", "preload", "modulepreload", "prefetch", "preconnect", "dns-prefetch", "icon",
                "apple-touch-icon", "manifest", "mask-icon", "prerender"}
 
@@ -205,20 +244,39 @@ def rule_origins(site):
         for tag, attrs, line in site.parsed(rel).tags:
             d = dict(attrs)
             for k, v in attrs:
-                urls = [c.strip().split()[0] for c in v.split(",") if c.strip()] if k == "srcset" else [v]
-                loads = (tag, k) in RESOURCE or (tag == "link" and k == "href" and LOADING_REL & set(d.get("rel", "").lower().split()))
+                urls = ([c.strip().split()[0] for c in v.split(",") if c.strip()] if k == "srcset" else
+                        v.split() if k == "ping" else [v])
+                # the legacy background attribute loads an image on body, table and its cells
+                loads = ((tag, k) in RESOURCE or k == "background" or
+                         (tag == "link" and k == "href" and LOADING_REL & set(d.get("rel", "").lower().split())))
                 if loads and any(offsite(u) for u in urls):
                     out.append(f"{rel}:{line} <{tag} {k}> loads from another origin: {v[:80]}")
     for where, t in site.css():
         for u in re.findall(r"url\(\s*['\"]?([^'\")\s]+)", t):
             if offsite(u):
                 out.append(f"{where}: CSS url() from another origin: {u[:80]}")
+        for m in re.finditer(r"image-set\(([^;{}]*)", t, re.I):          # image-set() takes bare strings as URLs
+            for u in re.findall(r"['\"]([^'\"]*)['\"]", m.group(1)):
+                if offsite(u):
+                    out.append(f"{where}: CSS image-set() from another origin: {u[:80]}")
         if re.search(r"@import\b", t):
             out.append(f"{where}: CSS @import")
     for where, t in site.js():
-        for m in re.finditer(r"\.(src|href|data|srcset)\s*=\s*['\"`](https?:|//)", t):
-            out.append(f"{where}: script sets .{m.group(1)} to another origin")
+        for m in re.finditer(r"\.(src|href|data|srcset)\s*=\s*['\"`]([^'\"`\n]*)", t):
+            if offsite(m.group(2)):
+                out.append(f"{where}: script sets .{m.group(1)} to another origin")
+        for m in re.finditer(r"setAttribute(?:\(|NS\(\s*[^,()]*,)\s*['\"`]((?:xlink:)?href|src|srcset|data|poster|ping|background)"
+                             r"['\"`]\s*,\s*['\"`]([^'\"`\n]*)", t, re.I):
+            if offsite(m.group(2)):
+                out.append(f"{where}: script sets the {m.group(1)} attribute to another origin")
     return out
+
+
+# A tag in a string a script builds: its name, attributes on the same line whose values are quoted ("x", 'x', \"x\")
+# or bare, then an on* attribute, which a space, a slash or the quote closing the value before it separates.
+BUILT_HANDLER = re.compile(r"<[a-z][\w:-]*"
+                           r"(?:[ \t/]+[^\s<>'\"=/\\(){};]+(?:[ \t]*=[ \t]*(?:\\?\"[^\"<>\n]*\"|\\?'[^'<>\n]*'|[^\s<>'\"\\/]*))?)*"
+                           r"[ \t/]*(?<=[\s/'\"])on[a-z]+[ \t]*=", re.I)
 
 
 def rule_handlers(site):
@@ -228,9 +286,9 @@ def rule_handlers(site):
         for tag, attrs, line in site.parsed(rel).tags:
             out += [f"{rel}:{line} <{tag} {k}=...>" for k, _ in attrs if k.lower().startswith("on")]
     for where, t in site.js():
-        for m in re.finditer(r"<[a-zA-Z][^<>'\"]*(?:\s|\\?['\"])on[a-z]+\s*=", t):
+        for m in BUILT_HANDLER.finditer(t):
             out.append(f"{where}: HTML built with an inline handler: {m.group(0)[:60]}")
-        if re.search(r"setAttribute\(\s*['\"]on", t):
+        if re.search(r"setAttribute(?:\(|NS\(\s*[^,()]*,)\s*['\"`]on", t, re.I):     # attribute names ignore case
             out.append(f"{where}: setAttribute('on…')")
     return out
 
@@ -249,22 +307,31 @@ def rule_jsurl(site):
     return out
 
 
+def opens(target):
+    """A target that opens another browsing context: _blank, or a named window, which gets a handle on this page
+    like _blank (and without _blank's implicit noopener)."""
+    return target.strip().lower() not in ("", "_self", "_parent", "_top")
+
+
 def rule_newtab(site):
-    """A new tab gets no handle on this page: every target=_blank carries rel noopener noreferrer."""
+    """A new tab gets no handle on this page: every target that opens one carries rel noopener noreferrer."""
     out = []
     for rel in site.pages:
         for tag, attrs, line in site.parsed(rel).tags:
             d = dict(attrs)
-            if d.get("target", "").lower() == "_blank" and not {"noopener", "noreferrer"} <= set(d.get("rel", "").lower().split()):
-                out.append(f"{rel}:{line} <{tag} target=_blank> rel={d.get('rel', '')!r}")
+            if opens(d.get("target", "")) and not {"noopener", "noreferrer"} <= set(d.get("rel", "").lower().split()):
+                out.append(f"{rel}:{line} <{tag} target={d['target'][:20]}> rel={d.get('rel', '')!r}")
     for where, t in site.js():
-        for m in re.finditer(r"\.target\s*=\s*['\"]_blank['\"]", t):
+        for m in re.finditer(r"\.target\s*=\s*['\"`]([^'\"`]*)['\"`]|setAttribute\(\s*['\"`]target['\"`]\s*,\s*['\"`]([^'\"`]*)['\"`]", t):
+            if not opens(m.group(1) if m.group(1) is not None else m.group(2)):
+                continue
             near = t[m.end():m.end() + 160]
-            if not re.search(r"\.rel\s*=\s*['\"][^'\"]*noopener[^'\"]*noreferrer|\.rel\s*=\s*['\"][^'\"]*noreferrer[^'\"]*noopener", near):
-                out.append(f"{where}: .target = '_blank' without .rel noopener noreferrer right after it")
-        for m in re.finditer(r"<a\b[^<>]*target=\\?['\"]?_blank[^<>]*>", t):
-            if not ("noopener" in m.group(0) and "noreferrer" in m.group(0)):
-                out.append(f"{where}: built <a target=_blank> without rel noopener noreferrer")
+            if not any({"noopener", "noreferrer"} <= set(r.lower().split()) for r in re.findall(
+                    r"(?:\.rel\s*=\s*|setAttribute\(\s*['\"`]rel['\"`]\s*,\s*)['\"`]([^'\"`]*)['\"`]", near)):
+                out.append(f"{where}: {m.group(0)[:40]} without rel noopener noreferrer right after it")
+        for m in re.finditer(r"<a\b[^<>]*target=\\?['\"]?([^\s'\"\\<>]*)[^<>]*>", t):
+            if opens(m.group(1)) and not ("noopener" in m.group(0) and "noreferrer" in m.group(0)):
+                out.append(f"{where}: built <a target={m.group(1)[:20]}> without rel noopener noreferrer")
     return out
 
 
@@ -280,8 +347,9 @@ def rule_tags(site):
             if tag == "meta" and dict(attrs).get("http-equiv", "").lower() == "refresh":
                 out.append(f"{rel}:{line} <meta http-equiv=refresh>")
     for where, t in site.js():
-        for m in re.finditer(r"createElement\(\s*['\"](\w+)['\"]|<(\w+)\b", t):
-            name = (m.group(1) or m.group(2) or "").lower()
+        # createElementNS too: an SVG <script> runs like an HTML one
+        for m in re.finditer(r"createElement(?:\(|NS\(\s*[^,()]*,)\s*['\"]([\w:.-]+)['\"]|<(\w+)\b", t):
+            name = (m.group(1) or m.group(2) or "").lower().split(":")[-1]
             if name in FORBIDDEN_TAGS or (m.group(1) and name == "script"):
                 out.append(f"{where}: builds <{name}>")
     return out
@@ -291,18 +359,22 @@ JS_FORBIDDEN = [
     (r"\beval\s*\(", "eval"), (r"\bnew\s+Function\b|(?<![\w.])Function\s*\(", "Function constructor"),
     (r"document\.write", "document.write"), (r"\bset(Timeout|Interval)\(\s*['\"`]", "a timer given a string"),
     (r"\bpostMessage\b|['\"]message['\"]\s*,", "postMessage / message listener"),
-    (r"\blocalStorage\b", "localStorage"), (r"document\.cookie", "document.cookie"),
+    (r"\blocalStorage\b", "localStorage"), (r"\bindexedDB\b", "indexedDB"), (r"document\.cookie", "document.cookie"),
     (r"\bfetch\s*\(|XMLHttpRequest|\bWebSocket\b|\bEventSource\b|sendBeacon", "a network request"),
     (r"\bnew\s+(Shared)?Worker\b|serviceWorker|importScripts", "a worker"), (r"(?<![\w.])import\s*\(", "dynamic import"),
     (r"window\.open\b|\bopener\b", "window.open / opener"), (r"document\.domain", "document.domain"),
     (r"\.outerHTML\s*=|\bsrcdoc\b|createContextualFragment|\bDOMParser\b", "another HTML sink"),
-    (r"document\.referrer|window\.name\b|document\.URL\b|documentURI|location\.href|\blocation\s*=|location\.(assign|replace)\b",
-     "a URL read or navigation the page does not use"),
+    (r"document\.referrer|window\.name\b|document\.URL\b|documentURI|\bbaseURI\b|location\.href|\blocation\s*=|"
+     r"location\.(assign|replace)\b", "a URL read or navigation the page does not use"),
+    # window['local' + 'Storage'] or location['hash'] hides which property it reaches from every pattern here
+    (r"(?<![\w$.])(window|self|globalThis|document|navigator|location)\s*\[", "a browser global read by a computed name"),
 ]
 # Every read of the URL or of storage, per file: each one was traced to a non-HTML use. A new read fails until
-# someone traces it the same way and raises its count here.
-SOURCES = r"location\.(hash|search|pathname)|sessionStorage"
-SOURCES_ALLOWED = {"index.html": {"location.hash": 2, "location.search": 1, "location.pathname": 1, "sessionStorage": 3}}
+# someone traces it the same way and raises its count here. A performance entry's name is a URL (the navigation
+# entry's is the page's own); index.html reads only the navigation entry's type, to restore the place on reload.
+SOURCES = r"location\.(hash|search|pathname)|sessionStorage|getEntries\w*"
+SOURCES_ALLOWED = {"index.html": {"location.hash": 2, "location.search": 1, "location.pathname": 1, "sessionStorage": 3,
+                                  "getEntriesByType": 2}}
 
 
 def rule_js(site):
@@ -352,11 +424,11 @@ def scan_secrets(items):
         for name, pat in SECRETS:
             if re.search(pat, t):
                 out.append(f"{where}: looks like a secret ({name}); value withheld")
-    return out
+    return once(out)
 
 
 def rule_secrets(site):
-    return scan_secrets(texts(site))
+    return scan_secrets(list(texts(site)) + font_bytes(site))
 
 
 # The one identity commits carry; it is public in every commit already.
@@ -400,7 +472,7 @@ def scan_pii(items, priv):
             out.append(f"{where}: a street address")
         if SSN.search(t):
             out.append(f"{where}: an SSN-shaped number")
-    return out
+    return once(out)
 
 
 def rule_pii(site):
@@ -433,7 +505,7 @@ def scan_paths(items):
         m = next((m for m in LOCAL_PATH.finditer(t) if not m.group(0).startswith(EXAMPLE_PATHS)), None)
         if m:
             out.append(f"{where}: a local path ({m.group(0)[:12]}…)")
-    return out
+    return once(out)
 
 
 def rule_paths(site):
@@ -477,13 +549,19 @@ def png_problems(b):
     return out
 
 
+# The Info keys a PDF may carry: the tools that made it and when. Their values are still read for secrets, personal
+# data and paths (texts() yields them); every other key, standard (Title, Author...) or custom, fails when set.
+PDF_INFO_ALLOWED = {"Creator", "Producer", "CreationDate", "ModDate", "Trapped", "PTEX.Fullbanner"}
+
+
 def pdf_problems(path):
     try:
         info = subprocess.run(["pdfinfo", str(path)], capture_output=True, text=True, check=True).stdout
     except (OSError, subprocess.CalledProcessError) as e:
         raise Unknown(f"pdfinfo could not read {path.name} ({e.__class__.__name__}); install poppler")
     f = dict((k.strip(), v.strip()) for k, _, v in (ln.partition(":") for ln in info.splitlines()) if _)
-    out = [f"PDF {k} is set" for k in ("Author", "Subject", "Keywords") if f.get(k)]
+    out = [f"PDF {k} is set" if k in ("Title", "Author", "Subject", "Keywords") else "PDF has a custom Info key set"
+           for k, v in pdf_info(path).items() if v and k not in PDF_INFO_ALLOWED]   # a custom key's name is not printed
     out += ["PDF has an XMP metadata stream" for _ in [0] if f.get("Metadata Stream") == "yes"]
     out += ["PDF has JavaScript" for _ in [0] if f.get("JavaScript") not in ("no", None)]
     out += ["PDF has a form" for _ in [0] if f.get("Form") not in ("none", None)]
@@ -621,7 +699,8 @@ def history(root, ref):
             fake.root, fake.files, fake.pages, fake._parsed = dd, [f.name], [], {}
             where = f"{path}@{sha[:8]}"
             items = [(where + w[len(f.name):], t) for w, t in texts(fake)]
-            out += scan_secrets(items) + scan_pii(items, priv) + scan_paths(items)
+            raw = [(where + w[len(f.name):], t) for w, t in font_bytes(fake)]
+            out += scan_secrets(items + raw) + scan_pii(items, priv) + scan_paths(items)
             out += [f"{where}: {p.split(': ', 1)[1]}" for p in rule_metadata(fake)]
     log = git(root, "log", "--format=%H%x00%an <%ae>%x00%cn <%ce>%x00%B%x01", ref)
     for rec in log.split("\x01"):
@@ -666,9 +745,15 @@ def plants():
     com = b"\xff\xfe" + (2 + 7).to_bytes(2, "big") + b"planted"
     png = (b"\x89PNG\r\n\x1a\n" + (13).to_bytes(4, "big") + b"IHDR" + b"\0\0\0\x01\0\0\0\x01\x08\x02\0\0\0" + b"\0" * 4 +
            (7).to_bytes(4, "big") + b"tEXt" + b"Author\0x" + b"\0" * 4 + (0).to_bytes(4, "big") + b"IEND" + b"\0" * 4)
-    pdf = (b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
-           b"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj\n4 0 obj<</Author(planted person)>>endobj\n"
-           b"trailer<</Root 1 0 R/Info 4 0 R/Size 5>>\n%%EOF\n")
+    def info_pdf(entries):
+        return (b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n"
+                b"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]>>endobj\n4 0 obj<<" + entries + b">>endobj\n"
+                b"trailer<</Root 1 0 R/Info 4 0 R/Size 5>>\n%%EOF\n")
+
+    def refs(s):
+        return "".join(f"&#{ord(c)};" for c in s)
+
+    pdf = info_pdf(b"/Author(planted person)")
     secret = {
         "aws_key": _tok("AKIA", "IOSFODNN7EXAMPLE"),
         "aws_secret": _tok("aws_secret_access_key = '", "wJalrXUtnFEMI/K7MDENG", "/bPxRfiCYEXAMPLEKEY", "'"),
@@ -700,33 +785,58 @@ def plants():
         ("origins", "a stylesheet from another origin", {"404.html": add('<link rel="stylesheet" href="https://fonts.example.com/a.css">', "</head>")}),
         ("origins", "a CSS url() from another origin", {"work/assets/case.css": append(".x{background:url(https://img.example.com/t.png)}")}),
         ("origins", "a script setting src to another origin", {"work/assets/deep.js": append('img.src = "https://track.example.com/p.gif";')}),
+        ("origins", "a \\\\host image (a browser reads \\ as /)", {"work/freeflow.html": add(r'<img src="\\img.example.com/x.png" alt="">')}),
+        ("origins", "a /\\host image", {"work/custos-code.html": add(r'<img src="/\img.example.com/x.png" alt="">')}),
+        ("origins", "a tab inside the scheme", {"work/inf-mem.html": add('<img src="ht&#9;tps://img.example.com/x.png" alt="">')}),
+        ("origins", "a body background attribute", {"work/emergence.html": lambda b: b.replace(b"<body", b'<body background="https://img.example.com/b.png"', 1)}),
+        ("origins", "an <a ping> beacon", {"work/ai-capabilities.html": add('<a href="/" ping="https://track.example.com/p">x</a>')}),
+        ("origins", "a CSS image-set() string", {"work/assets/deep.css": append('.zz{background-image:image-set("https://img.example.com/a.png" 1x)}')}),
+        ("origins", "a script setting the src attribute to another origin", {"work/assets/custos-deep.js": append("img.setAttribute('src', 'https://track.example.com/p.gif');")}),
+        ("origins", "a script setting src to a \\\\host URL", {"work/assets/wwcpu.js": append(r"img.src = '\\\\track.example.com/p.gif';")}),
         ("handlers", "an onclick attribute", {"work/custos-code.html": add('<button type="button" onclick="go()">x</button>')}),
         ("handlers", "an onerror attribute in an SVG", {"work/emergence.html": add('<svg><image href="x.png" onerror="go()"/></svg>')}),
         ("handlers", "HTML with a handler built in a script", {"work/assets/emergence-deep.js": append("el.innerHTML = '<img src=x onerror=go()>';")}),
+        ("handlers", "built HTML with a quoted attribute before the handler", {"work/assets/case.js": append("el.innerHTML = '<img src=\"x.png\" onerror=\"go()\">';")}),
+        ("handlers", "setAttribute('ONCLICK') in upper case", {"work/assets/ww.js": append("el.setAttribute('ONCLICK', 'go()');")}),
+        ("handlers", "setAttributeNS(null, 'onclick')", {"work/assets/deep-freeflow.js": append("el.setAttributeNS(null, 'onclick', 'go()');")}),
         ("jsurl", "a javascript: link", {"work/ai-capabilities.html": add('<a href=" JavaScript:go()">x</a>')}),
         ("jsurl", "a javascript: URL in a script", {"work/assets/ww.js": append('a.href = "javascript:void 0";')}),
         ("newtab", "target=_blank without rel", {"work/inf-mem-deep.html": add('<a href="https://example.com/" target="_blank">x</a>')}),
         ("newtab", "a built link with target but no rel", {"work/assets/custos-deep.js": append('a.target = "_blank"; a.href = u;')}),
+        ("newtab", "a named target without rel", {"work/kronos-deep.html": add('<a href="https://example.com/" target="other">x</a>')}),
+        ("newtab", "a repeated target, where the browser keeps the first", {"work/emergence-deep.html": add('<a href="https://example.com/" target="other" target="_self">x</a>')}),
+        ("newtab", "setAttribute('target', '_blank') without rel", {"work/assets/case.js": append("a.setAttribute('target', '_blank'); a.href = u;")}),
+        ("newtab", "a script setting a named target without rel", {"work/assets/ww.js": append('a.target = "other"; a.href = u;')}),
+        ("newtab", "built HTML with a named target and no rel", {"work/assets/deep.js": append("el.innerHTML = '<a href=\"/\" target=\"other\">x</a>';")}),
         ("tags", "a form", {"index.html": add('<form action="/x"></form>')}),
         ("tags", "an iframe", {"work/freeflow-deep.html": add('<iframe src="about:blank"></iframe>')}),
         ("tags", "a base element", {"work/kronos-deep.html": add('<base href="/">', "</head>")}),
         ("tags", "a meta refresh", {"work/emergence.html": add('<meta http-equiv="refresh" content="0;url=/">', "</head>")}),
         ("tags", "a script that builds a script element", {"work/assets/deep.js": append('document.head.appendChild(document.createElement("script"));')}),
+        ("tags", "a script that builds an SVG script element", {"work/assets/emergence-deep.js": append(
+            "document.body.appendChild(document.createElementNS('http://www.w3.org/2000/svg', 'script'));")}),
     ]
     for api in ("eval(code)", "new Function(code)", "document.write(x)", 'setTimeout("go()", 9)', "parent.postMessage(x, '*')",
                 "localStorage.setItem('k', 1)", "document.cookie = 'a=1'", "fetch('/x')", "new XMLHttpRequest()", "new WebSocket(u)",
                 "navigator.sendBeacon(u)", "new Worker('w.js')", "import('./m.js')", "window.open(u)", "el.outerHTML = s",
-                "var r = document.referrer", "location.href = u"):
+                "var r = document.referrer", "location.href = u", "var u = document.baseURI", "indexedDB.open('x')",
+                "var h = location['hash']", "var s = window['local' + 'Storage']"):
         p.append(("js", api, {"work/assets/sap1_fib.js": append(api + ";")}))
     p.append(("js", "a new read of location.hash", {"work/assets/deep.js": append("var h = location.hash;")}))
     p.append(("js", "a fourth sessionStorage read on index.html",
               {"index.html": lambda b: b.replace(b"var PLACE_KEY", b"sessionStorage.length; var PLACE_KEY", 1)}))
+    p.append(("js", "the URL through a performance entry", {"work/assets/deep.js": append("var u = performance.getEntriesByType('navigation')[0].name;")}))
     for name, v in secret.items():
         p.append(("secrets", name, {"README.md": append(v)}))
     p.append(("secrets", "a token inside a data: URI", {"work/assets/case.css": append(
         ".y{background:url(data:text/plain;base64," + base64.b64encode(secret["github_token"].encode()).decode() + ")}")}))
     p += [
+        ("secrets", "a token written as character references", {"work/emergence-deep.html": add("<p>" + refs(secret["github_token"]) + "</p>")}),
+        ("secrets", "a token in a font's bytes", {"work/assets/jetbrains-mono.woff2": lambda b: b + secret["github_token"].encode()}),
+        ("secrets", "a token in an icon's bytes", {"work/og/planted.ico": lambda b: secret["github_token"].encode()}),
         ("pii", "the phone number (never printed)", {"tests/HOOKS.md": append(f"({nums[0][:3]}) {nums[0][3:6]}-{nums[0][6:]}")}),
+        ("pii", "the phone number as character references", {"work/kronos.html": add("<p>" + refs(nums[0]) + "</p>")}),
+        ("pii", "an address as character references", {"work/freeflow-deep.html": add("<p>" + refs(_tok("someone.else", "@", "example.org")) + "</p>")}),
         ("pii", "the phone number in a JPEG's bytes", {"work/og/kronos.jpg": jpeg_insert(b"\xff\xfe" + (2 + 10).to_bytes(2, "big") + nums[0].encode())}),
         ("pii", "the private repository's name", {"robots.txt": append(repo)}),
         ("pii", "an address not on the published list", {"sitemap.xml": append("<!-- " + _tok("someone.else", "@", "example.org") + " -->")}),
@@ -737,11 +847,15 @@ def plants():
         ("paths", "a Windows home path", {"work/assets/deep.css": append("/* " + _tok("C:", "\\Users\\planted") + " */")}),
         ("paths", "a temp path", {"work/assets/case.js": append("// " + _tok("/priv", "ate/tmp/x"))}),
         ("paths", "a file URL", {"index.html": add("<!-- " + _tok("fi", "le://", "x") + " -->")}),
+        ("paths", "a home path as character references", {"404.html": add("<p>" + refs(_tok("/Us", "ers/planted/x")) + "</p>")}),
+        ("paths", "a home path in a PDF's Creator", {"work/planted.pdf": lambda b: info_pdf(b"/Creator(" + _tok("/Us", "ers/planted/x").encode() + b")")}),
         ("metadata", "an EXIF segment in a JPEG", {"poster.jpg": jpeg_insert(exif)}),
         ("metadata", "a comment segment in a JPEG", {"work/og/emergence.jpg": jpeg_insert(com)}),
         ("metadata", "bytes after a JPEG's end", {"work/og/freeflow.jpg": lambda b: b + b"planted trailer"}),
         ("metadata", "a PNG text chunk", {"work/og/planted.png": lambda b: png}),
         ("metadata", "a PDF author", {"work/planted.pdf": lambda b: pdf}),
+        ("metadata", "a PDF title", {"work/planted.pdf": lambda b: info_pdf(b"/Title(planted title)")}),
+        ("metadata", "a custom PDF Info key", {"work/planted.pdf": lambda b: info_pdf(b"/PlantedKey(planted)")}),
         ("metadata", "an SVG metadata block", {"resume-page.svg": lambda b: b.replace(b"<defs>", b"<metadata>planted</metadata><defs>", 1)}),
         ("pdftext", "a retired claim in a PDF's text", {"work/planted.pdf": lambda b: text_pdf(_tok("building in", " public"))}),
         ("pii", "a private retired claim in a PDF's text (a planted private pattern)", {"work/planted.pdf": lambda b: text_pdf(PLANTED_PRIVATE)}),

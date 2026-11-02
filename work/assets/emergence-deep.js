@@ -4,9 +4,15 @@
    repo's own gate-level port, cpu/wwcpu.js, unchanged. Each scene checks its claim before it is allowed to play. */
 (function () {
   "use strict";
-  // a phone held sideways takes the wide arrangement, as deep.js's own phone test does once the page sets wideShort
-  var PHONE = window.innerWidth < 768 && window.innerHeight >= 500;
-  Deep.wideShort = true;
+  // a phone held sideways takes the wide arrangement (Deep.phone, once the page sets wideShort); a short screen under
+  // 480 px wide (a laptop window at 400% zoom) keeps the phone's, its labels under the grid, since the wide one's side
+  // column of labels would squeeze the grid to a few px a cell under labels of full size
+  Deep.wideShort = 480;
+  var PHONE = Deep.phone(), DEPS = [];
+  // a figure built for one arrangement (its grid, where its labels go) is built again, in place, when a resize (a
+  // rotation, browser zoom on the open page) crosses into the other, so its labels never sit on the other's grid
+  function phoneDep(f) { DEPS.push(f); f(); }
+  Deep.onPhone(function () { PHONE = Deep.phone(); sapLay(); DEPS.forEach(function (f) { f(); }); });
   var HD = WW.HEAD, TL = WW.TAIL, WR = WW.WIRE;
   var ART = {"or": ["A######       ", "      O###### ", "B######       "], "xor": ["        B######    ", "              #    ", "              #    ", "              #    ", "              #    ", "              #    ", "       ###### #    ", " A######     #    ", "       ###### #    ", "              #    ", "              #####O"], "and": [" #######  ######################################################################################          ", " #     #  #                                                                                    #          ", " #     #  #                                                                                    #          ", " #     #  #                                                                                    #          ", " #     #  #                                                                                    #   #######", " #     #  #                                                                                    #   #     #", " #     ####                                                                                    #   #     #", " #                                                                                             #   #     #", " #                                                                                             #   #     #", " #                                                                                             #   #     #", " #                                                                                             #  ###    #", " #                                                                                             #  # #    #", " #                                                                                             #   #     #", " #            #####                                                                            #### #    #", " #   B######### #  ################################################                                 #    #", " #     #      ##                                                  #                                 #    #", " #     #                                                          #                                 #    #", " #     #                                                          #                                 #    #", " #######                                                          #                                 O    #", "       #                                                          #                                      #", "       #                                                   ###### #                                      #", "       #      #####                                        #    # #                                      #", "     A######### #  #####  ##################################     #                                       #", "              ##       #  #                                #    # #                                      #", "                       #  #                                ###### #                                      #", "                       #  #                                       #                                      #", "                       #  #                                       ########################################", "                       #  #                                                                               ", "                       ####                                                                               "], "memory": ["#~@#################", "#                  #", "#                  #", "#                  #", "####################", "        #", "        #", "        ####################"], "wire": ["~@########################"]};
   var CHECKS = {};
@@ -233,7 +239,7 @@
   })();
 
   /* ================= fig 4: what the rule doesn't give you ================= */
-  (function () {
+  phoneDep(function () {
     var OR = ART.or, XOR = ART.xor, MEM = ART.memory;
     // desktop: the two gates side by side and the loop under them, at the diode's pitch; a phone stacks all three
     var L = PHONE ? { cols: 31, rows: 31, or: [2, 2], xor: [2, 8], mem: [1, 22] } : { cols: 44, rows: 22, or: [2, 4], xor: [22, 1], mem: [2, 14] };
@@ -277,11 +283,11 @@
       ticks: TICKS, tps: 8, pause: 1400, rest: "three",
       draw: draw
     }));
-  })();
+  });
 
   /* ================= fig 5: the plan ================= */
   var NAND = buildNand(), REG = buildReg();
-  (function () {
+  phoneDep(function () {
     var L = PHONE ? { cols: 41, rows: 40, n: [1, 0], m: [0, 17] } : { cols: 84, rows: 22, n: [1, 3], m: [42, 0] };
     var COLS = L.cols, ROWS = L.rows, base = WW.world(COLS, ROWS);
     var pn = stampInto(base, NAND, L.n[0], L.n[1]), pm = stampInto(base, REG, L.m[0], L.m[1]);
@@ -315,7 +321,7 @@
       grid: { cols: COLS, rows: ROWS, pitch: 8, pitchPhone: 8 }, space: { top: 16, bottom: 32 },
       ticks: TICKS, tps: 16, pause: 1400, rest: "count", draw: draw
     }));
-  })();
+  });
 
   /* ================= fig 6: the diode ================= */
   (function () {
@@ -450,7 +456,7 @@
     }));
   }
 
-  gateScene("sc-or", ART.or, 22, {
+  phoneDep(function () { gateScene("sc-or", ART.or, 22, {
     want: [0, 1, 1, 1], pitch: 24, pitchPhone: 16, tps: 8, pause: 1100, rest: "both", cases: [1, 2, 3, 1],
     leak: [[4, 3], [5, 3], [6, 3], [7, 3], [8, 3], [2, 3], [3, 3]],
     keys: function (r, P) {
@@ -459,16 +465,16 @@
     },
     leads: function (r, P) { return { b: P, both: 2 * P, leak: 3 * P }; },
     extraCheck: function (res, frames, pp, W) { var t = res[3].fire + 3; return frames[t][pp.B[1] * W + pp.B[0] + 3] === HD || frames[t][pp.B[1] * W + pp.B[0] + 2] === HD || frames[t][pp.B[1] * W + pp.B[0] + 4] === HD; }
-  });
-  gateScene("sc-xor", ART.xor, 30, {
+  }); });
+  phoneDep(function () { gateScene("sc-xor", ART.xor, 30, {
     want: [0, 1, 1, 0], pitch: 20, pitchPhone: 12, tps: 8, pause: 1100, rest: "both", J: [13, 7],
     keys: function (r, P) { return { a: r[0].jf - 1, b: r[1].jf - 1, both: r[2].crowd, tuned: r[2].crowd + 3 }; },
     leads: function (r, P) { return { b: P, both: 2 * P }; },
     extraCheck: function (res) { return res[2].crowd > 0 && res[0].jf > 0 && res[1].jf > 0; }
-  });
+  }); });
 
   /* ================= fig 9: the clocked NAND cell ================= */
-  (function () {
+  phoneDep(function () {
     var COLS = NAND.W, ROWS = NAND.H, pt = NAND.ports;
     var SH = pt[0], ST = pt[1], FNW = pt[2], AIN = pt[3], BIN = pt[4], OUT = pt[5], J = pt[6];
     var base = WW.world(COLS, ROWS); NAND.cells.forEach(function (c) { base.wire(c[0], c[1]); });
@@ -548,9 +554,9 @@
       ticks: TICKS, tps: 24, pause: 0,
       draw: function (api, tick) { tick = Math.min(tick, TICKS); paintF(api, frames[tick], tableAt(tick), litAt(tick)); crowdsRecent(frames, tick, COLS, ROWS, [J[0] - 1, J[1] - 1, J[0] + 1, J[1] + 1]).forEach(function (c) { ring(api, c[0], c[1]); }); }
     });
-    if (hero && !Deep.reduce) hero.fig.addEventListener("scene:done", function () { setTimeout(function () { if (hero.visible) hero.play(); }, 1600); });
+    if (hero && !Deep.reduce && !hero.loops) { hero.loops = true; hero.fig.addEventListener("scene:done", function () { setTimeout(function () { if (hero.visible) hero.play(); }, 1600); }); }
     if (hero && Deep.reduce) hero.show(TICKS);                       // reduced motion rests on the finished table, 1, 1, 1, 0, as the caption says
-  })();
+  });
 
   /* ================= fig 10: memory, a bit that circles ================= */
   function regRun(base, W, H, pt, sets, clears, S) {
@@ -617,7 +623,7 @@
   })();
 
   /* ================= fig 11: every other gate is NANDs (netlist level) ================= */
-  (function () {
+  phoneDep(function () {
     var GATES = {
       not: { ins: { a: 7 }, nodes: [["n", 16, 6, "a", "a"]], rows: [[0], [1]] },
       and: { ins: { a: 3, b: 11 }, nodes: [["n", 12, 6, "a", "b"], ["o", 22, 6, "n", "n"]] },
@@ -695,10 +701,10 @@
       live: { start: function () { return {}; }, step: function () { return false; },
         draw: function (api) { drawGate(api, ORDER[api.keyIndex], { a: api.inputs.a ? 1 : 0, b: api.inputs.b ? 1 : 0, sel: api.inputs.sel ? 1 : 0 }); } }
     });
-  })();
+  });
 
   /* ================= fig 12: flip-flop, register, RAM ================= */
-  (function () {
+  phoneDep(function () {
     var COLS = 44, ROWS = 20, X0 = 7, HW = 2, NH = 18;
     var Dseq = [0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1];
     var Eseq = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1];
@@ -767,7 +773,7 @@
       grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 8 }, space: { top: 16, bottom: 8 },
       ticks: 19, tps: 3, pause: 1300, rest: "edge", draw: draw
     });
-  })();
+  });
 
   /* ================= SAP-1: one run, recorded cycle by cycle on the gate-level netlist ================= */
   var PROGS = {
@@ -801,7 +807,9 @@
   function progLines(src) { return src.split("\n").map(function (l) { return l.replace(/^\w+:\s*/, ""); }).filter(function (l) { return !/^DB/.test(l); }); }
   function curAddrs(S) { var c = 0; return S.map(function (s) { if (s.T === 1) c = s.PC; return c; }); }
   // LX: the bits' first column; RX: the ram's. A phone gets two more columns of room for the row names ("alu 255")
-  var PCOLS = PHONE ? 41 : 38, PROWN = 23, LX = PHONE ? 9 : 7, RX = PHONE ? 32 : 29;
+  var PCOLS, PROWN = 23, LX, RX;
+  function sapLay() { PCOLS = PHONE ? 41 : 38; LX = PHONE ? 9 : 7; RX = PHONE ? 32 : 29; }
+  sapLay();
   function aluVal(s) { var v = s.sigs.indexOf("Su") >= 0 ? (s.A - s.B) & 255 : (s.A + s.B) & 255; return v; }
   function panel(api, s, tape, o) {
     o = o || {};
@@ -858,7 +866,7 @@
   }
 
   /* fig 13: the bus, and who talks when */
-  (function () {
+  phoneDep(function () {
     var S = FIB.snaps, c4 = -1, jn = -1, jt = -1, CUR = curAddrs(S), PL = progLines(PROGS.fib);
     for (var i = 0; i < S.length; i++) {
       if (c4 < 0 && S[i].op === 2 && S[i].T === 4) c4 = i;
@@ -877,7 +885,7 @@
       ticks: 7, tps: 1, pause: 1200, rest: "t6",
       draw: function (api, tick) { var cy = CYC[Math.min(7, tick)]; panel(api, S[cy], tapeAt(cy), { ram: true, prog: PL, cur: CUR[cy] }); }
     });
-  })();
+  });
 
   /* fig 14: the ALU */
   (function () {
@@ -980,7 +988,8 @@
   /* the whole run on one strip, from the trace: a column per clock, its height the A register; each OUT marked with the
      number it printed; the carry where it trips. Columns up to the playhead are lit. A phone folds it into two bands. */
   function Strip(fig) {
-    var st = fig.querySelector(".sc-stage"), el = document.createElement("div"), cv = document.createElement("canvas");
+    var st = fig.querySelector(".sc-stage"), el = document.createElement("div"), cv = document.createElement("canvas"), was = st.querySelector(".sc-trace");
+    if (was) st.removeChild(was);                                     // built again for the other arrangement
     el.className = "sc-trace"; el.setAttribute("aria-hidden", "true");
     el.setAttribute("data-src", "Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1");
     el.appendChild(cv); st.appendChild(el);
@@ -1041,7 +1050,7 @@
   }
 
   /* fig 15: SAP-1 runs Fibonacci */
-  (function () {
+  phoneDep(function () {
     var S = FIB.snaps, last = S.length - 1, CUR = curAddrs(S), PL = progLines(PROGS.fib);
     var fig15 = document.getElementById("sc-sap"), strip = TRACE_OK && fig15 && TR.rows.length === S.length ? Strip(fig15) : null;
     var pick = [0, 1, 4, 7, 10, 11];                                  // the prints each step's words end on: 1, 1, 5, 21, 89, 144
@@ -1073,18 +1082,18 @@
       },
       onInput: function (api, id, on, L) { if (L) { L.cpu = new SAP1(assemble(PROGS[id]).image); L.tape = []; L.prog = progLines(PROGS[id]); L.cur = 0; L.cy = 0; L.id = id; } }
     }));
-  })();
+  });
 
   /* ================= fig 16: the asynchronous wall: the act's AND ================= */
   var AND_MARKS = [];
-  gateScene("sc-and", ART.and, 170, {
+  phoneDep(function () { gateScene("sc-and", ART.and, 170, {
     want: [0, 0, 0, 1], pitch: 6, pitchPhone: 3, tps: 48, pause: 1000, rest: "both", oy: 1, marks: AND_MARKS, outLeft: true,
     keys: function (r, P) { return { a: r[0].lastCrowd > 0 ? r[0].lastCrowd : 40, b: r[1].lastCrowd > 0 ? r[1].lastCrowd : P + 40, both: r[2].fire }; },
     ticks: function (r, P) { return r[2].fire + 12; }
-  });
+  }); });
   var SKEW = 1;
   (function () { var ks = document.querySelectorAll('[data-src="page:skew-k"]'); [].forEach.call(ks, function (e) { e.textContent = SKEW === 1 ? "one cell" : SKEW + " cells"; }); })();
-  gateScene("sc-skew", ART.and, 170, {
+  phoneDep(function () { gateScene("sc-skew", ART.and, 170, {
     want: [0, 0, 0, 1], got: [0, 0, 0, 0], skew: SKEW, cases: [1, 3], pitch: 6, pitchPhone: 3, tps: 48, pause: 1000, rest: "wrong", oy: 1, marks: AND_MARKS, outLeft: true,
     keys: function (r, P) { return { a: r[0].lastCrowd > 0 ? r[0].lastCrowd : 40, both: P + 120, wrong: 2 * P - 4 }; },
     ticks: function (r, P) { return 2 * P; },
@@ -1096,13 +1105,13 @@
       }
       return true;
     }
-  });
+  }); });
 
   /* ================= fig 17: the clocked fix (a diagram) ================= */
   Deep.scene("sc-sync", { ticks: 2, tps: 1 });
 
   /* ================= fig 18: one tick of slack ================= */
-  (function () {
+  phoneDep(function () {
     var L = PHONE ? { cols: REGW, rows: 2 * REGH + 3, b: [0, REGH + 3] } : { cols: 2 * REGW, rows: REGH, b: [REGW, 0] };
     var COLS = L.cols, ROWS = L.rows;
     var pA = RP, pB = RP.map(function (p) { return [p[0] + L.b[0], p[1] + L.b[1]]; });
@@ -1176,13 +1185,14 @@
     }));
     var fig = document.getElementById("sc-slack");
     if (fig && sc) {
+      var was = fig.querySelector(".sc-rg"); if (was) was.parentNode.removeChild(was);   // built again for the other arrangement
       var row = document.createElement("div"); row.className = "sc-in sc-rg";
       row.innerHTML = '<label><span>right clear: <b>2 ticks late</b></span><input type="range" min="-2" max="2" step="1" value="2" aria-label="clear timing, ticks early or late"></label>';
       fig.insertBefore(row, fig.querySelector(".sc-in"));
       inp = row.querySelector("input"); out = row.querySelector("b");
       inp.addEventListener("input", function () { off = +inp.value; out.textContent = words(off); });
     }
-  })();
+  });
 
   /* ================= fig 19: the ladder (a diagram) ================= */
   Deep.scene("sc-ladder", { ticks: 6, tps: 1.6, pause: 400 });

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2nguZqau2EuNOwLMVfAdX8Z8LSE8ktyUB2V94WQeiGc=' 'sha256-8xKIUkflRuqMitQ9xDiHlhguI8dqcyqRcMwk17e84n4=' 'sha256-Grr3UlqE/WBGeJqcEzOiz4bCwTMpTYc+Ipaeww7pIN4=' 'sha256-OrWyO1Qf3FK3W+mPBY6O9QGm7zzTDP6Tf+kp50sw3/o=' 'sha256-Qp7JQefXmGovFtTo+CElnP8YNPpAJV/ST6tjKYyUWp8=' 'sha256-SHMoK+P3GHg0tm+Lkmf6s5TqbeXyPhLoheG/2l8Idv0=' 'sha256-TC7fZh53ZE1ReVYSNHnOzHhV/OAyLuBle5uytPtjAak=' 'sha256-fNQ6zNTcJQ89bBu+sQq0VTys15X2fG54gxTRMlFnPeo=' 'sha256-ySaBOql3fRvdaZ0uEcj8/tIQC1ry2QAoCcjv6+fkk84='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2nguZqau2EuNOwLMVfAdX8Z8LSE8ktyUB2V94WQeiGc=' 'sha256-8Kg6REK+B2a6BncmCtbfwyTEmNyMI1BHziM/e7GqRjA=' 'sha256-8xKIUkflRuqMitQ9xDiHlhguI8dqcyqRcMwk17e84n4=' 'sha256-AoBDrM4J46mThGPscX/+7Xes6PRqgAUHnDDTf55oX2A=' 'sha256-NZuKStNpE9Gpw+MO0aFHffFtQDc/kcAxBqLa2Aug0Fs=' 'sha256-OrWyO1Qf3FK3W+mPBY6O9QGm7zzTDP6Tf+kp50sw3/o=' 'sha256-Qp7JQefXmGovFtTo+CElnP8YNPpAJV/ST6tjKYyUWp8=' 'sha256-TC7fZh53ZE1ReVYSNHnOzHhV/OAyLuBle5uytPtjAak=' 'sha256-ySaBOql3fRvdaZ0uEcj8/tIQC1ry2QAoCcjv6+fkk84='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Oliver Zhang · CS at UT Austin · Turing Scholars ’28</title>
@@ -59,7 +59,13 @@ html{background:var(--void);color:var(--body);fill:var(--body);scroll-behavior:a
 body{margin:0;background:var(--void);color:var(--body);font:400 15px/24px var(--sg);overflow-x:clip;-webkit-font-smoothing:antialiased}
 a{color:inherit}
 :focus-visible{outline:1px solid var(--ink);outline-offset:2px}
-[tabindex="-1"]:focus-visible{outline:none}
+/* a block the page focuses itself (a card, the work section, the résumé) draws no ring; a link the script takes out of
+   the Tab order keeps the ring it has */
+.stick[tabindex="-1"]:focus-visible,#work:focus-visible,#resume:focus-visible{outline:none}
+/* the first stop on the page: past the strip to the story, unseen until a keyboard reaches it (as on the case studies);
+   fixed, so focus coming back to it mid-story (Shift+Tab from the strip, or Tab wrapping round) leaves the reader's place */
+.skip{position:fixed;left:var(--gut);top:-48px;z-index:40;padding:4px 8px;background:var(--void);font:400 13px/24px var(--mono);color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px}
+.skip:focus{top:8px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
 .sr-only h2,.sr-only p{margin:0;font:inherit}
 .probe{position:fixed;left:0;top:0;width:1px;visibility:hidden;pointer-events:none}
@@ -169,6 +175,9 @@ a{color:inherit}
 .card .kt .kb i{display:block;box-sizing:border-box;width:calc(var(--n) * var(--kc));height:8px;background:var(--copper)}
 .card .kt tr:first-child .kb i{background:var(--accent)} .card .kt tr:nth-child(2) .kb i{background:none;border:1px solid var(--muted)}
 .card .kt.arm .kb i{clip-path:inset(0 100% 0 0)}
+/* forced colours paint every background as the page's own: a bar or a legend square drawn only as a fill is drawn as
+   a border there, in the system's text colour */
+@media (forced-colors:active){ .card .kt .kb i,#mapcap .egg-tally .eg-sq,#work .k-bars i{box-sizing:border-box;border:1px solid} #work .k-bars i.on{border-width:3px} #work .k-mk i{forced-color-adjust:none} }
 .card .kt.arm.on .kb i{clip-path:inset(0);animation:kbar calc(var(--n) * 32ms) steps(var(--n), jump-start) both}
 @keyframes kbar{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
 .card .meta{margin:16px 0 0;font:400 13px/24px var(--mono);color:var(--body)}
@@ -204,10 +213,11 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 #places.on{opacity:1}
 /* off the map the places stay in the tab order, parked unseen over the map hold: focusing one scrolls the page there natively */
 #places.park{position:absolute;top:var(--park,0)}
-#places.park .place{top:0!important;transform:none!important;height:100lvh;pointer-events:none}
+#places.park .place{top:0!important;transform:none!important;height:100lvh!important;pointer-events:none}
 .place{position:absolute;left:0;top:0;pointer-events:auto;background:var(--void);border:0;padding:2px 4px;margin:0;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);text-align:left;cursor:pointer;white-space:nowrap;border-radius:0}
 .place[data-ch]{color:var(--accent)}
 .place:hover,.place:focus-visible{color:var(--ink)}
+.place:focus-visible{z-index:1}
 .place .d{color:var(--muted)}
 .place .k{display:inline-block;width:24px;color:var(--ink)}
 @media (max-width:1023px){ .place{height:32px;line-height:32px;padding:0 4px 0 0} }
@@ -311,6 +321,7 @@ button.fn-in.armed,input.fk-in.armed{outline:2px solid var(--ink);outline-offset
 #mapcap .egg-tally{right:var(--gut);top:var(--mc-y,52px);color:var(--muted)}
 #mapcap .egg-tally .eg-sq{display:inline-block;width:6px;height:6px;margin:0 8px 0 0;vertical-align:1px;background:var(--v-cyan)}   /* a legend item: the colour to look for */
 #mapcap.ph .egg-tally{left:auto;right:var(--gut)}
+#mapcap.ph.own .egg-tally{left:var(--gut);right:auto;top:calc(var(--mc-t,52px) + 32px)}   /* a row of its own under the caption's two lines */
 #mapcap.lo .egg-tally{right:auto;left:var(--gut);transition:opacity 200ms var(--ease-enter)}
 #mapcap.lo.tg .egg-tally{opacity:0}   /* on the bottom row the rising document would cover it: it goes before the document reaches it */
 body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row takes the step counter's place; the bookend row below carries the count */
@@ -562,11 +573,21 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
   #resume.rv .rv-page{width:8.5in!important;height:11in!important;outline:0!important;background:none!important;aspect-ratio:auto}
   #resume.rv .rv-zoom{transform:none!important}
 }
+/* under 360 px (an old small phone, or a laptop window at 400% zoom) the column is 288 px: a card's unbroken phrases
+   may break, KRONOS's bars take a pixel a cell, the work field (drawn for 328 px) scales to the column with the room
+   it gave up taken back, and a map place's row closes up its letters */
+@media (max-width:359.98px){
+  .card .nw{white-space:normal}
+  .card .kt .kb{--kc:1px}
+  #work .k-field{transform:scale(.875);transform-origin:0 0;margin-bottom:-58.5px}
+  .place{letter-spacing:0}
+}
 </style>
 <!-- without script the story's blocks have no one to place them: they read top to bottom, and the art stays away -->
 <noscript><style>.blk,.stick{position:static!important;top:auto!important}.blk{margin-bottom:32px}#story{padding-top:calc(var(--strip) + 24px)}#world,#snap,#native,#hit,#step,#plant{display:none!important}#strip .lg{opacity:1;visibility:visible}</style></noscript>
 </head>
 <body id="top">
+<a class="skip" href="#story">skip to the story</a>
 <div class="probe" id="pl"></div><div class="probe" id="ps"></div><div class="probe" id="pb"></div>
 <canvas id="world" aria-hidden="true"></canvas>
 <div id="native" aria-hidden="true"></div>
@@ -3402,6 +3423,9 @@ var api = {
   // phone: the view shown (or swapping in), and whether a swap still needs frames; the version moves with the swap so the host recuts cells
   phoneView: function () { return phoneNow ? PV.view : -1; },
   swapping: function () { return phoneNow && nowMs() - PV.t0 < SWAP_MS + 100; },
+  // a takeover puts the clock back in the switch's beat, just under b2, where a phone already past it would keep the gates
+  // view (a view holds PV_H back across its boundary) and the focused switch would stay parked unseen: swap back now
+  showSwitch: function () { if (PV.view <= 0) return false; PV.from = RMK ? -1 : PV.view; PV.view = 0; PV.t0 = nowMs(); last = null; return true; },
   // at travel and map pitches the station is its cell footprint only: hide the native layer, pass ctx.leave = 1 to cells()
   hide: function () { if (wrap) { wrap.style.display = "none"; last = null; } parkInp(); PV.view = PV.from = -1; }, place: place,
   timeline: TL, stats: function () { var a = stats.ms.slice().sort(function (x, y) { return x - y; }); return { draws: stats.draws, p95: a.length ? a[Math.floor(a.length * 0.95)] : 0, last: stats.ms.slice() }; },
@@ -4946,6 +4970,7 @@ function takeOver(ch) {
   if (!w) return;
   var p = w[1] < 1 ? w[1] - 1e-4 : 1;
   if (pb.state !== "held" || p !== pb.p) { pb.state = "held"; pb.p = p; pb.seen = true; wake(); }
+  if (ch.id === "kronos" && FigKronos.showSwitch()) wake();
 }
 // Replay means 'show me the real figure play'. Clicked away from the station (its card is still on screen through the
 // next transit, or above it on the way back), the page first brings the station back to where its card sits at its
@@ -5623,7 +5648,33 @@ function haloFor(pp) {
   hc.fillStyle = gd; hc.fillRect(0, 0, hsz, hsz);
   return (HALO[pp] = c);
 }
+/* an upright phone's art band is 52svh; one too short to draw a station's figure whole at its own pitch (a 320 x 568
+   phone) grows until the tallest figure fits, up to 60svh so the cards keep two fifths of the screen. A layout where
+   that draws no more figures whole (one held back by the width, or a screen far too short) keeps 52svh. */
 function layout() {
+  var de = d0.documentElement;
+  de.style.removeProperty("--band");
+  layoutAt();
+  if (!PF || land) return;
+  var short = bandShort(), n0 = short.whole;
+  for (var i = 0; i < 3 && short.px > 0; i++) {
+    var want = Math.min(Math.floor(0.6 * SVH), BAND + short.px);
+    if (want <= BAND) break;
+    de.style.setProperty("--band", want + "px"); layoutAt();
+    short = bandShort();
+  }
+  if (short.whole <= n0 && de.style.getPropertyValue("--band")) { de.style.removeProperty("--band"); layoutAt(); }
+}
+// how far the station least whole at its hold falls short of whole, in CSS px of its height, and how many are whole
+function bandShort() {
+  var px = 0, whole = 0;
+  CHAPTERS.forEach(function (ch) {
+    var v = figVis(ch, ch.hold);
+    if (v >= WHOLE) whole++; else px = Math.max(px, Math.ceil((1 - v) * ch.h * cssP("station")) + 2);
+  });
+  return { px: px, whole: whole };
+}
+function layoutAt() {
   VW = d0.documentElement.clientWidth; S = $("#pl").offsetHeight; SVH = $("#ps").offsetHeight;
   VH = S; dpr = window.devicePixelRatio || 1;
   TW = {}; WR = {};                                                  // text is measured again at this size, in the loaded fonts
@@ -5875,15 +5926,25 @@ function layout() {
   layoutPlaces();
   cardRows();
   placesEl.style.setProperty("--park", Math.round((MAPS + DOCS) / 2 * S) + "px");
+  // a station this layout never draws (a laptop window at 200% or 400% zoom, whose art band is too short for its figure
+  // at its own pitch) has no live window: its controls leave the Tab order and the accessibility tree rather than wait
+  // there unseen, and come back on a layout that draws it
+  CHAPTERS.forEach(function (ch) {
+    var g = $("#ctl-" + ch.id); if (!g) return;
+    var best = 0;
+    for (var s = ch.arrive - 0.3; s <= ch.hold + 0.3 && best < 1; s += 0.01) best = Math.max(best, figVis(ch, s));
+    g.inert = best < (PF ? WHOLE : VIS_ON);
+  });
 }
 
 /* ---------- a card leaving under the art band (under the strip on a wide screen) goes a row at a time: a row whose top
    nears the edge steps to half, a row at the edge is hidden whole, so no line is ever drawn cut through its glyphs ---------- */
-var CROWS = [], crowsRO = null;
+var CROWS = [], crowsRO = null, crowsSeen = [];
 function cardRows() {                    // the cards, their sticky geometry, and rows measured again whenever a card resizes
   CROWS = [];
-  if (crowsRO) crowsRO.disconnect();
-  crowsRO = window.ResizeObserver ? new ResizeObserver(function (es) { es.forEach(function (e) { CROWS.forEach(function (c) { if (c.el === e.target) c.stale = true; }); }); }) : null;
+  // one observer for the page's life, each card observed once: a relayout that runs inside the browser's own delivery
+  // (WebKit can settle document.fonts.ready there) adds no fresh observation to it, which would go undelivered
+  if (!crowsRO && window.ResizeObserver) crowsRO = new ResizeObserver(function (es) { es.forEach(function (e) { CROWS.forEach(function (c) { if (c.el === e.target) c.stale = true; }); }); });
   var list = [[$("#b-hero"), $("#b-hero").firstElementChild]];
   CHAPTERS.forEach(function (ch, i) { list.push([$("#b-" + ch.id), ch.card, CHAPTERS[i + 1], ch]); });
   list.forEach(function (bc) {
@@ -5895,7 +5956,7 @@ function cardRows() {                    // the cards, their sticky geometry, an
     var c = { el: el, blk: blk, rows: [], nat: nat, T: parseFloat(getComputedStyle(el).top) || 0, bot: br.bottom + window.scrollY, h: el.offsetHeight, key: "", stale: true,
       nx: bc[2] || null, ch: bc[3] || null, ld0: -1, out: false, cut: 0, lk: [] };
     CROWS.push(c);
-    if (crowsRO) crowsRO.observe(el);
+    if (crowsRO && crowsSeen.indexOf(el) < 0) { crowsSeen.push(el); crowsRO.observe(el); }
   });
 }
 function measureRows(c) {
@@ -5965,7 +6026,14 @@ function maskOf(c, Y, E, now) {
       c.cutB = ha < 0.5 ? H0 : CB;
     }
   }
-  if (top > c.T - 0.5) return lv < 1 ? "linear-gradient(rgba(0,0,0," + lv + "), rgba(0,0,0," + lv + "))" : tail ? "linear-gradient(black 0px" + tail + ")" : "";   // at its sticky top or on its way up
+  if (top > c.T - 0.5) {                                             // at its sticky top or on its way up
+    // a short screen seats a card higher than the band's edge (its title, or more, under the band): there too a row
+    // the edge would cut is hidden whole, with every row above it, so no line is drawn cut through its glyphs
+    var C0 = 0;
+    if (!wide && rs.length && top + rs[0][0] < E) { C0 = c.h; for (var r1 = 0; r1 < rs.length; r1++) if (top + rs[r1][0] >= E) { C0 = rs[r1][0]; break; } }
+    if (C0 > 0) { c.cut = C0; c.out = C0 >= c.h; return c.out ? "linear-gradient(transparent, transparent)" : "linear-gradient(transparent " + C0 + "px, rgba(0,0,0," + lv + ") " + C0 + "px)"; }
+    return lv < 1 ? "linear-gradient(rgba(0,0,0," + lv + "), rgba(0,0,0," + lv + "))" : tail ? "linear-gradient(black 0px" + tail + ")" : "";
+  }
   // an upright phone's card slides up under the band with the page: a row is hidden whole once its top reaches the
   // edge (no glyph is drawn cut), the rows below keep their strength while the title is still in sight, and once the
   // title has gone they stay at half, the level of a card already read, while their own figure is in the band (lv)
@@ -6032,6 +6100,9 @@ function cardMasks(now) {
     var key = maskOf(c, Y, E, now);
     // a card's rows can move without a resize (a panel that swaps in place): measured again as each departure begins
     if (key && !c.key && c.mT !== now) { measureRows(c); key = maskOf(c, Y, E, now); }
+    // the card the keyboard is on is drawn whole until focus leaves it: a mask over the focused link's row would hide
+    // the link and its ring with it, however the ring is styled (focus moving in or out of a card wakes the frame)
+    if (keyIn(c.el)) { key = ""; c.out = false; }
     if (key !== c.key) { c.key = key; c.el.style.webkitMaskImage = c.el.style.maskImage = key; }
     var op = c.out ? "0" : "";           // wholly masked: its opacity says so too, so nothing reads it as on screen
     if (c.el.style.opacity !== op) c.el.style.opacity = op;
@@ -6043,6 +6114,8 @@ function cardMasks(now) {
     for (var q = 0; q < c.lk.length; q++) {
       var lq = c.lk[q][0], off = c.out || c.lk[q][1] < c.cut || c.lk[q][1] > c.cutB, lp = off ? "none" : "";
       if (lq.style.pointerEvents !== lp) lq.style.pointerEvents = lp;
+      // the one the keyboard is on keeps its place in the Tab order until focus leaves it, so its ring is never taken away
+      if (off && lq === d0.activeElement) continue;
       if (lq.tabOff !== off) { lq.tabOff = off; if (off) lq.setAttribute("tabindex", "-1"); else lq.removeAttribute("tabindex"); }
     }
   }
@@ -7321,7 +7394,16 @@ function layoutPlacesLive() {
   PLACES.forEach(function (p) { p.ln = null; });
   if (!wide) {
     MAPPL = null;
-    PLACES.forEach(function (p, i) { p.el.style.transform = "translate(16px," + Math.round(BAND + 16 + 32 * i) + "px)"; });
+    // a short screen with a fine pointer (a laptop window at 200% zoom) closes the rows up, down to the 24 px such a
+    // pointer needs, so the list ends on the screen, and where one column still runs past the foot and the screen is
+    // wide enough it sets the list in two; a touch screen keeps its 32 px rows, closing up to 28 only where its band has
+    // grown to draw the stations whole (a 320 x 568 phone)
+    var room = VH - BAND - 16, n = PLACES.length, pch = matchMedia("(pointer:coarse)").matches ? Math.max(28, Math.min(32, Math.floor(room / n))) : Math.max(24, Math.min(32, Math.floor(room / n)));
+    var per = pch * n > room && pch < 32 && VW >= 560 ? Math.ceil(n / 2) : n;
+    PLACES.forEach(function (p, i) {
+      p.el.style.transform = "translate(" + (16 + Math.floor(i / per) * Math.floor(VW / 2)) + "px," + Math.round(BAND + 16 + pch * (i % per)) + "px)";
+      if (pch < 32) p.el.style.height = p.el.style.lineHeight = pch + "px";
+    });
     taken.push([0, BAND - CAP, VW, BAND]);                         // the caption, two lines in the band's caption row
     eggMapLayout(toCss, [minX, minY, maxX, maxY], taken, segs);
     return;
@@ -7559,6 +7641,9 @@ function syncDom() {
   var tn = performance.now(), drawnFit = NV.pp > 0 && NV.pp <= (mapHalf ? 1 : mapP) && tn >= snapEnd;
   if (!placesWait) placesWaitT = tn;
   placesWait = !placesOn && fitNow && !drawnFit && tn - placesWaitT < 1200;      // bounded: the places never wait on a frame that will not come
+  // a place the keyboard has just focused (its scroll the jump that started the dissolve) never waits unseen: the
+  // places come in at once, so the focus ring is on screen with the Tab that moved it
+  if (placesWait && keyIn(placesEl)) placesWait = false;
   placesOn = fitNow && !placesWait;
   // the rising document slides over the places: they stay live until it reaches the highest one, and a place leaves
   // (sight and tab order) as soon as the document touches its box, so no label is ever drawn cut in half at the edge;
@@ -7575,11 +7660,18 @@ function syncDom() {
     else { placesEl.classList.remove("on"); parkT = setTimeout(function () { placesEl.classList.add("park"); }, 200); }   // park once faded out
     if (MAPPL) wake();                                               // the blooms trade their crumbs with the plates (drawBlooms)
   }
-  PLACES.forEach(function (p) { var hid = live && p.vb > dv; if (p.hid !== hid) { p.hid = hid; p.el.style.visibility = hid ? "hidden" : ""; if (p.ln) p.ln.style.visibility = p.el.style.visibility; } });
+  // and a row the screen's foot would cut (a laptop window at 400% zoom has room under the band for three) is not shown
+  // and takes no Tab, so no place is focused off screen or drawn cut in half (the one the keyboard is already on stays)
+  PLACES.forEach(function (p) { var hid = live && (p.vb > dv || (p.vb > VH + 0.5 && p.el !== d0.activeElement)); if (p.hid !== hid) { p.hid = hid; p.el.style.visibility = hid ? "hidden" : ""; if (p.ln) p.ln.style.visibility = p.el.style.visibility; } });
   var cOn = live;
   if (cOn !== mapCapOn) { mapCapOn = cOn; mapCap.classList.toggle("on", cOn); }
   var tg = capLoY >= 0 && dv < capLoY + 16 + 24;                  // a bottom-row tally leaves 24px before the document's edge
   if (tg !== capTg) { capTg = tg; mapCap.classList.toggle("tg", tg); }
+}
+// focus inside el that the browser would ring (a keyboard's, not a click's)
+function keyIn(el) {
+  var a = d0.activeElement; if (!a || !el.contains(a)) return false;
+  try { return a.matches(":focus-visible"); } catch (e) { return true; }
 }
 function wake() { if (!running) { running = true; lastT = 0; requestAnimationFrame(frame); } }
 function atStation(s) { for (var i = 0; i < CHAPTERS.length; i++) if (s >= CHAPTERS[i].on0 && s <= CHAPTERS[i].hold) return true; return false; }
@@ -7617,6 +7709,7 @@ function frame(now) {
   if (clip || pBusy || cBusy || plBusy || iBusy || fadesBusy || placesWait || zoomBusy(now) || FigKronos.swapping() || shownS !== targetS) requestAnimationFrame(frame);
   else running = false;
 }
+["focusin", "focusout"].forEach(function (e) { d0.addEventListener(e, function () { wake(); }); });
 addEventListener("scroll", function () {
   if (introEnd < 0 && window.scrollY > 0) introFreeze(performance.now());
   lastScrollT = performance.now(); armRest(); notePace(lastScrollT, window.scrollY);
@@ -7790,7 +7883,8 @@ function restorePlace() {
     var nav = performance.getEntriesByType && performance.getEntriesByType("navigation")[0], how = nav ? nav.type : "";
     var saved = sessionStorage.getItem(PLACE_KEY); sessionStorage.removeItem(PLACE_KEY);
     history.scrollRestoration = "auto";
-    if (!saved || location.hash || !(how === "reload" || how === "back_forward" || d0.wasDiscarded)) return;
+    // only a deep link outranks the saved place: a hash that names no place (the skip link's #story) does not
+    if (!saved || hashS() || !(how === "reload" || how === "back_forward" || d0.wasDiscarded)) return;
     restoreP = cleanPlace(JSON.parse(saved).p);
   } catch (err) { return; }
   applyRestore();
@@ -7837,13 +7931,16 @@ function start() {
 }
 // a deep link lands where the strip's own jump would. The browser applies its fragment jump at load, after fonts.ready,
 // so this runs once the page has loaded and one frame has passed, and has the last word
-function jumpHash() {
+function jumpHash() { var f = hashS(); if (f) teleport(f()); }
+// where the hash's deep link lands (a chapter's place, or a line in the document), or null when it names neither
+function hashS() {
   var hsh = location.hash.slice(1);
   if (Object.prototype.hasOwnProperty.call(HASH_ALIAS, hsh)) hsh = HASH_ALIAS[hsh];   // the old page's deep links
-  if (!hsh) return;
+  if (!hsh) return null;
   var p = PLACES.filter(function (q) { return q.ch && q.id === hsh; })[0], el = d0.getElementById(hsh);
-  if (p) teleport(p.s());
-  else if (el && el.closest("#doc")) teleport(docS("#" + hsh));
+  if (p) return function () { return p.s(); };
+  if (el && el.closest("#doc")) return function () { return docS("#" + hsh); };
+  return null;
 }
 layout(); render(0, performance.now());
 var started = (d0.fonts && d0.fonts.ready ? d0.fonts.ready : Promise.resolve()).then(start);
@@ -8261,6 +8358,14 @@ window.__walk = {
     // the line stays in the caption row and is only hidden, so a layout that finds a spot again (a rotation back) shows it
     if (on && !tallyEl.firstChild) { var sq = d0.createElement("span"); sq.className = "eg-sq"; sq.setAttribute("aria-hidden", "true"); tallyEl.appendChild(sq); tallyEl.appendChild(d0.createTextNode("a hidden ant is on this map")); }
     tallyEl.hidden = !on;
+    // a phone too narrow for it beside the caption's first line (under about 342 px) gives it a row of its own under the caption
+    var mc = tallyEl.parentNode, first = mc && mc.classList.contains("ph") && mc.querySelector(".mc-t span"), own = false;
+    if (on && first) {
+      mc.classList.remove("own");
+      var rg = d0.createRange(); rg.selectNodeContents(first);
+      own = tallyEl.getBoundingClientRect().left < rg.getBoundingClientRect().right + 16;
+    }
+    if (mc) mc.classList.toggle("own", own);
   }
   // the free spot nearest the map's centre, on an 8px grid, every obstacle grown by the margin m; the label under the box
   // (one line, else three), or above it, or beside it where neither has room, keeps 8px clear of every obstacle and 16px

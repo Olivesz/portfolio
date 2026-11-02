@@ -2,7 +2,7 @@
 <html lang="en" class="a-llm">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-B4ej+vf1EXhbFqXlzFT30PKaz0NpPb/m7kneYhU1tQk=' 'sha256-XZZizMi0kJ//2infdw8q+tFxk1T5Q8bewH97DHV/8Ko=' 'sha256-gBrgQDMZPtMMwxyp9Ai5ZM3tYks1Vr7MyOdpdMONPss='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-6DPsB1Q5bXsmGHGzTJJnYDv90DFBIlm9Q7Y3/P4b4oE=' 'sha256-XZZizMi0kJ//2infdw8q+tFxk1T5Q8bewH97DHV/8Ko=' 'sha256-gBrgQDMZPtMMwxyp9Ai5ZM3tYks1Vr7MyOdpdMONPss='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>custos-code · Oliver Zhang</title>
@@ -53,6 +53,7 @@
 .sb .sb-m{display:flex;align-items:baseline;gap:8px;color:var(--ink)}
 .sb .sb-m::before{content:"";flex:none;width:8px;height:8px;background:var(--copper)}
 .sb .sb-m.c::before{background:var(--trail)} .sb .sb-m.ok::before{background:var(--accent)}
+@media (forced-colors:active){ .sb .sb-m::before,.vk .v::before{forced-color-adjust:none} }   /* a verdict mark says which by its colour: forced colours keep it */
 .sb svg{margin-top:16px}
 @media (max-width:767px){
   .sb .sb-c{display:none}
@@ -1009,7 +1010,9 @@ function build(name, D) {
 
 function measure(B) {                                   // box-relative geometry of the built figure, read once fonts are in
   var fig = B.fig, f = fig.getBoundingClientRect(), P = B.parts, L = LAYOUTS[B.name], G = {};
-  function rel(r) { return { l: r.left - f.left, r: r.right - f.left, t: r.top - f.top, b: r.bottom - f.top }; }
+  // a layer scaled down to a narrow column (case.css, under 360 px) reads its rects back in its own px
+  var tf = fig.parentNode ? getComputedStyle(fig.parentNode).transform : "none", sk = /^matrix\(/.test(tf) ? parseFloat(tf.slice(7)) || 1 : 1;
+  function rel(r) { return { l: (r.left - f.left) / sk, r: (r.right - f.left) / sk, t: (r.top - f.top) / sk, b: (r.bottom - f.top) / sk }; }
   function base(p) { return rel(p.querySelector(".bl").getBoundingClientRect()).b; }
   var xh = XH_EM * L.fs;
   G.yS = Math.round(base(P.runs.l2) - xh / 2) - 1;      // a 2px stroke centred on the x-height

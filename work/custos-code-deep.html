@@ -64,11 +64,14 @@
 .ob-n{outline:1px solid var(--v-cyan);outline-offset:1px}
 .mk{display:inline-block;width:8px;height:8px;background:var(--mk,var(--copper));flex:none}
 .mk.g{--mk:var(--v-green)} .mk.r{--mk:var(--v-red)} .mk.a{--mk:var(--v-amber)} .mk.c{--mk:var(--v-cyan)} .mk.p{--mk:var(--v-violet)} .mk.m{--mk:var(--muted)}
+@media (forced-colors:active){ .mk,.vd::before,.sc-art .ar .pl,.lp-wall .pl,.lp-back .pl,.fl::before,.lnk::before,.tr-n.exit .ex::before,.lp-wall .wl,.sp-cut{forced-color-adjust:none} }   /* a mark says what it is by its colour: forced colours keep it */
 .cx-in{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--rule)}
 .cx-in label{display:flex;gap:8px;align-items:center}
 .cx-in input[type=text],.cx-in select{min-height:24px;padding:3px 8px;background:var(--void);border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 13px/16px var(--mono);max-width:100%}
 .cx-in input[type=text]{width:320px}
 #sc-split .cx-in label input{flex:1 1 auto;width:auto;min-width:0}
+/* under 360 px a picker narrows to the column, its longest choice cut inside the field rather than off the screen */
+@media (max-width:359.98px){ .cx-in label{max-width:100%} .cx-in select{min-width:0} }
 #sc-split>.cx-in.sp-wr{margin-top:8px;padding-top:0;border-top:0}
 .cx-in input[type=text]:focus-visible,.cx-in select:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
 .cx-out{margin-top:8px;min-height:48px;color:var(--ink);overflow-wrap:anywhere}
@@ -200,6 +203,8 @@
 .bd-grp{grid-column:1/-1;padding-top:8px}
 .bd-c{display:flex;flex-direction:column;gap:4px;min-height:72px;padding:8px;background:var(--void);border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 11px/16px var(--mono);letter-spacing:.04em;text-align:left;cursor:pointer;overflow-wrap:anywhere;transition:border-color var(--t-ui) var(--ease-enter)}
 .bd-c:hover,.bd-c:focus-visible{border-color:var(--ink)}
+.bd-c:focus-visible{outline-offset:-4px}   /* the ring inside the card: a card at the stage's edge would have it cut by the stage */
+button.vd:focus-visible{outline-offset:-4px}   /* and inside a verdict button, which starts at the stage's left edge */
 .bd-c .o{color:var(--muted)}
 .bd-c.fl-on .o{color:var(--ink)}
 .bd-c.dim{border-color:var(--rule)}

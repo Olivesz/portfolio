@@ -52,6 +52,7 @@
 .key-l{display:inline-block;width:8px;height:8px;margin:0 4px 0 0}
 .k-h{background:var(--signal)} .k-t{background:var(--signal-2)} .k-w{background:var(--copper)} .k-r{outline:1px solid var(--v-red);outline-offset:-1px}
 .k-g{background:var(--v-green)} .k-a{background:var(--v-amber)} .k-c{background:var(--v-cyan)} .k-v{background:var(--v-violet)}
+@media (forced-colors:active){ .key-l{forced-color-adjust:none} }   /* a key names a colour the art keeps, so in forced colours it keeps it too */
 .ig .c-amber{fill:var(--v-amber)} .ig .c-green{fill:var(--v-green)} .ig .c-blue{fill:var(--v-blue)} .ig .ln-b{fill:none;stroke:var(--v-blue);stroke-width:1px}
 #sc-hero{margin-top:0}
 #sc-hero .sc-bar,#sc-hero .sc-keys,#sc-hero .sc-in{display:none}

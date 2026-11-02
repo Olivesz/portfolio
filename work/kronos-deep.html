@@ -2,7 +2,7 @@
 <html lang="en" class="a-data">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4PIR/LKwgwkMbRnACGTZNu5yNNkCoLjsCJJA9xastJU='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4nsxMmh0vFLzShKrMcKeKAXZaG6C8AkgugQFVJsOknY='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KRONOS, in depth · Oliver Zhang</title>
@@ -1222,7 +1222,9 @@
   (function () {
     var TICKS = 66, A0 = 2, A1 = 26, B0 = 28, B1 = 56;
     var hero = Deep.scene("sc-hero", {
-      grid: { get cols() { return PHONE() ? 108 : 112; }, get rows() { return PHONE() ? 62 : 15; }, pitch: 8, pitchPhone: 3 },   // the header's width; 108 x 3 fits a 360 px phone
+      // the header's width; 108 x 3 fits a 360 px phone. A narrower one draws it at 2 px a cell, and the rows grow so the
+      // key under the readout (its words set in px) stays on the stage
+      grid: { get cols() { return PHONE() ? 108 : 112; }, get rows() { return PHONE() ? ((this.at || 3) >= 3 ? 62 : Math.ceil(31 + 98 / this.at)) : 15; }, pitch: 8, pitchPhone: 3 },
       space: { top: 24, get bottom() { return PHONE() ? 8 : 8; } },
       ticks: TICKS, tps: 24, pause: 0,
       draw: function (api, tick) {
@@ -1248,7 +1250,7 @@
         ["Bull", "Volatile", "Bear"].forEach(function (n, i) { lab(api, "hk" + i, n, ph ? i * 30 : W - 40 + i * 13.5, ph ? yr : ya, { dy: ph ? 78 : -20, k: SC[i] }); });   // a phone keeps the key under the readout
         lab(api, "hd", NT.toLocaleString("en-US") + " days", W, ya, { align: "right", dy: ph ? -20 : bh * api.pitch + 4, src: R + "tests/test_regime.py#L16" });
         if (done) {
-          lab(api, "hr", "right state on " + pct(Wd.acc, 1) + " of days · this draw", 0, yr, { dy: ph ? 6 : 4, cls: "r", live: 1 });
+          lab(api, "hr", api.scene.stage.clientWidth < 320 ? "right state " + pct(Wd.acc, 1) + " of days" : "right state on " + pct(Wd.acc, 1) + " of days · this draw", 0, yr, { dy: ph ? 6 : 4, cls: "r", live: 1 });   // a 320 px phone's stage takes the short form
           lab(api, "hg", (Wd.grade.acc ? "pass" : "fail") + " · the gate asks for more than 0.80", 0, yr, { dy: ph ? 30 : 28, k: Wd.grade.acc ? "kr-g" : "i", src: R + "tests/test_regime.py#L45" });
           if (wrong) lab(api, "hw", ph ? "ticks: the " + wrong + " days it got wrong" : "ticks under it: the " + wrong + " days it got wrong", ph ? 0 : W, yr, { align: ph ? "left" : "right", dy: ph ? 52 : 4, live: 1 });
         }

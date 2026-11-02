@@ -66,6 +66,7 @@
 .lgd i{width:8px;height:8px;flex:none}
 .lgd .c-b{background:var(--v-blue)} .lgd .c-v{background:var(--v-violet)} .lgd .c-c{background:var(--v-cyan)}
 .lgd .c-g{background:var(--v-green)} .lgd .c-r{background:var(--v-red)} .lgd .c-a{background:var(--v-amber)}
+@media (forced-colors:active){ .lgd i{forced-color-adjust:none} }   /* a key names a colour the art keeps, so in forced colours it keeps it too */
 /* native sliders and checkboxes in a scene's "try" row */
 .sc-rg{display:inline-flex;align-items:center;gap:8px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body)}
 /* native controls drawn in the tokens, 24 px tall to hit (32 on touch): a 2 px copper track with an accent thumb, and a
@@ -101,6 +102,7 @@
 .tg .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tg .cl{justify-self:center;width:8px;height:8px;background:var(--residue);transition:background-color 160ms var(--ease-enter)}
 .tg .cl.ok{background:var(--v-green)}
+@media (forced-colors:active){ .tg .cl{box-sizing:border-box;border:1px solid} .tg .cl.ok{border-width:4px} }   /* forced colours: a ring, filled once it passes */
 .tg .ruff{color:var(--body)}
 .tg-out{min-height:48px;margin-top:16px;font:400 13px/24px var(--mono);color:var(--ink);max-width:576px}
 .tg-out .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}

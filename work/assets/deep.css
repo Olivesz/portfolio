@@ -6,10 +6,11 @@
 .dd-rail{grid-column:1;min-width:0}
 .dd-body{grid-column:2;min-width:0}
 
-/* an in-page link (a chapter, a step, a figure) lands with its top clear of the sticky strip and the road bar under it;
-   a phone on its side scrolls the strip away, so only the road bar's 16 px and a gap are left */
-.lx-ch,.lx-ch .st,.scene{scroll-margin-top:calc(var(--strip) + 32px)}
-@media (max-height:499px){ .lx-ch,.lx-ch .st,.scene{scroll-margin-top:32px} }
+/* an in-page link (a chapter, a step, a figure) lands with its top clear of the sticky strip and the road bar under it
+   (the page's scroll padding, case.css) and 16 px more; a phone on its side scrolls the strip away, so only the road
+   bar's 16 px are kept clear there */
+.lx-ch,.lx-ch .st,.scene{scroll-margin-top:16px}
+@media (max-height:499px){ html{scroll-padding-top:16px} }
 
 /* contents: chapter numbers in the accent, the chapter you are in drawn in ink with a 2 px bar beside it */
 .dd-toc{position:sticky;top:calc(var(--strip) + 24px);max-height:calc(100vh - var(--strip) - 48px);overflow:auto;font:400 11px/16px var(--mono);letter-spacing:.04em}
@@ -72,6 +73,7 @@
 .sc-r{font:400 13px/24px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
 .sc-r .a{color:var(--accent)}
 .sc-lead{position:absolute;width:1px;background:var(--muted);pointer-events:none}
+@media (forced-colors:active){ .sc-lead{forced-color-adjust:none} }   /* a leader is drawn by its fill: forced colours keep it */
 /* a transparent hit target over input cells on the art */
 .sc-hit{position:absolute;margin:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .sc-hit:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
@@ -153,6 +155,9 @@
 .sc-pip.done::before{background:var(--accent)}
 .sc-pip[aria-current="step"]::before{background:var(--ink)}
 .sc-pip:hover::before,.sc-pip:focus-visible::before{background:var(--body)}
+/* a square, a hit target on the art and a scene's slider paint nothing in their text colour; it is the page's, not
+   the engine's own default */
+.sc-pip,.sc-hit,.scene input[type=range]{color:inherit}
 .sc-bar .replay{margin-left:auto}
 /* one anatomy on every deep dive: the art, its step words, the try-it inputs, then the stepper and the caption */
 .scene.js{display:flex;flex-direction:column}
@@ -200,12 +205,19 @@
 }
 @media (max-width:767px) and (pointer:coarse){ .sc-pips{margin-left:-12px} }
 /* a phone on its side (under 500 px tall): the stepper keeps one row, its squares between next and replay, so the
-   docked words and stepper leave as much of the short screen as they can to the step they describe */
+   docked words and stepper leave as much of the short screen as they can to the step they describe. Where the row
+   has no room for a scene's squares (a laptop window at 400% zoom is 360 px by 225), deep.js marks the bar nopip and
+   prev, the count and next carry the step on their own: the row never wraps, and no part of it is drawn over another */
 @media (max-width:767px) and (max-height:499px){
   .sc-bar{display:flex;flex-wrap:nowrap}
+  .sc-bar>*{flex:none} .sc-bar .sc-btn{white-space:nowrap}
   .sc-bar .replay{margin-left:auto}
   .sc-bar .sc-pips{margin-left:0;flex-wrap:nowrap}
+  .sc-bar.nopip .sc-pips{display:none}
 }
+/* under 360 px the row closes up, so prev, the count, next and replay fit 288 px, each button on one line (replay keeps
+   its column while it waits, hidden) */
+@media (max-width:359.98px){ .sc-bar{column-gap:4px} .sc-bar .sc-btn{white-space:nowrap} }
 /* a scene with more steps than squares fit in a row: neighbouring targets overlap (deep.js sets --pip-ov) */
 @media (max-width:767px){ .sc-pips>li{margin-right:var(--pip-ov,0px)} .sc-pips>li:last-child{margin-right:0} }
 /* phone, upright or sideways (a screen under 500 px tall), a scene taller than one screen (deep.js marks it docked): its
@@ -229,6 +241,12 @@
   .scene.js.docked>.sc-keys{max-width:none} .scene.js.docked>.sc-keys li{max-width:576px}
   .scene.js.docked>.sc-keys li.on{pointer-events:auto}
   .scene.js.docked>.sc-bar{position:sticky;bottom:0;z-index:2;margin-top:0;padding:8px 0;background:var(--void)}
+  /* a control on the stage that focus scrolls into view comes to rest above the docked words and stepper, never under them */
+  .scene.js.docked>.sc-stage :is(a[href],button,input,select,summary,textarea){scroll-margin-bottom:calc(var(--dock-b,0px) + var(--dock-h,0px) + 8px)}
+  /* and while the keyboard is on one (or a field takes typing), the row mask that hides rows cut by the docked words'
+     edge (deep.js rowMask) is lifted, so the control and its ring are drawn */
+  .scene.js.docked>.sc-stage:has(:focus-visible){clip-path:none!important}
+  html:has(.scene.js.docked>.sc-stage :focus-visible){scroll-padding-bottom:var(--dock-max,16px)}
   /* while a scene comes up from the foot of the screen, its words are held at the scene's top: the stepper is held
      under them (its margin keeps it a words-height below the scene's top, the words' negative margin gives the space
      back), so it never covers their last lines */
@@ -292,6 +310,14 @@
 .lx-g8{display:flex;gap:4px;height:8px;margin-top:auto;padding-top:12px;box-sizing:content-box}
 .lx-g8 i{width:8px;height:8px;background:var(--c,var(--accent))}
 .lx-g8 i.o{background:none;border:2px solid var(--copper);box-sizing:border-box}
+/* forced colours paint every background as the page's own, so a mark drawn only as a fill (a step square, a toggle's
+   swatch, a legend square) is drawn as a border there, in the system's text colour: a done square's ring is thicker,
+   the current square and a switch that is on are filled */
+@media (forced-colors:active){
+  .sc-pip::before,.sc-tg::before,.lx-g8 i{box-sizing:border-box;border:1px solid}
+  .sc-pip.done::before{border-width:2px}
+  .sc-pip[aria-current="step"]::before,.sc-tg[aria-pressed="true"]::before{border-width:4px}
+}
 @media (max-width:1023px){ .lx-open h2{font-size:44px;line-height:48px;margin-top:8px} }
 /* under 1024 px: a chapter with one figure skips what you'll see (its figure follows at once), and a longer list is
    figure numbers and short names (fig 6 diode), as many columns as fit (two on a phone), the full titles kept as the

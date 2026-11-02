@@ -13,7 +13,7 @@ repositories as they are today.
 | `python3 tests/check-panels.py` | every figure on index.html and every work/*.html is in the source line it cites | about 45 s; the first run fetches |
 | `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, every page has its own link-preview card, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
 | `python3 tests/check-drift.py [--offline]` | every repository the site cites, read at its HEAD: each pinned SHA's distance from HEAD, and every repo-cited figure on index.html and every work/*.html still in the cited file; a figure gone at HEAD fails when it is cited at the repository's main pin or newer, or is a headline (index cards, FACTS, results rows) at any pin; a moved figure, or one gone at a dated pin outside a headline, warns. Network: `gh api`, read-only | about 12 s cold, 2 to 4 s cached, under 1 s `--offline` |
-| `.venv/bin/python tests/check-security.py` | no security or privacy regression in a shipped file: the policy and referrer, no off-origin load, no inline handler, `javascript:` URL, unprotected new tab, form/iframe/base, risky script API or new URL/storage read; no secret, personal data, private or retired claim or local path in any tracked file, PDF text, JPEG bytes or data: URI; no image or PDF metadata; the résumé SVG draws what the PDF draws (`--history` also every blob, message and identity reachable from origin/main; `--selftest` proves every rule on planted controls) | about 5 s; `--history` 30 s; `--selftest` 45 s |
+| `.venv/bin/python tests/check-security.py` | no security or privacy regression in a shipped file: the policy and referrer, no off-origin load, no inline handler, `javascript:` URL, unprotected new tab, form/iframe/base, risky script API or new URL/storage read; no secret, personal data, private or retired claim or local path in any tracked file (character references decoded too), PDF text or Info, JPEG bytes or data: URI, and no secret in font or icon bytes; no image or PDF metadata; the résumé SVG draws what the PDF draws (`--history` also every blob, message and identity reachable from origin/main; `--selftest` proves every rule on planted controls) | about 5 s; `--history` 30 s; `--selftest` 100 s |
 | `python3 tests/csp.py --check` | every page's Content-Security-Policy is present, first after `<meta charset>`, and exactly the policy generated from its inline scripts, with `<meta name="referrer" content="no-referrer">` right after it (`--write` regenerates it; `--browser` also loads each page and fails on any violation) | under 1 s; `--browser` about 70 s |
 | `.venv/bin/python tests/poster.py` | poster.jpg is a fresh render of its three lines beside the map after a full read-through, every bloom grown (`--render` writes it) | about 15 s |
 
@@ -64,6 +64,13 @@ It exits 1 on any FAIL, and also when nothing ran.
 | desktop-1920, desktop-tall | 1920×1080, 1024×1366 | 1 and 2 | taller wide screens, where a short card lets go late: `pan` and `deadscroll` |
 | phone-se, phone-640 | 375×667, 360×640 | 2, touch | the KRONOS card fit; the camera's move per 2px and per 100px of scroll in station-to-station transits (`camstep`, with phone) |
 | land, land-small | 844×390, 740×360 | 3 and 2, touch | a phone on its side: the words in a column beside the art |
+| phone-320 | 320×568 | 2, touch | the narrowest phone: no sideways scroll and no text past the edge on any page (`overflow`, `cases`); the map's labels, and its caption clear of the hidden ant's tally (`maplabels`, its map tags listed, not held) |
+| zoom-400 | 360×225 | 4 | a 1440×900 window at 400% zoom: no sideways scroll on any case study or deep dive (`cases`) |
+| zoom-200, zoom-200-1366, zoom-200-1280 | 720×450, 683×384, 640×400 | 2 | laptop windows at 200% zoom (fine pointer, short screens): every map place whole on screen at the map (`maplabels`) |
+
+At phone-320 and zoom-400 a deep dive's dock fit (each step's change, and each field on its stage, above its docked
+words) cannot hold on screens this small; `cases` lists those steps there instead of failing on them, and holds every
+other part of each page's self-check.
 
 Perf runs last, in its own contexts, at 4× CPU throttle, three times per viewport.
 
@@ -236,6 +243,14 @@ the fix a row names.
 | targets | a 20×14 link added to the hero links line | FAIL | `a r 20x14` |
 | targets | `.place` without its 24px minimum | FAIL | 8 place buttons 20px tall at the map |
 | tabreach | the page with the KRONOS switch inside the native layer | FAIL | `fk-in never reached` in 90 presses |
+| tabreach | the index without its skip link (c6a7144) | FAIL | the first stop is `a.jump`, not the skip link; the Tab after it lands on `button.k-blob`, not in the story |
+| tabreach | the map's places waiting on the dissolve for a keyboard focus as for a scroll | FAIL | `button.place` 'jump to 2023, IEEE IPCCC, …' still at opacity 0 250ms after its Tab, desktop |
+| tabreach | the skip link `position:absolute` at the top of the document, and every hash outranking a saved place | FAIL | mid-story Tab and Shift+Tab from the strip each move the page 6099 → 0; a reload at 6099 after the skip link (#story) comes back at 0 |
+| tabreach | a takeover that sets the KRONOS clock back without swapping a phone's view | FAIL | phone: `parked at a reader's pace: input.fk-in.park in scene kronos` |
+| maplabels | the tally kept beside the caption's first line at 320 px | FAIL | the caption row's `mc-t` and `egg-tally` overlap by 8×14 at phone-320 |
+| maplabels | the map's places in one column of 32 px rows on every short screen | FAIL | at zoom-200 'KRONOS' and 'custos-code' are cut by the viewport, at zoom-200-1366 and zoom-200-1280 'freeflow' and 'KRONOS' too |
+| overflow | the index before its under-360 rules (c6a7144), phone-320 | FAIL | 34px horizontal scroll, 10 text boxes past the edge (the strip's jump links, a map place, the step count) |
+| cases | the work pages before their under-360 rules (c6a7144), phone-320 and zoom-400 | FAIL | all 11 pages scroll sideways at 320 (325 to 354 > 320), the 5 deep dives at 360×225 (412 to 532 > 360) |
 | swaps | the page with the phone views scrubbed by scroll | FAIL | 116 of 300 settled frames not one whole view, cells under the layer up to 0.238 |
 | cardfit | the page before the KRONOS card turned pages | FAIL | 412px against a 323px band at 360×740, and not sticky |
 | cardfit | the page before every card fit (db1a9ba) | FAIL | custos 332px against 323 at 360×740 and 275 at 360×640, emergence 296px against 288 at 375×667; custos showed its note line at all four sizes |
@@ -421,17 +436,17 @@ unreadable): a check that did not run is never a pass.
 |---|---|
 | csp | a page's policy is missing, not first after `<meta charset>`, or not exactly what `csp.py` generates (it calls `csp.check_page`) |
 | referrer | a page lacks exactly one `<meta name="referrer" content="no-referrer">` |
-| origins | anything the browser loads (script, img/srcset, source, media, link stylesheet/preload/icon/manifest, SVG `use`/`image`, CSS `url()`, `@import`, a script setting `.src`) comes from another origin; only `<a>` links may leave |
-| handlers | an `on*=` attribute in markup, in HTML a script builds, or through `setAttribute('on…')` |
+| origins | anything the browser loads (script, img/srcset, source, media, link stylesheet/preload/icon/manifest, SVG `use`/`image`, a `background` attribute, `<a ping>`, CSS `url()` and `image-set()`, `@import`, a script setting `.src` or a `src`/`href` attribute) comes from another origin, each URL read as a browser reads it (tabs and newlines dropped, `\` taken as `/`, so `\\host` and `/\host` leave); only `<a>` links may leave |
+| handlers | an `on*=` attribute in markup, in HTML a script builds (quoted attributes before it included), or through `setAttribute` or `setAttributeNS` with `on…` in any case |
 | jsurl | a `javascript:`, `vbscript:` or `data:text/html` URL in any attribute, script or stylesheet |
-| newtab | a `target=_blank` without `rel` noopener and noreferrer, in markup or built by a script |
-| tags | a form, iframe, frame, object, embed, base, portal or meta refresh, or a script that builds one or a `<script>` |
-| js | eval, the Function constructor, document.write, a string timer, postMessage, localStorage, cookies, any network request, workers, dynamic import, window.open, other HTML sinks (outerHTML, srcdoc, DOMParser), a referrer, window.name or navigation read; or a read of `location.hash/search/pathname` or `sessionStorage` beyond the ones traced to a non-HTML use (`SOURCES_ALLOWED`) |
-| secrets | an API key, token, private key, JWT, credentialed URL or password assignment (18 patterns) in any tracked file, the PDF's text, a JPEG's bytes or a decoded `data:` URI |
-| pii | the phone number (read at run time through check-claims' private profile, never printed), the private repository's name, a private retired claim (check-claims' gitignored patterns: employer-internal names and figures), an email address other than the published one and the commit identity, a street address or an SSN-shaped number, in the same places |
+| newtab | a target that opens another browsing context (`_blank` or a named window) without `rel` noopener and noreferrer, in markup, set by a script (`.target` or `setAttribute`) or in HTML a script builds |
+| tags | a form, iframe, frame, object, embed, base, portal or meta refresh, or a script that builds one or a `<script>` (`createElement` or `createElementNS`) |
+| js | eval, the Function constructor, document.write, a string timer, postMessage, localStorage, indexedDB, cookies, any network request, workers, dynamic import, window.open, other HTML sinks (outerHTML, srcdoc, DOMParser), a referrer, window.name, baseURI or navigation read, a browser global read by a computed name (`window['…']`, `location['…']`); or a read of `location.hash/search/pathname`, `sessionStorage` or a performance entry (`getEntries…`) beyond the ones traced to a non-HTML use (`SOURCES_ALLOWED`) |
+| secrets | an API key, token, private key, JWT, credentialed URL or password assignment (18 patterns) in any tracked file (read again with character references such as `&#64;` decoded), a PDF's text and Info values, a JPEG's bytes, a decoded `data:` URI, or a font's or icon's bytes |
+| pii | the phone number (read at run time through check-claims' private profile, never printed), the private repository's name, a private retired claim (check-claims' gitignored patterns: employer-internal names and figures), an email address other than the published one and the commit identity, a street address or an SSN-shaped number, in the same places but fonts and icons |
 | pdftext | a public retired claim (check-claims' unscoped `RETIRED` patterns) in a PDF's text: check-claims skips PDFs, so this replaces the manual `pdftotext` read before a push |
-| paths | a local home, temp or `file:` path in the same places (custos-code's fixture checkout `/home/dev/` is the figure's subject and allowed) |
-| metadata | a JPEG segment other than JFIF and ICC (EXIF, XMP, comments, trailing bytes), a PNG text or time chunk, a PDF author, subject, keywords, XMP stream, JavaScript or form, or an SVG with metadata, comments, editor data, scripts, handlers or off-origin references |
+| paths | a local home, temp or `file:` path in the same places as pii (custos-code's fixture checkout `/home/dev/` is the figure's subject and allowed) |
+| metadata | a JPEG segment other than JFIF and ICC (EXIF, XMP, comments, trailing bytes), a PNG text or time chunk, any PDF Info key set but Creator, Producer, the two dates, Trapped and pdfTeX's banner (a title, author or custom key fails; the allowed values are still read by the text rules), a PDF XMP stream, JavaScript or form, or an SVG with metadata, comments, editor data, scripts, handlers or off-origin references |
 | svgpdf | `resume-page.svg` draws anything `resume.pdf` does not: both rendered at 144 dpi (Chromium, pdftoppm), every 8×8 block's mean grey within 48 of 255. The SVG is glyph outlines, unreadable as text, so this is what lets the PDF's text check stand for it |
 
 Planted values (fake tokens, the phone number, paths) are assembled at run
@@ -441,10 +456,10 @@ blobs and 24 commits on 2026-11-01. Run it on the commit about to be pushed,
 not on a branch tip that carries unpublished history.
 
 **Falsified** by `--selftest`, which copies the tracked files to a temporary
-directory, requires the clean copy to pass every rule, then plants 81
-violations one at a time (each rule at least once: 3 csp, 2 referrer, 5
-origins, 3 handlers, 2 jsurl, 2 newtab, 5 tags, 19 js, 19 secrets, 8 pii, 1
-pdftext, 5 paths, 6 metadata, 1 svgpdf) and requires each to add a failure the clean copy
+directory, requires the clean copy to pass every rule, then plants 112
+violations one at a time (each rule at least once: 3 csp, 2 referrer, 13
+origins, 6 handlers, 2 jsurl, 7 newtab, 6 tags, 24 js, 22 secrets, 10 pii, 1
+pdftext, 7 paths, 8 metadata, 1 svgpdf) and requires each to add a failure the clean copy
 does not have, then requires the copy to pass again. It then makes the copy a
 git repository and requires `--history HEAD` to report a token committed and
 deleted again, the phone number in a message, a local path in a message, a
@@ -452,12 +467,20 @@ foreign identity and a private retired claim in a file deleted again. The
 private patterns cannot be planted without writing one down, so the self-test
 adds one made-up pattern to them for its run: that proves they reach pages, PDF
 text and history; what each real pattern matches is check-claims' own controls. A copy of the gate with `newtab` emptied fails the self-test
-on both newtab controls and names the rule as uncovered (exit 1).
+on all six newtab controls and names the rule as uncovered (exit 1); one that
+skips decoding character references fails on the four controls written as
+references (exit 1), and one whose createElement pattern drops `createElementNS`
+fails on the SVG script control (exit 1).
 
 The svgpdf threshold was measured: on the tree as committed the worst block
 differs by 29 (anti-aliasing), one 7pt letter added to the SVG reaches 73, and
 a 9pt phone-shaped line 101, while counting single pixels instead of blocks
-differed on 25,609 of 1.94M pixels with nothing planted.
+differed on 25,609 of 1.94M pixels with nothing planted. A line of light grey
+(#c8c8c8) text at 7pt or 10pt reaches only 31 to 33, and counting only blocks
+the SVG draws darker gives the same 29 clean, so no limit separates it from
+anti-aliasing: the limit stays 48 and that shape is not caught. Neither is a
+bare `name` (window.name through the global): no pattern tells it from a local
+or a parameter called `name`, which index.html's scripts have.
 
 ## check-claims.py
 

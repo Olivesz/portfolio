@@ -25,6 +25,15 @@
 
 *{box-sizing:border-box}
 html{background:var(--void);color:var(--body);-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* a jump or a focus that scrolls the page brings its target to rest below the sticky strip and the road bar under it,
+   and one brought up from below rests 16 px over the screen's foot, its focus ring whole (WebKit aligns it to the foot) */
+html{scroll-padding-top:calc(var(--strip) + 16px);scroll-padding-bottom:16px}
+/* Firefox leaves a control where it is when more than 16 px of it shows, plus its scroll margin: a margin keeps a tall
+   control from resting mostly under the strip or the screen's foot after Tab (the deep-dive card needs over half its
+   152 px on a 225 px screen, a sources line wrapped to five rows over half its 88) */
+:is(a[href],button,input,select,summary,textarea){scroll-margin-block:16px}
+.lx-deep{scroll-margin-bottom:48px}
+.srcs-d summary{scroll-margin-block:32px}
 body{margin:0;background:var(--void);color:var(--body);font:400 15px/24px var(--sg);overflow-x:clip;-webkit-font-smoothing:antialiased}
 h1,h2,h3,p,ol,ul,dl,dd,figure{margin:0;padding:0}
 a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
@@ -34,7 +43,8 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 /* the font has no left arrow: the right arrow, mirrored */
 .back{display:inline-block;transform:scaleX(-1)}
-.skip{position:absolute;left:var(--gut);top:-48px;z-index:40;padding:4px 8px;background:var(--void);font:400 13px/24px var(--mono)}
+/* fixed, so focus reaching it mid-page leaves the reader where they were */
+.skip{position:fixed;left:var(--gut);top:-48px;z-index:40;padding:4px 8px;background:var(--void);font:400 13px/24px var(--mono)}
 .skip:focus{top:8px}
 
 /* top strip: one line, opaque ground, the same strip as the index page */
@@ -92,6 +102,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .chips{display:flex;flex-wrap:wrap;gap:8px;list-style:none}
 .chip{--c:var(--muted);display:inline-flex;align-items:center;gap:8px;height:24px;padding:0 8px;border:1px solid var(--c);color:var(--c);font:400 11px/16px var(--mono);letter-spacing:.04em;white-space:nowrap}
 .chip::before{content:"";width:8px;height:8px;background:var(--c);flex:none}
+@media (forced-colors:active){ .chip::before{forced-color-adjust:none} }   /* a theme's swatch: forced colours keep its colour */
 .chip.t-llm{--c:var(--t-llm)} .chip.t-verify{--c:var(--t-verify)} .chip.t-systems{--c:var(--t-systems)}
 .chip.t-data{--c:var(--t-data)} .chip.t-play{--c:var(--t-play)}
 
@@ -533,6 +544,7 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-nav .k{display:flex;align-items:center;gap:8px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .lx-nav .k::before{content:"";width:8px;height:8px;background:var(--c,var(--muted));flex:none}
 .lx-nav .all .k::before{content:none}
+@media (forced-colors:active){ .lx-nav .k::before{box-sizing:border-box;border:1px solid} }   /* a fill is the page's own colour there */
 .lx-nav .t{display:block;margin-top:4px;font:500 15px/24px var(--sg);color:var(--ink)}
 .lx-nav .next{text-align:right} .lx-nav .next .k{justify-content:flex-end}
 @media (max-width:767px){ .lx-nav{grid-template-columns:1fr 1fr;gap:12px;margin-top:32px} .lx-nav .all{grid-column:1 / -1;grid-row:1} }
@@ -552,6 +564,9 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-armed.on.quick .lx-tiles li,.lx-armed.on.quick.lx-tiles li{transition-delay:calc(var(--i,0) * 4ms)}
 /* at a skim a title or a statement is read in passing: it is there at once, in ink, never caught halfway up */
 .lx-armed.on.quick h2[data-lx="up"],.lx-armed.on.quick .lx-state[data-lx="up"]{transition:none}
+/* a block the keyboard reaches before its turn in the arrival is there at once, so the focus ring never sits on a
+   link still faded out */
+.lx-armed [data-lx="up"]:focus-within,.lx-armed[data-lx="up"]:focus-within{opacity:1;transform:none;transition:none}
 
 @media (prefers-reduced-motion:reduce){ .lx-hero .lx-up{animation:none} }
 @media print{ .lx-rail,.lx-bar,.lx-arrive-cv{display:none} .lx-armed *{opacity:1!important;transform:none!important} }
@@ -565,4 +580,20 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
   .lx-stats .lx-m{display:grid;grid-template-columns:136px minmax(0,1fr);column-gap:16px;align-items:start}
   .lx-stats .lx-big{grid-column:1;grid-row:1 / span 2;margin-top:0;font-size:44px;line-height:48px;letter-spacing:-.03em}
   .lx-stats .k{grid-column:2} .lx-stats .s{grid-column:2;margin-top:4px}
+}
+
+/* under 360 px (an old small phone, or a laptop window at 400% zoom) the column is narrower than the 328 px a narrow
+   figure is drawn for: figures scale to the column, and the strip closes up so its last link stays on the screen */
+@media (max-width:359.98px){
+  .ig svg{max-width:100%;height:auto}
+  .strip{gap:8px}
+  .strip a{letter-spacing:0}
+  /* a hero drawn in its own medium is laid out for 324 px: it scales to the 288 px column, its middle kept level */
+  .stage>[data-native]{transform:scale(.8889);transform-origin:0 50%}
+  /* a proof table sets its cells in mono 11 with closer columns, so every row keeps one line */
+  table.pt{font-size:11px}
+  table.pt th,table.pt td{padding-left:8px}
+  table.pt thead th{letter-spacing:0}
+  /* the hero's two results stack, so a wide number never runs into the one beside it */
+  .lx-led .lx-mg{grid-template-columns:minmax(0,1fr)}
 }

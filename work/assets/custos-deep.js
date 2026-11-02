@@ -821,7 +821,9 @@
       if (S.dock) S.dock();                                          // the held height can tip a phone scene past one screen
     });
   }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(steady); else steady();
+  // once the fonts are in, at the next frame: WebKit can settle fonts.ready inside its ResizeObserver delivery, and a
+  // relayout run there leaves the page's observer an undelivered change (a "ResizeObserver loop" error)
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { requestAnimationFrame(steady); }); else steady();
   var rzw = window.innerWidth, rzt = 0;
   window.addEventListener("resize", function () {
     if (window.innerWidth === rzw) return; rzw = window.innerWidth;

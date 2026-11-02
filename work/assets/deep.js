@@ -42,7 +42,7 @@
     b.forEach(function (c) { if (c) e.classList.add(c); });
   }
 
-  var scenes = [];
+  var scenes = [], dockMax = 0, rebuilds = [], builtPhone = null, rebuilding = false;
 
   function Scene(fig, spec) {
     var S = this;
@@ -186,6 +186,31 @@
     S.pips.forEach(function (p, i) { p.addEventListener("click", function () { S.reveal(i); }); });
   };
 
+  /* a page whose scenes are built for one arrangement (Deep.phone) builds them again when a resize crosses into the
+     other (relayout, Deep.onPhone): a scene keeps its controls, its step and its place in the timeline, and takes the
+     new spec's grid, drawing and labels, so one arrangement's labels never sit on the other's grid */
+  SP.respec = function (spec) {
+    var S = this;
+    S.leaveLive(); S.spec = spec;
+    for (var id in S.labels) { var e = S.labels[id].e; if (e.parentNode) e.parentNode.removeChild(e); }
+    S.labels = {};
+    var cells = (spec.inputs || []).filter(function (inp) { return inp.cell; });
+    S.hits.forEach(function (h, i) { if (cells[i]) h.cell = cells[i].cell; });
+    (spec.inputs || []).forEach(function (inp) { if (S.inputBtns[inp.id]) S.inputBtns[inp.id].inp = inp; });
+    S.keys.forEach(function (k, i) {                                  // the page sets its steps' ticks again
+      if (!k.li) return;
+      var ld = k.li.getAttribute("data-lead");
+      k.at = +(k.li.getAttribute("data-at") || 0);
+      k.lead = ld === null || !i ? null : Math.max(S.keys[i - 1].at + 1, Math.round(+ld));
+      if (k.lead !== null && (isNaN(k.lead) || k.lead >= k.at)) k.lead = null;
+    });
+    S.T = Math.max(spec.ticks || 0, S.keys[S.keys.length - 1].at); S.tps = spec.tps || 8;
+    S.startAt = S.startKey ? S.keys[S.startKey].at : 0;
+    S.t = Math.min(S.t, S.T); S.target = Math.min(S.target || 0, S.T); S.drawnTick = -1;
+    if (spec.init) spec.init(S.api);
+    S.layout(); S.render(true);
+  };
+
   SP.syncInputs = function () {
     for (var id in this.inputBtns) {
       var o = this.inputBtns[id], on = !!this.inputs[id];
@@ -244,6 +269,10 @@
     var o = L.o || {}, w = L.e.offsetWidth, cx = ox + L.x * p + (o.align === "center" ? p / 2 : o.align === "right" ? p : 0);
     var left = (o.align === "center" ? cx - w / 2 : o.align === "right" ? cx - w : cx) + (o.dx || 0);
     if (this.inset) left = Math.max(this.inset[0], Math.min(left, this.inset[2] - this.inset[1] - w));   // a bled grid's words stay off the screen's edge
+    /* the words stay inside the stage, which clips them (a 320 px phone is narrower than the column a grid's labels were
+       set for): a label that would run past a side moves in as far as the stage allows */
+    var ml = parseFloat(this.art.style.marginLeft) || 0, lo = -ml, hi = this.stage.clientWidth - ml;
+    if (w && w <= hi - lo && (left < lo - 0.5 || left + w > hi + 0.5)) left = Math.max(lo, Math.min(left, hi - w));
     L.e.style.left = Math.round(left) + "px";
     L.e.style.top = Math.round(oy + L.y * p + (o.dy || 0)) + "px";
   };
@@ -336,18 +365,22 @@
      than the row, neighbouring targets overlap a little, so the squares sit closer but never wrap a lone one onto a
      second row. The row starts half a target left of the column (deep.css), so the first square lines up with it. */
   SP.fitPips = function () {
-    var S = this, n = S.pips.length;
+    var S = this, n = S.pips.length, bar = S.fig.querySelector(".sc-bar");
     S.fig.style.removeProperty("--pip-ov");
+    if (bar) bar.classList.remove("nopip");
     if (n < 2 || root.innerWidth >= 768) return;
-    var bar = S.fig.querySelector(".sc-bar"), base = COARSE ? 32 : 24, row = bar.clientWidth + (base - 8) / 2;
+    var base = COARSE ? 32 : 24, row = bar.clientWidth + (base - 8) / 2, one = getComputedStyle(bar).display !== "grid";
     // a short screen keeps the squares on the stepper's one row: they get what prev, the count, next and replay leave
-    if (getComputedStyle(bar).display !== "grid") {
+    // (a part not drawn, such as replay under reduced motion, takes no room and no gap)
+    if (one) {
+      var gap = parseFloat(getComputedStyle(bar).columnGap) || 0;
       row = bar.clientWidth;
-      [].forEach.call(bar.children, function (c) { if (!c.classList.contains("sc-pips")) row -= c.offsetWidth + 8; });
+      [].forEach.call(bar.children, function (c) { if (!c.classList.contains("sc-pips") && c.getClientRects().length) row -= c.offsetWidth + gap; });
     }
     if (n * base <= row) return;
     var step = Math.floor((row - base) / (n - 1));
     if (step >= 24) S.fig.style.setProperty("--pip-ov", (step - base) + "px");
+    else if (one) bar.classList.add("nopip");                         // too little room: the count carries the step (deep.css)
   };
 
   /* phone: a scene whose art, words and stepper do not fit one screen under the strip docks its words and stepper to
@@ -364,8 +397,12 @@
   function dockable() { return root.innerWidth < 768 || root.innerHeight < 500; }
   /* a grid's phone arrangement (its rows, pitchPhone, api.phone): a screen under 768 px wide. A page that sets
      Deep.wideShort lays a phone held sideways (under 500 px tall) out in its wide arrangement instead, where its grids
-     have the width to come down in pitch until their rows fit above the docked words */
-  function phoneW() { return root.innerWidth < 768 && !(root.Deep && root.Deep.wideShort && root.innerHeight < 500); }
+     have the width to come down in pitch until their rows fit above the docked words; set to a width, only a short
+     screen at least that wide does (narrower, a side column of labels would leave the grid too small to read) */
+  function phoneW() {
+    var ws = root.Deep && root.Deep.wideShort;
+    return root.innerWidth < 768 && !(ws && root.innerHeight < 500 && root.innerWidth >= (ws === true ? 0 : ws));
+  }
   /* the screen a scene must fit to stay in the flow: the shortest this width has shown, with a phone's toolbar out
      (100svh, where the browser knows it). The toolbar slides away and back as the reader turns, which changes the
      height and fires resize; deciding against the shortest screen means it never re-docks a scene under the reader.
@@ -459,6 +496,10 @@
     fig.style.setProperty("--dock-b", Math.floor(bar.getBoundingClientRect().height) + "px");
     var keys = fig.querySelector(".sc-keys");
     if (keys) fig.style.setProperty("--keys-h", Math.ceil(keys.getBoundingClientRect().height) + "px");
+    // the tallest dock on the page, for the page's scroll padding while a control on a docked stage has the keyboard
+    // (deep.css): WebKit brings a control that is already part on screen up only as far as that padding says
+    dockMax = Math.max(dockMax, Math.ceil(bar.getBoundingClientRect().height + (keys ? keys.getBoundingClientRect().height : 0)) + 8);
+    document.documentElement.style.setProperty("--dock-max", dockMax + "px");
     /* a phone on its side: a drawn composition (an svg) a little taller than the band between the strip and the longest
        step's words is scaled to it (deep.css), so every step can show it whole; never below 85%, so its 13 px labels
        stay at the site's smallest size, 11 px. A canvas keeps its whole-pixel pitch. */
@@ -899,7 +940,15 @@
 
   /* resize: lay every scene out again once the size settles */
   var rz = 0, laidW = root.innerWidth, laidH = root.innerHeight;
-  function relayout() { rz = 0; laidW = root.innerWidth; laidH = root.innerHeight; scenes.forEach(function (s) { s.layout(); s.render(true); }); sched(); heads(true); }
+  function relayout() {
+    rz = 0; laidW = root.innerWidth; laidH = root.innerHeight; dockMax = 0;
+    var ph = phoneW();
+    if (rebuilds.length && ph !== builtPhone) {                        // crossed into the other arrangement: build again
+      builtPhone = ph; rebuilding = true;
+      try { rebuilds.forEach(function (f) { f(ph); }); } finally { rebuilding = false; }
+    }
+    scenes.forEach(function (s) { s.layout(); s.render(true); }); sched(); heads(true);
+  }
   root.addEventListener("resize", function () {
     clearTimeout(rz);
     rz = setTimeout(relayout, 120);
@@ -982,8 +1031,14 @@
         fig.setAttribute("data-check", "fail");
         return null;
       }
+      if (rebuilding) { var s0 = scenes.filter(function (o) { return o.fig === fig; })[0]; if (s0) s0.respec(spec); return s0 || null; }
       var s = new Scene(fig, spec); scenes.push(s); return s;
-    }
+    },
+    /* the arrangement a grid is laid out in (phoneW), for a page that builds its scenes for one; such a page hands
+       Deep.onPhone the function that builds them, and deep.js calls it again (Deep.scene then updates each scene in
+       place) when a resize, such as a rotation or browser zoom, crosses into the other */
+    phone: phoneW,
+    onPhone: function (fn) { rebuilds.push(fn); builtPhone = phoneW(); }
   };
   root.Deep = Deep;
   /* read-only hook for checks */
