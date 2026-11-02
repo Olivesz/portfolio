@@ -276,20 +276,71 @@
   /* ---------------- drawing helpers ---------------- */
   var C = 4;                                                         // css px per cell, on every screen
   function colsFor(id) { var st = document.querySelector("#" + id + " .sc-stage"); return Math.max(72, Math.floor(Math.min(704, st ? st.clientWidth : 704) / C)); }
+  /* a scene is built for the columns its stage holds, so a resize that changes them (a narrower window, browser zoom on
+     the open page, a phone turned) builds it again for the new width, in place, as a fresh load would: deep.js runs
+     spec.layout on each relayout, and respec keeps the scene's controls (and the keyboard on them) and its step; a run
+     the reader started with a toggle is put back as it was. Only a scene whose columns changed is built again. One on
+     screen, and one above it whose height changes, is built in the relayout itself, while the browser keeps the reader's
+     place (scroll anchoring); the others, below the screen or keeping their height, one per task after it, where they
+     move nothing the reader sees, so a rotation never holds the page for all fourteen at once (each makes its labels
+     anew). Firefox and WebKit stop anchoring after ten quick adjustments that average under 2 px (Firefox for the rest
+     of the visit), and deep.js's docking makes three 5 px ones for each scene above the reader on a short screen, so
+     the scenes whose height changes most are built first: built after those, one per task, the scenes above would move
+     the reader 66 to 136 px down at 400% zoom. */
+  var later = [], laterT = 0, built = [];
+  function drain() {
+    laterT = 0;
+    var f = later.shift(); if (f) f();
+    if (later.length) laterT = setTimeout(drain, 0);
+  }
+  function front() {
+    var vh = window.innerHeight;
+    built.filter(function (o) { var r = o.S.stage.getBoundingClientRect(); return o.stale() && r.top < vh && (o.grow() || r.bottom > 0); })
+      .sort(function (a, b) { return Math.abs(b.grow()) - Math.abs(a.grow()); })
+      .forEach(function (o) { o.rebuild(); });
+  }
   function scene(id, rows, spec) {
-    var cols = colsFor(id);
-    if (rows instanceof Array) rows = cols < 140 ? rows[1] : rows[0];
-    spec.grid = { cols: cols, rows: rows, pitch: C, pitchPhone: C, min: C };
+    var S = null, busy = false;
+    function grid() { var cols = colsFor(id); return { cols: cols, rows: rows instanceof Array ? (cols < 140 ? rows[1] : rows[0]) : rows, pitch: C, pitchPhone: C, min: C }; }
+    function rebuild() {
+      var i = later.indexOf(rebuild), was = null;
+      if (i >= 0) later.splice(i, 1);
+      if (colsFor(id) === spec.grid.cols) return;                    // a resize there and back before its turn
+      if (S.mode === "live") { was = {}; for (var k in S.inputs) was[k] = !!S.inputs[k]; }
+      busy = true;
+      try { spec.grid = grid(); S.respec(spec); S.layout(); } finally { busy = false; }   // respec leaves the layout to its caller
+      S.render(true);                                                // placed again at their own widths, as a load's later draws do
+      if (!was) return;
+      var ids = Object.keys(was);                                    // the toggles the reader set, through the scene's own path
+      ids.forEach(function (k) { if (!!S.inputs[k] !== was[k]) S.toggle(k); });
+      if (S.mode !== "live" && ids.length) { S.toggle(ids[0]); S.toggle(ids[0]); }
+    }
+    spec.grid = grid();
     spec.align = "left";
     spec.rows = spec.rows || Deep.inkRows;                           // docked words clip a painted row whole, never in two
     spec.check = spec.check || ok;
-    return Deep.scene(id, spec);
+    function stale() { return colsFor(id) !== spec.grid.cols; }
+    function grow() { return grid().rows - spec.grid.rows; }      // in cells: the height a rebuild adds (or takes)
+    spec.layout = function () {
+      if (!S || busy || !stale()) return;
+      var r = S.stage.getBoundingClientRect();
+      if (r.top < window.innerHeight && (grow() || r.bottom > 0)) { front(); return; }
+      if (later.indexOf(rebuild) < 0) later.push(rebuild);
+      if (!laterT) laterT = setTimeout(drain, 0);
+    };
+    S = Deep.scene(id, spec);
+    if (S) built.push({ S: S, stale: stale, grow: grow, rebuild: rebuild });
+    return S;
   }
   function narrow(api) { return api.cols < 140; }
   function lab(api, id, html, x, y, o) {
     o = o || {}; o.html = true; var L = api.scene.labels[id];
     if (L) L.e.hidden = false;                                                                // unhide first: a hidden label measures 0 wide
-    var e = api.label(id, html, x, y, o), max = api.cols * C, l = parseFloat(e.style.left) || 0, w = e.offsetWidth;
+    if (L && L.e.style.width) { L.e.style.width = ""; L.e.style.whiteSpace = ""; }            // a kept label measures as a new one, not at the width it was cut to
+    var e = api.label(id, html, x, y, o);
+    // a wrapped label is placed again at the width it is shown at: placed unwrapped, it is moved in from the stage's edge
+    if (o.wCells) { e.style.whiteSpace = "normal"; e.style.width = Math.round(o.wCells * C) + "px"; api.label(id, html, x, y, o); }
+    var max = api.cols * C, l = parseFloat(e.style.left) || 0, w = e.offsetWidth;
     if (l < 0) { e.style.left = "0px"; l = 0; }                                                 // never past the stage's edges
     if (l + w > max + 0.5) {
       if (max - l >= 160) { e.style.whiteSpace = "normal"; e.style.width = Math.floor(max - l) + "px"; }
@@ -301,6 +352,7 @@
   function hide(api, id) { var L = api.scene.labels[id]; if (L) L.e.hidden = true; }
   function hRows(e) { return Math.max(4, Math.ceil(e.offsetHeight / C)); }          // a shown label's height, in cells
   function wrap(api, id, html, x, y, wCells, o) {
+    o = o || {}; o.wCells = wCells;
     var e = lab(api, id, html, x, y, o); e.style.whiteSpace = "normal"; e.style.width = Math.round(wCells * C) + "px"; return e;
   }
   function hline(api, x0, x1, y, t) { api.rect(Math.min(x0, x1), y, Math.abs(x1 - x0) + 1, 1, t); }

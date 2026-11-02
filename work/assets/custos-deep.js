@@ -648,7 +648,9 @@
     /* the claims block starts low enough that its label clears the sessions above it: row 11 at pitch 8, 13 at pitch 4;
        two label lines sit under the grid, one for the three false accusations and one for the task title */
     function rowsFor() { G.rows = window.innerWidth < 768 ? 24 : 20; }
-    rowsFor(); window.addEventListener("resize", rowsFor);
+    // set again by deep.js's relayout when a resize crosses the phone line: inside the resize event a turned phone can
+    // still report the width it had
+    rowsFor(); Deep.onPhone(rowsFor);
     scene("sc-audit", {
       grid: G,
       space: { top: 24, bottom: 24 },

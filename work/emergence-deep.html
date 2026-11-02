@@ -47,6 +47,11 @@
 .sc-rg input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:8px;height:16px;margin-top:-7px;background:var(--accent);border:0;border-radius:0}
 .sc-rg input::-moz-range-track{height:2px;background:var(--copper);border:0}
 .sc-rg input::-moz-range-thumb{width:8px;height:16px;background:var(--accent);border:0;border-radius:0}
+/* forced colours paint a fill in the page's own colour: the track and thumb take the text colour */
+@media (forced-colors:active){
+  .sc-rg input::-webkit-slider-runnable-track{background:CanvasText} .sc-rg input::-webkit-slider-thumb{background:CanvasText}
+  .sc-rg input::-moz-range-track{background:CanvasText} .sc-rg input::-moz-range-thumb{background:CanvasText}
+}
 @media (pointer:coarse){ .sc-rg label{min-height:32px} .sc-rg input{height:32px} .sc-rg input::-webkit-slider-thumb{width:12px;height:24px;margin-top:-11px} .sc-rg input::-moz-range-thumb{width:12px;height:24px} }
 .scene[data-check="fail"] .sc-keys::before{content:"this figure’s self-check failed, so it is not shown.";display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--v-red)}
 .key-l{display:inline-block;width:8px;height:8px;margin:0 4px 0 0}

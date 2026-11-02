@@ -2,7 +2,7 @@
 <html lang="en" class="a-data">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4nsxMmh0vFLzShKrMcKeKAXZaG6C8AkgugQFVJsOknY='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-FG62hX4YWlRsGAdqboEGxpJEolHM0Gpr7Nm92Q4jYcY='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>KRONOS, in depth · Oliver Zhang</title>
@@ -63,6 +63,11 @@
 .kr-sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:8px;height:16px;margin-top:-7px;background:var(--v-amber);border:0;border-radius:0}
 .kr-sl input[type=range]::-moz-range-track{height:2px;background:var(--copper);border:0}
 .kr-sl input[type=range]::-moz-range-thumb{width:8px;height:16px;background:var(--v-amber);border:0;border-radius:0}
+/* forced colours paint a fill in the page's own colour: the track and thumb take the text colour */
+@media (forced-colors:active){
+  .kr-sl input[type=range]::-webkit-slider-runnable-track{background:CanvasText} .kr-sl input[type=range]::-webkit-slider-thumb{background:CanvasText}
+  .kr-sl input[type=range]::-moz-range-track{background:CanvasText} .kr-sl input[type=range]::-moz-range-thumb{background:CanvasText}
+}
 @media (max-width:767px){ .kr-sl,.kr-sl.two{grid-template-columns:minmax(0,1fr)} }
 @media (pointer:coarse){ .kr-sl input[type=range]{height:32px} .kr-sl input[type=range]::-webkit-slider-thumb{width:12px;height:24px;margin-top:-11px} .kr-sl input[type=range]::-moz-range-thumb{width:12px;height:24px} }
 .sc-l.kr-g{color:var(--v-green)} .sc-l.kr-t{color:var(--v-red)} .sc-l.kr-a{color:var(--v-amber)} .sc-l.kr-c{color:var(--v-cyan)}
@@ -1022,7 +1027,10 @@
   })();
 
   /* the whole machine, one rebalance (an SVG diagram: README.md#L113-L114, kronos/risk.py#L23-L55, run_kronos.py#L90-L96) */
-  Deep.scene("sc-flow", { ticks: 3, tps: 1 });
+  Deep.scene("sc-flow", { ticks: 3, tps: 1,
+    // a short screen keeps the two books the first step's words name in view (prices, equal weight, and regimes to
+    // HRP + BL), not the overlay and the day under them, which the later steps add to
+    focus: { stages: '[data-from="stages"] | [data-from="stages"] > rect:nth-of-type(-n+5)' } });
 
   /* ======================================================================================================
      3-6 · gate 2's planted world (tests/test_regime.py#L16-L28), the Gaussian HMM (kronos/regime.py#L38-L194) and the

@@ -2,7 +2,7 @@
 <html lang="en" class="a-llm">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ukVcnc9jkbZP+WQrqhHDUiX4+vXcM68GvqKDWtD6E/Q='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-ER5Kg8jjDm1dEc6I5LfkVSutKlN0KiZnA1SgQgwQPBI='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>inf-mem, in depth · Oliver Zhang</title>
@@ -78,6 +78,12 @@
 .sc-rg input[type=range]::-moz-range-thumb{width:8px;height:16px;background:var(--accent);border:0;border-radius:0}
 .sc-rg input[type=checkbox]{-webkit-appearance:none;appearance:none;flex:none;width:24px;height:24px;margin:0;padding:7px;border:1px solid var(--copper);border-radius:0;background:var(--copper);background-clip:content-box;cursor:pointer}
 .sc-rg input[type=checkbox]:checked{border-color:var(--ink);background-color:var(--ink)}
+/* forced colours paint a fill in the page's own colour: the track, the thumb and a checked box's mark take the text colour */
+@media (forced-colors:active){
+  .sc-rg input[type=range]::-webkit-slider-runnable-track{background:CanvasText} .sc-rg input[type=range]::-webkit-slider-thumb{background:CanvasText}
+  .sc-rg input[type=range]::-moz-range-track{background:CanvasText} .sc-rg input[type=range]::-moz-range-thumb{background:CanvasText}
+  .sc-rg input[type=checkbox]:checked{background-color:CanvasText}
+}
 .sc-rg input:focus{outline:none} .sc-rg input:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
 .sc-rg output{min-width:40px;color:var(--ink);font-variant-numeric:tabular-nums}
 .sc-rg output{white-space:nowrap;flex:none}
@@ -1033,13 +1039,13 @@
     var Z = zones(L, p, [[0, 0, 208, 240], [224, 0, 224, 240], [464, 0, 240, 112], [464, 128, 240, 112]], [216, 216, 56, 72], "bmgs");
     var b = Z.b, m = Z.m, s = Z.s, q = Z.g, PW = n ? b.w - 56 : b.w - 16;
     win(L, tx(p, b.x + 8, b.y + 40, "chatgpt.com", "lb-i"), -1, 41);
-    win(L, tx(p, b.x + 8, b.y + 40, "claude.ai", "lb-i"), 41);
+    win(L, tx(p, b.x + 8, b.y + 40, "claude.ai", "lb-i id-site"), 41);
     if (n) { bx(p, b.x + 8, b.y + 48, b.w - 16, 32, "bx"); tx(p, b.x + 16, b.y + 68, EX.prompt, "lb-i", { w: b.w - 32 }); }
     else { bx(p, b.x + 8, b.y + 48, b.w - 16, 40, "bx"); tx(p, b.x + 16, b.y + 64, "Rewrite this paragraph", "lb-i"); tx(p, b.x + 16, b.y + 80, "so it reads better.", "lb-i"); }
     var pnl = gh(kg(p, "from", "offer")); bx(pnl, b.x + 8, b.y + 96, PW, 116, "bx"); tx(pnl, b.x + 16, b.y + 112, "memory panel", "lb");
     chip(pnl, b.x + 16, b.y + 118, "PREFERENCE"); chip(pnl, b.x + 16, b.y + 142, "PROJECT");
     tx(pnl, b.x + 16, b.y + 204, "send with memory ✓", "lb-i");
-    var nc = g(p); chip(nc, b.x + 16, b.y + 166, "new memory", "s-green", "lb f-green"); win(L, nc, 47.5);
+    var nc = g(p, "id-new"); chip(nc, b.x + 16, b.y + 166, "new memory", "s-green", "lb f-green"); win(L, nc, 47.5);
     // the store
     var st = { x: m.x + 8, y: m.y + 48, w: m.w - 16, h: n ? 160 : 176 };
     bx(p, st.x, st.y, st.w, st.h, "bx"); tx(p, st.x + 8, st.y + 16, "memory store", "lb");
@@ -1089,7 +1095,10 @@
       H = s.y + s.h + 8;
     }
     return H;
-  }, { ticks: 48, rest: "next", pause: 1800 });                    // the opening scene moves before the reader looks away
+  }, { ticks: 48, rest: "next", pause: 1800,                       // the opening scene moves before the reader looks away
+    // a short screen keeps what the last step's words name, the site and the new memory in its panel, in view, not the
+    // whole loop up from the store
+    focus: { next: '[data-from="next"] | .id-site, .id-new' } });
 
   /* ============ scene 4 · holding the prompt ============ */
   var s4on = true, s4user = false, s4;
@@ -1485,7 +1494,7 @@
     [["fact · project · preference · episode"], ["importance 1-10"], ["reply with a JSON list"], ["[] if nothing"]].forEach(function (c, j) {
       if (n) chip(ins, 0, cy + j * 26, c[0], "s-cyan"); else { var w = Math.round(c[0].length * CH) + 16; if (cx + w > 704) { cx = 184; cy += 26; } chip(ins, cx, cy, c[0], "s-cyan"); cx += w + 8; }
     });
-    var ck = kg(p, "from", "check"); var ky = R.y + 14;
+    var ck = kg(p, "from", "check"); ck.classList.add("ex-ck"); var ky = R.y + 14;
     cross(ck, R.x, ky - 8); tx(ck, R.x + 16, ky, "not a JSON list: refused, nothing stored", "lb-i", { src: "backend/main.py#L149-L150" });
     cross(ck, R.x, ky + 10); tx(ck, R.x + 16, ky + 18, "bad type or importance: skipped", "lb-i", { src: "backend/extractor.py#L185-L191" });
     check(ck, R.x, ky + 28); tx(ck, R.x + 16, ky + 36, "valid: a candidate", "lb f-green");
@@ -1508,6 +1517,9 @@
     return n ? R.y + 128 : 296;
   }, {
     ticks: 36, rest: "list",
+    // a short screen keeps the part each step's words name in view: the instructions sent with the call, and the three
+    // outcomes of the check, not the backend's copy far above them or the candidates beside it
+    focus: { groq: '[data-from="groq"] | .gw', check: '[data-from="check"] | .ex-ck' },
     inputs: [{ id: "key", label: "Groq key configured", on: true }],
     onInput: function (api, id, on) { s10key = on; replay(s10, "post", "groq"); }
   });

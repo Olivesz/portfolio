@@ -35,6 +35,9 @@
     if (parent) parent.appendChild(e);
     return e;
   }
+  // a stepper button that is off (aria-disabled): it keeps its place in the Tab order and the keyboard on it
+  function off(b) { return b.getAttribute("aria-disabled") === "true"; }
+  function setOff(b, v) { if (v !== off(b)) { if (v) b.setAttribute("aria-disabled", "true"); else b.removeAttribute("aria-disabled"); } }
   /* trade the classes `from` named for the ones `to` names, keeping any other class on the element */
   function swapClass(e, from, to) {
     var a = from.split(" "), b = to.split(" ");
@@ -42,7 +45,7 @@
     b.forEach(function (c) { if (c) e.classList.add(c); });
   }
 
-  var scenes = [], dockMax = 0, rebuilds = [], builtPhone = null, rebuilding = false;
+  var scenes = [], dockMax = 0, dockLater = false, rebuilds = [], builtPhone = null, rebuilding = false;
 
   function Scene(fig, spec) {
     var S = this;
@@ -95,7 +98,7 @@
 
     S.t = 0; S.k = 0; S.wk = 0; S.mode = "idle"; S.target = 0; S.holdLeft = 0; S.raf = 0; S.last = 0; S.visible = false; S.arrived = false;
     S.queued = false; S.paused = false; S.played = false;
-    S.live = null; S.liveAcc = 0; S.drawnTick = -1;
+    S.live = null; S.liveAcc = 0; S.drawnTick = -1; S.relabel = null;
     S.api = S.makeApi();
     if (spec.init) spec.init(S.api);
     S.layout();
@@ -179,21 +182,24 @@
     // a 1 px rule over the stage's bottom edge that fills as the scene plays, so a long scene shows how far along it is
     S.prog = mk("div", "sc-prog"); S.prog.setAttribute("aria-hidden", "true"); S.progI = mk("i", "", S.prog);
     S.stage.parentNode.insertBefore(S.prog, S.stage.nextSibling); S.progPx = -1; S.progOn = false;
-    // prev and next count from the words on screen, which may already be the next step's while its action plays
-    S.prevB.addEventListener("click", function () { var i = Math.max(0, S.wk - 1); S.go(i, true); S.reveal(i); });
-    S.nextB.addEventListener("click", function () { var i = Math.min(S.keys.length - 1, Math.max(S.k, S.wk) + 1); S.go(i, false); S.reveal(i); });
+    // prev and next count from the words on screen, which may already be the next step's while its action plays; at its
+    // end a button says it is off (aria-disabled, see syncBar) and a press there does nothing
+    S.prevB.addEventListener("click", function () { if (off(S.prevB)) return; var i = Math.max(0, S.wk - 1); S.go(i, true); S.reveal(i); });
+    S.nextB.addEventListener("click", function () { if (off(S.nextB)) return; var i = Math.min(S.keys.length - 1, Math.max(S.k, S.wk) + 1); S.go(i, false); S.reveal(i); });
     S.replayB.addEventListener("click", function () { S.play(); });
     S.pips.forEach(function (p, i) { p.addEventListener("click", function () { S.reveal(i); }); });
   };
 
   /* a page whose scenes are built for one arrangement (Deep.phone) builds them again when a resize crosses into the
      other (relayout, Deep.onPhone): a scene keeps its controls, its step and its place in the timeline, and takes the
-     new spec's grid, drawing and labels, so one arrangement's labels never sit on the other's grid */
+     new spec's grid, drawing and labels, so one arrangement's labels never sit on the other's grid. A live run the
+     reader started carries on, inputs and all, unless the new spec's live says its state belongs to the old
+     arrangement (carry: false, as for a world laid out for it). relayout then lays out and draws every scene once; a
+     label that frame does not draw is the old arrangement's and goes (see render), and the rest are moved, not made anew */
   SP.respec = function (spec) {
     var S = this;
-    S.leaveLive(); S.spec = spec;
-    for (var id in S.labels) { var e = S.labels[id].e; if (e.parentNode) e.parentNode.removeChild(e); }
-    S.labels = {};
+    if (!spec.live || spec.live.carry === false) S.leaveLive();
+    S.spec = spec; S.relabel = {};
     var cells = (spec.inputs || []).filter(function (inp) { return inp.cell; });
     S.hits.forEach(function (h, i) { if (cells[i]) h.cell = cells[i].cell; });
     (spec.inputs || []).forEach(function (inp) { if (S.inputBtns[inp.id]) S.inputBtns[inp.id].inp = inp; });
@@ -208,7 +214,6 @@
     S.startAt = S.startKey ? S.keys[S.startKey].at : 0;
     S.t = Math.min(S.t, S.T); S.target = Math.min(S.target || 0, S.T); S.drawnTick = -1;
     if (spec.init) spec.init(S.api);
-    S.layout(); S.render(true);
   };
 
   SP.syncInputs = function () {
@@ -239,6 +244,7 @@
       label: function (id, text, x, y, o) {
         o = o || {};
         var L = S.labels[id], want = o.cls === "r" ? "sc-r" : "sc-l" + (o.cls ? " " + o.cls : "");
+        if (S.relabel) S.relabel[id] = 1;
         if (!L) { L = S.labels[id] = { e: mk("span", want, S.art), cls: want }; L.e.setAttribute("aria-hidden", "true"); }
         else if (L.cls !== want) { swapClass(L.e, L.cls, want); L.cls = want; }
         L.x = x; L.y = y; L.o = o;
@@ -249,6 +255,7 @@
       /* a 1 px vertical leader from cell (x, y) down or up to a label row at py px */
       lead: function (id, x, y, py) {
         var L = S.labels[id];
+        if (S.relabel) S.relabel[id] = 1;
         if (!L) { L = S.labels[id] = { e: mk("span", "sc-lead", S.art), lead: true }; }
         L.x = x; L.y = y; L.py = py; S.placeLabel(L);
       },
@@ -434,7 +441,7 @@
   function shown(list) {
     return [].slice.call(list || []).filter(function (e) { if (!e || !e.getClientRects().length) return false; var r = e.getBoundingClientRect(); return r.width > 0 || r.height > 0; });
   }
-  SP.subject = function (i) {
+  SP.subject = function (i, o) {
     var S = this, f = S.spec.focus, name = S.keys[i].name, got = null;
     if (typeof f === "function") got = f(S.api, i, name);
     else if (f && typeof f === "object") got = f[name];
@@ -442,7 +449,10 @@
     if (got === undefined || got === null) got = S.keyed.filter(function (o) { return o.lo === i && S.stage.contains(o.e); }).map(function (o) { return o.e; });
     if (typeof got === "string") {
       var alts = got.split("|");
-      for (var j = 0; j < alts.length; j++) { var els = shown(S.fig.querySelectorAll(alts[j])); if (j === alts.length - 1 || (els.length && S.fits(els, i))) return els; }
+      for (var j = 0; j < alts.length; j++) {
+        var els = shown(S.fig.querySelectorAll(alts[j]));
+        if (j === alts.length - 1 || (els.length && S.fits(els, i))) { if (o && j) o.full = shown(S.fig.querySelectorAll(alts[0])); return els; }
+      }
     }
     if (got && got.nodeType === 1) got = [got];
     return shown(got);
@@ -470,16 +480,20 @@
     return { top: top, bot: bot, lo: stripH() + m, hi: this.dockTop(i) - m };
   };
   /* a stepper click on a docked phone scene: scroll the least that brings the step's subject between the strip and
-     the docked words (a subject taller than that shows its top). A click is the reader's, so the page may move. */
+     the docked words (a subject taller than that shows its top). A step whose whole subject is too tall, and which
+     names a narrower part to keep (see subject), shows as much of the whole as that part leaves room for: the whole's
+     top at the strip, then only as far up as the part needs, so the rest of what the step lights is not left off
+     screen above a part that was already in view. A click is the reader's, so the page may move. */
   SP.reveal = function (i, els) {
-    var S = this;
+    var S = this, o = {};
     if (!S.fig.classList.contains("docked") || !dockable()) return;
     // a phone on its side: an art that fits above the step's words comes up whole, so a longer step's words never
     // cover a row the step before it showed
     if (!els && root.innerHeight < 500 && S.fits([S.art], i)) els = [S.art];
-    els = els || S.subject(i); if (!els.length) return;
+    els = els || S.subject(i, o); if (!els.length) return;
     var b = S.bounds(els, i), dy = 0;
-    if (b.bot > b.hi) dy = b.bot - b.hi;
+    if (o.full && o.full.length) dy = Math.max(S.bounds(o.full, i).top - b.lo, b.bot - b.hi);
+    else if (b.bot > b.hi) dy = b.bot - b.hi;
     if (b.top - dy < b.lo) dy = b.top - b.lo;
     if (Math.abs(dy) < 2) return;
     root.scrollBy({ top: Math.round(dy), left: 0, behavior: REDUCE ? "auto" : "smooth" });
@@ -499,7 +513,7 @@
     // the tallest dock on the page, for the page's scroll padding while a control on a docked stage has the keyboard
     // (deep.css): WebKit brings a control that is already part on screen up only as far as that padding says
     dockMax = Math.max(dockMax, Math.ceil(bar.getBoundingClientRect().height + (keys ? keys.getBoundingClientRect().height : 0)) + 8);
-    document.documentElement.style.setProperty("--dock-max", dockMax + "px");
+    if (!dockLater) document.documentElement.style.setProperty("--dock-max", dockMax + "px");
     /* a phone on its side: a drawn composition (an svg) a little taller than the band between the strip and the longest
        step's words is scaled to it (deep.css), so every step can show it whole; never below 85%, so its 13 px labels
        stay at the site's smallest size, 11 px. A canvas keeps its whole-pixel pitch. */
@@ -511,8 +525,16 @@
   /* a docked scene's backing follows the step on screen: the words area keeps the longest step's height in the page's
      flow (so nothing below the figure moves), but only the current step's words are drawn on the void */
   SP.dockWords = function () {
-    if (this.fig.classList.contains("docked")) this.fig.style.setProperty("--dock-h", this.wordsH(this.wk) + "px");
+    if (this.fig.classList.contains("docked")) { this.fig.style.setProperty("--dock-h", this.wordsH(this.wk) + "px"); this.ctlH(); }
     this.rowMask();
+  };
+  /* each control on a docked stage carries its height (--ctl-h), which deep.css sizes its top scroll margin from, so
+     focus brings one cut by the strip down whole in Firefox too; read all, then write what changed */
+  SP.ctlH = function () {
+    var cs = [].filter.call(this.stage.querySelectorAll("a[href],button,input,select,summary,textarea"), function (e) { return e.tabIndex >= 0; });
+    if (!cs.length) return;
+    var hs = cs.map(function (e) { return Math.ceil(e.getBoundingClientRect().height); });
+    cs.forEach(function (e, i) { var v = hs[i] + "px"; if (hs[i] && e.style.getPropertyValue("--ctl-h") !== v) e.style.setProperty("--ctl-h", v); });
   };
   /* a docked scene's art meets its words a row at a time: a row of the art that the words' backing would cut in two (a
      line of text, a chip, a short boxed row) is clipped whole, the art's lower edge stepping up to that row's top over
@@ -680,8 +702,14 @@
     // a next tap shows the step it asked for at once, words and count, while the stretch to it plays under them
     var wk = S.mode === "live" ? S.k : Math.max(k, S.wordKey(S.t), S.mode === "seg" ? S.segKey : 0);
     if (wk !== S.wk || force) S.setWords(wk);
-    if (S.mode === "live") { if (S.spec.live && S.spec.live.draw) S.spec.live.draw(S.api, S.live); }
+    var drew = true;
+    if (S.mode === "live") { if (S.spec.live && S.spec.live.draw) S.spec.live.draw(S.api, S.live); else drew = false; }
     else if (S.spec.draw && (force || tick !== S.drawnTick || S.spec.smooth)) { S.spec.draw(S.api, tick, S.spec.smooth ? frac : 0); S.drawnTick = tick; }
+    else drew = false;
+    if (drew && S.relabel) {                                          // the first frame after a respec: drop what it did not draw
+      for (var id in S.labels) if (!S.relabel[id]) { var e = S.labels[id].e; if (e.parentNode) e.parentNode.removeChild(e); delete S.labels[id]; }
+      S.relabel = null;
+    }
     S.syncBar();
     S.syncProg();
     if (S.fig.classList.contains("docked")) S.rowMask();
@@ -738,8 +766,9 @@
     var S = this, m = S.keys.length, live = S.mode === "live";
     var txt = live ? "live" : "step " + (S.wk + 1) + " of " + m;
     if (S.nEl.textContent !== txt) S.nEl.textContent = txt;
-    S.prevB.disabled = !live && S.k <= 0 && S.t <= S.keys[0].at;
-    S.nextB.disabled = !live && Math.max(S.k, S.wk) >= m - 1;
+    // prev at the first step and next at the last are off, but stay focusable (aria-disabled, drawn off by deep.css): the
+    // keyboard on one stays there, where more presses do nothing, rather than dropping to the page
+    setOff(S.prevB, !live && S.k <= 0 && S.t <= S.keys[0].at); setOff(S.nextB, !live && Math.max(S.k, S.wk) >= m - 1);
     S.pips.forEach(function (p, i) {
       var cur = !live && i === S.wk;
       if (cur) p.setAttribute("aria-current", "step"); else p.removeAttribute("aria-current");
@@ -947,7 +976,11 @@
       builtPhone = ph; rebuilding = true;
       try { rebuilds.forEach(function (f) { f(ph); }); } finally { rebuilding = false; }
     }
-    scenes.forEach(function (s) { s.layout(); s.render(true); }); sched(); heads(true);
+    // the page's scroll padding is set once, after every scene has docked or not: each change to it restyles the page
+    dockLater = true;
+    try { scenes.forEach(function (s) { s.layout(); s.render(true); }); } finally { dockLater = false; }
+    if (dockMax) document.documentElement.style.setProperty("--dock-max", dockMax + "px");
+    sched(); heads(true);
   }
   root.addEventListener("resize", function () {
     clearTimeout(rz);

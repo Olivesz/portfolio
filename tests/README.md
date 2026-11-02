@@ -9,6 +9,7 @@ repositories as they are today.
 |---|---|---|
 | `.venv/bin/python tests/contract.py` | the scroll and design contract, in headless Chromium | about 23 min (load-sensitive) |
 | `.venv/bin/python tests/contract.py --fast` | the subset a fix most often breaks, for use between edits | 45 s to 2.5 min (load-sensitive) |
+| `.venv/bin/python tests/engines.py` | the defects that show only in WebKit or Firefox, which contract.py never runs | about a minute |
 | `python3 tests/check-claims.py` | no retired claim or personal data is in a tracked file | 1 s |
 | `python3 tests/check-panels.py` | every figure on index.html and every work/*.html is in the source line it cites | about 45 s; the first run fetches |
 | `python3 tests/check-links.py [--net]` | links on index.html and every work/*.html resolve (relative links, #fragments, self-site URLs), each case study is linked from index.html and listed in sitemap.xml, every page has its own link-preview card, repo visibility matches what the page says, and resume.pdf links its contacts | seconds |
@@ -23,6 +24,7 @@ repositories as they are today.
 python3 -m venv .venv
 .venv/bin/pip install -q --require-hashes -r tests/requirements.txt
 .venv/bin/python -m playwright install chromium   # skip if ~/Library/Caches/ms-playwright has the matching build
+.venv/bin/python -m playwright install webkit firefox   # for engines.py
 ```
 
 `.venv/` is gitignored. Run with `PYTHONDONTWRITEBYTECODE=1`, so a stale `.pyc` never runs old code.
@@ -67,6 +69,9 @@ It exits 1 on any FAIL, and also when nothing ran.
 | phone-320 | 320×568 | 2, touch | the narrowest phone: no sideways scroll and no text past the edge on any page (`overflow`, `cases`); the map's labels, and its caption clear of the hidden ant's tally (`maplabels`, its map tags listed, not held) |
 | zoom-400 | 360×225 | 4 | a 1440×900 window at 400% zoom: no sideways scroll on any case study or deep dive (`cases`) |
 | zoom-200, zoom-200-1366, zoom-200-1280 | 720×450, 683×384, 640×400 | 2 | laptop windows at 200% zoom (fine pointer, short screens): every map place whole on screen at the map (`maplabels`) |
+| zoom-250, zoom-200-1200, zoom-150 | 576×360, 600×400, 853×533 | 2, 2 and 1.5 | a 1440×900 window at 250% zoom, a 1200×800 window at 200% and a 1280×800 window at 150%: the map's places in two columns, and in one column closed up to the screen's foot (`placerows`); the map's caption drawn once (`mapcapone`, at zoom-250) |
+| zoom-400-236 | 360×236 | 4 | 400% zoom on a window a little taller than 900: the places run past the foot, and the rows move up 2 px so the last row that fits ends 3 px above it, its focus ring whole (`placerows`) |
+| land-se | 667×375 | 2, touch | an iPhone SE-size phone on its side, where a docked deep-dive step has the least room under the strip (`deepfit`, with phone-se and land) |
 
 At phone-320 and zoom-400 a deep dive's dock fit (each step's change, and each field on its stage, above its docked
 words) cannot hold on screens this small; `cases` lists those steps there instead of failing on them, and holds every
@@ -317,6 +322,60 @@ the colour and work checks, each run at 1440x900 against a copy with one rule pu
 | workland | (at 844x390) a tap keeps the scroll where it was, so the panel opens below the screen | FAIL | agents & LLMs: status at 488, first project ends 693 |
 | pathfree | the old dim rule: a dim clip a later trigger lands mid-way keeps the level it reached (the page carries the `tone` hook) | FAIL | emergence just built, after the oscillation of flicks: desktop y 2753, 43 cells in full tone and 45 stepped down, 4487 px against the reading-pace arrival; phone y 2382, 35 and 37, 1869 px; no other path or position failed |
 | depthpath | the road's ant drawn with its trail behind the last scroll direction (the old case.js) | FAIL | desktop 197 positions and phone 200 on 11 pages, one kind: going up the trail lies below the head on the rail, right of it on the strip |
+| keyleave | the index before a focused card's exemption ended with its own figure (79be8d1) | FAIL | desktop and phone, all 4 cards: at the next station's hold the focused card had no mask, against `linear-gradient(transparent …` with nothing focused; on a phone opacity 1 against 0, so KRONOS's link row stood under custos's figure |
+| placerows | the index before the second column cleared the first's widest label (79be8d1), at zoom-250 and zoom-200-1200 | FAIL | place 1 '2023, IEEE IPCCC, LLM in…' overlaps 'emergence', and a click at x 323 on its label's tail lands on emergence |
+| placerows | the rows closed up to the foot without room for the focus ring (4f80167), at phone-320 and zoom-150 | FAIL | the focused last place's ring runs to y 571 on a 568 px screen and to 536 on 533 |
+| placerows | the ring's room kept, but a row still hidden at the foot only once its box passes it, at zoom-400-236 | FAIL | 'order from chaos' shown with its ring running to y 238 on a 236 px screen (with the fix it is hidden: 3 of 8 places shown, not 4) |
+| mapcapone | the frame loop stopping in the frame the places came in (9c46ff2), at phone-320 and zoom-250 | FAIL | under reduced motion #mapcap shows 'The whole walk.' and the canvas still draws it 16 px lower (y 302 and 169); with motion that copy passed, so the check runs both |
+| slackfocus | fig 18's slider row removed and built again on every rebuild (the rest of the fix in) | FAIL | desktop (1440x900 to 360x225) and phone (390x844 to 844x390): focus on body after the rebuild, the value back to 2 from the reader's 1, ArrowRight left it at 2 |
+| slackfocus | the page before the fix (1b8f0c6) | FAIL | the same on both viewports |
+| deeplive | a rebuild leaving every live run (`respec` calling `leaveLive` first, the rest of the fix in) | FAIL | both viewports: sc-or, sc-sap and sc-gates live to still, sc-gates' toggles a1 b1 s1 to a0 b1 s1 |
+| deeplive | the page before the fix (1b8f0c6) | FAIL | the same, and the slider -1 to 2, so the next clear ran '2 ticks late' |
+| deepstep | the stepper without its focus hand-off (the rest of the fix in) | FAIL | desktop and phone: 153 of 153 walks left focus on body at the first or last step |
+| deepstep | the page before the fix (1b8f0c6) | FAIL | 153 of 153, focus on body (read at once, before the engine's fix-up, it is still on the control just disabled) |
+| deepcost | the page before the fix (1b8f0c6) | FAIL | the turn there and back runs 5.53x the script of four resizes that stay (6.02, 5.53, 5.22; 121.8 ms against 22.0); longest task 98 to 119 ms unthrottled, and at 4x throttle 319 to 428 ms against 164 to 202 with the fix |
+| deepcost | each figure's runs and self-check redone on every rebuild (`keep` storing nothing, the rest of the fix in) | FAIL | 4.38x (4.38, 4.47, 4.16; 89.1 ms against 20.3), longest task 67 to 77 ms unthrottled |
+| slackfocus, deeplive, deepstep, deepcost | none (the fix) | PASS | focus and setting kept, three runs live, 153 walks kept focus; 1.66x to 2.16x over four runs of three loads (35.0 to 39.8 ms against 17.9 to 22.4) |
+| deepfit | none (the deep dives as built) | PASS | 36, 73 and 76 docked scenes at 375×667, 844×390 and 667×375; inf-mem's `s-results checks` listed for a decision (482px against 462, 302 against 281, 302 against 242), not held |
+| deepfit | the deep dives before their short-screen subjects (inf-mem's s-idea and s-extract, KRONOS's sc-flow) | FAIL | land-se: `s-idea next 379>266`, `s-extract groq 413>266`, `s-extract check 277>266`, `sc-flow stages 299>242`; at 375×667 and 844×390 the only step over its band was the listed one, so those two views passed |
+| deepfit | inf-mem's check rows with no padding (the listed step fits) | FAIL | all three views: `s-results checks fits now: take it out of DOCK_PENDING` |
+| deepresize | none (the deep dives as built) | PASS | 79 scenes on 5 pages, 1280×800 to 640×400 and 667×375 to 375×667, from the top and mid-page: every one as a fresh load draws it; sc-gates' run and keyboard kept |
+| deepresize | freeflow-deep before its rebuild | FAIL | 14 of 14 scenes at both views: every canvas 96px past its stage after 1280×800 to 640×400, 289px after 667×375 to 375×667 |
+| deepresize | the rebuild keyed on `Deep.phone` (the 768px line), as emergence-deep's is | FAIL at phone-se | 14 scenes 289px past their stages after 667×375 to 375×667, which crosses no line; 1280×800 to 640×400 passed |
+| deepresize | the reader's toggle not put back after the rebuild | FAIL | sc-gates `live` fresh, `still` moved, its toggle off, from the top and mid-page at both views |
+| deepresize | the rebuild blurs the focused control | FAIL | `the keyboard left #sc-gates .sc-in button on the move (now on BODY)`, both views |
+| deepresize | one draw after respec, not two (a label placed at its unwrapped width keeps the place it was moved to) | FAIL at phone-se | sc-agree's ladder row at x 22 against 60 on a fresh load, from the top and mid-page; 1280×800 to 640×400 passed |
+| deepresize | freeflow's rebuild after `respec` stopped laying a scene out (the merge of the deep-dive lanes) | FAIL | 28 differ at both views: every freeflow canvas 96px past its stage after 1280×800 to 640×400, 289px after 667×375 to 375×667 |
+| deepresize | a kept label measured at the width it was cut to (without the reset in freeflow's `lab`) | FAIL at phone | sc-loop's 'cut re-heard words' at x 13, 343 wide, against x 19, 337 on a fresh load after 844×390 to 390×844; at phone-se it fails on some runs (sc-agree and sc-loop from mid-page) |
+| deepresize | custos-deep's audit rows set in its own resize listener (live24) | FAIL at phone | custos-code-deep sc-audit 80px tall against 96 on a fresh load after 844×390 to 390×844, from the top and mid-page: inside the resize event Chromium's turned phone still reports 844 and then 834 wide |
+| skipmid | the skip link that only moved focus (d7392b8) | FAIL | desktop and phone: Enter left the page at mid-story, and Tab went back about three screens to NAND input A |
+| skipmid | the plain #story link (live24) | FAIL | desktop and phone: the story's start, but with #story in the address, the hash a Safari reload lost the reader's place to |
+| striptab | the work pages before the strip's links counted as in view (79be8d1) | FAIL | every page whose strip is sticky moved, a Tab at a time: desktop 11 of 11 (2400 → 1950 → 1500 → 1050), phone 11 of 11 (2400 → 1978 → 1556 → 1134), zoom-200 the 6 case studies (2400 → 2175 → 1950 → 1725); there the 5 deep dives, whose strip scrolls away, passed |
+| docktab | the deep dives before a stuck stepper's controls dropped their foot margin (79be8d1) | FAIL | every stuck scene moved 23 to 24 px a Tab: phone 12 of 12, phone-se 27 of 27, zoom-200 45 of 45 (custos-code-deep#sc-tree 11117 → 11405 over 12 Tabs at 375×667) |
+| forcedmarks | the work pages before the lx- marks and custos-code-deep's bars kept their colour or took a border in forced colours (79be8d1) | FAIL | every kind of mark lost marks, desktop 26 of 26 and phone 27 of 27 (ai-capabilities's hero key 0 of 3 painted and beat squares 0 of 4, custos-code-deep's scene bars 0 of 4); with forced colours off the probe saw every one |
+| jumprest | the case studies before a jumped-to heading skipped its rise (79be8d1) | FAIL | desktop 23 of 24 rail jumps and phone 25 of 25 #link jumps rest at 40, want 56 |
+| placerows | none (the index as built) | PASS | 8 of 8 places shown at phone-320, zoom-250, zoom-200-1200 and zoom-150, 4 of 8 at zoom-400-236, every ring whole on screen and none hidden that fits |
+| placerows | the rows not moved up for the last whole row's focus ring (the shift line removed, the rest of the fix in) | FAIL | 7, 7 and 3 of 8 shown at phone-320, zoom-150 and zoom-400-236: custos-code hidden though its box [16,539,117,568] lies on the 320x568 screen ([16,503,121,533] on 853x533), 'order from chaos' though [16,211,248,235] lies on 360x236. Before the check listed such a row, the same removal on 6ebfc44 passed at phone-320 and zoom-150 with '7 of 8 places shown' |
+| placerows | the index before a list that runs past the foot moved up for its last whole row's ring (6ebfc44) | FAIL at zoom-400-236 | 3 of 8 shown: 'order from chaos' hidden though its box [16,211,248,235] lies on the 360x236 screen (live24 shows 4); phone-320 and zoom-150 passed |
+| placerows | live24 | FAIL | phone-320, zoom-150 and zoom-400-236 show every place that fits (8, 8 and 4 of 8), but the last one's ring is cut, to y 571 on 568, 536 on 533 and 238 on 236 |
+| placerows | the hide rule back to a row's box alone (live24's `p.vb > VH + 0.5`, the rest of the fix in) | PASS | the rows now leave the last whole row's ring its room, so on these five views the ring term hides nothing (4 of 8 at zoom-400-236; the earlier zoom-400-236 row for this mutation measured the page before that). The term stays as a backstop |
+| forcedmarks | the work pages before emergence's hero leader and clock slider, inf-mem's step mark, and custos-code-deep's judge gate and phone exit mark kept a colour or took the text colour in forced colours (6ebfc44) | FAIL | desktop 4 lost (judge gate, hero leader, hero clock slider, hero step mark: 0 of 1 painted each), phone 5 (those and custos-code-deep's question exit mark); live24 desktop lost all 30 kinds |
+| forcedmarks | the same tip with no contrast floor (`FORCED_MIN` 1.0, so any changed byte counts) | FAIL, one short | desktop 3 lost: the hero leader counted as painted, because its fill, forced to Canvas over the hero canvas's own void, still changes bytes at 1.07:1 |
+| forcedctl | the work pages before their range inputs, inf-mem-deep's checkbox and custos-code-deep's fig 1 marks took the text or highlight colour in forced colours (6ebfc44) | FAIL | desktop and phone 14 lost: no range drawn on emergence (1), emergence-deep (3), inf-mem-deep (9) or kronos-deep (4), in dark or light; inf-mem-deep's checkbox the same checked and unchecked; fig 1's error outline and flagged claim the same off and on (the error outlined from the first step); live24 desktop the same 14 |
+| forcedctl | the fixed pages with only custos-code-deep's fig 1 block taken out | FAIL | desktop 4 lost: the error outline and the flagged claim, dark and light. The first runs read the fixed outline as lost too: a scene scrolled to sets its own step within 50 ms, so the attribute set for the off shot was already back on; the check now waits 600 ms and refuses a shot whose attribute the page changed |
+| forcedctl | fig 1's forced block and its error outline's on rule both taken out, so the outline never shows | FAIL | desktop: 'fig 1 error outline, off against on: the probe sees 0 of 1 with forced colours off', with the flagged claim lost in dark and light. Before the check refused a control that sees no change, the outline's row passed silently (the control counted 0, so 0 of 0 lost) |
+| labelover | none (the deep dives as built) | PASS | phone and desktop: 5 deep dives, 402 steps, none of the 2141 (phone) or 2207 (desktop) words placed lies over another |
+| labelover | freeflow's lab() placing a wrapped label at its unwrapped width (afa13b4: the kept width cleared, the row placed, then wrapped) | FAIL at phone | freeflow-deep sc-agree step 6: '2.10 s' over 'The Coyote is a li' 5x16, the row moved in from 60 px to 37 px; desktop passed |
+| labelover | live24 | FAIL at phone | freeflow-deep sc-agree steps 1-5: 'typed so far' over 'pass at 1.05 s' (and each later pass) 99x16 |
+| deepstep | the stepper handing the keyboard to its other button at an end (6ebfc44) | FAIL | desktop: 139 of 139 walks; six more Enters at an end walk the figure to the other end and back (custos-code-deep sc-gap from the first step: 1/4 next, 2/4 next, 3/4 next, 4/4 previous, 3/4, 2/4, 1/4) |
+| deepstep | none (prev and next at their ends off by aria-disabled, still focusable) | PASS | desktop: 153 walks, the keyboard on the button pressed at every end, and six more presses move neither the step nor the keyboard |
+| replaykey | the deep dives before a replay pressed from the keyboard stayed drawn (6ebfc44) | FAIL | desktop and phone, 5 of 5 deep dives: Enter on replay plays the scene and leaves the keyboard on body, replay hidden |
+| replaykey | replay kept drawn while focused by any means (`:focus` for `:focus-visible`) | FAIL | desktop, 5 of 5: a click leaves replay drawn while the scene plays |
+| stagetab | the deep dives before the stage controls' top margin and text-field padding (6ebfc44) | PASS | phone 88, zoom-200 92 and land 92 landings, every ring whole: Chromium brings a control in whole already; the defects are WebKit's and Firefox's (engines.py `stage-tab`) |
+| stagetab | the stage controls' top margin set to 0 | FAIL | phone: 21 of 88 landings rest at 56..88, their rings cut by the road bar (sc-ladder from 8 px under) |
+| deepreveal | the deep dives before reveal kept the whole subject in view (6ebfc44) | FAIL | land-se: inf-mem s-extract check, whole -60..217, kept part 167..217, band 20..286: 197 of 266 px of the whole shown, the candidate chips above the screen |
+| deepreveal | reveal's placement of the whole taken out, the rest of the fix in | FAIL | the same: 197 of 266 px |
+| deepreveal | none (the deep dives as built) | PASS | land-se: 5 steps keep a narrower part; s-extract check whole 10..286 (266 of 266 px), groq 266 of 266, s-idea next 234 of 234 possible (its kept title sits above the whole), sc-rec wall 282 of 282; phone-se 1 step, land none |
 
 Harness defects found by the first runs of these, and fixed: the shot a third of the way in waited for the page to
 settle, which under a clock means the end, so custos read 0px apart; the done time was read by the same loop that
@@ -337,6 +396,46 @@ Harness defects found this way and fixed:
 - **A cached frame was taken for the page's position.** `phonetext` and `settle` could screenshot or measure wherever the previous check had left the page. They now scroll to the sample. Native labels went unseen until this was fixed.
 - **SVG text was not hidden** in the phone text diff, so SVG text in the art band passed unseen.
 - **A held frame was taken before its station had finished.** `frame_at` settled for at most 2.5s, but a jump into a hold builds the station and runs its clock for up to 3.5s, so at 360×740 emergence's register tape moved between `phonetext`'s three shots and read as 7,171 to 9,355 px of DOM text. It settles for up to 4s now; 0 px.
+
+## engines.py
+
+contract.py drives headless Chromium only. Each check here reproduces one
+defect that shows only in WebKit (Safari) or Firefox, in the engine it shows
+in, and fails if it comes back. An engine that will not launch exits 2: a check
+that did not run is not a pass.
+
+### Falsification
+
+Each row reverts its fix in a copy of the site and runs the check against it.
+
+| check | mutation | expected | measured |
+|---|---|---|---|
+| rotate | the index before the landscape query was read afresh at each layout and footprint() refused an empty box (79be8d1) | FAIL | 2 page errors 'Requested length is negative'; on its side 10035 px tall with a 203 px art band against a fresh load's 9622 and 390; upright again 13408 and 844 against 10933 and 439; the art frozen at step 15577 after a scroll to freeflow |
+| rotate | the landscape query kept as one MediaQueryList, with the footprint and frame-loop guards in (4385950) | FAIL | 0 page errors and the art still drawn, but on its side 10035 px tall with a 203 px art band against 9622 and 390, and upright again 13408 and 844 against 10933 and 439 |
+| skipreload | the index before the skip link stopped writing #story (79be8d1) | FAIL | read on to s 6.72 with `#story` in the address, the reload came back at s 0.00 |
+| blobring | the index before the Firefox-only scroll margin on the theme blobs (d3be409) | FAIL | at 1280x800 llm and verify reached at y 620..828 and systems at 720..960 on an 800 px screen; at 640x400 systems at 196..436, play and data at 330..522 on 400; `scroll-margin-block:24px` for every engine left the same cuts |
+| ffresize | none (freeflow-deep as built) | PASS | 3 moves, every scene as a fresh load draws it, the toggle live and focused |
+| ffresize | freeflow-deep before its rebuild | FAIL | 42 scenes differ: canvases 96px past their stages at 640×400 in WebKit and Firefox, 289px at 375×667 in WebKit |
+| ffresize | the rebuild keyed on `Deep.phone` (the 768px line) | FAIL | WebKit, 667×375 to 375×667: 14 scenes 289px past their stages |
+| ffresize | the reader's toggle not put back after the rebuild | FAIL | sc-gates' toggle and labels differ in all 3 moves |
+| ffresize | the rebuild blurs the focused control | FAIL | the keyboard left the sc-gates toggle in all 3 moves |
+| ffresize | one draw after respec, not two | PASS | not caught here, from the top in these engines; `deepresize` catches it in Chromium |
+| strip-tab | the work pages before the strip's links counted as in view (79be8d1) | FAIL | Firefox 2400 → 2006 → 1612 → 1218 and WebKit 2400 → 2332 → 2264 → 2196, on kronos and kronos-deep alike |
+| dock-tab | the deep dives before a stuck stepper's controls dropped their foot margin (79be8d1) | FAIL | WebKit custos-code-deep#sc-rec 5765 → 5919 over 7 Tabs; Firefox inf-mem-deep#s-idea 208 → 582 on the first |
+| ff-case-foot | the case studies before the case-nav and deep-dive card margins (79be8d1, whose card margin lost to the 16 px rule every link has) | FAIL | rings cut: freeflow 390×844 previous and next 5 px; KRONOS's card 46 px at 375×667, 23 at 1280×720, 42 at 720×450; ai-capabilities 720×450 previous and next 2 px; KRONOS 1024×450 all three case-nav links 18 px |
+| ff-card-back | the same | FAIL | the card's ring 25 px under the strip and road bar at 720×450 and 39 px at 1024×450, on all five case studies |
+| jump-rest | the case studies before a jumped-to heading skipped its rise (79be8d1) | FAIL | WebKit click and fresh load at 40 of 56, Firefox click 40 of 56 (its fresh load already rested at 56) |
+| ffresize | a kept label measured at the width it was cut to (`lab()` before 369d279) | FAIL | 4 moves, 1 bad: WebKit 844×390 to 390×844, sc-loop's labels differ; the other three moves pass |
+| ffplace | none (freeflow-deep as built) | PASS | the reader's line moved +0, +0, +0 px in Firefox and +0, −5, +0 in WebKit (sc-gates, sc-agree, sc-type) |
+| ffplace | freeflow-deep with the scenes above the screen built one per task after the relayout (6ebfc44) | FAIL | +71, +66, +136 px in both engines: Firefox and WebKit had stopped anchoring before those tasks ran |
+| ffplace | the scenes on and above the screen built in the relayout in page order, not the largest height change first | FAIL | +39, +34, +104 px in Firefox, +34, +29, +99 in WebKit |
+| replay-key | the deep dives before a replay pressed from the keyboard stayed drawn (6ebfc44) | FAIL | WebKit and Firefox, 10 of 10: Tab reaches replay, Enter plays the scene and leaves the keyboard on body, replay hidden |
+| stage-tab | the deep dives before the stage controls' top margin and text-field padding (6ebfc44) | FAIL | WebKit: custos-code-deep sc-chain's field, part and wholly under the strip, rests at 49..81 under the road bar's 56; Firefox: sc-board's 10 check cards from 8 px under stay at 48..102 |
+| stage-tab | the top margin from `--ctl-h` taken out | FAIL | Firefox only: the 10 sc-board cards at 48..102 |
+| stage-tab | the text-field padding taken out | FAIL | WebKit only: sc-chain's field at 49..81 |
+
+The first `ff-case-foot` run read the skip link, fixed over the strip, as cut 51 px by it; the cover now leaves out the
+strip's own links and the skip link.
 
 ## csp.py
 
@@ -456,9 +555,9 @@ blobs and 24 commits on 2026-11-01. Run it on the commit about to be pushed,
 not on a branch tip that carries unpublished history.
 
 **Falsified** by `--selftest`, which copies the tracked files to a temporary
-directory, requires the clean copy to pass every rule, then plants 112
+directory, requires the clean copy to pass every rule, then plants 114
 violations one at a time (each rule at least once: 3 csp, 2 referrer, 13
-origins, 6 handlers, 2 jsurl, 7 newtab, 6 tags, 24 js, 22 secrets, 10 pii, 1
+origins, 7 handlers, 2 jsurl, 8 newtab, 6 tags, 24 js, 22 secrets, 10 pii, 1
 pdftext, 7 paths, 8 metadata, 1 svgpdf) and requires each to add a failure the clean copy
 does not have, then requires the copy to pass again. It then makes the copy a
 git repository and requires `--history HEAD` to report a token committed and
@@ -470,7 +569,11 @@ text and history; what each real pattern matches is check-claims' own controls. 
 on all six newtab controls and names the rule as uncovered (exit 1); one that
 skips decoding character references fails on the four controls written as
 references (exit 1), and one whose createElement pattern drops `createElementNS`
-fails on the SVG script control (exit 1).
+fails on the SVG script control (exit 1). With the earlier patterns for built HTML, a handler on
+the line after its tag's name in a template literal and a built link whose
+first target is `_blank` and second `_self` both went unreported; a browser
+reads the first as a handler and keeps the first target, and both controls now
+fail.
 
 The svgpdf threshold was measured: on the tree as committed the worst block
 differs by 29 (anti-aliasing), one 7pt letter added to the SVG reaches 73, and

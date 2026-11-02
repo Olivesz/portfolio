@@ -272,11 +272,12 @@ def rule_origins(site):
     return out
 
 
-# A tag in a string a script builds: its name, attributes on the same line whose values are quoted ("x", 'x', \"x\")
-# or bare, then an on* attribute, which a space, a slash or the quote closing the value before it separates.
+# A tag in a string a script builds: its name, attributes whose values are quoted ("x", 'x', \"x\") or bare, then an
+# on* attribute, which whitespace (a newline in a template literal too), a slash or the quote closing the value before
+# it separates.
 BUILT_HANDLER = re.compile(r"<[a-z][\w:-]*"
-                           r"(?:[ \t/]+[^\s<>'\"=/\\(){};]+(?:[ \t]*=[ \t]*(?:\\?\"[^\"<>\n]*\"|\\?'[^'<>\n]*'|[^\s<>'\"\\/]*))?)*"
-                           r"[ \t/]*(?<=[\s/'\"])on[a-z]+[ \t]*=", re.I)
+                           r"(?:[\s/]+[^\s<>'\"=/\\(){};]+(?:\s*=\s*(?:\\?\"[^\"<>]*\"|\\?'[^'<>]*'|[^\s<>'\"\\/]*))?)*"
+                           r"[\s/]*(?<=[\s/'\"])on[a-z]+\s*=", re.I)
 
 
 def rule_handlers(site):
@@ -329,9 +330,11 @@ def rule_newtab(site):
             if not any({"noopener", "noreferrer"} <= set(r.lower().split()) for r in re.findall(
                     r"(?:\.rel\s*=\s*|setAttribute\(\s*['\"`]rel['\"`]\s*,\s*)['\"`]([^'\"`]*)['\"`]", near)):
                 out.append(f"{where}: {m.group(0)[:40]} without rel noopener noreferrer right after it")
-        for m in re.finditer(r"<a\b[^<>]*target=\\?['\"]?([^\s'\"\\<>]*)[^<>]*>", t):
-            if opens(m.group(1)) and not ("noopener" in m.group(0) and "noreferrer" in m.group(0)):
-                out.append(f"{where}: built <a target={m.group(1)[:20]}> without rel noopener noreferrer")
+        for m in re.finditer(r"<a\b[^<>]*>", t):
+            # a browser keeps the first of a repeated attribute, so the first target decides
+            tg = re.findall(r"(?<![\w-])target\s*=\s*\\?['\"]?([^\s'\"\\<>]*)", m.group(0), re.I)
+            if tg and opens(tg[0]) and not ("noopener" in m.group(0) and "noreferrer" in m.group(0)):
+                out.append(f"{where}: built <a target={tg[0][:20]}> without rel noopener noreferrer")
     return out
 
 
@@ -797,6 +800,7 @@ def plants():
         ("handlers", "an onerror attribute in an SVG", {"work/emergence.html": add('<svg><image href="x.png" onerror="go()"/></svg>')}),
         ("handlers", "HTML with a handler built in a script", {"work/assets/emergence-deep.js": append("el.innerHTML = '<img src=x onerror=go()>';")}),
         ("handlers", "built HTML with a quoted attribute before the handler", {"work/assets/case.js": append("el.innerHTML = '<img src=\"x.png\" onerror=\"go()\">';")}),
+        ("handlers", "built HTML with the handler on the next line", {"work/assets/deep.js": append("el.innerHTML = `<img src=x\nonerror=go()>`;")}),
         ("handlers", "setAttribute('ONCLICK') in upper case", {"work/assets/ww.js": append("el.setAttribute('ONCLICK', 'go()');")}),
         ("handlers", "setAttributeNS(null, 'onclick')", {"work/assets/deep-freeflow.js": append("el.setAttributeNS(null, 'onclick', 'go()');")}),
         ("jsurl", "a javascript: link", {"work/ai-capabilities.html": add('<a href=" JavaScript:go()">x</a>')}),
@@ -808,6 +812,8 @@ def plants():
         ("newtab", "setAttribute('target', '_blank') without rel", {"work/assets/case.js": append("a.setAttribute('target', '_blank'); a.href = u;")}),
         ("newtab", "a script setting a named target without rel", {"work/assets/ww.js": append('a.target = "other"; a.href = u;')}),
         ("newtab", "built HTML with a named target and no rel", {"work/assets/deep.js": append("el.innerHTML = '<a href=\"/\" target=\"other\">x</a>';")}),
+        ("newtab", "built HTML with a repeated target, where the browser keeps the first", {"work/assets/case.js": append(
+            "el.innerHTML = '<a href=\"/\" target=\"_blank\" target=\"_self\">x</a>';")}),
         ("tags", "a form", {"index.html": add('<form action="/x"></form>')}),
         ("tags", "an iframe", {"work/freeflow-deep.html": add('<iframe src="about:blank"></iframe>')}),
         ("tags", "a base element", {"work/kronos-deep.html": add('<base href="/">', "</head>")}),

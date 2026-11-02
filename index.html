@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2nguZqau2EuNOwLMVfAdX8Z8LSE8ktyUB2V94WQeiGc=' 'sha256-8Kg6REK+B2a6BncmCtbfwyTEmNyMI1BHziM/e7GqRjA=' 'sha256-8xKIUkflRuqMitQ9xDiHlhguI8dqcyqRcMwk17e84n4=' 'sha256-AoBDrM4J46mThGPscX/+7Xes6PRqgAUHnDDTf55oX2A=' 'sha256-NZuKStNpE9Gpw+MO0aFHffFtQDc/kcAxBqLa2Aug0Fs=' 'sha256-OrWyO1Qf3FK3W+mPBY6O9QGm7zzTDP6Tf+kp50sw3/o=' 'sha256-Qp7JQefXmGovFtTo+CElnP8YNPpAJV/ST6tjKYyUWp8=' 'sha256-TC7fZh53ZE1ReVYSNHnOzHhV/OAyLuBle5uytPtjAak=' 'sha256-ySaBOql3fRvdaZ0uEcj8/tIQC1ry2QAoCcjv6+fkk84='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-2nguZqau2EuNOwLMVfAdX8Z8LSE8ktyUB2V94WQeiGc=' 'sha256-7KGmCTuTDEOQdQnDYcCsrkk8g6plxkNBjUzPMqPqYNM=' 'sha256-8Kg6REK+B2a6BncmCtbfwyTEmNyMI1BHziM/e7GqRjA=' 'sha256-8xKIUkflRuqMitQ9xDiHlhguI8dqcyqRcMwk17e84n4=' 'sha256-OrWyO1Qf3FK3W+mPBY6O9QGm7zzTDP6Tf+kp50sw3/o=' 'sha256-Qp7JQefXmGovFtTo+CElnP8YNPpAJV/ST6tjKYyUWp8=' 'sha256-TC7fZh53ZE1ReVYSNHnOzHhV/OAyLuBle5uytPtjAak=' 'sha256-kUT+NNsoNjTPKa67pztpJ0NQ/erSlKX7TFckF0PZfvQ=' 'sha256-ySaBOql3fRvdaZ0uEcj8/tIQC1ry2QAoCcjv6+fkk84='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; worker-src 'none'; manifest-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Oliver Zhang · CS at UT Austin · Turing Scholars ’28</title>
@@ -415,6 +415,11 @@ body:has(#mapcap.ph.on) #step{visibility:hidden}   /* a phone's caption row take
 @media (hover:hover){ #work .k-blob:hover .k-bm{text-decoration:underline 1px;text-underline-offset:3px} }
 #work .k-blob:focus-visible .k-bm{text-decoration:underline 1px;text-underline-offset:3px}
 #work .k-blob:focus-visible{outline:2px solid var(--ink);outline-offset:-2px;border-radius:50%}   /* a ring inside the blob's own circle, clear of its neighbours */
+/* Firefox scrolls a control the keyboard reaches into view only when hardly any of it shows, and then centres it with its
+   scroll margin, so a blob 180 px into the screen's foot kept the bottom of its ring cut off. A margin of the largest blob's
+   height each way makes it scroll whenever a blob is cut and centres it whole. Firefox only: the others scroll to the
+   nearest edge, where these margins would push a blob off a short screen */
+@supports (-moz-appearance:none){ #work .k-blob{scroll-margin-block:240px} }
 /* every theme keeps its full hue, picked or not; the picked one wears a ring of ink cells one cell clear of its edge,
    drawn round once its disc is whole. The ring never takes the pointer */
 #work .k-rs{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;shape-rendering:crispEdges;pointer-events:none;visibility:hidden}
@@ -3164,7 +3169,9 @@ function coverage(key, W, H, c, cols, rows, paint) {
 function footprint(view, g, m, s, y0, y1) {
   var key = geoKey + "|" + view + "|" + m.sw + "|" + y0 + ":" + y1 + "|" + (view === "real" ? s.nq : view === "gates" || view === "top" ? s.passed + ":" + s.testing + ":" + s.pass : s.pass);
   if (fps[key]) return fps[key];
-  var W = Math.round(g.W), H = Math.round(g.H), c = g.c, cols = Math.ceil(W / c), rows = Math.ceil(H / c), acc = PRI.map(function () { return new Float32Array(cols * rows); });
+  var W = Math.round(g.W), H = Math.round(g.H), c = g.c, cols = Math.ceil(W / c), rows = Math.ceil(H / c);
+  if (W <= 0 || H <= 0) return [];                       // a box with no room has no cells (and a negative-length array throws)
+  var acc = PRI.map(function () { return new Float32Array(cols * rows); });
   var P = coverPainter(acc, W, H, c, cols);
   function add(part) { for (var j = 0; j < PRI.length; j++) { var a = acc[j], q = part[j]; for (var i = 0; i < a.length; i++) a[i] += q[i]; } }
   if (view === "planted" || view === "top") {
@@ -5421,7 +5428,9 @@ var cv = $("#world"), ctx = cv.getContext("2d"), ch1El = $("#ch1"), plantEl = $(
 var snapCv = $("#snap"), hit = $("#hit"), stepEl = $("#step"), strip = $("#strip"), placesEl = $("#places");
 var dpr = 1, VW = 0, VH = 0, S = 900, SVH = 900, BAND = 900, wide = true, PF = false, land = false, STRIP = 40, SKIRT = 8, CAP = 40, ART_L = 576, EDGE_L = 480, ART_R = 1376, ABW = 0, ABH = 0;
 // a phone on its side: the words keep a column at the left and the art the rest, with the phone's figures and pitches
-var LANDQ = matchMedia("(max-width:1023px) and (min-width:724px) and (orientation:landscape) and (max-height:500px)");
+// read afresh at each layout: WebKit answers a kept MediaQueryList from the size before a rotation, so a phone turned back
+// upright was laid out on its side at 390px wide (a negative KRONOS box) and one turned sideways was laid out upright
+var LANDQ = "(max-width:1023px) and (min-width:724px) and (orientation:landscape) and (max-height:500px)";
 var MAPW = 0, MAPH = 0, MAPA = [0, 0], MAPROOM = [280, 64], MAPTOP = 40, pmLast = [], mapP = 1, mapHalf = false, halfCv = null, halfVer = -1, HAND = null;
 var LAND = 0.03, LAND_CHAOS = 2.00, LOCK_END = 2.40, PULL_LEN = 0.70, MAP_LEN = 0.03, MAP_LEN_LAND = 0.60, MAP_READ = 0.50, T_MIN = 0.35, T0_ON = 0.01, KD = 0.75, GO_KD = 0.8, GO_WAIT = 90;
 var PULL_NPL = 4.6, PULL_MIN = 600;  // the pull-back: 100px notches per e-fold of zoom, and its least length in px
@@ -5679,7 +5688,7 @@ function layoutAt() {
   VH = S; dpr = window.devicePixelRatio || 1;
   TW = {}; WR = {};                                                  // text is measured again at this size, in the loaded fonts
   nxStale();                                                         // and so are the native layers' words, as they next cross the edge
-  land = VW < 1024 && LANDQ.matches; wide = VW >= 1024 || land; PF = VW < 1024; setPlayKeys();
+  land = VW < 1024 && matchMedia(LANDQ).matches; wide = VW >= 1024 || land; PF = VW < 1024; setPlayKeys();
   STRIP = 40; CAP = land ? 38 : wide ? 40 : 44; PB_OUT = PF && VH < 700;
   BAND = wide ? VH : $("#pb").offsetHeight;
   // the land column: as wide as the art beside it leaves, the art box (past its 3-cell dither edge) at least 352px,
@@ -6091,6 +6100,7 @@ function cardsRead(now) {
 }
 function cardMasks(now) {
   var Y = Math.round(targetS * S), E = wide ? STRIP : BAND;     // the scroll handler's own reading: no layout flush here
+  var fid = lastFig ? lastFig.id : PREV.ch ? PREV.ch.id : null;  // the figure drawn now, as maskOf reads it
   for (var i = 0; i < CROWS.length; i++) {
     var c = CROWS[i];
     if (c.stale) {                       // measured only as it nears the edge (sticky or leaving; on a desktop, coming up to the caption band): a card far below costs nothing
@@ -6101,8 +6111,9 @@ function cardMasks(now) {
     // a card's rows can move without a resize (a panel that swaps in place): measured again as each departure begins
     if (key && !c.key && c.mT !== now) { measureRows(c); key = maskOf(c, Y, E, now); }
     // the card the keyboard is on is drawn whole until focus leaves it: a mask over the focused link's row would hide
-    // the link and its ring with it, however the ring is styled (focus moving in or out of a card wakes the frame)
-    if (keyIn(c.el)) { key = ""; c.out = false; }
+    // the link and its ring with it, however the ring is styled (focus moving in or out of a card wakes the frame).
+    // Only while its own figure is the one drawn (the hero's: none): scrolled on to another, its rows go with their figure
+    if (keyIn(c.el) && (c.ch ? fid === c.ch.id : !fid)) { key = ""; c.out = false; }
     if (key !== c.key) { c.key = key; c.el.style.webkitMaskImage = c.el.style.maskImage = key; }
     var op = c.out ? "0" : "";           // wholly masked: its opacity says so too, so nothing reads it as on screen
     if (c.el.style.opacity !== op) c.el.style.opacity = op;
@@ -7313,6 +7324,7 @@ function settleClipsFor(s) {
 
 /* ---------- the map: every place is a link that teleports ---------- */
 var PLACES = [], mapCap = $("#mapcap"), mapCapOn = false, capLoY = -1, capTg = false;
+var RING_B = 3;                                   // a focused place's ring reaches 3 px past its box (1 px at a 2 px offset)
 // the caption: two sentences, one line on a wide screen; a phone sets one per line and points at its list of names
 function setMapCap() {
   var t = mapCap.firstElementChild, i = MAP_TXT.indexOf(". ") + 1, b = MAP_TXT.slice(i + 1);
@@ -7399,9 +7411,22 @@ function layoutPlacesLive() {
     // wide enough it sets the list in two; a touch screen keeps its 32 px rows, closing up to 28 only where its band has
     // grown to draw the stations whole (a 320 x 568 phone)
     var room = VH - BAND - 16, n = PLACES.length, pch = matchMedia("(pointer:coarse)").matches ? Math.max(28, Math.min(32, Math.floor(room / n))) : Math.max(24, Math.min(32, Math.floor(room / n)));
-    var per = pch * n > room && pch < 32 && VW >= 560 ? Math.ceil(n / 2) : n;
+    var per = pch * n > room && pch < 32 && VW >= 560 ? Math.ceil(n / 2) : n, x2 = 16 + Math.floor(VW / 2), y0 = BAND + 16;
+    // the second column starts clear of the first's widest label (a dated label runs past the middle of a 576 px screen),
+    // and the list stays in one column where the second would then run off the screen
+    if (per < n) {
+      var w1 = 0, w2 = 0;
+      PLACES.forEach(function (p, i) { if (i < per) w1 = Math.max(w1, p.el.offsetWidth); else w2 = Math.max(w2, p.el.offsetWidth); });
+      x2 = Math.max(x2, 16 + w1 + 12);
+      if (x2 + w2 > VW - 12) per = n;
+    }
+    // the last row whose box ends on the screen leaves its focus ring room under it, whether the list ends there or runs
+    // on past the foot: rows that close up to the foot start up to RING_B higher (the 16 px under the band has room),
+    // so the ring is never cut by the screen's edge and the row is never hidden for it
+    var fit = Math.min(per, Math.floor((VH - y0) / pch)), foot = y0 + pch * fit;
+    if (fit > 0 && foot + RING_B > VH) y0 -= foot + RING_B - VH;
     PLACES.forEach(function (p, i) {
-      p.el.style.transform = "translate(" + (16 + Math.floor(i / per) * Math.floor(VW / 2)) + "px," + Math.round(BAND + 16 + pch * (i % per)) + "px)";
+      p.el.style.transform = "translate(" + (i < per ? 16 : x2) + "px," + Math.round(y0 + pch * (i % per)) + "px)";
       if (pch < 32) p.el.style.height = p.el.style.lineHeight = pch + "px";
     });
     taken.push([0, BAND - CAP, VW, BAND]);                         // the caption, two lines in the band's caption row
@@ -7521,6 +7546,15 @@ function teleport(s) {
 function remember(h) { try { history.pushState(null, "", h || location.pathname + location.search); } catch (err) {} }
 // a jump takes focus with it, so the next Tab goes on from where it landed, not from where it left
 function landFocus(el) { if (el && el.focus) el.focus({ preventScroll: true }); }
+// the skip link takes the reader to the story's start, as its #story did, with focus on its first block, and writes no
+// #story into the address: a hash that names no place let WebKit's own fragment scroll win over the saved place on a
+// reload. Read on from there, it is a jump like any other, so Back returns to the place it left (without script it is a
+// plain link)
+$(".skip").addEventListener("click", function (e) {
+  e.preventDefault();
+  if (window.scrollY > 0) { remember(""); teleport(0); }
+  landFocus($(".hero"));
+});
 function placeEl(p) { return p.ch ? $("#" + p.ch.id) : $(".hero"); }
 // a jump into the document lands its first line just below the strip
 function docS(id) { var el = $(id); return (el.getBoundingClientRect().top + window.scrollY - STRIP - 16) / S; }
@@ -7660,9 +7694,9 @@ function syncDom() {
     else { placesEl.classList.remove("on"); parkT = setTimeout(function () { placesEl.classList.add("park"); }, 200); }   // park once faded out
     if (MAPPL) wake();                                               // the blooms trade their crumbs with the plates (drawBlooms)
   }
-  // and a row the screen's foot would cut (a laptop window at 400% zoom has room under the band for three) is not shown
-  // and takes no Tab, so no place is focused off screen or drawn cut in half (the one the keyboard is already on stays)
-  PLACES.forEach(function (p) { var hid = live && (p.vb > dv || (p.vb > VH + 0.5 && p.el !== d0.activeElement)); if (p.hid !== hid) { p.hid = hid; p.el.style.visibility = hid ? "hidden" : ""; if (p.ln) p.ln.style.visibility = p.el.style.visibility; } });
+  // and a row the screen's foot would cut, it or its focus ring (a laptop window at 400% zoom has room under the band for
+  // three), is not shown and takes no Tab, so no place is focused off screen or drawn cut (the one the keyboard is on stays)
+  PLACES.forEach(function (p) { var hid = live && (p.vb > dv || (p.vb + RING_B > VH + 0.5 && p.el !== d0.activeElement)); if (p.hid !== hid) { p.hid = hid; p.el.style.visibility = hid ? "hidden" : ""; if (p.ln) p.ln.style.visibility = p.el.style.visibility; } });
   var cOn = live;
   if (cOn !== mapCapOn) { mapCapOn = cOn; mapCap.classList.toggle("on", cOn); }
   var tg = capLoY >= 0 && dv < capLoY + 16 + 24;                  // a bottom-row tally leaves 24px before the document's edge
@@ -7675,7 +7709,9 @@ function keyIn(el) {
 }
 function wake() { if (!running) { running = true; lastT = 0; requestAnimationFrame(frame); } }
 function atStation(s) { for (var i = 0; i < CHAPTERS.length; i++) if (s >= CHAPTERS[i].on0 && s <= CHAPTERS[i].hold) return true; return false; }
-function frame(now) {
+// a frame that throws must not leave the loop marked running, or no later wake() starts it and the art stays frozen
+function frame(now) { try { frameAt(now); } catch (e) { running = false; throw e; } }
+function frameAt(now) {
   var raw = lastT ? now - lastT : 16; lastT = now;
   var dd = targetS - shownS;
   if (RM || raw > 250 || Math.abs(dd) > 1.5) shownS = targetS;       // a stall, a returning tab or a jump: no fly-through
@@ -7704,9 +7740,11 @@ function frame(now) {
   var iBusy = shownS < LAND && introT0 >= 0 && introEnd < 0 && introLive(now) < INTRO_MAX;
   // the phone's early place rows read the last card's state, which render() has just measured at this position: a
   // jump, a reload or a rotation lands here with the value its previous position left, so the rows sync again
-  var lcO = CROWS[CROWS.length - 1];
+  var lcO = CROWS[CROWS.length - 1], pl0 = placesLive;
   if (placesWait || (!!lcO && lcO.out) !== syncOut) syncDom();
-  if (clip || pBusy || cBusy || plBusy || iBusy || fadesBusy || placesWait || zoomBusy(now) || FigKronos.swapping() || shownS !== targetS) requestAnimationFrame(frame);
+  // places that came in (or went) after this frame's render: one frame more, so the art's caption row hands the map's
+  // line to #mapcap (or takes it back) instead of both drawing it
+  if (clip || pBusy || cBusy || plBusy || iBusy || fadesBusy || placesWait || zoomBusy(now) || FigKronos.swapping() || shownS !== targetS || placesLive !== pl0) requestAnimationFrame(frame);
   else running = false;
 }
 ["focusin", "focusout"].forEach(function (e) { d0.addEventListener(e, function () { wake(); }); });

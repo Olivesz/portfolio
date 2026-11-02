@@ -13,6 +13,12 @@
   // rotation, browser zoom on the open page) crosses into the other, so its labels never sit on the other's grid
   function phoneDep(f) { DEPS.push(f); f(); }
   Deep.onPhone(function () { PHONE = Deep.phone(); sapLay(); DEPS.forEach(function (f) { f(); }); });
+  /* what such a figure computes that is the same in both arrangements (its recorded runs, its self-check) is done once:
+     keep() holds its spec, and the rebuild hands it back through again() with only the arrangement's fields set anew,
+     so a rotation costs a layout, not the runs */
+  var KEPT = {};
+  function keep(id, spec) { var c = spec.check, r; if (c) spec.check = function () { return r === undefined ? (r = c()) : r; }; return (KEPT[id] = spec); }
+  function again(id, fields) { var sp = KEPT[id]; for (var k in fields) sp[k] = fields[k]; return Deep.scene(id, sp); }
   var HD = WW.HEAD, TL = WW.TAIL, WR = WW.WIRE;
   var ART = {"or": ["A######       ", "      O###### ", "B######       "], "xor": ["        B######    ", "              #    ", "              #    ", "              #    ", "              #    ", "              #    ", "       ###### #    ", " A######     #    ", "       ###### #    ", "              #    ", "              #####O"], "and": [" #######  ######################################################################################          ", " #     #  #                                                                                    #          ", " #     #  #                                                                                    #          ", " #     #  #                                                                                    #          ", " #     #  #                                                                                    #   #######", " #     #  #                                                                                    #   #     #", " #     ####                                                                                    #   #     #", " #                                                                                             #   #     #", " #                                                                                             #   #     #", " #                                                                                             #   #     #", " #                                                                                             #  ###    #", " #                                                                                             #  # #    #", " #                                                                                             #   #     #", " #            #####                                                                            #### #    #", " #   B######### #  ################################################                                 #    #", " #     #      ##                                                  #                                 #    #", " #     #                                                          #                                 #    #", " #     #                                                          #                                 #    #", " #######                                                          #                                 O    #", "       #                                                          #                                      #", "       #                                                   ###### #                                      #", "       #      #####                                        #    # #                                      #", "     A######### #  #####  ##################################     #                                       #", "              ##       #  #                                #    # #                                      #", "                       #  #                                ###### #                                      #", "                       #  #                                       #                                      #", "                       #  #                                       ########################################", "                       #  #                                                                               ", "                       ####                                                                               "], "memory": ["#~@#################", "#                  #", "#                  #", "#                  #", "####################", "        #", "        #", "        ####################"], "wire": ["~@########################"]};
   var CHECKS = {};
@@ -367,6 +373,8 @@
 
   /* ================= figs 7, 8, 16: gates from index.html, cycling a and b as the act does ================= */
   function gateScene(id, rows, P, o) {
+    var space = PHONE ? { top: 24, bottom: 136 } : { top: 24, bottom: 8, right: 112 };
+    if (KEPT[id]) return fast(again(id, { space: space }));
     var ox = 2, oy = o.oy || 1, COLS = artW(rows) + 4, ROWS = rows.length + 2 + (o.extraRows || 0);
     var base = WW.world(COLS, ROWS), pp = parseArt(base, rows, ox, oy);
     var lampX = pp.O[0] + 2; while (base.get(lampX - 1, pp.O[1]) === WR && lampX < COLS - 1) lampX++;
@@ -433,11 +441,11 @@
     setAt(id, ats);
     if (o.leads) setLead(id, o.leads(res, P));
     var live0 = null;
-    return fast(Deep.scene(id, {
+    return fast(Deep.scene(id, keep(id, {
       rows: Deep.inkRows,
       check: function () { var got = [0, 1, 2, 3].map(function (c) { return c in PRE ? PRE[c] : res[CASES.indexOf(c)].out; }); return ok(id + " truth table " + got.join("") + (o.skew ? " (wanted 0001)" : ""), got.join("") === (o.got || o.want).join("") && (!o.extraCheck || o.extraCheck(res, frames, pp, COLS, ROWS, base))); },
       grid: { cols: COLS, rows: ROWS, pitch: o.pitch, pitchPhone: o.pitchPhone, min: 2 },
-      space: PHONE ? { top: 24, bottom: 136 } : { top: 24, bottom: 8, right: 112 },
+      space: space,
       ticks: TICKS, tps: o.tps, pause: o.pause || 1400, rest: o.rest,
       draw: function (api, tick) { tick = Math.min(tick, TICKS); paintF(api, frames[tick], table(tick), litAt(tick), frames, tick); },
       inputs: [{ id: "a", label: "send a", momentary: true }, { id: "b", label: "send b", momentary: true }, { id: "ab", label: "send both", momentary: true }],
@@ -453,7 +461,7 @@
         w.skA = (c & 1) && SK ? SK : -1;
         w.cs = c; w.n0 = 0; w.fired = -1; w.tbl.cur = c; w.tbl.rows[TABLE_ORDER.indexOf(c)][2] = null;
       }
-    }));
+    })));
   }
 
   phoneDep(function () { gateScene("sc-or", ART.or, 22, {
@@ -475,6 +483,8 @@
 
   /* ================= fig 9: the clocked NAND cell ================= */
   phoneDep(function () {
+    var spN = PHONE ? { top: 8, bottom: 136 } : { top: 8, bottom: 8, right: 112 }, spH = PHONE ? { top: 8, bottom: 112 } : { top: 8, bottom: 8, right: 112 };
+    if (KEPT["sc-nand"]) { fast(again("sc-nand", { space: spN })); again("sc-hero", { space: spH }); return; }
     var COLS = NAND.W, ROWS = NAND.H, pt = NAND.ports;
     var SH = pt[0], ST = pt[1], FNW = pt[2], AIN = pt[3], BIN = pt[4], OUT = pt[5], J = pt[6];
     var base = WW.world(COLS, ROWS); NAND.cells.forEach(function (c) { base.wire(c[0], c[1]); });
@@ -522,10 +532,10 @@
       tb.innerHTML = '<span class="m">a b  out</span><br>' + lampsHTML(tbl.rows, ORDER.indexOf(tbl.cur));
       tb.setAttribute("data-src", "page:nand-table"); api.scene.placeLabel(api.scene.labels.tt);
     }
-    fast(Deep.scene("sc-nand", {
+    fast(Deep.scene("sc-nand", keep("sc-nand", {
       rows: Deep.inkRows,
       check: function () { return ok("nand cell 1,1,1,0 and recovers after 1,1", res.map(function (r) { return r.out; }).join("") === "11101" && res[3].crowd > 0 && P > 0); },
-      grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 8 }, space: PHONE ? { top: 8, bottom: 136 } : { top: 8, bottom: 8, right: 112 },
+      grid: { cols: COLS, rows: ROWS, pitch: 16, pitchPhone: 8 }, space: spN,
       ticks: TICKS, tps: 16, pause: 1300, rest: "nab",
       draw: function (api, tick) { tick = Math.min(tick, TICKS); paintF(api, frames[tick], tableAt(tick), litAt(tick)); crowdsRecent(frames, tick, COLS, ROWS, [J[0] - 1, J[1] - 1, J[0] + 1, J[1] + 1]).forEach(function (c) { ring(api, c[0], c[1]); }); },
       inputs: [{ id: "a", label: "a", momentary: true }, { id: "b", label: "b", momentary: true }, { id: "ab", label: "a and b", momentary: true }, { id: "x", label: "none", momentary: true }],
@@ -546,14 +556,14 @@
         var ti = cstar + k * P - LW;
         w.pend = { c: c, t: ti }; w.until = ti + LW + P; w.tbl.cur = c; w.tbl.rows[ORDER.indexOf(c)][2] = null;
       }
-    }));
+    })));
     /* the hero: the same cell and the same run, small, looping, no controls */
-    var hero = Deep.scene("sc-hero", {
+    var hero = Deep.scene("sc-hero", keep("sc-hero", {
       rows: Deep.inkRows,
-      grid: { cols: COLS, rows: ROWS, pitch: 12, pitchPhone: 8 }, space: PHONE ? { top: 8, bottom: 112 } : { top: 8, bottom: 8, right: 112 },
+      grid: { cols: COLS, rows: ROWS, pitch: 12, pitchPhone: 8 }, space: spH,
       ticks: TICKS, tps: 24, pause: 0,
       draw: function (api, tick) { tick = Math.min(tick, TICKS); paintF(api, frames[tick], tableAt(tick), litAt(tick)); crowdsRecent(frames, tick, COLS, ROWS, [J[0] - 1, J[1] - 1, J[0] + 1, J[1] + 1]).forEach(function (c) { ring(api, c[0], c[1]); }); }
-    });
+    }));
     if (hero && !Deep.reduce && !hero.loops) { hero.loops = true; hero.fig.addEventListener("scene:done", function () { setTimeout(function () { if (hero.visible) hero.play(); }, 1600); }); }
     if (hero && Deep.reduce) hero.show(TICKS);                       // reduced motion rests on the finished table, 1, 1, 1, 0, as the caption says
   });
@@ -988,8 +998,7 @@
   /* the whole run on one strip, from the trace: a column per clock, its height the A register; each OUT marked with the
      number it printed; the carry where it trips. Columns up to the playhead are lit. A phone folds it into two bands. */
   function Strip(fig) {
-    var st = fig.querySelector(".sc-stage"), el = document.createElement("div"), cv = document.createElement("canvas"), was = st.querySelector(".sc-trace");
-    if (was) st.removeChild(was);                                     // built again for the other arrangement
+    var st = fig.querySelector(".sc-stage"), el = document.createElement("div"), cv = document.createElement("canvas");
     el.className = "sc-trace"; el.setAttribute("aria-hidden", "true");
     el.setAttribute("data-src", "Olivesz/emergence@910b296:cpu/traces/sap1_fib.json#L1");
     el.appendChild(cv); st.appendChild(el);
@@ -1051,6 +1060,8 @@
 
   /* fig 15: SAP-1 runs Fibonacci */
   phoneDep(function () {
+    var grid = { cols: PCOLS, rows: PROWN, pitch: 16, pitchPhone: 8 }, space = PHONE ? { top: 16, bottom: 216 } : { top: 16, bottom: 16, right: 128 };
+    if (KEPT["sc-sap"]) { fast(again("sc-sap", { grid: grid, space: space })); return; }   // the strip folds itself to the width (layout)
     var S = FIB.snaps, last = S.length - 1, CUR = curAddrs(S), PL = progLines(PROGS.fib);
     var fig15 = document.getElementById("sc-sap"), strip = TRACE_OK && fig15 && TR.rows.length === S.length ? Strip(fig15) : null;
     var pick = [0, 1, 4, 7, 10, 11];                                  // the prints each step's words end on: 1, 1, 5, 21, 89, 144
@@ -1061,7 +1072,7 @@
     names.forEach(function (k, i) { if (i) leads[k] = ats[names[i - 1]] + 1; });
     setLead("sc-sap", leads);
     function tapeAt(cy) { return FIB.outs.filter(function (v, k) { return FIB.at[k] <= cy; }); }
-    fast(Deep.scene("sc-sap", {
+    fast(Deep.scene("sc-sap", keep("sc-sap", {
       ink: true, rows: function (api) { return Deep.inkRows(api).concat(strip ? strip.rows(api) : []); },
       check: function () {
         // step 6's words: at the last print (144), b in RAM already holds 233, and the next ADD, 144 + 233, passes 255
@@ -1071,7 +1082,7 @@
         return ok("fibonacci tape on the netlist", SAPOK && TRACE_OK && !!strip && FIB.outs.join(",") === WANT_OUT.fib.join(",") && S[last].halt === 1);
       },
       layout: function (api, avail) { if (strip) strip.layout(avail); },
-      grid: { cols: PCOLS, rows: PROWN, pitch: 16, pitchPhone: 8 }, space: PHONE ? { top: 16, bottom: 216 } : { top: 16, bottom: 16, right: 128 },
+      grid: grid, space: space,
       ticks: last, tps: 60, pause: 900, rest: "halt",
       draw: function (api, tick) { var cy = Math.min(last, tick); panel(api, S[cy], tapeAt(cy), { ram: true, prog: PL, cur: CUR[cy], big: true }); if (strip) strip.draw(cy); },
       inputs: [{ id: "fib", label: "fibonacci", momentary: true }, { id: "add", label: "5 + 3", momentary: true }, { id: "sub", label: "9 − 4", momentary: true }, { id: "count", label: "countdown", momentary: true }, { id: "sum", label: "sum", momentary: true }],
@@ -1081,7 +1092,7 @@
         draw: function (api, L) { if (L.cpu) panel(api, L.cpu.snapshot(), L.tape, { ram: true, prog: L.prog, cur: L.cur, big: true }); if (strip) strip.draw(L.id === "fib" ? L.cy : -1); }, budget: 3000
       },
       onInput: function (api, id, on, L) { if (L) { L.cpu = new SAP1(assemble(PROGS[id]).image); L.tape = []; L.prog = progLines(PROGS[id]); L.cur = 0; L.cy = 0; L.id = id; } }
-    }));
+    })));
   });
 
   /* ================= fig 16: the asynchronous wall: the act's AND ================= */
@@ -1111,6 +1122,9 @@
   Deep.scene("sc-sync", { ticks: 2, tps: 1 });
 
   /* ================= fig 18: one tick of slack ================= */
+  /* the reader's timing slider is one row, built once: a rebuild for the other arrangement keeps the node (and the
+     keyboard on it) and the reader's setting. at: the step the timeline last set it for */
+  var slack = { off: 2, inp: null, out: null, at: null, sw: null };
   phoneDep(function () {
     var L = PHONE ? { cols: REGW, rows: 2 * REGH + 3, b: [0, REGH + 3] } : { cols: 2 * REGW, rows: REGH, b: [REGW, 0] };
     var COLS = L.cols, ROWS = L.rows;
@@ -1140,7 +1154,7 @@
       var w = loaded(false), ta = lead - OFF, at2 = {}; at2[ta + off] = function (x) { clr(x, pB); };
       var fr = WW.record(w, lead + 70, at2); return !aliveAfter(fr, rB, lead + 6, lead + 70);
     }
-    var sw = [-2, -1, 0, 1, 2].map(sweep);
+    var sw = slack.sw || (slack.sw = [-2, -1, 0, 1, 2].map(sweep));   // the same in either arrangement: run once
     var lateTips = -1; for (var t = starts[0] + lead - OFF + 2; t < starts[0] + lead + 6; t++) if (frames[t][pB[5][1] * COLS + pB[5][0]] === HD && frames[t][pB[6][1] * COLS + pB[6][0]] === HD) { lateTips = t; break; }
     var flood = WW.world(COLS, ROWS).load(frames[TK]).count(HD);
     function tipsAt(s0, o2) { for (var t = s0 + lead + o2 - 3; t <= s0 + lead + o2 + 3; t++) if (frames[t][pB[5][1] * COLS + pB[5][0]] === HD && frames[t][pB[6][1] * COLS + pB[6][0]] === HD) return t; return -1; }
@@ -1148,20 +1162,20 @@
     if (tLate < 0) tLate = starts[0] + lead + 3; if (tEarly < 0) tEarly = starts[1] + lead - 1; if (tEmpty < 0) tEmpty = starts[2] + lead + 1;
     setAt("sc-slack", { late: tLate, early: tEarly, empty: tEmpty + 1, flood: TK });
     setLead("sc-slack", { early: starts[1], empty: starts[2], flood: tEmpty + 2 });
-    var off = 2;
     function words(o) { return o === 0 ? "on time" : Math.abs(o) + (Math.abs(o) === 1 ? " tick " : " ticks ") + (o > 0 ? "late" : "early"); }
     function names(api, k) {
-      var right = k === "early" ? "2 ticks early" : k === "empty" || k === "flood" ? "clear, empty loop" : k === "live" ? words(off) : "2 ticks late";
+      var right = k === "early" ? "2 ticks early" : k === "empty" || k === "flood" ? "clear, empty loop" : k === "live" ? words(slack.off) : "2 ticks late";
       lbl(api, "nA", "on time", 1, 0, { dy: -20, cls: "i" });
       var nb = lbl(api, "nB", right, L.b[0] + 1, L.b[1], { dy: -20, cls: "i" }); if (!nb.hasAttribute("data-src")) nb.setAttribute("data-src", "page:slack-sweep");
     }
     /* during the timeline the slider shows the right clear's timing in the segment playing: 2 late, 2 early, then on
-       time into an empty loop (the empty loop, not the timing, is what goes wrong there) */
+       time into an empty loop (the empty loop, not the timing, is what goes wrong there). It is set as the timeline
+       plays or moves to another step, not when a step at rest is drawn again (a resize), which would undo the reader's */
     function paintF(api, g, k) {
       paint(api, g, COLS, ROWS); names(api, k);
-      if (out && api.mode !== "live") { off = k === "early" ? -2 : k === "empty" || k === "flood" ? 0 : 2; inp.value = off; out.textContent = words(off); }
+      var m = api.mode, o = slack;
+      if (o.inp && m !== "live" && (m === "auto" || m === "seg" || k !== o.at)) { o.at = k; o.off = k === "early" ? -2 : k === "empty" || k === "flood" ? 0 : 2; o.inp.value = o.off; o.out.textContent = words(o.off); }
     }
-    var out = null, inp = null;
     var sc = fast(Deep.scene("sc-slack", {
       rows: Deep.inkRows,
       check: function () { return ok("clear only on time: offsets -2..+2 clear only at 0; empty-loop clear floods", sw.join() === "false,false,true,false,false" && flood > 2); },
@@ -1169,7 +1183,9 @@
       ticks: TK, tps: 14, pause: 1400, rest: "late",
       draw: function (api, tick) { paintF(api, frames[Math.min(tick, TK)], api.words); },
       inputs: [{ id: "go", label: "clear", momentary: true }, { id: "empty", label: "clear an empty loop", momentary: true }],
+      // a run's world is laid out for one arrangement, so a rebuild ends it; the reader's timing is kept for the next clear
       live: {
+        carry: false,
         start: function () { return { w: null }; },
         step: function (api, s) { if (!s.w) return false; if (s.at[s.w.t]) s.at[s.w.t](s.w); s.w.step(); return s.w.t < s.end; },
         draw: function (api, s) { if (s.w) { paint(api, s.w.g, COLS, ROWS); names(api, s.empty ? "empty" : "live"); } }, budget: 200
@@ -1177,20 +1193,19 @@
       onInput: function (api, id, on, s) {
         if (!s) return;
         s.empty = id === "empty"; s.w = loaded(s.empty); s.w.t = 0; s.at = {};
-        var ta = lead - OFF, tb = ta + (s.empty ? 0 : off);
+        var ta = lead - OFF, tb = ta + (s.empty ? 0 : slack.off);
         s.at[ta] = function (w) { clr(w, pA); if (tb === ta) clr(w, pB); };
         if (tb !== ta) s.at[tb] = function (w) { clr(w, pB); };
         s.end = lead + (s.empty ? 110 : 70);
       }
     }));
     var fig = document.getElementById("sc-slack");
-    if (fig && sc) {
-      var was = fig.querySelector(".sc-rg"); if (was) was.parentNode.removeChild(was);   // built again for the other arrangement
+    if (fig && sc && !slack.inp) {
       var row = document.createElement("div"); row.className = "sc-in sc-rg";
       row.innerHTML = '<label><span>right clear: <b>2 ticks late</b></span><input type="range" min="-2" max="2" step="1" value="2" aria-label="clear timing, ticks early or late"></label>';
       fig.insertBefore(row, fig.querySelector(".sc-in"));
-      inp = row.querySelector("input"); out = row.querySelector("b");
-      inp.addEventListener("input", function () { off = +inp.value; out.textContent = words(off); });
+      var o = slack; o.inp = row.querySelector("input"); o.out = row.querySelector("b");
+      o.inp.addEventListener("input", function () { o.off = +o.inp.value; o.out.textContent = words(o.off); });
     }
   });
 

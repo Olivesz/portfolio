@@ -28,12 +28,18 @@ html{background:var(--void);color:var(--body);-webkit-text-size-adjust:100%;text
 /* a jump or a focus that scrolls the page brings its target to rest below the sticky strip and the road bar under it,
    and one brought up from below rests 16 px over the screen's foot, its focus ring whole (WebKit aligns it to the foot) */
 html{scroll-padding-top:calc(var(--strip) + 16px);scroll-padding-bottom:16px}
-/* Firefox leaves a control where it is when more than 16 px of it shows, plus its scroll margin: a margin keeps a tall
-   control from resting mostly under the strip or the screen's foot after Tab (the deep-dive card needs over half its
-   152 px on a 225 px screen, a sources line wrapped to five rows over half its 88) */
+/* Firefox leaves a control where it is while more than 16 px of it shows inside that padding less its scroll margin (a
+   sources line wrapped to five rows needs over half its 88). A margin of the control's height less 29 px at the foot
+   (the padding, those 16 px and the 3 px ring) and less 13 at the top makes it move whenever the ring would be cut:
+   the case-nav links are 74 px tall, the deep-dive card up to 164. Chromium and WebKit then rest the card that far
+   from the edge, which a screen under 375 px tall has no room for, so there it keeps the 16 px every control has */
 :is(a[href],button,input,select,summary,textarea){scroll-margin-block:16px}
-.lx-deep{scroll-margin-bottom:48px}
 .srcs-d summary{scroll-margin-block:32px}
+.lx-nav a{scroll-margin-block:64px 48px}
+@media (min-height:375px){ a.lx-deep{scroll-margin-block:152px 136px} }
+/* the strip's links sit inside that top padding, on the sticky strip itself: they count as in view there, so Tab
+   through them never scrolls the page under a strip that does not move (deep.css resets it where the strip scrolls) */
+.strip a{scroll-margin-top:calc(-1 * (var(--strip) + 16px))}
 body{margin:0;background:var(--void);color:var(--body);font:400 15px/24px var(--sg);overflow-x:clip;-webkit-font-smoothing:antialiased}
 h1,h2,h3,p,ol,ul,dl,dd,figure{margin:0;padding:0}
 a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--muted);text-underline-offset:3px;text-decoration-thickness:1px;transition:text-decoration-color var(--t-ui) var(--ease-enter)}
@@ -527,6 +533,17 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 .lx-armed .ck li::before{background:var(--copper)}
 .lx-armed.on .ck li::before{background:var(--t-verify);transition:background-color 0ms linear calc(200ms + var(--i,0) * 140ms)}
 
+/* forced colours paint every background as the page's own, so a mark drawn only as a fill would vanish there: one that
+   says which series or what kind by its hue keeps its colour (the result bars and their key, the hero's key, the
+   tiles, the checks), and a beat square is drawn as a border, thicker once passed and filled while on, as a deep
+   dive's step squares are */
+@media (forced-colors:active){
+  .lx-cmp .me i,.lx-cmp .spy i,.lx-key .me::before,.lx-key .spy::before,.look>span::before,.lx-tiles li,.ck li::before{forced-color-adjust:none}
+  .lx-beats li::before{box-sizing:border-box;border:1px solid}
+  .lx-beats li.past::before{border-width:2px}
+  .lx-beats li.on::before{border-width:4px}
+}
+
 /* ---------- the way deeper, and the neighbours ---------- */
 .lx-deep{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:24px;margin-top:var(--lx-gap);padding:24px 24px 24px;text-decoration:none}
 .lx-deep .k{display:block;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--accent)}
@@ -567,6 +584,9 @@ a:hover,a:focus-visible{text-decoration-color:var(--ink)}
 /* a block the keyboard reaches before its turn in the arrival is there at once, so the focus ring never sits on a
    link still faded out */
 .lx-armed [data-lx="up"]:focus-within,.lx-armed[data-lx="up"]:focus-within{opacity:1;transform:none;transition:none}
+/* and a heading a jump lands on (a rail link, a #link) is there at once, so it rests where the jump put it, 16 px under
+   the strip, not 16 px higher once its rise ends */
+.lx-armed [data-lx="up"]:target{opacity:1;transform:none;transition:none}
 
 @media (prefers-reduced-motion:reduce){ .lx-hero .lx-up{animation:none} }
 @media print{ .lx-rail,.lx-bar,.lx-arrive-cv{display:none} .lx-armed *{opacity:1!important;transform:none!important} }

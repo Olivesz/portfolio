@@ -85,6 +85,15 @@ VIEWPORTS = {
     # phones on their side: the words in a column beside the art
     "land":        dict(viewport={"width": 844, "height": 390}, device_scale_factor=3, is_mobile=True, has_touch=True),
     "land-small":  dict(viewport={"width": 740, "height": 360}, device_scale_factor=2, is_mobile=True, has_touch=True),
+    # laptop windows at 250%, 200% and 150% zoom (fine pointer, short screens): the map's places in two columns, and
+    # in one column closed up to the screen's foot
+    "zoom-250":    dict(viewport={"width": 576, "height": 360}, device_scale_factor=2),
+    "zoom-200-1200": dict(viewport={"width": 600, "height": 400}, device_scale_factor=2),
+    "zoom-150":    dict(viewport={"width": 853, "height": 533}, device_scale_factor=1.5),
+    # 400% zoom on a window a little taller than 900: the list runs past the foot, and the rows move up 2 px to leave the last whole row's focus ring its room
+    "zoom-400-236": dict(viewport={"width": 360, "height": 236}, device_scale_factor=4),
+    # an iPhone SE-size phone on its side, where a docked deep-dive step has the least room under the strip (deepfit)
+    "land-se":     dict(viewport={"width": 667, "height": 375}, device_scale_factor=2, is_mobile=True, has_touch=True),
 }
 LANDS = ("land", "land-small")
 PHONES = ("phone", "phone-small")
@@ -4763,7 +4772,7 @@ DEEP_ONE_JS = "(i) => __deep.scenes().find(s => s.id === i)"
 DEEP_TO_JS = "(i) => { const e = document.getElementById(i); scrollTo(0, Math.round(e.getBoundingClientRect().top + scrollY - innerHeight * 0.1)); }"
 DEEP_CLICK_JS = """([i, how, k]) => { const f = document.getElementById(i);
   const b = how === 'prev' ? f.querySelector('.sc-bar button[aria-label="previous step"]') : how === 'next' ? f.querySelector('.sc-bar button[aria-label="next step"]') : f.querySelectorAll('.sc-pip')[k];
-  if (!b || b.disabled) return false; b.click(); return true; }"""
+  if (!b || b.disabled || b.getAttribute('aria-disabled') === 'true') return false; b.click(); return true; }"""
 
 
 DEEP_KEYS_JS = """(i) => { const f = document.getElementById(i), bar = f.querySelector('.sc-bar');
@@ -4771,7 +4780,7 @@ DEEP_KEYS_JS = """(i) => { const f = document.getElementById(i), bar = f.querySe
     ok: b.tagName === 'BUTTON' && b.tabIndex >= 0 && !b.closest('[aria-hidden="true"],[inert]') && getComputedStyle(b).visibility !== 'hidden' })); }"""
 DEEP_FOCUS_JS = """([i, how, k]) => { const f = document.getElementById(i);
   const b = how === 'next' ? f.querySelector('.sc-bar button[aria-label="next step"]') : f.querySelectorAll('.sc-pip')[k];
-  if (!b || b.disabled) return false; b.focus(); return document.activeElement === b; }"""
+  if (!b || b.disabled || b.getAttribute('aria-disabled') === 'true') return false; b.focus(); return document.activeElement === b; }"""
 
 
 def deep_keys(pg, sid, reduce):
@@ -5142,6 +5151,1107 @@ def a_pathfree(v):
                 + (f"; {len(bad)} differ: " + " | ".join(bad[:8]) if bad else ""))
 
 
+KEYLEAVE_PREP = """i => { const el = __walk.cards()[i].el, tab = e => e.tabIndex >= 0 && !e.disabled && !e.closest('[inert]') && e.getClientRects().length;
+  const all = [...document.querySelectorAll('a[href], button, input, [tabindex]')].filter(tab), k = all.findIndex(e => el.contains(e));
+  if (k < 1) return null;
+  all[k - 1].focus({ preventScroll: true });
+  return (all[k].getAttribute('aria-label') || all[k].textContent).replace(/\\s+/g, ' ').trim().slice(0, 32); }"""
+KEYLEAVE_READ = """i => { const el = __walk.cards()[i].el, a = document.activeElement, f = __walk.figure();
+  return { inside: !!a && el.contains(a), fv: !!a && a.matches(':focus-visible'), op: getComputedStyle(el).opacity,
+           mask: el.style.maskImage || el.style.webkitMaskImage || '', fig: f && f.id }; }"""
+
+
+def a_keyleave(v):
+    """A card the keyboard is on is drawn whole only while its own figure is (the hero's: none). Tab onto each card's first
+    link at its hold, scroll on to the next station's hold with focus still there, and the card must be drawn exactly as
+    it is once focus leaves it, there: its rows go with their figure, so no link of one chapter stands under another's."""
+    v.need_walk()
+    st = v.geometry()["stations"]
+    cards = v.js("() => __walk.cards().map(c => c.id)")
+    holds = {x[0]: (x[1] + x[2]) / 2 for x in st}
+    bad, n = [], 0
+    for i, cid in enumerate(cards):
+        if i >= len(st):                   # cards are the hero then one per station, so the station after card i is st[i]
+            continue
+        nxt = st[i][0]
+        v.scroll_s(holds[cid] if cid in holds else 0.0)
+        v.settle(2500)
+        name = v.js(KEYLEAVE_PREP, i)
+        if not name:
+            bad.append(f"{cid}: no Tab stop in the card")
+            continue
+        v.page.keyboard.press("Tab")
+        v.settle(1500)
+        r0 = v.js(KEYLEAVE_READ, i)
+        if not (r0["inside"] and r0["fv"]):
+            bad.append(f"{cid}: Tab did not land on {name!r} with a visible focus")
+            continue
+        v.scroll_s(holds[nxt])
+        v.settle(2500)
+        held = v.js(KEYLEAVE_READ, i)
+        v.js("() => document.activeElement && document.activeElement.blur()")
+        v.settle(1000)
+        free = v.js(KEYLEAVE_READ, i)
+        n += 1
+        if not held["inside"]:
+            bad.append(f"{cid}: focus left {name!r} on the scroll")
+        elif (held["op"], held["mask"]) != (free["op"], free["mask"]):
+            bad.append(f"{cid} at {nxt}'s hold (figure {held['fig']}), focus on {name!r}: opacity {held['op']} mask "
+                       f"{held['mask'][:28] or 'none'!r}; unfocused there: opacity {free['op']} mask {free['mask'][:28] or 'none'!r}")
+    return not bad and n > 0, f"{n} cards" + (f"; {len(bad)} bad: " + "; ".join(bad[:4]) if bad else
+                                             ", each drawn at the next station's hold as it is with nothing focused")
+
+
+PLACEROWS_JS = r"""async () => {
+  const ps = [...document.querySelectorAll('#places .place')], vw = innerWidth, vh = innerHeight;
+  const shown = ps.filter(p => getComputedStyle(p).visibility === 'visible' && p.getClientRects().length);
+  const name = p => (p.getAttribute('aria-label') || p.textContent).replace(/^jump to /, '').slice(0, 24);
+  const box = p => { const r = p.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; };
+  const over = [], miss = [], cut = [];
+  // a place laid out whole on the screen is listed: hidden, a reader loses a place the screen had room for
+  const hid = ps.filter(p => !shown.includes(p) && p.getClientRects().length).map(p => [p, box(p)])
+    .filter(([p, q]) => q[0] >= 0 && q[1] >= 0 && q[2] <= vw + 0.01 && q[3] <= vh + 0.01).map(([p, q]) => `${name(p)} [${q.map(Math.round)}] in ${vw}x${vh}`);
+  for (let i = 0; i < shown.length; i++) for (let j = i + 1; j < shown.length; j++) {
+    const a = box(shown[i]), b = box(shown[j]);
+    if (a[0] < b[2] - 0.5 && b[0] < a[2] - 0.5 && a[1] < b[3] - 0.5 && b[1] < a[3] - 0.5) over.push(name(shown[i]) + ' / ' + name(shown[j]));
+  }
+  for (const p of shown) {
+    const r = box(p), my = (r[1] + r[3]) / 2;
+    for (const x of [r[0] + 3, (r[0] + r[2]) / 2, r[2] - 3]) {
+      const h = document.elementFromPoint(x, my), hp = h && h.closest('.place');
+      if (hp !== p) { miss.push(`${name(p)} at x ${Math.round(x)} hits ${hp ? name(hp) : h ? __ct.desc(h) : 'nothing'}`); break; }
+    }
+  }
+  for (const p of shown) {
+    p.focus({ preventScroll: true });
+    await __ct.raf(); await __ct.raf();
+    const cs = getComputedStyle(p), q = box(p), fv = p.matches(':focus-visible');
+    const g = fv && cs.outlineStyle !== 'none' ? parseFloat(cs.outlineWidth) + parseFloat(cs.outlineOffset) : 0;
+    if (!fv) cut.push(name(p) + ' shows no focus');
+    else if (q[0] - g < 0 || q[1] - g < 0 || q[2] + g > vw || q[3] + g > vh)
+      cut.push(`${name(p)} ring [${[q[0] - g, q[1] - g, q[2] + g, q[3] + g].map(Math.round)}] in ${vw}x${vh}`);
+  }
+  if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+  return { on: document.getElementById('places').classList.contains('on'), n: ps.length, shown: shown.length, over, miss, cut, hid };
+}"""
+
+
+def a_placerows(v):
+    """At the map, the list of places under a short screen's band: no two shown rows overlap, a click anywhere along a
+    row's label lands on that place, each shown row, focused from the keyboard, has its whole focus ring on screen, and
+    no row whose box lies whole on the screen is hidden."""
+    v.need_walk()
+    v.scroll_s(v.geometry()["MAPS"] + 0.05)
+    v.settle(3000)
+    v.page.keyboard.press("Shift")                       # the focus below is the keyboard's, so it is ringed
+    r = v.js(PLACEROWS_JS)
+    v.settle(1000)
+    bad = ([] if r["on"] else ["the places are not shown at the map"]) + \
+        [f"overlap {x}" for x in r["over"]] + [f"a click on {x}" for x in r["miss"]] + [f"cut {x}" for x in r["cut"]] + \
+        [f"hidden though its box is on screen: {x}" for x in r["hid"]]
+    return not bad and r["shown"] > 0, (f"{r['shown']} of {r['n']} places shown" + (f"; {len(bad)} bad: " + "; ".join(bad[:5]) if bad else
+                                       ", none overlapping, each label's click its own place, each focus ring on screen, "
+                                       "none hidden that the screen has room for"))
+
+
+MAPCAP_JS = """() => { const m = document.getElementById('mapcap'), lines = [...m.querySelectorAll('.mc-t span')].map(e => e.textContent.trim()).filter(Boolean);
+  return { on: m.classList.contains('on'), lines, both: __walk.drawn().filter(d => d[3] > 0 && lines.includes(String(d[0]).trim())).map(d => d.slice(0, 3)) }; }"""
+
+
+def a_mapcapone(v):
+    """At rest on the map the caption is drawn once: while #mapcap shows the map's line, the art's caption row on the
+    canvas does not draw it too (with motion, and under reduced motion, where the jump's frame is the last one)."""
+    v.need_walk()
+    bad, seen = [], 0
+    for how in ("motion", "reduced motion"):
+        w = v if how == "motion" else View(v.run, v.name, extra={"reduced_motion": "reduce"})
+        try:
+            w.need_walk()
+            w.scroll_s(w.geometry()["MAPS"] + 0.05)
+            w.settle(3000)
+            r = w.js(MAPCAP_JS)
+        finally:
+            if w is not v:
+                w.close()
+        if not r["on"]:
+            bad.append(f"{how}: #mapcap is not shown at the map")
+            continue
+        seen += 1
+        if r["both"]:
+            bad.append(f"{how}: #mapcap shows {r['lines'][0]!r} and the canvas draws {r['both'][0]}")
+    return not bad and seen == 2, "; ".join(bad) or "with motion and under reduced motion the map's line is drawn by #mapcap alone"
+# --- emergence-deep across a resize into its other arrangement ----------------------------------------------------
+# The page builds its figures for a phone or for a wide screen (Deep.phone) and builds them again, in place, when a resize
+# crosses into the other: a phone turned on its side, or a window narrowed or zoomed past the line. What the reader has
+# in hand must come through it. Keys go through page.keyboard and clicks through evaluate, which add no listeners.
+EMR_TURN = {"phone": (844, 390), "desktop": (360, 225)}   # a phone on its side; a 1440x900 window at 400% zoom
+EMR_READY_JS = "() => window.__deep && window.Deep && document.fonts.status === 'loaded'"
+# the slack figure's grid is taller than wide in the phone arrangement and wider than tall in the wide one: once its
+# canvas has turned, the page has built and laid out every figure for the new arrangement (relayout is one task)
+EMR_BUILT_JS = "() => { const c = document.querySelector('#sc-slack canvas'); return !!c && (c.width > c.height) === !Deep.phone(); }"
+
+
+def emr_open(v):
+    """emergence-deep in a fresh context at the view's size, reduced motion (nothing plays on its own), built and laid out."""
+    ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+    pg = ctx.new_page()
+    pg.errors = []
+    pg.on("pageerror", lambda e: pg.errors.append(str(e).splitlines()[0][:160]))
+    pg.goto(v.run.url.rsplit("/", 1)[0] + "/work/emergence-deep.html", wait_until="load")
+    pg.wait_for_function(EMR_READY_JS)
+    pg.wait_for_function(EMR_BUILT_JS)
+    return ctx, pg
+
+
+def emr_turn(pg, size):
+    """Resize across the arrangement line and wait for the rebuild. Returns the arrangement before and after."""
+    was = pg.evaluate("() => Deep.phone()")
+    pg.set_viewport_size({"width": size[0], "height": size[1]})
+    pg.wait_for_function("(was) => Deep.phone() !== was && (" + EMR_BUILT_JS + ")()", arg=was, timeout=10000)
+    return was, pg.evaluate("() => Deep.phone()")
+
+
+EMR_SLIDER_JS = """() => { const i = document.querySelector('#sc-slack .sc-rg input'), b = document.querySelector('#sc-slack .sc-rg b'), a = document.activeElement;
+  return { n: document.querySelectorAll('#sc-slack .sc-rg input').length, value: i ? +i.value : null, words: b ? b.textContent : null,
+    same: !!i && i === window.__ctSlack, connected: !!window.__ctSlack && window.__ctSlack.isConnected, focused: !!i && a === i,
+    active: a === document.body ? 'body' : a.tagName.toLowerCase() + (a.type ? '[' + a.type + ']' : '') + ' in ' + ((a.closest('figure') || {}).id || '-') }; }"""
+
+
+def a_slackfocus(v):
+    """emergence-deep: the keyboard on fig 18's timing slider, a resize into the other arrangement keeps it there: the
+    same slider has focus, it keeps the reader's setting, and the next arrow key moves it."""
+    if not (v.run.root / "work" / "emergence-deep.html").is_file():
+        return False, "no work/emergence-deep.html"
+    ctx, pg = emr_open(v)
+    try:
+        if not pg.evaluate("""() => { const i = document.querySelector('#sc-slack .sc-rg input'); if (!i) return false;
+            scrollTo(0, Math.round(i.getBoundingClientRect().top + scrollY - innerHeight / 2)); i.focus(); window.__ctSlack = i; return document.activeElement === i; }"""):
+            return False, "fig 18's slider is missing or does not take focus"
+        v0 = pg.evaluate(EMR_SLIDER_JS)["value"]
+        pg.keyboard.press("ArrowLeft")
+        s1 = pg.evaluate(EMR_SLIDER_JS)
+        was, now = emr_turn(pg, EMR_TURN[v.name])
+        s2 = pg.evaluate(EMR_SLIDER_JS)
+        pg.keyboard.press("ArrowRight")
+        s3 = pg.evaluate(EMR_SLIDER_JS)
+        vp = VIEWPORTS[v.name]["viewport"]
+        msg = (f"{vp['width']}x{vp['height']} ({'phone' if was else 'wide'}) to {EMR_TURN[v.name][0]}x{EMR_TURN[v.name][1]} "
+               f"({'phone' if now else 'wide'}): ArrowLeft {v0} -> {s1['value']}; after the rebuild focus on {s2['active']}"
+               f"{' (the same slider)' if s2['same'] and s2['focused'] else ''}, {s2['n']} slider, value {s2['value']} '{s2['words']}'; "
+               f"ArrowRight -> {s3['value']} '{s3['words']}'")
+        bad = []
+        if s1["value"] != v0 - 1:
+            bad.append("ArrowLeft did not move the slider before the resize")
+        if not (s2["focused"] and s2["same"] and s2["connected"]):
+            bad.append("focus left the slider" if not s2["focused"] else "the slider was replaced")
+        if s2["value"] != s1["value"] or s2["n"] != 1:
+            bad.append("the reader's setting was not kept")
+        if s3["value"] != s2["value"] + 1 or s3["words"] == s2["words"]:
+            bad.append("ArrowRight no longer moves it")
+        if pg.errors:
+            bad.append(f"page errors: {pg.errors[:2]}")
+        return not bad, msg + ("; " + "; ".join(bad) if bad else "")
+    finally:
+        ctx.close()
+
+
+EMR_LIVE_JS = """() => { const m = {}; __deep.scenes().forEach(s => { m[s.id] = s.mode; });
+  const t = id => [...document.querySelectorAll('#' + id + ' .sc-in .sc-tg')].map(b => b.textContent.trim()[0] + (b.getAttribute('aria-pressed') === 'true' ? 1 : 0)).join(' ');
+  const nb = document.querySelector('#sc-slack .sc-art [data-src="page:slack-sweep"]'), i = document.querySelector('#sc-slack .sc-rg input');
+  return { or: m['sc-or'], sap: m['sc-sap'], gates: m['sc-gates'], slack: m['sc-slack'], toggles: t('sc-gates'), slider: i ? +i.value : null,
+    right: nb ? nb.textContent : null, count: (document.querySelector('#sc-sap .sc-n') || {}).textContent }; }"""
+EMR_PRESS_JS = """([id, t]) => { const b = [...document.querySelectorAll('#' + id + ' .sc-in button')].find(b => !b.disabled && (t === null || b.textContent.trim() === t));
+  if (!b) return false; b.click(); return true; }"""
+
+
+def a_deeplive(v):
+    """emergence-deep: runs the reader started with a figure's own controls (sc-or, sc-sap, sc-gates) are still live after
+    a resize into the other arrangement, with the toggles as the reader set them; fig 18's run ends there (its world is
+    laid out for one arrangement), but its next clear uses the timing the reader set."""
+    if not (v.run.root / "work" / "emergence-deep.html").is_file():
+        return False, "no work/emergence-deep.html"
+    ctx, pg = emr_open(v)
+    try:
+        pg.evaluate("() => { const i = document.querySelector('#sc-slack .sc-rg input'); i.value = -1; i.dispatchEvent(new Event('input', { bubbles: true })); }")
+        pressed = [pg.evaluate(EMR_PRESS_JS, a) for a in (["sc-slack", "clear"], ["sc-or", "send a"], ["sc-sap", "5 + 3"], ["sc-gates", None])]
+        if not all(pressed):
+            return False, f"a control to press is missing (sc-slack, sc-or, sc-sap, sc-gates: {pressed})"
+        b = pg.evaluate(EMR_LIVE_JS)
+        was, now = emr_turn(pg, EMR_TURN[v.name])
+        a = pg.evaluate(EMR_LIVE_JS)
+        pg.evaluate(EMR_PRESS_JS, ["sc-slack", "clear"])
+        c = pg.evaluate(EMR_LIVE_JS)
+        msg = (f"{'phone' if was else 'wide'} to {'phone' if now else 'wide'}: or {b['or']} -> {a['or']}, sap {b['sap']} -> {a['sap']} "
+               f"('{a['count']}'), gates {b['gates']} -> {a['gates']} [{b['toggles']}] -> [{a['toggles']}], slack {b['slack']} -> {a['slack']}, "
+               f"slider {b['slider']} -> {a['slider']}; clear again: slack {c['slack']}, right clear '{c['right']}'")
+        bad = []
+        if not all(b[k] == "live" for k in ("or", "sap", "gates", "slack")):
+            bad.append("the runs did not start live")
+        bad += [f"{k} left its live run" for k in ("or", "sap", "gates") if a[k] != "live"]
+        if a["toggles"] != b["toggles"]:
+            bad.append("sc-gates' toggles went back to the timeline's")
+        if a["slider"] != -1 or c["slack"] != "live" or c["right"] != "1 tick early":
+            bad.append("fig 18's next clear does not use the reader's timing")
+        if pg.errors:
+            bad.append(f"page errors: {pg.errors[:2]}")
+        return not bad, msg + ("; " + "; ".join(bad) if bad else "")
+    finally:
+        ctx.close()
+
+
+DEEPSTEP_JS = """([i, how]) => { const f = document.getElementById(i), b = f.querySelector('.sc-bar button[aria-label="' + how + '"]');
+  if (!b || b.disabled || b.getAttribute('aria-disabled') === 'true' || !b.getClientRects().length) return false; b.focus(); return document.activeElement === b; }"""
+DEEPSTEP_AT_JS = """(i) => { const s = __deep.scenes().find(s => s.id === i), a = document.activeElement, f = document.getElementById(i);
+  return { step: s.step, of: s.of, ok: a !== document.body && f.querySelector('.sc-bar').contains(a) && !a.disabled && a.matches(':focus'),
+    active: a === document.body ? 'body' : (a.getAttribute('aria-label') || a.tagName.toLowerCase()) + (a.disabled ? ' (disabled)' : a.getAttribute('aria-disabled') === 'true' ? ' (off)' : '') }; }"""
+
+
+DEEPSTEP_MORE = 6
+
+
+def a_deepstep(v):
+    """Every deep dive, by keyboard alone (reduced motion): Enter on prev down to the first step and on next up to the
+    last leaves the keyboard on that stepper, never on the page; DEEPSTEP_MORE more presses there (a held key) leave the
+    step and the keyboard where they were, the end button off but still focused."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, n = [], 0
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            for sid in pg.evaluate("() => __deep.scenes().filter(s => s.of > 1).map(s => s.id)"):
+                for how, end in (("previous step", "first"), ("next step", "last")):
+                    if not pg.evaluate(DEEPSTEP_JS, [sid, how]):
+                        continue                                  # already at that end, or a hidden stepper (a hero)
+                    n += 1
+                    for _ in range(40):
+                        s = pg.evaluate(DEEPSTEP_AT_JS, sid)
+                        if (s["step"] == 1 if end == "first" else s["step"] == s["of"]) or not s["ok"]:
+                            break
+                        pg.keyboard.press("Enter")
+                    pg.wait_for_timeout(50)                       # past the engine's own fix-up of a focused control that turned off
+                    s = pg.evaluate(DEEPSTEP_AT_JS, sid)
+                    if not s["ok"]:
+                        bad.append(f"{page.name} {sid}: Enter on {how.split()[0]} to the {end} step (step {s['step']} of {s['of']}) left the keyboard on {s['active']}")
+                        continue
+                    # a held key at the end: more presses leave the step, and the keyboard on the button pressed
+                    seq = [s]
+                    for _ in range(DEEPSTEP_MORE):
+                        pg.keyboard.press("Enter")
+                        pg.wait_for_timeout(30)
+                        seq.append(pg.evaluate(DEEPSTEP_AT_JS, sid))
+                    if not s["active"].startswith(how) or any(x["step"] != s["step"] or x["active"] != s["active"] or not x["ok"] for x in seq):
+                        bad.append(f"{page.name} {sid}: {DEEPSTEP_MORE} more Enters at the {end} step went "
+                                   + " -> ".join(f"{x['step']}/{x['of']} {x['active']}" for x in seq))
+        finally:
+            ctx.close()
+    return not bad and n > 0, (f"{len(pages)} deep dives, {n} walks to a stepper's end by Enter"
+                               + (f"; {len(bad)} bad: " + "; ".join(bad[:4]) if bad else f"; focus stays on the stepper at every end, and {DEEPSTEP_MORE} more presses there move nothing"))
+
+
+# The script a turn runs, unthrottled, read from Chromium's main-thread counters (Performance.getMetrics, ScriptDuration):
+# the turn there and back (390x844 to 844x390 to 390x844) against four resizes in the same page that stay in their
+# arrangement (to 800x390 and back, to 380x844 and back), which lay out and draw every figure as a turn does but rebuild
+# nothing. A ratio, because both move with the machine (the turn there alone measured 19 to 33 ms with the fix as the load
+# changed), and four resizes, because one is a few ms and noisy. The longest task at 4x CPU throttle is what a slow phone
+# feels, and it moves with load more (measured 2026-11-02 with the fix: 164 to 202 ms at a load average of 5, a median of
+# 304 ms at 32; without it 319 to 428 ms), so it is printed, unthrottled, but is not the verdict.
+DEEPCOST_X = 3      # measured 2026-11-02: 1.66 to 2.16 with the fix, 5.13 to 7.04 without it, 4.16 to 6.12 with only the figures' runs redone
+
+
+def a_deepcost(v):
+    """emergence-deep on a phone, reduced motion: turned on its side and back, the script it runs is at most DEEPCOST_X
+    times that of four resizes that stay in their arrangement, median of three fresh loads. Each figure's recorded runs
+    and self-check are the same in both arrangements and are not run again; what is left is laying the new one out."""
+    if not (v.run.root / "work" / "emergence-deep.html").is_file():
+        return False, "no work/emergence-deep.html"
+    runs, bad = [], []
+    w, h = VIEWPORTS[v.name]["viewport"]["width"], VIEWPORTS[v.name]["viewport"]["height"]
+    # (size, crosses): the turn, two resizes that stay wide, the turn back, two that stay upright
+    path = (((h, w), True), ((h - 44, w), False), ((h, w), False), ((w, h), True), ((w - 10, h), False), ((w, h), False))
+    for _ in range(3):
+        ctx, pg = emr_open(v)
+        try:
+            cdp = ctx.new_cdp_session(pg)
+            cdp.send("Performance.enable")
+            pg.evaluate("() => { window.__ctLong = []; new PerformanceObserver(l => l.getEntries().forEach(e => window.__ctLong.push(Math.round(e.duration)))).observe({ type: 'longtask' }); }")
+            pg.wait_for_timeout(1000)
+            turn = rest = 0.0
+            for size, crosses in path:
+                was = pg.evaluate("() => Deep.phone()")
+                m0 = cdp.send("Performance.getMetrics")["metrics"]
+                pg.set_viewport_size({"width": size[0], "height": size[1]})
+                pg.wait_for_timeout(1000)                         # the suite runs nothing in the page inside the window
+                m1 = cdp.send("Performance.getMetrics")["metrics"]
+                sd = [next(m["value"] for m in mm if m["name"] == "ScriptDuration") for mm in (m0, m1)]
+                if crosses:
+                    turn += (sd[1] - sd[0]) * 1000
+                else:
+                    rest += (sd[1] - sd[0]) * 1000
+                crossed, built = pg.evaluate("() => Deep.phone()") != was, pg.evaluate(EMR_BUILT_JS)
+                if crossed != crosses or not built:
+                    bad.append(f"{size[0]}x{size[1]}: {'crossed' if crossed else 'stayed'}, {'built' if built else 'not built'} 1 s after")
+            runs.append((round(turn, 1), round(rest, 1), round(turn / max(rest, 1), 2), max(pg.evaluate("() => window.__ctLong") or [0])))
+            bad += [f"page error: {e}" for e in pg.errors[:1]]
+        finally:
+            ctx.close()
+    med = sorted(runs, key=lambda r: r[2])[1]
+    return med[2] <= DEEPCOST_X and not bad, (f"script for the turn there and back {med[0]}ms against {med[1]}ms for four resizes that "
+                                              f"stay: x{med[2]} (median of x{', x'.join(str(r[2]) for r in runs)}; limit x{DEEPCOST_X}); "
+                                              f"longest task {[r[3] for r in runs]}ms unthrottled" + (f"; {'; '.join(bad[:2])}" if bad else ""))
+
+
+# --- the deep dives on the commonest short phones, and moved to a new size on the open page --------------------------
+# A docked step whose subject cannot fit between the strip and its docked words at a view without a change of its words
+# or of the figure's design, held for the owner's decision. `deepfit` lists it there instead of failing on it, and fails
+# once it fits, so the list stays true. inf-mem's check list: six rows of what each CI job checks, every one lit by the
+# step, 482px against a 462px band at 375x667, 302 against 281 at 844x390 and 302 against 242 at 667x375.
+DOCK_PENDING = {vp: {"inf-mem-deep.html": ("s-results checks",)} for vp in ("phone-se", "land-se", "land")}
+
+
+def a_deepfit(v):
+    """Every work/*-deep.html on the commonest short phones (375x667 upright; 667x375 and 844x390 on their side), a fresh
+    load with reduced motion: the page's own __deep.selfCheck() holds in full, so each docked step's subject sits between
+    the strip and its docked words (under), each field on a docked stage clears the first step's words (field) and each
+    scene fits one screen or docks (fit). `cases` runs it only at 390x844 and 360x740. A step in DOCK_PENDING is listed,
+    not held."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    pend = DOCK_PENDING.get(v.name, {})
+    bad, listed, n_docked, n_steps = [], [], 0, 0
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        errs = []
+        pg.on("pageerror", lambda e: errs.append(str(e)[:100]))
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            r = pg.evaluate("""() => { const c = __deep.selfCheck(); c.docked = document.querySelectorAll('figure.scene.docked').length;
+                c.steps = Deep.scenes.filter(s => s.fig.classList.contains('docked')).reduce((n, s) => n + s.keys.length, 0); return c; }""")
+            n_docked, n_steps = n_docked + r["docked"], n_steps + r["steps"]
+            want, seen = pend.get(page.name, ()), set()
+            for x in r.get("under") or []:
+                step = " ".join(x.split(" ")[:2])
+                seen.add(step)
+                (listed if step in want else bad).append(f"{page.name} under: {x}")
+            bad += [f"{page.name} {w} fits now: take it out of DOCK_PENDING" for w in want if w not in seen]
+            for k in ("failed", "unbuilt", "nobar", "caps", "fit", "field"):
+                bad += [f"{page.name} {k}: {x}" for x in r.get(k) or []]
+            if not r.get("figures"):
+                bad.append(f"{page.name}: no figure.scene")
+            bad += [f"{page.name} error: {e}" for e in errs]
+        finally:
+            ctx.close()
+    msg = (f"{len(pages)} deep dives, {n_docked} docked scenes, {n_steps} docked steps"
+           + (f"; listed for a decision, not held: {'; '.join(listed)}" if listed else ""))
+    return not bad, msg + (f"; {len(bad)} bad: " + "; ".join(bad[:6]) if bad else "; every self-check holds")
+
+
+# A deep dive moved to a new size on the open page draws what a fresh load at that size draws. Each view is reached from
+# RESIZE_FROM: 1280x800 to 640x400 is browser zoom (200%) on an open laptop window, crossing the 768px phone line; 667x375
+# to 375x667 is a phone turned upright, which crosses no line, so only a page that follows its stage's width builds again
+# there; 844x390 to 390x844 is a larger phone turned upright, where a label cut to fit the wide stage must not keep the
+# width it was cut to. LIVE_KEEP names, per page, a toggle whose run must survive the move with the keyboard still on it.
+RESIZE_FROM = {"zoom-200-1280": (1280, 800), "phone-se": (667, 375), "phone": (844, 390)}
+LIVE_KEEP = {"freeflow-deep.html": "#sc-gates .sc-in button"}
+DEEP_SIG_JS = """() => { const o = {}; document.querySelectorAll('figure.scene').forEach(f => {
+  const st = f.querySelector('.sc-stage'), sr = st.getBoundingClientRect(), cv = f.querySelector('.sc-art > canvas');
+  const s = __deep.scenes().find(x => x.id === f.id) || {}, cr = cv && cv.getClientRects().length ? cv.getBoundingClientRect() : null;
+  const labs = [...f.querySelectorAll('.sc-art > .sc-l, .sc-art > .sc-r, .sc-art > .sc-lead')].filter(e => !e.hidden && e.getClientRects().length)
+    .map(e => { const r = e.getBoundingClientRect(); return e.textContent.slice(0, 24) + '@' + Math.round(r.left - sr.left) + ',' + Math.round(r.top - sr.top)
+      + ' ' + Math.round(r.width) + 'x' + Math.round(r.height); }).sort();
+  o[f.id] = { canvas: cr ? [cv.width, cv.height, Math.round(cr.left - sr.left), Math.round(cr.width), Math.round(cr.height)] : null,
+    over: cr ? Math.max(0, Math.round(cr.right - sr.right)) : 0, stage: [Math.round(sr.width), Math.round(sr.height)], labs,
+    docked: f.classList.contains('docked'), step: s.step, pitch: s.pitch, mode: s.mode,
+    inputs: [...f.querySelectorAll('.sc-in button')].map(b => b.getAttribute('aria-pressed') + ':' + b.textContent.trim()).join('|') }; });
+  return o; }"""
+
+
+def deep_sig_settled(pg):
+    """The scenes' signature once two reads 300 ms apart agree (a page may build a scene again a task or more after its
+    relayout), after a selfCheck() call has laid the page out for the size on screen."""
+    pg.evaluate("() => __deep.selfCheck()")
+    sig = pg.evaluate(DEEP_SIG_JS)
+    for _ in range(20):
+        pg.wait_for_timeout(300)
+        nxt = pg.evaluate(DEEP_SIG_JS)
+        if nxt == sig:
+            return sig, True
+        sig = nxt
+    return sig, False
+
+
+def a_deepresize(v):
+    """Every work/*-deep.html opened at RESIZE_FROM[view] and resized to the view, against a fresh load at the view
+    (reduced motion), moved twice: from the top of the page, and from the middle (on a page in LIVE_KEEP, from its
+    toggle's figure on screen), so a scene built again at once and one built after the relayout are both seen. Once
+    settled, every scene's canvas (backing and drawn size), stage, labels (text, place and size), dock, step, mode and
+    inputs are the same, and no canvas runs past its stage. On a page in LIVE_KEEP the toggle, clicked and focused before
+    the move (clicked on the fresh load too), keeps its run and the keyboard."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    fw, fh = RESIZE_FROM[v.name]
+    to = VIEWPORTS[v.name]["viewport"]
+    bad, n_sc, kept = [], 0, set()
+    for page in pages:
+        sigs, sel = {}, LIVE_KEEP.get(page.name)
+        for how in ("fresh", "top", "mid"):
+            opts = dict(VIEWPORTS[v.name])
+            if how != "fresh":
+                opts["viewport"] = {"width": fw, "height": fh}
+            ctx = v.run.browser.new_context(reduced_motion="reduce", **opts)
+            pg = ctx.new_page()
+            errs = []
+            pg.on("pageerror", lambda e: errs.append(str(e)[:100]))
+            try:
+                pg.goto(f"{base}/work/{page.name}", wait_until="load")
+                pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+                if sel and not pg.evaluate("(s) => { const b = document.querySelector(s); if (!b) return false; b.click(); b.focus({ preventScroll: true }); return true; }", sel):
+                    bad.append(f"{page.name}: no {sel} to toggle")
+                if how != "fresh":
+                    pg.evaluate("""([how, s]) => { const f = s && document.querySelector(s) && document.querySelector(s).closest('figure');
+                        scrollTo(0, how === 'top' ? 0 : f ? Math.round(f.querySelector('.sc-stage').getBoundingClientRect().top + scrollY - 60)
+                          : Math.round(document.documentElement.scrollHeight / 2)); }""", [how, sel])
+                    pg.wait_for_timeout(200)
+                    pg.set_viewport_size(to)
+                sigs[how], calm = deep_sig_settled(pg)
+                if not calm:
+                    bad.append(f"{page.name} {how}: still changing after 6s")
+                if how != "fresh" and sel:
+                    if pg.evaluate("(s) => document.activeElement === document.querySelector(s)", sel):
+                        kept.add(page.name)
+                    else:
+                        bad.append(f"{page.name} from the {how}: the keyboard left {sel} on the move (now on {pg.evaluate('() => document.activeElement && document.activeElement.tagName')})")
+                bad += [f"{page.name} {how} error: {e}" for e in errs]
+            finally:
+                ctx.close()
+        f = sigs.get("fresh", {})
+        n_sc += len(f)
+        for how in ("top", "mid"):
+            m = sigs.get(how, {})
+            for sid in sorted(set(f) | set(m)):
+                a, b = f.get(sid), m.get(sid)
+                if a == b:
+                    continue
+                if not a or not b:
+                    bad.append(f"{page.name} {sid}: only on the {'moved' if b else 'fresh'} page")
+                    continue
+                keys = [k for k in a if a[k] != b[k]]
+                det = [f"{k} {a[k]} fresh, {b[k]} moved" for k in keys if k != "labs"]
+                if "labs" in keys:
+                    only = sorted(set(b["labs"]) - set(a["labs"]))
+                    det.append(f"{len(only)} labels placed otherwise (first: {only[0] if only else '?'})")
+                if b["over"] > 0:
+                    det.insert(0, f"its canvas runs {b['over']}px past the stage")
+                bad.append(f"{page.name} {sid} from the {how}: " + ", ".join(det))
+    msg = (f"{len(pages)} deep dives, {n_sc} scenes, {fw}x{fh} to {to['width']}x{to['height']} from the top and mid-page against a fresh load"
+           + (f"; live run and keyboard kept on {', '.join(sorted(kept))}" if kept else ""))
+    return not bad, msg + (f"; {len(bad)} differ: " + " | ".join(bad[:6]) if bad else "; every scene the same")
+
+
+# --- keyboard and jump landings on the work pages, and their marks in forced colours ----------------------------------
+FOCUSED_JS = """() => { const e = document.activeElement, b = e.getBoundingClientRect();
+  return { y: scrollY, top: b.top, bottom: b.bottom, vh: innerHeight, strip: !!e.closest('.strip'),
+           name: (e.getAttribute('aria-label') || e.textContent || e.tagName).trim().replace(/\\s+/g, ' ').slice(0, 20) }; }"""
+
+
+def a_striptab(v):
+    """Every case study and deep dive, mid-page: the skip link takes focus without moving the page, then three Tabs
+    walk the strip's links. Where the strip is sticky the page must not move (the strip does not, so a scroll only
+    moves the reader's place away); where it scrolls away (a deep dive under 500 px tall) each link must be on screen."""
+    pages = sorted((v.run.root / "work").glob("*.html"))
+    if not pages:
+        return False, "no work/*.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, n_sticky, n_static = [], 0, 0
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.evaluate("document.fonts.ready.then(() => 1)")
+            pg.evaluate("() => scrollTo(0, Math.min(2400, Math.round((document.documentElement.scrollHeight - innerHeight) / 2)))")
+            pg.wait_for_timeout(300)
+            y0 = pg.evaluate("() => { document.querySelector('a.skip').focus({preventScroll: true}); return scrollY; }")
+            sticky = pg.evaluate("() => getComputedStyle(document.querySelector('.strip')).position === 'sticky'")
+            n_sticky, n_static = n_sticky + sticky, n_static + (not sticky)
+            seq = []
+            for _ in range(3):
+                pg.keyboard.press("Tab")
+                pg.wait_for_timeout(150)
+                seq.append(pg.evaluate(FOCUSED_JS))
+        finally:
+            ctx.close()
+        walk = f"{page.name} {round(y0)}->" + "->".join(str(round(r["y"])) for r in seq)
+        if not all(r["strip"] for r in seq):
+            bad.append(f"{walk}: Tab left the strip at '{next(r['name'] for r in seq if not r['strip'])}'")
+        elif sticky and any(abs(r["y"] - y0) >= 1 for r in seq):
+            bad.append(walk)
+        elif not sticky and any(r["top"] < 0 or r["bottom"] > r["vh"] for r in seq):
+            bad.append(f"{walk}: a link off screen")
+    return not bad, (f"{len(pages)} pages, strip sticky on {n_sticky}, scrolling away on {n_static}"
+                     + (f"; {len(bad)} moved: " + "; ".join(bad[:4]) if bad else "; the page stays put under a sticky strip"))
+
+
+DOCK_PLACE_JS = """i => { const s = [...document.querySelectorAll('figure.scene.js.docked')][i]; if (!s) return null;
+  scrollTo(0, Math.round(s.getBoundingClientRect().top + scrollY - 60)); return s.id || ('#' + i); }"""
+DOCK_FOCUS_JS = """i => { const s = [...document.querySelectorAll('figure.scene.js.docked')][i], bar = s.querySelector(':scope>.sc-bar');
+  const b = bar.getBoundingClientRect(), stuck = getComputedStyle(bar).position === 'sticky' && Math.abs(b.bottom - innerHeight) < 1;
+  const c = [...bar.querySelectorAll('button')].filter(x => !x.disabled && x.getAttribute('aria-disabled') !== 'true' && x.getClientRects().length && getComputedStyle(x).visibility !== 'hidden');
+  if (!c.length) return null; c[0].focus({preventScroll: true}); window.__bar = bar; return { stuck, y: scrollY, n: c.length }; }"""
+
+
+def a_docktab(v):
+    """Every docked scene on every deep dive (a phone, or a screen under 500 px tall, where its stepper sticks to the
+    screen's foot): the scene's top 60 px down, the stepper's first live control focused without scrolling, then Tab
+    along the stuck stepper to its last control. The page must not move (it would slide the stage up under the strip
+    while the stepper stays put), and each control must be whole on screen."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, n_scenes, n_tabs, unstuck = [], 0, 0, []
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            nd = pg.evaluate("() => document.querySelectorAll('figure.scene.js.docked').length")
+            for i in range(nd):
+                sid = pg.evaluate(DOCK_PLACE_JS, i)
+                pg.wait_for_timeout(250)
+                f = pg.evaluate(DOCK_FOCUS_JS, i)
+                if f is None:
+                    continue
+                if not f["stuck"]:
+                    unstuck.append(f"{page.name}#{sid}")
+                    continue
+                n_scenes += 1
+                ys = [round(f["y"])]
+                for _ in range(40):
+                    pg.keyboard.press("Tab")
+                    pg.wait_for_timeout(60)
+                    if not pg.evaluate("() => window.__bar.contains(document.activeElement)"):
+                        break
+                    r = pg.evaluate(FOCUSED_JS)
+                    n_tabs += 1
+                    ys.append(round(r["y"]))
+                    if r["top"] < 0 or r["bottom"] > r["vh"]:
+                        bad.append(f"{page.name}#{sid} '{r['name']}' off screen {round(r['top'])}..{round(r['bottom'])}")
+                        break
+                if any(abs(y - ys[0]) >= 1 for y in ys):
+                    bad.append(f"{page.name}#{sid} " + "->".join(map(str, ys)))
+        finally:
+            ctx.close()
+    if not n_scenes:
+        return False, f"no docked scene with a stuck stepper to walk ({len(unstuck)} docked, none stuck)"
+    return not bad, (f"{n_scenes} docked scenes on {len(pages)} deep dives, {n_tabs} Tabs along their stuck steppers"
+                     + (f" ({len(unstuck)} not stuck at 60 px, skipped)" if unstuck else "")
+                     + (f"; {len(bad)} moved: " + "; ".join(bad[:4]) if bad else "; the page never moved"))
+
+
+# the marks the case studies (and custos-code-deep's bars) draw only as a fill, by what each says: (page glob, the mark's
+# box, its pseudo-element or None). Forced colours paint every background as the page's own.
+FORCED_MARKS = [
+    ("result bar, the book", ".lx-cmp .me i", None), ("result bar, the benchmark", ".lx-cmp .spy i", None),
+    ("result key, the book", ".lx-key .me", "before"), ("result key, the benchmark", ".lx-key .spy", "before"),
+    ("hero key swatch", ".look>span:not(.lk)", "before"), ("beat square", ".lx-beats li", "before"),
+    ("tile", ".lx-tiles li", None), ("check mark", "ul.ck li", "before"), ("scene bar", ".cx .bar .fill:not(.f-res)", None),
+    ("hero leader", ".em-ld", None), ("hero step mark", ".hero-step .sq", None), ("hero clock slider", ".em-scrub", None),
+    ("judge gate", ".jg-g .gt", None), ("question exit mark", ".tr-n.exit .ans", "before"),
+]
+# in forced colours a mark must stand this far from what is under it: a fill forced to Canvas over a canvas's own void
+# still changes bytes (1.07:1), while the faintest kept token mark, a copper bar on the forced Canvas, stands 1.8:1
+FORCED_MIN = 1.5
+FORCED_CONTRAST_JS = """async ([a, b]) => { const load = async s => { const bm = await createImageBitmap(await (async u => { const i = new Image(); i.src = u; await i.decode(); return i; })('data:image/png;base64,' + s));
+    const c = new OffscreenCanvas(bm.width, bm.height), x = c.getContext('2d'); x.drawImage(bm, 0, 0); return x.getImageData(0, 0, bm.width, bm.height).data; };
+  const A = await load(a), B = await load(b), f = v => (v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4, L = (d, i) => 0.2126 * f(d[i]) + 0.7152 * f(d[i + 1]) + 0.0722 * f(d[i + 2]);
+  let best = 1;
+  for (let i = 0; i < Math.min(A.length, B.length); i += 4) { if (A[i] === B[i] && A[i + 1] === B[i + 1] && A[i + 2] === B[i + 2]) continue;
+    const la = L(A, i), lb = L(B, i); best = Math.max(best, (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05)); }
+  return best; }"""
+FORCED_BOXES_JS = """([sel, pe]) => [...document.querySelectorAll(sel)].map((e, i) => { const r = e.getBoundingClientRect(), cs = getComputedStyle(e, pe ? '::' + pe : null);
+  const shown = r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden' && (!pe || (cs.content !== 'none' && cs.content !== 'normal'));
+  return shown ? [i, r.left, r.top + scrollY, r.width, r.height] : null; }).filter(Boolean)"""
+
+
+def forced_marks(pg, sel, pe):
+    """How many of sel's marks paint anything: each one's box, shot as is and with the mark hidden; identical shots
+    mean the mark draws nothing. In forced colours a changed pixel must also stand FORCED_MIN from the same pixel
+    without the mark, or the mark is drawn in the colour of what is under it."""
+    import base64
+    forced = pg.evaluate("matchMedia('(forced-colors: active)').matches")
+    boxes = pg.evaluate(FORCED_BOXES_JS, [sel, pe])
+    hide = (sel + ("::" + pe if pe else "")) + "{visibility:hidden!important}"
+    painted, k = 0, 0
+    while k < len(boxes):
+        y0 = max(0, boxes[k][2] - 80)
+        pg.evaluate("y => scrollTo(0, y)", y0)
+        pg.wait_for_timeout(60)
+        sy, vh, vw = pg.evaluate("[scrollY, innerHeight, innerWidth]")
+        win = [b for b in boxes[k:] if b[2] - sy >= 0 and b[2] + b[4] - sy <= vh]
+        if not win:
+            win = [boxes[k]]
+        clips = [{"x": max(0, b[1]), "y": max(0, b[2] - sy), "width": max(1, min(b[3], vw - max(0, b[1]))), "height": max(1, min(b[4], vh - max(0, b[2] - sy)))} for b in win]
+        a = [pg.screenshot(clip=c) for c in clips]
+        pg.evaluate("css => { const t = document.createElement('style'); t.id = '__fm'; t.textContent = css; document.head.append(t); }", hide)
+        pg.wait_for_timeout(30)
+        b = [pg.screenshot(clip=c) for c in clips]
+        pg.evaluate("() => document.getElementById('__fm').remove()")
+        painted += sum(1 for x, y in zip(a, b) if x != y and (not forced or pg.evaluate(
+            FORCED_CONTRAST_JS, [base64.b64encode(x).decode(), base64.b64encode(y).decode()]) >= FORCED_MIN))
+        k += len(win)
+    return painted, len(boxes)
+
+
+def a_forcedmarks(v):
+    """Forced colours (Chromium's emulation) on every case study and custos-code-deep: every mark
+    drawn only as a fill (the result bars and their key, the hero key, the beat squares, the tiles, the checks, the
+    scene's bars) still paints, counted mark by mark from shots with and without it. With forced colours off the same
+    count is the control: it shows the probe sees each mark at all."""
+    pages = [p for p in sorted((v.run.root / "work").glob("*.html")) if not p.name.endswith("-deep.html") or p.name == "custos-code-deep.html"]
+    if not pages:
+        return False, "no work/*.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, rows = [], {}
+    for page in pages:
+        for mode, scheme in (("none", "dark"), ("active", "dark")):
+            ctx = v.run.browser.new_context(reduced_motion="reduce", forced_colors=mode, color_scheme=scheme, **VIEWPORTS[v.name])
+            pg = ctx.new_page()
+            try:
+                pg.goto(f"{base}/work/{page.name}", wait_until="load")
+                pg.evaluate("document.fonts.ready.then(() => 1)")
+                pg.wait_for_timeout(300)
+                for what, sel, pe in FORCED_MARKS:
+                    p, n = forced_marks(pg, sel, pe)
+                    if n:
+                        rows.setdefault((page.name, what), {})[f"{mode}/{scheme}"] = (p, n)
+            finally:
+                ctx.close()
+    for (name, what), r in rows.items():
+        ctl = r.get("none/dark", (0, 0))
+        if ctl[0] < ctl[1]:
+            bad.append(f"{name} {what}: the probe sees {ctl[0]} of {ctl[1]} with forced colours off")
+        p, n = r.get("active/dark", (0, 0))
+        if p < ctl[1]:
+            bad.append(f"{name} {what}: {p} of {ctl[1]} painted")
+    marks = sum(r.get("none/dark", (0, 0))[1] for r in rows.values())
+    return not bad, (f"{len(pages)} pages, {len(rows)} kinds of mark, {marks} marks" + (f"; {len(bad)} lost: " + "; ".join(bad[:5]) if bad else "; every one painted in forced colours"))
+
+
+JUMP_JS = """id => { const t = document.getElementById(id), r = t.getBoundingClientRect(), max = document.documentElement.scrollHeight - innerHeight;
+  return { top: r.top, y: scrollY, end: scrollY >= max - 1, pad: parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop),
+           armed: !!t.closest('.lx-armed:not(.on)') }; }"""
+
+
+def a_jumprest(v):
+    """Motion on, every case study: a jump to each section heading not yet reached (a rail link click from 1280 px, a
+    #link below, last section first so each is still waiting for its arrival) settles the heading where the page's
+    scroll padding puts it, 16 px under the strip and the road bar, not 16 px higher once its rise ends."""
+    pages = [p for p in sorted((v.run.root / "work").glob("*.html")) if not p.name.endswith("-deep.html")]
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, n, skipped = [], 0, 0
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="no-preference", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.evaluate("document.fonts.ready.then(() => 1)")
+            pg.wait_for_timeout(1200)
+            rail = pg.evaluate("() => { const r = document.querySelector('.lx-rail'); return !!r && getComputedStyle(r).display !== 'none'; }")
+            ids = pg.evaluate("() => [...document.querySelectorAll('.lx-sec h2[id^=\"s-\"][data-lx=\"up\"]')].map(h => h.id)")
+            for hid in reversed(ids):
+                if not pg.evaluate(JUMP_JS, hid)["armed"]:
+                    skipped += 1
+                    continue
+                if rail:
+                    pg.click(f".lx-rail a[href='#{hid}']")
+                else:
+                    pg.evaluate("i => { location.hash = '#' + i; }", hid)
+                pg.wait_for_timeout(1000)
+                r = pg.evaluate(JUMP_JS, hid)
+                n += 1
+                if r["top"] < r["pad"] - 1 or (not r["end"] and r["top"] > r["pad"] + 1):
+                    bad.append(f"{page.name}#{hid} rests at {r['top']:.0f}, want {r['pad']:.0f}")
+        finally:
+            ctx.close()
+    if not n:
+        return False, f"no armed heading jumped to ({skipped} already arrived)"
+    return not bad, (f"{n} jumps by {'rail click' if v.name not in PHONES else '#link'} on {len(pages)} case studies"
+                     + (f" ({skipped} headings already arrived, skipped)" if skipped else "")
+                     + (f"; {len(bad)} off: " + "; ".join(bad[:4]) if bad else "; each heading rests at the scroll padding"))
+
+
+def a_skipmid(v):
+    """Mid-story, Enter on the skip link goes to the story's start, as its #story did, with no hash in the address, and
+    the next Tab goes to the hero's first link."""
+    v.js("() => scrollTo(0, Math.round(document.documentElement.scrollHeight / 2))")
+    v.settle(600)
+    y0 = v.js("() => scrollY")
+    v.js("() => document.querySelector('a.skip').focus()")
+    v.page.keyboard.press("Enter")
+    v.settle(600)
+    r = v.js("() => ({ y: scrollY, hash: location.hash, on: document.activeElement.className })")
+    v.page.keyboard.press("Tab")
+    v.settle(400)
+    t = v.js("() => { const a = document.activeElement; return { y: scrollY, h: innerHeight, inHero: !!a.closest('.hero'), "
+             "name: (a.getAttribute('aria-label') || a.textContent || '').trim().slice(0, 30) }; }")
+    ok = r["y"] <= 1 and r["hash"] == "" and t["inHero"] and t["y"] < t["h"]
+    return ok, (f"from scrollY {y0}: Enter on the skip link -> scrollY {r['y']}, hash {r['hash']!r}, focus on .{r['on']}; "
+                f"Tab -> {t['name']!r} ({'in' if t['inHero'] else 'not in'} the hero) at scrollY {t['y']}")
+
+
+def forced_checks(pg):
+    """Each shown checkbox shot unchecked and checked (the property set without an event, then put back): how many
+    look different, in forced colours by FORCED_MIN at least, and how many there are."""
+    import base64
+    forced = pg.evaluate("matchMedia('(forced-colors: active)').matches")
+    n = pg.evaluate("() => [...document.querySelectorAll('input[type=checkbox]')].filter(e => { const r = e.getBoundingClientRect(); return r.width && r.height; }).length")
+    differ = 0
+    for i in range(n):
+        box = pg.evaluate("""i => { const e = [...document.querySelectorAll('input[type=checkbox]')].filter(e => { const r = e.getBoundingClientRect(); return r.width && r.height; })[i];
+            e.scrollIntoView({block: 'center'}); const r = e.getBoundingClientRect(); window.__fcb = [e, e.checked]; return [r.left, r.top, r.width, r.height]; }""", i)
+        pg.wait_for_timeout(60)
+        clip = {"x": max(0, box[0]), "y": max(0, box[1]), "width": max(1, box[2]), "height": max(1, box[3])}
+        shots = []
+        for want in (False, True):
+            pg.evaluate("w => { window.__fcb[0].checked = w; }", want)
+            pg.wait_for_timeout(40)
+            shots.append(pg.screenshot(clip=clip))
+        pg.evaluate("() => { window.__fcb[0].checked = window.__fcb[1]; }")
+        a, b = shots
+        if a != b and (not forced or pg.evaluate(FORCED_CONTRAST_JS, [base64.b64encode(a).decode(), base64.b64encode(b).decode()]) >= FORCED_MIN):
+            differ += 1
+    return differ, n
+
+
+# marks a scene turns on at a step by colour alone: (page, what, the element whose attribute names the step, the
+# attribute, its value with the mark off ('' = none) and on, the mark)
+FORCED_STATES = [
+    ("custos-code-deep.html", "fig 1 error outline", "#sc-gap", "data-key", "", "result", "#sc-gap .err"),
+    ("custos-code-deep.html", "fig 1 claim flagged", "#sc-gap", "data-key", "", "report", "#sc-gap .say"),
+]
+
+
+def forced_state(pg, host, attr, off, on, sel):
+    """The mark shot with its scene's attribute at the off value and at the on value, then put back: 1 if the two
+    look different (in forced colours by FORCED_MIN at least), else 0; None if the mark is not shown."""
+    import base64
+    forced = pg.evaluate("matchMedia('(forced-colors: active)').matches")
+    box = pg.evaluate("""([h, a, s]) => { const e = document.querySelector(s), t = document.querySelector(h); if (!e || !t) return null;
+        e.scrollIntoView({block: 'center'}); const r = e.getBoundingClientRect(); if (!r.width || !r.height) return null;
+        window.__fst = [t, t.getAttribute(a)]; return [r.left - 3, r.top - 3, r.width + 6, r.height + 6]; }""", [host, attr, sel])
+    if not box:
+        return None
+    pg.wait_for_timeout(600)   # a scene scrolled to sets its own step first; set the attribute only after it has
+    clip = {"x": max(0, box[0]), "y": max(0, box[1]), "width": box[2], "height": box[3]}
+    shots = []
+    for val in (off, on):
+        pg.evaluate("([a, v]) => { const t = window.__fst[0]; if (v) t.setAttribute(a, v); else t.removeAttribute(a); }", [attr, val])
+        pg.wait_for_timeout(400)
+        if pg.evaluate("a => window.__fst[0].getAttribute(a) || ''", attr) != val:
+            return 0
+        shots.append(pg.screenshot(clip=clip))
+    pg.evaluate("a => { const [t, v] = window.__fst; if (v === null) t.removeAttribute(a); else t.setAttribute(a, v); }", attr)
+    a, b = shots
+    return int(a != b and (not forced or pg.evaluate(FORCED_CONTRAST_JS, [base64.b64encode(a).decode(), base64.b64encode(b).decode()]) >= FORCED_MIN))
+
+
+def a_forcedctl(v):
+    """Forced colours, dark and light (Chromium's emulation), on every work page: each range input still draws its
+    track and thumb, counted control by control from shots with and without it, each checkbox still looks
+    different checked and unchecked, and each mark in FORCED_STATES still looks different off and on. With forced
+    colours off the same counts are the control; a range drawn transparent by design (a hit target over a figure)
+    counts in neither."""
+    pages = sorted((v.run.root / "work").glob("*.html"))
+    if not pages:
+        return False, "no work/*.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, rows = [], {}
+    for page in pages:
+        for mode, scheme in (("none", "dark"), ("active", "dark"), ("active", "light")):
+            ctx = v.run.browser.new_context(reduced_motion="reduce", forced_colors=mode, color_scheme=scheme, **VIEWPORTS[v.name])
+            pg = ctx.new_page()
+            try:
+                pg.goto(f"{base}/work/{page.name}", wait_until="load")
+                pg.evaluate("document.fonts.ready.then(() => 1)")
+                pg.wait_for_timeout(300)
+                p, n = forced_marks(pg, "input[type=range]", None)
+                if n:
+                    rows.setdefault((page.name, "range"), {})[f"{mode}/{scheme}"] = (p, n)
+                p, n = forced_checks(pg)
+                if n:
+                    rows.setdefault((page.name, "checkbox, checked against unchecked"), {})[f"{mode}/{scheme}"] = (p, n)
+                for name, what, host, attr, off, on, sel in FORCED_STATES:
+                    if name == page.name:
+                        d = forced_state(pg, host, attr, off, on, sel)
+                        if d is not None:
+                            rows.setdefault((page.name, what + ", off against on"), {})[f"{mode}/{scheme}"] = (d, 1)
+            finally:
+                ctx.close()
+    for (name, what), r in rows.items():
+        ctl = r.get("none/dark", (0, 0))
+        # a control that does not see the mark change cannot vouch for it; only a range may be transparent by design
+        if "none/dark" not in r or (what != "range" and ctl[0] < ctl[1]):
+            bad.append(f"{name} {what}: the probe sees {ctl[0]} of {ctl[1]} with forced colours off")
+            continue
+        for m in ("active/dark", "active/light"):
+            p, n = r.get(m, (0, 0))
+            if p < ctl[0]:
+                bad.append(f"{name} {what} in {m.split('/')[1]}: {p} of {ctl[0]} drawn")
+    seen = sum(r.get("none/dark", (0, 0))[0] for r in rows.values())
+    if not seen:
+        return False, "the probe sees no range or checkbox with forced colours off"
+    return not bad, (f"{len(pages)} pages, {len(rows)} kinds, {seen} controls drawn with forced colours off"
+                     + (f"; {len(bad)} lost: " + "; ".join(bad[:12]) if bad else "; every one drawn the same in forced colours, dark and light"))
+
+
+# replay, pressed from the keyboard, starts the scene and keeps the keyboard; a click on it still hides it while it plays
+REPLAY_PICK_JS = """() => { const s = __deep.scenes().find(s => { const b = document.querySelector('#' + s.id + ' > .sc-bar');
+  return s.of > 1 && b && b.querySelector('.replay') && getComputedStyle(b).display !== 'none'; });
+  if (!s) return null; const f = document.getElementById(s.id); scrollTo(0, Math.round(f.getBoundingClientRect().top + scrollY - 80)); return s.id; }"""
+REPLAY_END_JS = """id => { const q = document.querySelectorAll('#' + id + ' .sc-pip'); q[q.length - 1].click(); q[q.length - 1].focus(); }"""
+REPLAY_AT_JS = """id => { const f = document.getElementById(id), r = f.querySelector('.sc-bar .replay'), a = document.activeElement, s = __deep.scenes().find(s => s.id === id), b = r.getBoundingClientRect();
+  return { on: a === r, active: a === document.body ? 'body' : a === r ? 'replay' : (a.getAttribute('aria-label') || a.tagName.toLowerCase()).slice(0, 24),
+    shown: getComputedStyle(r).visibility === 'visible', mode: s.mode, x: b.left + b.width / 2, y: b.top + b.height / 2 }; }"""
+
+
+def a_replaykey(v):
+    """Every deep dive, motion on: a scene's first stepper brought to its last step, Tab onto replay and Enter. The
+    scene plays again and the keyboard stays on replay, drawn while it has the keyboard (it hid itself as the play
+    began, and focus fell to the page). Stopped again with a square, a pointer click on replay still hides it."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, rows = [], []
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="no-preference", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            sid = pg.evaluate(REPLAY_PICK_JS)
+            if not sid:
+                bad.append(f"{page.name}: no scene with a replay")
+                continue
+            pg.wait_for_timeout(300)
+            pg.evaluate(REPLAY_END_JS, sid)
+            pg.wait_for_timeout(200)
+            pg.keyboard.press("Tab")
+            pg.wait_for_timeout(100)
+            t = pg.evaluate(REPLAY_AT_JS, sid)
+            if not t["on"]:
+                bad.append(f"{page.name} {sid}: Tab from the last square went to {t['active']}, not replay")
+                continue
+            pg.keyboard.press("Enter")
+            pg.wait_for_timeout(150)
+            k = pg.evaluate(REPLAY_AT_JS, sid)
+            pg.wait_for_timeout(600)
+            k2 = pg.evaluate(REPLAY_AT_JS, sid)
+            pg.evaluate(REPLAY_END_JS, sid)
+            pg.evaluate("() => document.activeElement.blur()")
+            pg.wait_for_timeout(200)
+            m0 = pg.evaluate(REPLAY_AT_JS, sid)
+            pg.mouse.click(m0["x"], m0["y"])
+            pg.wait_for_timeout(150)
+            m = pg.evaluate(REPLAY_AT_JS, sid)
+            rows.append(f"{page.name[:-10]} {sid}: Enter -> {k['active']} ({'drawn' if k['shown'] else 'hidden'}, {k['mode']}), "
+                        f"+600ms {k2['active']}; click -> {'drawn' if m['shown'] else 'hidden'}, {m['mode']}")
+            if not (k["on"] and k["shown"] and k["mode"] == "auto" and k2["on"] and k2["shown"]):
+                bad.append(rows[-1])
+            elif not (m0["shown"] and m["mode"] == "auto" and not m["shown"]):
+                bad.append(rows[-1] + " (a click must still hide it while the scene plays)")
+        finally:
+            ctx.close()
+    return not bad, (f"{len(pages)} deep dives" + (f"; {len(bad)} bad: " + "; ".join(bad[:3]) if bad
+                     else "; Enter on replay plays the scene with the keyboard still on replay, drawn, and a click hides it: " + "; ".join(rows[:2])))
+
+
+# Every control on a docked scene's stage, placed 8 px and wholly under the strip (or the road bar) and reached by
+# Shift+Tab from the stop after it, and placed 8 px and wholly under the docked words and reached by Tab from the stop
+# before it: it rests with its focus ring wholly between the strip and the docked words. The band is read from the page
+# as drawn: the sticky strip's or road bar's foot, and the top of the words' void backing (4 px over its rule).
+STAGETAB_LIST_JS = """() => { const ok = e => e.tabIndex >= 0 && !e.disabled && !e.closest('[inert],[aria-hidden="true"]') && e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden';
+  const all = [...document.querySelectorAll('a[href],button,input,select,textarea,summary,[tabindex]')].filter(ok); window.__tab = all;
+  return all.map((e, i) => { const f = e.closest('figure.scene.js.docked'), st = f && f.querySelector(':scope>.sc-stage'); return st && st.contains(e) ? [i, f.id] : null; }).filter(Boolean); }"""
+STAGETAB_BAND = """const band = c => { const f = c.closest('figure.scene'), k = f.querySelector(':scope>.sc-keys'), s = document.querySelector('.strip'), b = document.querySelector('.lx-bar');
+    const lo = Math.max(s && getComputedStyle(s).position === 'sticky' ? s.getBoundingClientRect().bottom : 0, b && getComputedStyle(b).display !== 'none' ? b.getBoundingClientRect().bottom : 0);
+    return [lo, k.getBoundingClientRect().bottom - (parseFloat(f.style.getPropertyValue('--dock-h')) || 0) - 4]; };"""
+STAGETAB_PUT_JS = """([i, how, d]) => { """ + STAGETAB_BAND + """ const c = window.__tab[i];
+  for (let n = 0; n < 4; n++) { const r = c.getBoundingClientRect(), [lo, hi] = band(c), dd = d < 0 ? r.height + 8 : d;
+    const dy = how === 'below' ? r.top - (lo - dd) : r.bottom - (hi + dd); if (Math.abs(dy) < 1) break; scrollTo(0, Math.round(scrollY + dy)); }
+  const s = window.__tab[how === 'below' ? i + 1 : i - 1]; if (!s) return false; s.focus({ preventScroll: true }); return true; }"""
+STAGETAB_AT_JS = """i => { """ + STAGETAB_BAND + """ const c = window.__tab[i], r = c.getBoundingClientRect(), [lo, hi] = band(c);
+  return { on: document.activeElement === c, name: (c.getAttribute('aria-label') || c.value || c.textContent || c.tagName).trim().replace(/\\s+/g, ' ').slice(0, 18),
+    top: Math.round(r.top), bottom: Math.round(r.bottom), lo: Math.round(lo), hi: Math.round(hi), vh: innerHeight }; }"""
+
+
+def a_stagetab(v):
+    """Every control on a docked deep-dive stage (reduced motion), placed part (8 px) and wholly under the strip and
+    reached by Shift+Tab, and part and wholly under the docked words and reached by Tab: it rests with its 3 px focus
+    ring between the strip (or road bar) and the docked words. WebKit and Firefox left some under the strip
+    (engines.py stage-tab); Chromium is held to the same."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, n, scenes = [], 0, set()
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            pg.wait_for_timeout(200)
+            for i, sid in pg.evaluate(STAGETAB_LIST_JS):
+                scenes.add(f"{page.name}#{sid}")
+                for how in ("below", "above"):
+                    for d in (8, -1):
+                        if not pg.evaluate(STAGETAB_PUT_JS, [i, how, d]):
+                            continue
+                        pg.wait_for_timeout(50)
+                        pg.keyboard.press("Shift+Tab" if how == "below" else "Tab")
+                        pg.wait_for_timeout(120)
+                        r = pg.evaluate(STAGETAB_AT_JS, i)
+                        n += 1
+                        if not (r["on"] and r["top"] - 3 >= r["lo"] and r["bottom"] + 3 <= min(r["hi"], r["vh"])):
+                            bad.append(f"{page.name[:-5]}#{sid} '{r['name']}' from {how} ({'part' if d > 0 else 'wholly'} under): "
+                                       + (f"rests {r['top']}..{r['bottom']} in {r['lo']}..{r['hi']}" if r["on"] else "focus went elsewhere"))
+        finally:
+            ctx.close()
+    if not n:
+        return False, "no control on a docked stage to reach"
+    return not bad, (f"{n} landings of the controls on {len(scenes)} docked stages"
+                     + (f"; {len(bad)} cut: " + "; ".join(bad[:4]) if bad else "; every one rests whole between the strip and the docked words"))
+
+
+# A docked step whose focus names narrower parts after '|' (deep.js subject): where the whole (the first choice) is
+# taller than the band and the page keeps a narrower part, a reader who reaches the step with next from step 1 sees that
+# part whole and as much of the whole as it leaves room for, which is the whole band. The band is read as drawn: the
+# strip's or road bar's foot and the top of the step's docked words, less deep.js's 8 px (4 on a screen under 500 tall).
+DEEPREVEAL_LIST_JS = """() => Deep.scenes.filter(S => S.fig.classList.contains('docked') && S.spec.focus && typeof S.spec.focus === 'object')
+  .flatMap(S => S.keys.map((k, i) => [S.id, i, k.name, S.spec.focus[k.name]]).filter(x => typeof x[3] === 'string' && x[3].includes('|')))"""
+DEEPREVEAL_GO_JS = """([id, i]) => { const f = document.getElementById(id), pips = f.querySelectorAll('.sc-pip'); pips[0].click();
+  scrollTo(0, Math.round(f.getBoundingClientRect().top + scrollY)); const nx = f.querySelector('.sc-bar button[aria-label="next step"]');
+  for (let k = 0; k < i; k++) nx.click(); }"""
+DEEPREVEAL_AT_JS = """([id, i, sel]) => { const S = Deep.scenes.find(s => s.id === id), f = S.fig, alts = sel.split('|');
+  const vis = q => [...f.querySelectorAll(q)].filter(e => { if (!e.getClientRects().length) return false; const r = e.getBoundingClientRect(); return r.width > 0 || r.height > 0; });
+  const box = els => { let t = 1e9, b = -1e9; els.forEach(e => { const r = e.getBoundingClientRect(); t = Math.min(t, r.top); b = Math.max(b, r.bottom); }); return [t, b]; };
+  const full = vis(alts[0]), sub = S.subject(i), fb = box(full), sb = box(sub), m = innerHeight < 500 ? 4 : 8;
+  const s = document.querySelector('.strip'), b = document.querySelector('.lx-bar'), w = f.querySelector('.sc-keys li.on'), bar = f.querySelector('.sc-bar');
+  const lo = Math.max(s && getComputedStyle(s).position === 'sticky' ? s.getBoundingClientRect().bottom : 0, b && getComputedStyle(b).display !== 'none' ? b.getBoundingClientRect().bottom : 0) + m;
+  const hi = Math.min(w.getBoundingClientRect().top, bar.getBoundingClientRect().top) - 1 - m;
+  return { step: S.k, fell: full.length > 0 && (sub.length !== full.length || sub.some(e => !full.includes(e))), lo, hi, full: fb, sub: sb,
+    shown: Math.max(0, Math.min(fb[1], hi) - Math.max(fb[0], lo)), y: scrollY, maxY: document.scrollingElement.scrollHeight - innerHeight }; }"""
+
+
+def a_deepreveal(v):
+    """Every deep dive, reduced motion: each docked step whose subject names narrower parts, reached with next from
+    step 1. Where the page keeps a narrower part (the whole is taller than the band), that part rests whole between the
+    strip and the docked words, and the whole fills the band: at 667x375 inf-mem's s-extract check kept its outcome
+    lines in view but left the candidate chips the step lights above the screen, with 69 px of the band empty."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, rows, n_fell = [], [], 0
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            pg.wait_for_timeout(200)
+            for sid, i, name, sel in pg.evaluate(DEEPREVEAL_LIST_JS):
+                pg.evaluate(DEEPREVEAL_GO_JS, [sid, i])
+                pg.wait_for_timeout(250)
+                r = pg.evaluate(DEEPREVEAL_AT_JS, [sid, i, sel])
+                if r["step"] != i:
+                    bad.append(f"{page.name[:-5]} {sid} {name}: next from step 1 reached step {r['step'] + 1}")
+                    continue
+                if not r["fell"]:
+                    continue
+                n_fell += 1
+                (ft, fb), (nt, nb), lo, hi = r["full"], r["sub"], r["lo"], r["hi"]
+                # the most of the whole any place keeps: scrolled by s (within the page) with the kept part in the band
+                s0, s1 = max(nb - hi, -r["y"]), min(nt - lo, r["maxY"] - r["y"])
+                best = max(max(0, min(fb - x, hi) - max(ft - x, lo)) for x in (s0, s1, min(max(ft - lo, s0), s1), min(max(fb - hi, s0), s1)))
+                rows.append(f"{sid} {name}: whole {ft:.0f}..{fb:.0f}, kept part {nt:.0f}..{nb:.0f}, band {lo:.0f}..{hi:.0f}, {r['shown']:.0f} px of the whole shown of {best:.0f} possible")
+                if nt < lo - 2.5 or nb > hi + 2.5:               # reveal leaves a move under 2 px undone, inside the band's margin
+                    bad.append(rows[-1] + " (the kept part is cut)")
+                elif r["shown"] < best - 2:
+                    bad.append(rows[-1])
+        finally:
+            ctx.close()
+    if not n_fell and not bad:
+        return True, f"{len(pages)} deep dives: no docked step keeps a narrower part at this size"
+    return not bad, (f"{n_fell} steps keep a narrower part" + (f"; {len(bad)} bad: " + "; ".join(bad[:4]) if bad else "; each whole, the whole filling the band: " + "; ".join(rows[:4])))
+
+
+LABELOVER_LIST_JS = "() => __deep.scenes().map(s => s.id)"
+LABELOVER_AT_JS = """(i) => { const f = document.getElementById(i), out = [];
+  const ls = [...f.querySelectorAll('.sc-l,.sc-r')].filter(e => !e.hidden && e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden'
+    && +getComputedStyle(e).opacity > 0.05 && e.textContent.trim());
+  const r = ls.map(e => e.getBoundingClientRect());
+  for (let a = 0; a < ls.length; a++) for (let b = a + 1; b < ls.length; b++) {
+    const w = Math.min(r[a].right, r[b].right) - Math.max(r[a].left, r[b].left), h = Math.min(r[a].bottom, r[b].bottom) - Math.max(r[a].top, r[b].top);
+    if (w > 2 && h > 2) out.push("'" + ls[a].textContent.trim().slice(0, 18) + "' over '" + ls[b].textContent.trim().slice(0, 18) + "' " + Math.round(w) + 'x' + Math.round(h)); }
+  return [ls.length, out]; }"""
+LABELOVER_STEP_JS = """([i, how]) => { const b = document.getElementById(i).querySelector('.sc-bar button[aria-label="' + how + '"]');
+  if (!b || b.disabled || b.getAttribute('aria-disabled') === 'true' || !b.getClientRects().length) return false; b.click(); return true; }"""
+
+
+def a_labelover(v):
+    """Every deep dive on a fresh load, reduced motion: at every step of every scene, no figure's words lie over
+    another's by more than 2 px each way. freeflow-deep's ladder once placed a wrapped row at its unwrapped width, so the
+    stage's edge moved it in over its own time ('2.10 s')."""
+    pages = sorted((v.run.root / "work").glob("*-deep.html"))
+    if not pages:
+        return False, "no work/*-deep.html to check"
+    base = v.run.url.rsplit("/", 1)[0]
+    bad, n_steps, n_labels = [], 0, 0
+    for page in pages:
+        ctx = v.run.browser.new_context(reduced_motion="reduce", **VIEWPORTS[v.name])
+        pg = ctx.new_page()
+        try:
+            pg.goto(f"{base}/work/{page.name}", wait_until="load")
+            pg.wait_for_function("() => window.__deep && document.fonts.status === 'loaded'")
+            pg.wait_for_timeout(200)
+            for sid in pg.evaluate(LABELOVER_LIST_JS):
+                pg.evaluate("i => document.getElementById(i).scrollIntoView({block: 'center'})", sid)
+                pg.wait_for_timeout(200)
+                for _ in range(40):
+                    if not pg.evaluate(LABELOVER_STEP_JS, [sid, "previous step"]):
+                        break
+                    pg.wait_for_timeout(40)
+                step = 1
+                while True:
+                    pg.wait_for_timeout(100)
+                    n, over = pg.evaluate(LABELOVER_AT_JS, sid)
+                    n_steps += 1; n_labels += n
+                    bad += [f"{page.name[:-5]} {sid} step {step}: {o}" for o in over]
+                    if step >= 40 or not pg.evaluate(LABELOVER_STEP_JS, [sid, "next step"]):
+                        break
+                    step += 1
+        finally:
+            ctx.close()
+    if not n_labels:
+        return False, f"{len(pages)} deep dives: the probe sees no figure words"
+    return not bad, (f"{len(pages)} deep dives, {n_steps} steps, {n_labels} words placed" + (f"; {len(bad)} over another: " + "; ".join(bad[:6]) if bad else "; none over another"))
+
+
 # name -> (viewports, fn, what it measures)
 ASSERTIONS = [
     ("selfchecks", ("desktop",), a_selfchecks, "every __walk.selfChecks() entry ok, and nand/em/kronos-dd/lock equal answers known outside the page"),
@@ -5220,6 +6330,25 @@ ASSERTIONS = [
     ("deep", ("desktop", "phone"), a_deep, "each deep dive under work/: every figure.scene became a scene with a stepper (none failed its self-check); with motion each one, scrolled to, starts playing on its own and moves on a step, and a square, next and prev move it; with reduced motion each rests on a step and the stepper still moves it; every stepper control is a focusable native button, and Space on a square and Enter on next move the scene"),
     ("pathfree", ("desktop", "phone", "desktop-1280", "phone-640", "land"), a_pathfree, "every station played, each state edge, the map, the pull-back and the phone rests reached from above, from below, after an oscillation, by a jump and fresh, and each station just built and at its dim edge by a flick up from the foot and an oscillation of flicks: settled screenshots (canvas, native layers, DOM) differ by at most 24 CSS px, every station's cells all in their own tokens before its dim edge and all one down past it (stationInk().tone), no horizontal overflow, the loop stops; playback, blooms, plants and hidden ants are the designed history and are excluded by name"),
     ("perf", ("phone", "desktop"), None, "p95 script time per frame <= 2.3ms at 4x CPU throttle, median of 3 runs (rAF and scroll handlers, timed in-page)"),
+    ("keyleave", ("desktop", "phone"), a_keyleave, "Tab onto each card's first link at its hold, then scroll on to the next station's hold: the card is drawn as it is with nothing focused (its rows go with their figure)"),
+    ("placerows", ("phone-320", "zoom-250", "zoom-200-1200", "zoom-150", "zoom-400-236"), a_placerows, "at the map, the places under a short screen's band: no two rows overlap, a click along each label lands on its own place, each row's keyboard focus ring is whole on screen, and no row the screen has room for is hidden"),
+    ("mapcapone", ("phone-320", "zoom-250"), a_mapcapone, "at rest on the map, with motion and under reduced motion, the canvas caption row does not draw the line #mapcap shows"),
+    ("slackfocus", ("phone", "desktop"), a_slackfocus, "emergence-deep, the keyboard on fig 18's timing slider, turned or zoomed into the other arrangement: the same slider keeps focus and the reader's setting, and the next arrow key moves it"),
+    ("deeplive", ("phone", "desktop"), a_deeplive, "emergence-deep, turned or zoomed into the other arrangement: the reader's live runs (sc-or, sc-sap, sc-gates) stay live with their toggles as set; fig 18's next clear uses the reader's timing"),
+    ("deepstep", ("desktop", "phone"), a_deepstep, "every deep dive by keyboard (reduced motion): Enter on prev to the first step and on next to the last leaves focus on that button, never on the page, and 6 more presses there (a held key) move neither the step nor the keyboard"),
+    ("deepcost", ("phone",), a_deepcost, "emergence-deep on a phone turned on its side and back, reduced motion: the script the turns run (Chromium's ScriptDuration, unthrottled) is at most 3x that of four resizes that stay in their arrangement, median of 3 fresh loads; the longest task printed"),
+    ("deepfit", ("phone-se", "land-se", "land"), a_deepfit, "each deep dive at 375x667, 667x375 and 844x390: its own __deep.selfCheck() holds in full (every docked step's subject between the strip and its docked words, every field above them, every scene fitting or docked); a step held for a decision (DOCK_PENDING) is listed, not held, and fails once it fits"),
+    ("deepresize", ("zoom-200-1280", "phone-se", "phone"), a_deepresize, "each deep dive opened at 1280x800 and zoomed to 640x400, and opened at 667x375 and 844x390 and turned upright, from the top and mid-page: once settled every scene's canvas, stage, labels, dock, step, mode and inputs equal a fresh load at that size, no canvas past its stage; freeflow's sc-gates toggle keeps its run and the keyboard across the move"),
+    ("striptab", ("desktop", "phone", "zoom-200"), a_striptab, "every case study and deep dive mid-page: Tab from the skip link through the strip's three links leaves scrollY where it was while the strip is sticky, and brings each link on screen where it scrolls away"),
+    ("docktab", ("phone", "phone-se", "zoom-200"), a_docktab, "every docked scene on every deep dive, its top 60 px down: Tab along its stuck stepper, first live control to last, leaves scrollY where it was, each control whole on screen"),
+    ("forcedmarks", ("desktop", "phone"), a_forcedmarks, "forced colours on every case study and custos-code-deep: each fill-only mark (result bars and key, hero key, leader, step mark and clock slider, beat squares, tiles, checks, scene bars, custos-code-deep's gate and exit mark) still paints, counted mark by mark against the same count with forced colours off"),
+    ("jumprest", ("desktop", "phone"), a_jumprest, "motion on, every case study: a rail click (desktop) or #link (phone) to each section heading still waiting for its arrival rests it at the scroll padding (56 px), not 16 px higher"),
+    ("skipmid", ("desktop", "phone"), a_skipmid, "mid-story, Enter on the skip link: the story's start, no hash in the address, and the next Tab on the hero's first link"),
+    ("forcedctl", ("desktop", "phone"), a_forcedctl, "forced colours, dark and light, on every work page: each range input still draws its track and thumb, each checkbox still looks different checked and unchecked, and custos-code-deep's fig 1 error outline and flagged claim still look different off and on, counted against the same with forced colours off"),
+    ("replaykey", ("desktop", "phone"), a_replaykey, "every deep dive, motion on: Tab onto a scene's replay and Enter plays it again with the keyboard still on replay, drawn; a click on replay still hides it while the scene plays"),
+    ("stagetab", ("phone", "zoom-200", "land"), a_stagetab, "every control on a docked deep-dive stage, placed part and wholly under the strip and reached by Shift+Tab, and under the docked words and reached by Tab, rests with its focus ring between the strip and the docked words"),
+    ("deepreveal", ("land-se", "land", "phone-se"), a_deepreveal, "each deep dive, reduced motion: a docked step whose subject names narrower parts, reached with next from step 1, keeps the part the page falls back to whole between the strip and the docked words and shows as much of the whole subject as that leaves room for (the whole band)"),
+    ("labelover", ("phone", "desktop"), a_labelover, "every deep dive on a fresh load, reduced motion: at every step of every scene, no figure's words lie over another's by more than 2 px each way"),
 ]
 # --fast: the checks an edit breaks most often, on fewer viewports, in under a minute.
 # Everything else (sweeps of the holds, pixels, perf) needs the full run.

@@ -64,7 +64,7 @@
 .ob-n{outline:1px solid var(--v-cyan);outline-offset:1px}
 .mk{display:inline-block;width:8px;height:8px;background:var(--mk,var(--copper));flex:none}
 .mk.g{--mk:var(--v-green)} .mk.r{--mk:var(--v-red)} .mk.a{--mk:var(--v-amber)} .mk.c{--mk:var(--v-cyan)} .mk.p{--mk:var(--v-violet)} .mk.m{--mk:var(--muted)}
-@media (forced-colors:active){ .mk,.vd::before,.sc-art .ar .pl,.lp-wall .pl,.lp-back .pl,.fl::before,.lnk::before,.tr-n.exit .ex::before,.lp-wall .wl,.sp-cut{forced-color-adjust:none} }   /* a mark says what it is by its colour: forced colours keep it */
+@media (forced-colors:active){ .mk,.vd::before,.sc-art .ar .pl,.lp-wall .pl,.lp-back .pl,.fl::before,.lnk::before,.tr-n.exit .ex::before,.lp-wall .wl,.sp-cut,.bar .fill{forced-color-adjust:none} }   /* a mark says what it is by its colour: forced colours keep it */
 .cx-in{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--rule)}
 .cx-in label{display:flex;gap:8px;align-items:center}
 .cx-in input[type=text],.cx-in select{min-height:24px;padding:3px 8px;background:var(--void);border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 13px/16px var(--mono);max-width:100%}
@@ -174,6 +174,7 @@
 .jg-g{display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:24px}
 .jg-g .gt{width:2px;height:64px;background:var(--copper);transition:background-color var(--t-ui) var(--ease-enter)}
 .jg-g .gt.pass{background:var(--v-green)} .jg-g .gt.route{background:var(--ink)}
+@media (forced-colors:active){ .jg-g .gt{forced-color-adjust:none} .jg-g .gt.route{background:CanvasText} }   /* the gate says its state by its colour: forced colours keep it, and route's ink is the text colour */
 .jg-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:4px 0 3px;border-bottom:1px solid var(--rule);min-height:41px}
 .jg-row .ct{flex:1 1 160px;color:var(--ink)}
 .jg-row .tag{flex-basis:100%}                                /* each row's tier and rows on a line of their own, clear of the stage's edge */
@@ -247,6 +248,13 @@ button.vd:focus-visible{outline-offset:-4px}   /* and inside a verdict button, w
 #sc-gap .err{outline-color:transparent}
 #sc-gap[data-key="result"] .err,#sc-gap[data-key="report"] .err,#sc-gap[data-key="gap"] .err{outline-color:var(--v-red)}
 #sc-gap[data-key="report"] .say,#sc-gap[data-key="gap"] .say{border-color:var(--trail)}
+/* forced colours paint every outline and border in the text colour, a transparent one too: the error's outline is drawn
+   only from its step on, and both marks take the highlight colour when they turn on */
+@media (forced-colors:active){
+  #sc-gap .err{outline-style:none}
+  #sc-gap[data-key="result"] .err,#sc-gap[data-key="report"] .err,#sc-gap[data-key="gap"] .err{outline-style:solid;outline-color:Highlight}
+  #sc-gap[data-key="report"] .say,#sc-gap[data-key="gap"] .say{border-color:Highlight}
+}
 .gap-line{bottom:40px}
 /* fig 2: the resolved slice, and its zoom */
 .fill.f-res{left:auto;right:0;background:transparent;border:2px solid var(--v-green);box-sizing:border-box}
@@ -331,6 +339,7 @@ button.vd:focus-visible{outline-offset:-4px}   /* and inside a verdict button, w
   .tr-n:not(.lit) .ans{display:none}
   .tr-n.lit .ex{display:none}
   .tr-n.exit .ans::before{content:"";display:inline-block;width:8px;height:8px;margin-right:8px;background:var(--mk)}
+  @media (forced-colors:active){ .tr-n.exit .ans::before{forced-color-adjust:none} }   /* the exit's mark, as on a wide screen */
   .tr-n .ans,.tr-n .ex{min-height:16px;font:400 11px/16px var(--mono);letter-spacing:.04em}
   /* the verdict sits under the claim it answers, holding its tallest step, so the two share a screen above the docked
      words however far down the walk ends */

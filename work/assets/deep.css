@@ -147,7 +147,10 @@
 .sc-bar{display:flex;flex-wrap:wrap;align-items:center;column-gap:8px;row-gap:8px;margin-top:16px}
 .sc-btn{min-height:24px;padding:4px 8px;background:none;border:1px solid var(--copper);border-radius:0;color:var(--ink);font:400 11px/16px var(--mono);letter-spacing:.04em;cursor:pointer}
 .sc-btn:hover,.sc-btn:focus-visible{border-color:var(--ink)}
-.sc-btn:disabled{color:var(--muted);border-color:var(--rule);cursor:default}
+/* off: a native disabled input, or prev at the first step and next at the last, which stay focusable (aria-disabled) so
+   the keyboard on one is not dropped; forced colours draw only :disabled in GrayText, so the other is given it there */
+.sc-btn:disabled,.sc-btn[aria-disabled="true"]{color:var(--muted);border-color:var(--rule);cursor:default}
+@media (forced-colors:active){ .sc-btn[aria-disabled="true"]{color:GrayText;border-color:GrayText} }
 .sc-n{min-width:88px;text-align:center;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--body);font-variant-numeric:tabular-nums;white-space:nowrap}
 .sc-pips{display:flex;flex-wrap:wrap;margin:0 0 0 8px;padding:0;list-style:none}
 .sc-pip{display:grid;place-items:center;width:24px;height:24px;margin:0;padding:0;background:none;border:0;border-radius:0;cursor:pointer}
@@ -163,7 +166,9 @@
 .scene.js{display:flex;flex-direction:column}
 .scene.js>*{order:2}
 .scene.js>.sc-stage,.scene.js>.sc-prog{order:0} .scene.js>.sc-keys{order:1} .scene.js>.sc-bar{order:3} .scene.js>.sc-cap{order:4}
-.sc-bar .replay.idle{visibility:hidden}
+/* replay waits hidden while the scene plays on its own; one pressed from the keyboard stays drawn until the keyboard
+   leaves it, so focus is never dropped to the page (a click or tap still hides it) */
+.sc-bar .replay.idle:not(:focus-visible){visibility:hidden}
 /* the figure's caption: number in the accent, mono 11 */
 .sc-cap{margin-top:16px;max-width:576px;font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .sc-cap .n{color:var(--accent);margin-right:8px}
@@ -241,12 +246,23 @@
   .scene.js.docked>.sc-keys{max-width:none} .scene.js.docked>.sc-keys li{max-width:576px}
   .scene.js.docked>.sc-keys li.on{pointer-events:auto}
   .scene.js.docked>.sc-bar{position:sticky;bottom:0;z-index:2;margin-top:0;padding:8px 0;background:var(--void)}
+  /* its controls rest 8 px over the screen's foot, inside the 32 px the page's foot padding and their own margin ask
+     for: they ask for 4 px, so Tab along a stuck stepper never scrolls the page under it, and one still coming up from
+     below with its focus ring cut by the foot is brought up, where it sticks */
+  .scene.js.docked>.sc-bar button{scroll-margin-bottom:-12px}
   /* a control on the stage that focus scrolls into view comes to rest above the docked words and stepper, never under them */
   .scene.js.docked>.sc-stage :is(a[href],button,input,select,summary,textarea){scroll-margin-bottom:calc(var(--dock-b,0px) + var(--dock-h,0px) + 8px)}
+  /* nor under the strip: Firefox leaves a focused control where it is while more than 16 px of it shows inside the
+     padded screen less its margins, so one cut by the strip (a check's card, 54 px tall, with 34 px showing) stayed cut.
+     A top margin of its height (deep.js sets --ctl-h) less 13 px moves it whenever its ring is cut */
+  .scene.js.docked>.sc-stage :is(a[href],button,input,select,summary,textarea){scroll-margin-top:max(16px,var(--ctl-h,0px) - 13px)}
   /* and while the keyboard is on one (or a field takes typing), the row mask that hides rows cut by the docked words'
      edge (deep.js rowMask) is lifted, so the control and its ring are drawn */
   .scene.js.docked>.sc-stage:has(:focus-visible){clip-path:none!important}
-  html:has(.scene.js.docked>.sc-stage :focus-visible){scroll-padding-bottom:var(--dock-max,16px)}
+  /* the page's scroll padding then keeps the docked words' height below, and 16 px more under the strip: WebKit brings a
+     text field into view by its caret, 8 px inside its box, and only to that padding, whatever the field's own margin.
+     One rule for both: each html:has() is weighed again on every restyle, and a second one doubled a turned phone's restyle */
+  html:has(.scene.js.docked>.sc-stage :focus-visible){scroll-padding-top:calc(var(--strip) + 32px);scroll-padding-bottom:var(--dock-max,16px)}
   /* while a scene comes up from the foot of the screen, its words are held at the scene's top: the stepper is held
      under them (its margin keeps it a words-height below the scene's top, the words' negative margin gives the space
      back), so it never covers their last lines */
@@ -256,7 +272,11 @@
    and the strip scrolls away with the header, so a long read's figures get the screen between the top and the dock;
    the road bar, left alone, sits flush with the top of the screen; a docked svg composition a little taller than the band
    is scaled to end above the longest step's words (deep.js sets --art-fit) */
-@media (max-height:499px){ .scene.js.docked>.sc-keys li{max-width:none} .scene.js.docked .sc-art>svg{max-height:var(--art-fit,none);width:auto;max-width:100%} .strip{position:relative} .dd-toc{top:24px;max-height:calc(100vh - 48px)} .lx-bar{top:0} }
+@media (max-height:499px){ .scene.js.docked>.sc-keys li{max-width:none} .scene.js.docked .sc-art>svg{max-height:var(--art-fit,none);width:auto;max-width:100%} .strip{position:relative} .dd-toc{top:24px;max-height:calc(100vh - 48px)} .lx-bar{top:0}
+  /* the strip scrolls away here, so its links are brought back into view like any other link */
+  .strip a{scroll-margin-top:16px}
+  /* and a control on a docked stage keeps 16 px more than the road bar's padding (see above) */
+  html:has(.scene.js.docked>.sc-stage :focus-visible){scroll-padding-top:32px} }
 /* the strip carries 4 px of void under its edge, so a part scrolling away under it never leaves a sliver of itself */
 .strip::after{content:"";position:absolute;left:0;right:0;top:100%;height:4px;background:var(--void);pointer-events:none}
 /* a phone on its side at 720 px or wider has the wide composition's 704 px: its figures draw that one, shorter than

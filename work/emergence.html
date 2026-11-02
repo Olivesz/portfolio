@@ -36,6 +36,7 @@
 .em-l,.em-r,.em-tt{position:absolute;white-space:nowrap}
 .em-l{font:400 11px/16px var(--mono);letter-spacing:.04em;color:var(--muted)}
 .em-ld{position:absolute;width:1px;background:var(--muted)}
+@media (forced-colors:active){ .em-ld{forced-color-adjust:none} }   /* a leader is drawn by its fill: forced colours keep it */
 .em-r{font:400 13px/24px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
 .em-r .o{color:var(--accent)} .em-tt .o{color:var(--accent)}
 .em-tt{display:grid;grid-auto-rows:var(--dy,24px);align-items:center;font:400 13px/16px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums;white-space:pre}
@@ -57,6 +58,11 @@
 .em-scrub::-moz-range-track{height:1px;background:var(--copper)}
 .em-scrub::-moz-range-thumb{width:8px;height:16px;border:0;border-radius:0;background:var(--accent)}
 .em-scrub:focus-visible{outline:1px solid var(--ink);outline-offset:2px}
+/* forced colours paint a fill in the page's own colour: the clock's track and handle take the text colour */
+@media (forced-colors:active){
+  .em-scrub::-webkit-slider-runnable-track{background:CanvasText} .em-scrub::-webkit-slider-thumb{background:CanvasText}
+  .em-scrub::-moz-range-track{background:CanvasText} .em-scrub::-moz-range-thumb{background:CanvasText}
+}
 @media (pointer:coarse){ .em-scrub{height:32px} }
 /* the result's scope note names its first word in body ink */
 .lx-foot .em-sc{color:var(--body)}
